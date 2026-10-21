@@ -174,7 +174,7 @@ Komponentlarni ertaroq ko'rish uchun: **4 → 5 → 3 → 6 → 7**.
 - [x] CI: GitHub Actions (`pnpm check` + playground build)
 - [x] Qadoqlar (`pnpm pack`) alohida Vite ilovaga o'rnatilib sinaldi: tsc (skipLibCheck: false), build, brauzerda stillar, toast, confirm
 - [x] GitHub'ga yuborildi: https://github.com/Akhatmirzo/akhatmirzo-toolkit (public)
-- [ ] npm'ga nashr — 2FA kodi bilan foydalanuvchi o'zi: `pnpm build` + `pnpm changeset publish --otp=KOD`
+- [x] npm'ga nashr qilindi: @akhatmirzo/core, hooks, tokens, ui — 0.1.0 (registry'dan o'rnatib sinaldi)
 - [ ] Birinchi haqiqiy loyihada sinab ko'rish
 
 ---
