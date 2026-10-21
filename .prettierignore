@@ -1,0 +1,7 @@
+dist
+coverage
+pnpm-lock.yaml
+.changeset/*.md
+# Hujjatlar va prototiplar qo'lda formatlangan
+*.md
+prototype

@@ -1,0 +1,22 @@
+{
+  "name": "@akhatmirzo/core",
+  "version": "0.0.0",
+  "description": "Toza TypeScript yordamchi funksiyalar: formatlash, validatsiya, matn",
+  "type": "module",
+  "sideEffects": false,
+  "files": [
+    "dist"
+  ],
+  "exports": {
+    ".": {
+      "source": "./src/index.ts",
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "types": "./dist/index.d.ts",
+  "scripts": {
+    "build": "tsup",
+    "typecheck": "tsc -p tsconfig.json"
+  }
+}
