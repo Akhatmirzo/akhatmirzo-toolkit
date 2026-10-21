@@ -9,11 +9,11 @@
 
 Barcha boshqaruv elementlari (Button, Input, Select, ...) bir xil balandlikda:
 
-| `size` | Balandlik | Matn | Gorizontal padding | Ikonka |
-|---|---|---|---|---|
-| `sm` | 32px | `text-sm` (14) | 12px | 16px |
-| `md` **(default)** | 40px | `text-sm` (14) | 16px | 18px |
-| `lg` | 48px | `text-base` (16) | 20px | 20px |
+| `size` | Balandlik | Matn | Padding — Button | Padding — Input / Select | Ikonka |
+|---|---|---|---|---|---|
+| `sm` | 32px | `text-sm` (14) | 12px | 10px (`px-2.5`) | 16px |
+| `md` **(default)** | 40px | `text-sm` (14) | 16px | 12px (`px-3`) | 18px |
+| `lg` | 48px | `text-base` (16) | 20px | 16px (`px-4`) | 20px |
 
 > Shu tufayli `<Input size="md" />` va `<Button size="md" />` bir qatorda tekis turadi.
 

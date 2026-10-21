@@ -1,6 +1,6 @@
 # Shaxsiy Frontend Kutubxona — Umumiy Reja
 
-> Holat: **✅ Dizayn yakunlandi → keyingisi: 2-bosqich, infratuzilma** · Oxirgi yangilanish: 2026-10-21
+> Holat: **✅ Infratuzilma tayyor → keyingisi: 4-bosqich `tokens`, keyin 5-bosqich `ui` 1-daraja** · Oxirgi yangilanish: 2026-10-21
 > Dizayn: [DESIGN.md](DESIGN.md) · Spetsifikatsiyalar: [specs/](specs/) · Prototip: [prototype/index.html](prototype/index.html)
 
 ---
@@ -129,17 +129,24 @@ Har bir interaktiv komponent quyidagilarga javob berishi **shart**:
 
 *Natija:* `DESIGN.md`, `specs/`, `prototype/`
 
-### 🏗️ 2-bosqich: Loyiha infratuzilmasi  ← **KEYINGI**
-- [ ] Monorepo (pnpm workspaces), TypeScript, ESLint, Prettier
-- [ ] tsup build, Vitest, Changesets
-- [ ] Playground ilova (Vite + React + Tailwind v4)
-- [ ] Git repo + GitHub
+### ✅ 2-bosqich: Loyiha infratuzilmasi
+- [x] Monorepo (pnpm workspaces), TypeScript 6.0, ESLint 10, Prettier
+- [x] tsup build, Vitest 5 (projects), Changesets 3
+- [x] Playground ilova (Vite 8 + React 19 + Tailwind v4.3) — paketlar `source` sharti orqali `src` dan
+- [x] Git repo (lokal)
+- [ ] GitHub — `gh auth login` qilingach ulanadi
 
-### 🧰 3-bosqich: `core` + `hooks`
+*Eslatma:* Turborepo qo'shilmadi — 4 ta paketda `pnpm -r` yetarli; build sekinlashsa qo'shiladi.
+
+### 🔀 Bajarish tartibi o'zgartirildi (2026-10-21)
+Komponentlarni ertaroq ko'rish uchun: **4 → 5 → 3 → 6 → 7**.
+1-darajadagi komponentlarga faqat tokenlar va `cn()` kerak; `core`/`hooks` funksiyalari esa ularni ishlatadigan 2–3-daraja komponentlaridan oldin, aniq ehtiyoj bilan yoziladi.
+
+### 🧰 3-bosqich: `core` + `hooks`  ← 4- va 5-bosqichdan keyin
 - [ ] `core` funksiyalari + testlar
 - [ ] `hooks` + testlar
 
-### 🎨 4-bosqich: `tokens`
+### 🎨 4-bosqich: `tokens`  ← **KEYINGI**
 - [ ] Dizayndagi qiymatlarni CSS variables'ga o'tkazish
 - [ ] Tailwind `@theme` integratsiyasi, dark mode
 

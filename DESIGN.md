@@ -62,6 +62,7 @@
 | `--color-primary-soft` | indigo-50 `#EEF2FF` | indigo-950 `#1E1B4B` | Ikkilamchi tugma, badge foni |
 | `--color-primary-soft-foreground` | indigo-700 `#4338CA` | indigo-300 `#A5B4FC` | Ikkilamchi tugma matni |
 | `--color-ring` | indigo-500 / 40% | indigo-400 / 50% | Focus ring |
+| `--color-link` | indigo-600 `#4F46E5` | indigo-300 `#A5B4FC` | Matnli havola, `Button variant="link"` |
 | `--color-success-soft` / `-foreground` | `#ECFDF5` / `#047857` | `#022C22` / `#6EE7B7` | Status badge |
 | `--color-warning-soft` / `-foreground` | `#FFFBEB` / `#B45309` | `#451A03` / `#FCD34D` | Status badge |
 | `--color-danger-soft` / `-foreground` | `#FFF1F2` / `#BE123C` | `#4C0519` / `#FDA4AF` | Status badge, xato |
@@ -104,6 +105,8 @@
 | `text-2xl` | 24 / 32 | 600 | -0.01em | Bo'lim sarlavhasi |
 | `text-3xl` | 30 / 36 | 700 | -0.02em | Sahifa sarlavhasi |
 | `text-4xl` | 36 / 40 | 700 | -0.02em | Katta sarlavha |
+
+> Qalinlik mavzuda `text-*` ga bog'lanmagan — har bir komponent `font-*` ni o'zi belgilaydi (yuqoridagi ustun tavsiya).
 
 ### 3.3 Qalinliklar
 `400` oddiy · `500` o'rta (tugma, label) · `600` yarim qalin (sarlavha) · `700` qalin (katta sarlavha)
@@ -150,8 +153,9 @@ Soya rangi qora emas, **slate-900** (`rgb(15 23 42)`) — yumshoqroq ko'rinadi.
 | `--shadow-xl` | `0 24px 48px -12px rgb(15 23 42 / .18)` | Modal, drawer |
 
 **Dark mode:** soyalar qorong'i fonda deyarli ko'rinmaydi, shuning uchun balandlik **1px chegara halqasi + ochroq fon** bilan ko'rsatiladi:
-- `xs–md`: `0 0 0 1px slate-700` + qora soya (30–40%), fon `slate-800`
-- `lg–xl`: `0 0 0 1px slate-600` + qora soya (45–55%), fon bir pog'ona ochroq (`#273449`)
+- `xs–sm`: faqat qora soya (30–35%) — ular chegarali elementlarda (input, karta) ishlatiladi, halqa qo'shilsa chegara 2px bo'lib qoladi
+- `md`: `0 0 0 1px slate-700` + qora soya (40%), fon `slate-800`
+- `lg–xl`: `0 0 0 1px slate-600` + qora soya (45–55%), fon bir pog'ona ochroq (`slate-750` `#273449`)
 
 ---
 
