@@ -44,7 +44,7 @@
 | **Sahifalash** | Pastda: "1–10 / 248", sahifa raqamlari, sahifa hajmi Select'i (10/25/50/100) |
 | **Ustunlar** | "Ustunlar" menyusi — ko'rsatish/yashirish (CheckboxItem) |
 | **Server rejimi** | `manual` — saralash/filtr/sahifa holati `onStateChange` orqali tashqariga, ma'lumot serverdan |
-| **Yopishqoq** | Sarlavha `sticky`; ixtiyoriy birinchi ustun `sticky` (gorizontal scroll'da) |
+| **Yopishqoq** | Sarlavha `sticky` (faqat `maxHeight` yoki `virtual` bilan — aks holda sahifa scroll'iga yopishmaydi); ixtiyoriy birinchi ustun `sticky` (gorizontal scroll'da) |
 
 ### Holatlar
 | Holat | Ko'rinish |
@@ -86,7 +86,8 @@
 | `loadingMore` | `boolean` | — pastda Spinner qatori |
 
 - DataTable'da `virtual` prop orqali ham ishlatiladi (sahifalash o'rniga)
-- `scrollToIndex(i)` — ref orqali
+- `ref` — `VirtualListHandle { element, scrollToIndex, scrollToOffset, measure }`; DOM elementi — `handle.element` (00-conventions §4 dan istisno)
+- `onEndReached` — `loadingMore` true → false bo'lib uzunlik o'zgarmasa qayta chaqiriladi (qayta urinish)
 
 ---
 
@@ -112,6 +113,7 @@
 - Input ko'rinishida, chapda 📅 ikonka
 - **Qo'lda yozish mumkin**: `25.12.2026` — yozilgan sana tahlil qilinadi; noto'g'ri bo'lsa `invalid`
 - Yozish paytida niqob: `__.__.____`
+- Range: trigger — tugma; qo'lda yozish (`__.__.____` niqobi) faqat single `DatePicker`'da
 
 ### Kalendar (Popover ichida)
 - **O'zbekcha:** oylar — Yanvar … Dekabr; kunlar — Du Se Ch Pa Ju Sh Ya; hafta **dushanbadan** boshlanadi

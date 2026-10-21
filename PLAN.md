@@ -1,6 +1,6 @@
 # Shaxsiy Frontend Kutubxona — Umumiy Reja
 
-> Holat: **✅ 2–6-bosqichlar tayyor → keyingisi: 7-bosqich `ui` 3-daraja** · Oxirgi yangilanish: 2026-10-21
+> Holat: **✅ 0–7-bosqichlar tayyor (32 komponent) → keyingisi: 8-bosqich, nashr va hujjat** · Oxirgi yangilanish: 2026-10-21
 > Dizayn: [DESIGN.md](DESIGN.md) · Spetsifikatsiyalar: [specs/](specs/) · Prototip: [prototype/index.html](prototype/index.html)
 
 ---
@@ -161,10 +161,14 @@ Komponentlarni ertaroq ko'rish uchun: **4 → 5 → 3 → 6 → 7**.
 - [x] Modal ichidagi panellar modal qatlamida ochiladi (lib/modal-layer.ts)
 - [x] Playground: "Overlay" va "Navigatsiya" bo'limlari; provider'lar ilova ildizida
 
-### 🧩 7-bosqich: `ui` — 3-daraja  ← **KEYINGI**
-- [ ] Murakkab komponentlar (DataTable, DatePicker, FileUpload, ...)
+### ✅ 7-bosqich: `ui` — 3-daraja
+- [x] DataTable (TanStack Table v9), VirtualList (TanStack Virtual)
+- [x] Calendar, DatePicker, DateRangePicker (react-day-picker v10, o'zbekcha)
+- [x] MaskedInput, PhoneInput, MoneyInput, CardInput, OtpInput (+ ResendTimer), FileUpload
+- [x] CommandPalette (Ctrl+K)
+- [x] Playground: "Ma'lumotlar" bo'limi
 
-### 📦 8-bosqich: Nashr va hujjat
+### 📦 8-bosqich: Nashr va hujjat  ← **KEYINGI**
 - [ ] npm'ga publish (`@nom/*` scoped)
 - [ ] README'lar, ishlatish misollari
 - [ ] Birinchi haqiqiy loyihada sinab ko'rish

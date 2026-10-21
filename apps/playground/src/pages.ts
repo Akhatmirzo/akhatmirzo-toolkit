@@ -24,6 +24,7 @@ export const GROUPS = [
   "Ko'rsatish",
   'Overlay',
   'Navigatsiya',
+  "Ma'lumotlar",
   'Funksiyalar',
 ];
 

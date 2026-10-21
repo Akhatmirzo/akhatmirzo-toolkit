@@ -38,3 +38,12 @@ export * from './components/combobox';
 // Navigatsiya (2-daraja)
 export * from './components/tabs';
 export * from './components/accordion';
+
+// Murakkab (3-daraja)
+export * from './components/data-table';
+export * from './components/virtual-list';
+export * from './components/date-picker';
+export * from './components/masked-input';
+export * from './components/otp-input';
+export * from './components/file-upload';
+export * from './components/command-palette';
