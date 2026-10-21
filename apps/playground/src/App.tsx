@@ -1,12 +1,27 @@
-import { cn } from '@akhatmirzo/ui';
+import { cn, ConfirmProvider, Toaster, TooltipProvider } from '@akhatmirzo/ui';
 import { useEffect } from 'react';
 import { groupedPages, pages } from './pages';
 import { hrefFor, useSlug } from './router';
 import { type Theme, useTheme } from './theme';
+import { useToasterSettings } from './toaster-settings';
 
 const groups = groupedPages();
 
+// Ilova ildizida bir marta: tooltiplar orasida kechikishsiz o'tish, confirm() va toast() uchun
 export function App() {
+  const toaster = useToasterSettings();
+
+  return (
+    <TooltipProvider>
+      <ConfirmProvider>
+        <Shell />
+        <Toaster position={toaster.position} closeButton={toaster.closeButton} />
+      </ConfirmProvider>
+    </TooltipProvider>
+  );
+}
+
+function Shell() {
   const slug = useSlug();
   const page = pages.find((p) => p.slug === slug);
 

@@ -45,6 +45,17 @@ pnpm dev          # playground → http://localhost:5173
 
 Dark mode: `<html data-theme="dark">`.
 
+Ilova ildizida bir marta (`toast()`, `confirm()` va tooltiplar shularsiz ishlamaydi):
+
+```tsx
+<TooltipProvider>
+  <ConfirmProvider>
+    <App />
+    <Toaster position="bottom-right" />
+  </ConfirmProvider>
+</TooltipProvider>
+```
+
 ## Qanday ishlaydi
 
 - **Paketlar manbadan ishlatiladi.** Har bir paketning `exports` ida `source` sharti bor; playground (Vite) va TypeScript shu shart orqali `src/*.ts` ni oladi, shuning uchun ishlab chiqishda build kerak emas. Nashr qilinganda `dist/` ishlatiladi.

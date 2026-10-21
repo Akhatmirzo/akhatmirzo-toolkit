@@ -1,6 +1,6 @@
 # Shaxsiy Frontend Kutubxona — Umumiy Reja
 
-> Holat: **✅ 2–5-bosqichlar tayyor → keyingisi: 6-bosqich `ui` 2-daraja (Radix)** · Oxirgi yangilanish: 2026-10-21
+> Holat: **✅ 2–6-bosqichlar tayyor → keyingisi: 7-bosqich `ui` 3-daraja** · Oxirgi yangilanish: 2026-10-21
 > Dizayn: [DESIGN.md](DESIGN.md) · Spetsifikatsiyalar: [specs/](specs/) · Prototip: [prototype/index.html](prototype/index.html)
 
 ---
@@ -155,11 +155,13 @@ Komponentlarni ertaroq ko'rish uchun: **4 → 5 → 3 → 6 → 7**.
 - [x] `cn()` helper, `cva` asoslari
 - [x] 15 ta komponent + playground'da namoyish
 
-### 🧩 6-bosqich: `ui` — 2-daraja  ← **KEYINGI**
-- [ ] Radix asosidagi interaktiv komponentlar
-- [ ] Har biri UX standarti (4-bo'lim) bo'yicha tekshiriladi
+### ✅ 6-bosqich: `ui` — 2-daraja
+- [x] Radix asosidagi 10 ta komponent: Dialog (+ confirm()), Drawer, Popover, Tooltip, Toast, DropdownMenu, Select, Combobox, Tabs, Accordion
+- [x] Umumiy overlay animatsiyalari (tokens) va panel stillari (lib/overlay-styles.ts)
+- [x] Modal ichidagi panellar modal qatlamida ochiladi (lib/modal-layer.ts)
+- [x] Playground: "Overlay" va "Navigatsiya" bo'limlari; provider'lar ilova ildizida
 
-### 🧩 7-bosqich: `ui` — 3-daraja
+### 🧩 7-bosqich: `ui` — 3-daraja  ← **KEYINGI**
 - [ ] Murakkab komponentlar (DataTable, DatePicker, FileUpload, ...)
 
 ### 📦 8-bosqich: Nashr va hujjat

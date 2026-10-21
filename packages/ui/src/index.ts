@@ -22,3 +22,19 @@ export * from './components/avatar';
 export * from './components/card';
 export * from './components/skeleton';
 export * from './components/divider';
+
+// Overlay (2-daraja)
+export * from './components/dialog';
+export * from './components/drawer';
+export * from './components/popover';
+export * from './components/tooltip';
+export * from './components/toast';
+
+// Menyu va tanlash (2-daraja)
+export * from './components/dropdown-menu';
+export * from './components/select';
+export * from './components/combobox';
+
+// Navigatsiya (2-daraja)
+export * from './components/tabs';
+export * from './components/accordion';

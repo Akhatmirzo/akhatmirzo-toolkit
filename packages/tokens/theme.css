@@ -123,6 +123,7 @@
   --ak-primary-soft-foreground: var(--ak-indigo-700);
   --ak-ring: rgb(99 102 241 / 0.4);
   --ak-link: var(--ak-indigo-600);
+  --ak-overlay: rgb(15 23 42 / 0.4);
 
   --ak-danger: var(--ak-rose-600);
   --ak-danger-hover: var(--ak-rose-700);
@@ -175,6 +176,7 @@
   --ak-primary-soft-foreground: var(--ak-indigo-300);
   --ak-ring: rgb(129 140 248 / 0.5);
   --ak-link: var(--ak-indigo-300);
+  --ak-overlay: rgb(2 6 23 / 0.6);
 
   --ak-danger: var(--ak-rose-500);
   --ak-danger-hover: var(--ak-rose-600);
@@ -232,6 +234,7 @@
   --color-primary-soft-foreground: var(--ak-primary-soft-foreground);
   --color-ring: var(--ak-ring);
   --color-link: var(--ak-link);
+  --color-overlay: var(--ak-overlay);
 
   --color-danger: var(--ak-danger);
   --color-danger-hover: var(--ak-danger-hover);
@@ -306,6 +309,152 @@
     to {
       transform: translateX(100%);
     }
+  }
+
+  /*
+   * Overlay animatsiyalari (DESIGN.md 5.4). Radix yopilishda animationend'ni kutadi, shuning
+   * uchun transition emas, keyframe ishlatiladi: data-[state=open]:animate-*-in,
+   * data-[state=closed]:animate-*-out. Popover siljish yo'nalishi: --ak-popover-shift
+   * (default -4px — pastdan ochilganda tepadan tushadi; side=top uchun 4px bering).
+ * Toast yo'nalishi: --ak-toast-shift (default 16px — pastdan; tepadagi toast uchun -16px).
+   */
+  --animate-overlay-in: ak-fade-in var(--ak-duration-moderate) var(--ak-ease-out);
+  --animate-overlay-out: ak-fade-out var(--ak-duration-base) var(--ak-ease-in);
+  --animate-dialog-in: ak-dialog-in var(--ak-duration-moderate) var(--ak-ease-out);
+  --animate-dialog-out: ak-dialog-out var(--ak-duration-base) var(--ak-ease-in);
+  --animate-popover-in: ak-popover-in var(--ak-duration-base) var(--ak-ease-out);
+  --animate-popover-out: ak-popover-out var(--ak-duration-fast) var(--ak-ease-in);
+  --animate-tooltip-in: ak-tooltip-in var(--ak-duration-base) var(--ak-ease-out);
+  --animate-tooltip-out: ak-fade-out var(--ak-duration-fast) var(--ak-ease-in);
+  --animate-slide-in-right: ak-slide-in-right var(--ak-duration-slow) var(--ak-ease-out);
+  --animate-slide-out-right: ak-slide-out-right var(--ak-duration-moderate) var(--ak-ease-in);
+  --animate-slide-in-left: ak-slide-in-left var(--ak-duration-slow) var(--ak-ease-out);
+  --animate-slide-out-left: ak-slide-out-left var(--ak-duration-moderate) var(--ak-ease-in);
+  --animate-slide-in-bottom: ak-slide-in-bottom var(--ak-duration-slow) var(--ak-ease-out);
+  --animate-slide-out-bottom: ak-slide-out-bottom var(--ak-duration-moderate) var(--ak-ease-in);
+  --animate-slide-in-top: ak-slide-in-top var(--ak-duration-slow) var(--ak-ease-out);
+  --animate-slide-out-top: ak-slide-out-top var(--ak-duration-moderate) var(--ak-ease-in);
+  --animate-toast-in: ak-toast-in var(--ak-duration-slow) var(--ak-ease-spring);
+  --animate-toast-out: ak-toast-out var(--ak-duration-moderate) var(--ak-ease-in);
+  --animate-accordion-down: ak-accordion-down var(--ak-duration-moderate) var(--ak-ease-in-out);
+  --animate-accordion-up: ak-accordion-up var(--ak-duration-moderate) var(--ak-ease-in-out);
+
+  @keyframes ak-fade-in {
+    from {
+      opacity: 0;
+    }
+  }
+  @keyframes ak-fade-out {
+    to {
+      opacity: 0;
+    }
+  }
+  @keyframes ak-dialog-in {
+    from {
+      opacity: 0;
+      transform: scale(0.95);
+    }
+  }
+  @keyframes ak-dialog-out {
+    to {
+      opacity: 0;
+      transform: scale(0.95);
+    }
+  }
+  @keyframes ak-popover-in {
+    from {
+      opacity: 0;
+      transform: translateY(var(--ak-popover-shift, -4px)) scale(0.98);
+    }
+  }
+  @keyframes ak-popover-out {
+    to {
+      opacity: 0;
+      transform: translateY(var(--ak-popover-shift, -4px)) scale(0.98);
+    }
+  }
+  @keyframes ak-tooltip-in {
+    from {
+      opacity: 0;
+      transform: translateY(2px);
+    }
+  }
+  @keyframes ak-slide-in-right {
+    from {
+      transform: translateX(100%);
+    }
+  }
+  @keyframes ak-slide-out-right {
+    to {
+      transform: translateX(100%);
+    }
+  }
+  @keyframes ak-slide-in-left {
+    from {
+      transform: translateX(-100%);
+    }
+  }
+  @keyframes ak-slide-out-left {
+    to {
+      transform: translateX(-100%);
+    }
+  }
+  @keyframes ak-slide-in-bottom {
+    from {
+      transform: translateY(100%);
+    }
+  }
+  @keyframes ak-slide-out-bottom {
+    to {
+      transform: translateY(100%);
+    }
+  }
+  @keyframes ak-slide-in-top {
+    from {
+      transform: translateY(-100%);
+    }
+  }
+  @keyframes ak-slide-out-top {
+    to {
+      transform: translateY(-100%);
+    }
+  }
+  @keyframes ak-toast-in {
+    from {
+      opacity: 0;
+      transform: translateY(var(--ak-toast-shift, 16px));
+    }
+  }
+  @keyframes ak-toast-out {
+    to {
+      opacity: 0;
+      transform: translateY(var(--ak-toast-shift, 16px));
+    }
+  }
+  @keyframes ak-accordion-down {
+    from {
+      height: 0;
+      opacity: 0;
+    }
+    to {
+      height: var(--radix-accordion-content-height);
+    }
+  }
+  @keyframes ak-accordion-up {
+    from {
+      height: var(--radix-accordion-content-height);
+    }
+    to {
+      height: 0;
+      opacity: 0;
+    }
+  }
+}
+
+/* Harakatni kamaytirish: overlay animatsiyalari faqat qisqa opacity bo'lib qoladi */
+@media (prefers-reduced-motion: reduce) {
+  [data-state] {
+    --ak-popover-shift: 0px;
   }
 }
 
