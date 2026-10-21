@@ -173,8 +173,8 @@ Komponentlarni ertaroq ko'rish uchun: **4 → 5 → 3 → 6 → 7**.
 - [x] Paket metama'lumotlari, LICENSE, har bir paket uchun README, CHANGELOG (Changesets)
 - [x] CI: GitHub Actions (`pnpm check` + playground build)
 - [x] Qadoqlar (`pnpm pack`) alohida Vite ilovaga o'rnatilib sinaldi: tsc (skipLibCheck: false), build, brauzerda stillar, toast, confirm
-- [ ] GitHub'ga yuborish (Akhatmirzo/akhatmirzo-toolkit)
-- [ ] npm'ga nashr (`pnpm -r publish`)
+- [x] GitHub'ga yuborildi: https://github.com/Akhatmirzo/akhatmirzo-toolkit (public)
+- [ ] npm'ga nashr — 2FA kodi bilan foydalanuvchi o'zi: `pnpm build` + `pnpm changeset publish --otp=KOD`
 - [ ] Birinchi haqiqiy loyihada sinab ko'rish
 
 ---
