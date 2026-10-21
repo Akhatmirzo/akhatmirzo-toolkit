@@ -7,7 +7,7 @@
    export const meta: PageMeta = { title: 'Button', group: 'Asoslar', order: 1 };
    export default function Page() { /* ... */ }
    ```
-3. `group` — faqat shulardan biri (sidebar shu tartibda): `Asoslar`, `Tokenlar`, `Formalar`, `Tanlov`, `Ko'rsatish`. Guruh ichida `order` bo'yicha saralanadi (`Asoslar` da `0` band — "Umumiy").
+3. `group` — faqat shulardan biri (sidebar shu tartibda): `Asoslar`, `Tokenlar`, `Formalar`, `Tanlov`, `Ko'rsatish`, `Funksiyalar` (`@akhatmirzo/core` va `@akhatmirzo/hooks` namoyishlari). Guruh ichida `order` bo'yicha saralanadi (`Asoslar` da `0` band — "Umumiy").
 4. Komponentlar `@akhatmirzo/ui` dan import qilinadi: `import { Button } from '@akhatmirzo/ui';` (src'dan, HMR bilan).
 5. Demo yordamchilari — `../demo`:
    - `<DemoPage title description>` — sahifa ildizi (bitta).

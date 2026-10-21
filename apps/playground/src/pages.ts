@@ -16,7 +16,7 @@ export interface PageEntry extends PageMeta {
   Component: ComponentType;
 }
 
-export const GROUPS = ['Asoslar', 'Tokenlar', 'Formalar', 'Tanlov', "Ko'rsatish"];
+export const GROUPS = ['Asoslar', 'Tokenlar', 'Formalar', 'Tanlov', "Ko'rsatish", 'Funksiyalar'];
 
 export const DEFAULT_SLUG = 'overview';
 

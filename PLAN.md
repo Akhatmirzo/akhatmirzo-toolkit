@@ -1,6 +1,6 @@
 # Shaxsiy Frontend Kutubxona — Umumiy Reja
 
-> Holat: **✅ Infratuzilma tayyor → keyingisi: 4-bosqich `tokens`, keyin 5-bosqich `ui` 1-daraja** · Oxirgi yangilanish: 2026-10-21
+> Holat: **✅ 2–5-bosqichlar tayyor → keyingisi: 6-bosqich `ui` 2-daraja (Radix)** · Oxirgi yangilanish: 2026-10-21
 > Dizayn: [DESIGN.md](DESIGN.md) · Spetsifikatsiyalar: [specs/](specs/) · Prototip: [prototype/index.html](prototype/index.html)
 
 ---
@@ -142,19 +142,20 @@ Har bir interaktiv komponent quyidagilarga javob berishi **shart**:
 Komponentlarni ertaroq ko'rish uchun: **4 → 5 → 3 → 6 → 7**.
 1-darajadagi komponentlarga faqat tokenlar va `cn()` kerak; `core`/`hooks` funksiyalari esa ularni ishlatadigan 2–3-daraja komponentlaridan oldin, aniq ehtiyoj bilan yoziladi.
 
-### 🧰 3-bosqich: `core` + `hooks`  ← 4- va 5-bosqichdan keyin
-- [ ] `core` funksiyalari + testlar
-- [ ] `hooks` + testlar
+### ✅ 3-bosqich: `core` + `hooks`
+- [x] `core`: matn (normalizeUz, kirill↔lotin, searchMatch, fuzzyMatch, slugify, truncate), formatlash (pul, telefon, karta, sana, timeAgo, fayl hajmi), validatsiya (telefon, email, karta, parol), utils, storage, api mijozi + testlar
+- [x] `hooks`: useDebounce, useControllableState, useLocalStorage, useMediaQuery, useClickOutside, useCopyToClipboard, useIntersection, useAsync, usePagination, useHotkeys + testlar
+- [x] Playground: "Funksiyalar" bo'limi (Matn, Formatlash, Validatsiya, Hooklar)
 
-### 🎨 4-bosqich: `tokens`  ← **KEYINGI**
-- [ ] Dizayndagi qiymatlarni CSS variables'ga o'tkazish
-- [ ] Tailwind `@theme` integratsiyasi, dark mode
+### ✅ 4-bosqich: `tokens`
+- [x] Dizayndagi qiymatlarni CSS variables'ga o'tkazish
+- [x] Tailwind `@theme` integratsiyasi, dark mode, `focus-ring` utilitalari
 
-### 🧩 5-bosqich: `ui` — 1-daraja
-- [ ] `cn()` helper, `cva` asoslari
-- [ ] Asosiy komponentlar + playground'da namoyish
+### ✅ 5-bosqich: `ui` — 1-daraja
+- [x] `cn()` helper, `cva` asoslari
+- [x] 15 ta komponent + playground'da namoyish
 
-### 🧩 6-bosqich: `ui` — 2-daraja
+### 🧩 6-bosqich: `ui` — 2-daraja  ← **KEYINGI**
 - [ ] Radix asosidagi interaktiv komponentlar
 - [ ] Har biri UX standarti (4-bo'lim) bo'yicha tekshiriladi
 
