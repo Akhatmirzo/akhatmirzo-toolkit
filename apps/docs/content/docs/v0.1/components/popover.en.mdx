@@ -1,0 +1,171 @@
+---
+title: Popover
+description: A floating panel for interactive content — filters, small forms and settings.
+---
+
+<ComponentPreview name="popover/filter" />
+
+## Import
+
+```tsx
+import { Popover } from '@akhatmirzo/ui';
+```
+
+## When to use
+
+- **Small interactive content** — a price filter, a color picker, a couple of settings. The page
+  stays usable and the panel opens next to its trigger.
+- **Text-only hints** are a job for [`Tooltip`](./tooltip.mdx). A Popover opens on click and can
+  hold buttons and fields.
+- **A list of commands** ("Edit", "Delete") belongs in a [`DropdownMenu`](./dropdown-menu.mdx),
+  which comes with menu roles and keyboard navigation.
+- **Large forms or tasks that need full attention** — use a [`Dialog`](./dialog.mdx).
+
+## Anatomy
+
+| Part              | What it does                                                 |
+| ----------------- | ------------------------------------------------------------ |
+| `Popover`         | State: `open`, `defaultOpen`, `onOpenChange`                 |
+| `Popover.Trigger` | Opens the panel (use with `asChild`)                         |
+| `Popover.Content` | The panel: portal, positioning, animation, optional arrow    |
+| `Popover.Close`   | Closes the panel when clicked (use with `asChild`)           |
+| `Popover.Anchor`  | Positions the panel against another element than the trigger |
+
+```tsx
+<Popover>
+  <Popover.Trigger asChild>
+    <Button>Price</Button>
+  </Popover.Trigger>
+  <Popover.Content align="start" aria-label="Price filter">
+    {/* form */}
+  </Popover.Content>
+</Popover>
+```
+
+The panel is 288px wide by default (`w-72`). Pass a `className` such as `w-56` or `w-auto` to
+change it.
+
+## Placement and arrow
+
+`side` is `top`, `right`, `bottom` (default) or `left`; `align` is `start`, `center` (default) or
+`end`. The panel sits 6px from the trigger and flips to the opposite side when it hits the edge
+of the screen. `arrow` draws an arrow pointing at the trigger.
+
+<ComponentPreview name="popover/placement" />
+
+## Settings panel
+
+An icon button with a few `Switch` controls — a typical small settings panel. When it opens,
+focus moves to the first element inside.
+
+<ComponentPreview name="popover/settings" />
+
+## Close on pick
+
+Anything wrapped in `Popover.Close asChild` closes the panel when clicked — handy for color or
+option pickers. In controlled mode (`open` + `onOpenChange`) you can also close it from code,
+which is how the form in the first example works.
+
+<ComponentPreview name="popover/color-picker" />
+
+<Callout title="Inside a dialog">
+  A Popover inside a `Dialog` or `Drawer` moves to the modal layer and opens above it — no extra
+  setup.
+</Callout>
+
+## Props
+
+### Popover
+
+Accepts the props of the Radix Popover `Root`.
+
+<PropsTable
+  rows={[
+    { name: 'open', type: 'boolean', description: 'Whether it is open (controlled)' },
+    { name: 'defaultOpen', type: 'boolean', description: 'Open on first render' },
+    {
+      name: 'onOpenChange',
+      type: '(open: boolean) => void',
+      description: 'Called when it opens or closes',
+    },
+    {
+      name: 'modal',
+      type: 'boolean',
+      default: 'false',
+      description: 'true — blocks interaction with the rest of the page',
+    },
+  ]}
+/>
+
+### Popover.Content
+
+Also accepts the rest of the Radix `Popover.Content` props (`onOpenAutoFocus`,
+`onEscapeKeyDown`, `alignOffset`, `avoidCollisions` ...), `<div>` attributes and `ref`.
+
+<PropsTable
+  rows={[
+    {
+      name: 'side',
+      type: "'top' | 'right' | 'bottom' | 'left'",
+      default: "'bottom'",
+      description: 'Preferred side',
+    },
+    {
+      name: 'align',
+      type: "'start' | 'center' | 'end'",
+      default: "'center'",
+      description: 'Alignment along the trigger',
+    },
+    { name: 'sideOffset', type: 'number', default: '6', description: 'Gap to the trigger, px' },
+    {
+      name: 'collisionPadding',
+      type: 'number',
+      default: '8',
+      description: 'Minimum distance from the screen edge, px',
+    },
+    {
+      name: 'arrow',
+      type: 'boolean',
+      default: 'false',
+      description: 'Arrow pointing at the trigger',
+    },
+    {
+      name: 'container',
+      type: 'HTMLElement | null',
+      description: 'Portal container (defaults to document.body)',
+    },
+  ]}
+/>
+
+### Popover.Trigger, Popover.Close, Popover.Anchor
+
+All three accept `asChild`. With a `Popover.Anchor`, the panel is positioned against that
+element instead of the trigger (a whole table row, for example).
+
+### Data attributes
+
+| Attribute    | On             | Value                               |
+| ------------ | -------------- | ----------------------------------- |
+| `data-state` | trigger, panel | `open` · `closed`                   |
+| `data-side`  | panel          | `top` · `right` · `bottom` · `left` |
+| `data-align` | panel          | `start` · `center` · `end`          |
+
+## Keyboard
+
+| Key               | Action                                         |
+| ----------------- | ---------------------------------------------- |
+| `Enter` / `Space` | Opens or closes the panel from the trigger     |
+| `Tab`             | Moves between elements inside the panel        |
+| `Esc`             | Closes the panel; focus returns to the trigger |
+
+The panel also closes when focus leaves it or the user clicks outside.
+
+## Accessibility
+
+- **Wiring.** The trigger gets `aria-haspopup="dialog"`, `aria-expanded` and `aria-controls`;
+  the panel is `role="dialog"`. Give the panel an `aria-label` (for example "Price filter") so
+  screen readers announce it by name.
+- **Focus.** On open, focus moves to the first element inside the panel; on close, it returns to
+  the trigger.
+- **Icon-only triggers** need an `aria-label` on the `IconButton`.
+- **The arrow** is purely decorative.

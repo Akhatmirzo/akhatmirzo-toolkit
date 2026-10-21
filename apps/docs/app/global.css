@@ -1,0 +1,59 @@
+@import 'tailwindcss';
+@import '@fontsource-variable/manrope';
+@import 'fumadocs-ui/css/lib/default-colors.css';
+@import 'fumadocs-ui/css/preset.css';
+@import '@akhatmirzo/tokens/theme.css';
+
+/* Kutubxona komponentlaridagi Tailwind klasslarini skanerlash (workspace'da — paket manbasi) */
+@source '../node_modules/@akhatmirzo/ui/src';
+
+/*
+ * Fumadocs ranglari (fd-*) — kutubxona tokenlariga ulangan: sayt indigo + slate dizaynida.
+ * next-themes <html> ga ham `class="dark"`, ham `data-theme="dark"` qo'yadi, shuning uchun
+ * `--ak-*` qiymatlari shu elementda allaqachon to'g'ri rejimda.
+ */
+:root,
+.dark {
+  --color-fd-background: var(--ak-background);
+  --color-fd-foreground: var(--ak-text);
+  --color-fd-muted: var(--ak-surface-muted);
+  --color-fd-muted-foreground: var(--ak-text-muted);
+  --color-fd-popover: var(--ak-surface-raised);
+  --color-fd-popover-foreground: var(--ak-text);
+  --color-fd-card: var(--ak-surface);
+  --color-fd-card-foreground: var(--ak-text);
+  --color-fd-border: var(--ak-border);
+  --color-fd-primary: var(--ak-primary);
+  --color-fd-primary-foreground: var(--ak-primary-foreground);
+  --color-fd-secondary: var(--ak-surface-muted);
+  --color-fd-secondary-foreground: var(--ak-text);
+  --color-fd-accent: var(--ak-surface-muted);
+  --color-fd-accent-foreground: var(--ak-text);
+  --color-fd-ring: var(--ak-indigo-400);
+  --color-fd-overlay: var(--ak-overlay);
+  --color-fd-info: var(--ak-info);
+  --color-fd-warning: var(--ak-warning);
+  --color-fd-error: var(--ak-danger);
+  --color-fd-success: var(--ak-success);
+}
+
+/* Qorong'i fonda indigo-600 matn sifatida xira — havolalar va faol band uchun ochroq indigo */
+.dark {
+  --color-fd-primary: var(--ak-indigo-300);
+  --color-fd-primary-foreground: var(--ak-indigo-950);
+}
+
+html {
+  scrollbar-gutter: stable;
+}
+
+html > body[data-scroll-locked] {
+  margin-right: 0px !important;
+  --removed-body-scroll-bar-size: 0px !important;
+}
+
+@layer base {
+  body {
+    @apply font-sans antialiased;
+  }
+}

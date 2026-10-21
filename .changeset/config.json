@@ -1,5 +1,5 @@
 {
   "baseBranch": "main",
   "access": "public",
-  "ignore": ["playground"]
+  "ignore": ["playground", "docs"]
 }

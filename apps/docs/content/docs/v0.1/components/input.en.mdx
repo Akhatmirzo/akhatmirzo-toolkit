@@ -1,0 +1,149 @@
+---
+title: Input
+description: A single-line text field with icons, prefix/suffix, a clear button and a password toggle.
+---
+
+<ComponentPreview name="input/basic" />
+
+## Import
+
+```tsx
+import { Input } from '@akhatmirzo/ui';
+```
+
+## When to use
+
+- **For short, single-line values** — names, emails, search, amounts. For multi-line text, use
+  [`Textarea`](./textarea.mdx).
+- **Always inside a [`Field`](./field.mdx)** — the label, hint and error get wired up for you. For
+  a field without a visible label (like search), pass `aria-label`.
+- **For strict formats** like phone numbers, card numbers and dates,
+  [`MaskedInput`](./masked-input.mdx) is a better fit.
+- **A `placeholder` is not a label** — it disappears as soon as you type. Use it for an example
+  value: "90 123 45 67".
+
+## Sizes
+
+32, 40 (default) and 48px — the same as `Button`, so they line up in a row.
+
+<ComponentPreview name="input/sizes" />
+
+## Icons, prefix and suffix
+
+`leftIcon` / `rightIcon` are decorative icons (`aria-hidden`). `prefix` / `suffix` are fixed
+text inside the field, set off by a divider: a country code, a currency, a domain.
+
+<ComponentPreview name="input/addons" />
+
+## Clearing (`clearable`)
+
+With `clearable`, a ✕ button appears whenever the field has a value. `Esc` clears it too. Clearing
+fires a regular `input` event, so `onChange` runs in controlled mode, followed by `onClear`.
+
+<ComponentPreview name="input/clearable" />
+
+## Password
+
+With `type="password"`, a show/hide button appears on the right automatically.
+
+<ComponentPreview name="input/password" />
+
+## States
+
+Error (`invalid`), disabled (`disabled`) and read-only (`readOnly`). Inside a `Field`, passing
+`error` turns on `invalid` automatically.
+
+<ComponentPreview name="input/states" />
+
+## With Field
+
+<ComponentPreview name="input/with-field" />
+
+## Props
+
+`Input` accepts every other `<input>` attribute (`type`, `name`, `placeholder`, `inputMode`,
+`autoComplete`, `onChange` ...), and `ref` points to the inner `<input>`. `className` goes to the
+outer container; use `inputClassName` for the inner element.
+
+<PropsTable
+  rows={[
+    {
+      name: 'size',
+      type: "'sm' | 'md' | 'lg'",
+      default: "'md'",
+      description: 'Height: 32 / 40 / 48px',
+    },
+    {
+      name: 'invalid',
+      type: 'boolean',
+      description: 'Error state (automatic inside a Field with an error)',
+    },
+    { name: 'leftIcon', type: 'ReactNode', description: 'Icon on the left' },
+    { name: 'rightIcon', type: 'ReactNode', description: 'Icon on the right' },
+    {
+      name: 'prefix',
+      type: 'ReactNode',
+      description: 'Text on the left with a divider (e.g. "+998")',
+    },
+    {
+      name: 'suffix',
+      type: 'ReactNode',
+      description: 'Text on the right with a divider (e.g. "so\'m")',
+    },
+    {
+      name: 'clearable',
+      type: 'boolean',
+      default: 'false',
+      description: 'Shows ✕ when there is a value; Esc clears too',
+    },
+    { name: 'onClear', type: '() => void', description: 'Called after clearing' },
+    {
+      name: 'labels',
+      type: '{ clear?: string; showPassword?: string; hidePassword?: string }',
+      default:
+        "{ clear: 'Tozalash', showPassword: \"Parolni ko'rsatish\", hidePassword: 'Parolni yashirish' }",
+      description: 'aria-label text for the built-in buttons',
+    },
+    {
+      name: 'inputClassName',
+      type: 'string',
+      description: 'Class for the inner <input>',
+    },
+    {
+      name: 'type',
+      type: 'string',
+      default: "'text'",
+      description: "'password' adds the show/hide button",
+    },
+    {
+      name: 'readOnly',
+      type: 'boolean',
+      default: 'false',
+      description: 'Read-only; muted background, no clear button',
+    },
+  ]}
+/>
+
+### Data attributes
+
+Set on the outer container (`data-slot="input"`):
+
+| Attribute       | Value                   |
+| --------------- | ----------------------- |
+| `data-size`     | `sm` · `md` · `lg`      |
+| `data-invalid`  | Present when invalid    |
+| `data-disabled` | Present when `disabled` |
+| `data-readonly` | Present when `readOnly` |
+
+## Accessibility
+
+- **Native `<input>`** — browser autofill, validation and keyboard behavior all keep working.
+- **With Field**, `id`, `aria-describedby`, `aria-invalid` and `aria-required` are wired up
+  automatically.
+- **The focus ring** lives on the container (`:focus-within`), so icons and prefixes stay inside
+  the ring.
+- **`Esc`** clears the value (only with `clearable` and a non-empty field). On an empty field the
+  event bubbles up — closing a `Dialog`, for example.
+- **The clear button** is not in the `Tab` order (`tabIndex={-1}`); `Esc` covers it from the
+  keyboard. The password toggle is focusable and its `aria-label` follows its state.
+- **Icons** are `aria-hidden` — if one carries meaning, put it in the label or `aria-label`.

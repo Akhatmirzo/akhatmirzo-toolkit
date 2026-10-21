@@ -1,0 +1,106 @@
+---
+title: Switch
+description: 'Darhol ta''sir qiladigan sozlamalar uchun yoqish/o''chirish tugmasi (role="switch").'
+---
+
+<ComponentPreview name="switch/basic" />
+
+## Import
+
+```tsx
+import { Switch } from '@akhatmirzo/ui';
+```
+
+## Qachon ishlatish
+
+- **Sozlama darhol kuchga kirsa** — bildirishnomalar, qorong'i mavzu, do'konni ochish/yopish.
+  Foydalanuvchi "Saqlash" ni bosishi shart emas.
+- **"Saqlash" tugmasi bor formalarda** [`Checkbox`](./checkbox.mdx) ishlating — u yerda tanlov
+  yuborilgandagina kuchga kiradi.
+- **Label holatni emas, sozlamani aytsin:** "Bildirishnomalar", "Yoqilgan/O'chirilgan" emas —
+  holatni switch'ning o'zi ko'rsatadi.
+- **O'zgarish vaqt talab qilsa** (serverga so'rov), natijani [`toast`](./toast.mdx) bilan
+  bildiring yoki xatoda qiymatni qaytaring.
+
+## O'lchamlar
+
+`sm` — 32×18px, `md` (standart) — 40×24px. Tugmacha spring animatsiyasi bilan siljiydi.
+
+<ComponentPreview name="switch/sizes" />
+
+## Izoh bilan
+
+`description` label ostida chiqadi va `aria-describedby` orqali bog'lanadi.
+
+<ComponentPreview name="switch/description" />
+
+## Boshqariladigan
+
+`checked` va `onCheckedChange` — qiymat sizning holatingizda. Boshqarilmaydigan rejim uchun
+`defaultChecked`.
+
+<ComponentPreview name="switch/controlled" />
+
+## Holatlar
+
+`disabled` — xira, bosilmaydi. `invalid` — trek atrofida qizil halqa, input'da `aria-invalid`.
+
+<ComponentPreview name="switch/states" />
+
+## Field bilan
+
+`Field` ning label'i switch'ga `htmlFor` orqali bog'lanadi, izoh esa `aria-describedby` ga
+tushadi — `Switch` ning o'z `label` i shart emas.
+
+<ComponentPreview name="switch/with-field" />
+
+## Props
+
+`Switch` qolgan barcha `<input>` atributlarini (`name`, `value`, `form`, `onChange` ...) qabul
+qiladi; `ref` ichki `<input>` ga tushadi. `className` esa ildiz `<label>` ga beriladi.
+
+<PropsTable
+  rows={[
+    { name: 'checked', type: 'boolean', description: 'Boshqariladigan qiymat' },
+    {
+      name: 'defaultChecked',
+      type: 'boolean',
+      default: 'false',
+      description: "Boshlang'ich qiymat (boshqarilmaydigan rejim)",
+    },
+    {
+      name: 'onCheckedChange',
+      type: '(checked: boolean) => void',
+      description: 'Foydalanuvchi almashtirganda',
+    },
+    { name: 'label', type: 'ReactNode', description: 'Switch yonidagi matn' },
+    { name: 'description', type: 'ReactNode', description: 'Label ostidagi izoh' },
+    {
+      name: 'size',
+      type: "'sm' | 'md'",
+      default: "'md'",
+      description: "O'lcham: 32×18 / 40×24px",
+    },
+    {
+      name: 'invalid',
+      type: 'boolean',
+      description: "Xato holati (Field ichida error bo'lsa avtomatik)",
+    },
+    { name: 'disabled', type: 'boolean', description: "O'chirilgan holat" },
+    { name: 'className', type: 'string', description: 'Ildiz <label> elementi klassi' },
+  ]}
+/>
+
+### Data atributlari
+
+Ildiz `<label>` da: `data-state` (`checked` · `unchecked`), `data-size` (`sm` · `md`),
+`data-disabled`, `data-invalid`.
+
+## Accessibility
+
+- **Native `<input type="checkbox" role="switch">`** — ekran o'quvchi "switch, yoqilgan" deb
+  o'qiydi, `Space` bilan almashtiriladi, forma bilan yuboriladi.
+- **Label bosilganda ham** almashadi — butun komponent `<label>` ichida.
+- **Bosish maydoni** trekdan kattaroq — barmoq bilan oson tegiladi.
+- **Fokus halqasi** faqat klaviatura bilan kelganda chiqadi.
+- **Label'siz switch** uchun `aria-label` bering.

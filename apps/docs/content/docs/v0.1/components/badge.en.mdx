@@ -1,0 +1,111 @@
+---
+title: Badge
+description: A small label for statuses, categories and filter tags — 6 colors, 3 variants and a remove button.
+---
+
+<ComponentPreview name="badge/colors" />
+
+## Import
+
+```tsx
+import { Badge } from '@akhatmirzo/ui';
+```
+
+## When to use
+
+- **To show a status** — "Paid", "Pending", "Cancelled". Match the color to the meaning:
+  `success` for done, `warning` for waiting, `danger` for errors or cancellations.
+- **Don't rely on color alone.** The text should state the status by itself, so it reads right
+  for people who can't tell the colors apart.
+- **For filter tags** — `onRemove` adds a ✕ button.
+- **It isn't clickable.** A badge is a label; use a [`Button`](./button.mdx) for actions.
+- **Keep it short** — one or two words. Long text gets truncated.
+
+## Colors
+
+`color`: `neutral` (default), `primary`, `success`, `warning`, `danger` and `info`. Colors come
+from the tokens, so contrast holds in dark mode too.
+
+## Variants
+
+`variant`: `soft` (default) has a light background, `solid` a strong one that draws more
+attention, and `outline` a border with colored text.
+
+<ComponentPreview name="badge/variants" />
+
+## Sizes
+
+`sm` is compact, for table rows; `md` is the default.
+
+<ComponentPreview name="badge/sizes" />
+
+## Dot
+
+`dot` adds a colored dot on the left — handy for live states like "Online" or "Active".
+
+<ComponentPreview name="badge/dot" />
+
+## Removing
+
+When `onRemove` is set, a ✕ button appears. Make its `aria-label` specific with `labels.remove` —
+"Remove Toshkent filter" is clearer than just "Remove".
+
+<ComponentPreview name="badge/removable" />
+
+## Props
+
+`Badge` accepts every other `<span>` attribute except `color`, which is taken by the color
+variant.
+
+<PropsTable
+  rows={[
+    {
+      name: 'color',
+      type: "'neutral' | 'primary' | 'success' | 'warning' | 'danger' | 'info'",
+      default: "'neutral'",
+      description: 'Color (meaning)',
+    },
+    {
+      name: 'variant',
+      type: "'soft' | 'solid' | 'outline'",
+      default: "'soft'",
+      description: 'Look',
+    },
+    {
+      name: 'size',
+      type: "'sm' | 'md'",
+      default: "'md'",
+      description: 'Size',
+    },
+    {
+      name: 'dot',
+      type: 'boolean',
+      default: 'false',
+      description: 'Colored dot on the left',
+    },
+    {
+      name: 'onRemove',
+      type: '(event: MouseEvent<HTMLButtonElement>) => void',
+      description: 'When set, shows the ✕ button',
+    },
+    {
+      name: 'labels',
+      type: '{ remove?: string }',
+      default: "{ remove: 'Olib tashlash' }",
+      description: 'aria-label for the ✕ button',
+    },
+  ]}
+/>
+
+### Data attributes
+
+On the root element: `data-variant`, `data-color` and `data-size`. `badgeVariants` is also
+exported if you need the styles on another element.
+
+## Accessibility
+
+- **Plain text** — a `<span>` whose content screen readers read as is. The dot is `aria-hidden`.
+- **The ✕ button** is a real `<button>`: focus it with `Tab`, press it with `Enter` / `Space`. It
+  looks 16px but has a larger hit area.
+- **After a tag is removed**, move focus yourself — to the next tag or the search field — so it
+  doesn't get lost.

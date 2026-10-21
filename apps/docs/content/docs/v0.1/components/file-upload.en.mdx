@@ -1,0 +1,248 @@
+---
+title: FileUpload
+description: Upload files by drag and drop, file picker or Ctrl+V — with progress, cancel and retry for each file.
+---
+
+<ComponentPreview name="file-upload/basic" />
+
+## Import
+
+```tsx
+import { FileUpload } from '@akhatmirzo/ui';
+```
+
+## When to use
+
+- **Documents, photos, screenshots** — in applications, profiles and support forms. Drag and
+  drop, the file dialog and `Ctrl+V` all work in one component.
+- **State the limits up front:** with `accept`, `maxSize` and `maxFiles`, a hint like "Rasmlar,
+  PDF · 5 MB gacha · ko'pi bilan 5 ta" appears automatically, and files that break the rules are
+  flagged right away.
+- **Need instant uploads?** Pass an `upload` function — progress, cancel and "Retry" come for free.
+- **Sending files with a form?** Skip `upload` and pass `name`: the files end up in `FormData`
+  just like with a plain `<input type="file">`.
+- **Short on space?** Use `variant="button"` — a single button instead of the dropzone.
+
+## The upload function
+
+`upload(file, { onProgress, signal })` is called once per valid file and returns a Promise. Report
+progress with `onProgress(0–100)`; `signal` is aborted when the user clicks ✕ or the component
+unmounts. Whatever the Promise resolves to is stored in `item.result`.
+
+```ts title="upload.ts"
+import type { FileUploadContext } from '@akhatmirzo/ui';
+
+/** XMLHttpRequest — unlike fetch, it reports upload progress */
+export function uploadFile(file: File, { onProgress, signal }: FileUploadContext) {
+  return new Promise<{ url: string }>((resolve, reject) => {
+    const xhr = new XMLHttpRequest();
+    const body = new FormData();
+    body.append('file', file);
+
+    xhr.upload.onprogress = (e) => e.lengthComputable && onProgress((e.loaded / e.total) * 100);
+    xhr.onload = () =>
+      xhr.status < 300 ? resolve(JSON.parse(xhr.responseText)) : reject(new Error(xhr.statusText));
+    xhr.onerror = () => reject(new Error('network'));
+    signal.addEventListener('abort', () => xhr.abort());
+
+    xhr.open('POST', '/api/upload');
+    xhr.send(body);
+  });
+}
+```
+
+```tsx title="Documents.tsx"
+import { FileUpload } from '@akhatmirzo/ui';
+import { useState } from 'react';
+import { uploadFile } from './upload';
+
+export function Documents() {
+  const [urls, setUrls] = useState<string[]>([]);
+
+  return (
+    <>
+      <FileUpload
+        accept={['image/*', '.pdf']}
+        maxSize={5 * 1024 * 1024}
+        maxFiles={5}
+        multiple
+        upload={uploadFile}
+        onFilesChange={(items) =>
+          setUrls(items.flatMap((it) => (it.result ? [it.result.url] : [])))
+        }
+      />
+      <input type="hidden" name="documents" value={urls.join(',')} />
+    </>
+  );
+}
+```
+
+If the Promise rejects, the file row shows an error and a **Retry** button. Choose the message with
+`getErrorMessage(error)` (the default is "Tarmoq xatosi", a network error). In the demo above, any
+file with `xato` in its name fails on purpose.
+
+<Callout title="The component owns the list">
+  `FileUpload` manages its own file list — there's no `value` prop. Use `onFilesChange` to read it:
+  it receives the full list on every change (added, progress, done, error, removed).
+</Callout>
+
+## States
+
+Without `multiple`, a new file replaces the old one. While dragging, an accepted type gets a
+`primary` border; a rejected one gets `danger` and "Bu turdagi fayl qabul qilinmaydi". `error`,
+`disabled` and `required` from `Field` are applied automatically. `hint` replaces the generated
+limits text.
+
+<ComponentPreview name="file-upload/states" align="start" />
+
+Files that break a rule still show up in the list with the reason ("Hajmi 5 MB dan katta"), but
+they aren't uploaded and don't count toward `maxFiles`. Files over the `maxFiles` limit aren't
+added at all; a "Ko'pi bilan 5 ta fayl yuklash mumkin" notice appears instead.
+
+## Button variant
+
+`variant="button"` swaps the dropzone for a "Fayl tanlash" button. The file list works the same.
+
+<ComponentPreview name="file-upload/button" align="start" />
+
+## With a form
+
+Without `upload`, files are only selected (`status: 'idle'`). Pass `name` and the component keeps a
+hidden `<input type="file" name="...">` in sync — every file without an error is written to it
+and submitted with the form.
+
+<ComponentPreview name="file-upload/form" align="start" />
+
+## Paste from the clipboard
+
+By default (`paste={true}`), `Ctrl+V` adds a copied file or screenshot while focus is inside the
+component. `paste="global"` listens on the whole page (except inputs and textareas);
+`paste={false}` turns it off.
+
+<ComponentPreview name="file-upload/paste" />
+
+## Props
+
+Accepts the remaining `<div>` attributes (`className`, `id`, `aria-*` ...).
+
+<PropsTable
+  rows={[
+    {
+      name: 'accept',
+      type: 'string[]',
+      description: "Allowed types: ['image/*', '.pdf', 'application/zip']",
+    },
+    { name: 'maxSize', type: 'number', description: 'Maximum size in bytes' },
+    {
+      name: 'maxFiles',
+      type: 'number',
+      description: 'Maximum number of files (1 without multiple)',
+    },
+    { name: 'multiple', type: 'boolean', default: 'false', description: 'Allow several files' },
+    {
+      name: 'upload',
+      type: '(file: File, ctx: FileUploadContext) => Promise<R>',
+      description: 'Upload function. Without it, files are only selected',
+    },
+    {
+      name: 'onFilesChange',
+      type: '(files: FileUploadItem<R>[]) => void',
+      description: 'Called with the full list on every change',
+    },
+    {
+      name: 'variant',
+      type: "'dropzone' | 'button'",
+      default: "'dropzone'",
+      description: 'Large drop area or a single button',
+    },
+    { name: 'disabled', type: 'boolean' },
+    { name: 'invalid', type: 'boolean', description: 'Automatic inside a Field with an error' },
+    { name: 'required', type: 'boolean' },
+    { name: 'name', type: 'string', description: 'Name of the <input type="file"> for forms' },
+    {
+      name: 'hint',
+      type: 'ReactNode',
+      description: 'Limits text; built from accept, maxSize and maxFiles if omitted',
+    },
+    {
+      name: 'paste',
+      type: "boolean | 'global'",
+      default: 'true',
+      description: "Ctrl+V: true — while focused, 'global' — anywhere on the page",
+    },
+    {
+      name: 'getErrorMessage',
+      type: '(error: unknown) => string | undefined',
+      description: 'Turns an upload error into a message',
+    },
+    { name: 'labels', type: 'FileUploadLabels', description: 'All UI strings' },
+  ]}
+/>
+
+### FileUploadItem
+
+Each item passed to `onFilesChange`:
+
+<PropsTable
+  rows={[
+    { name: 'id', type: 'string' },
+    { name: 'file', type: 'File' },
+    {
+      name: 'status',
+      type: "'idle' | 'uploading' | 'done' | 'error'",
+      description: 'idle — no upload function, the file is just selected',
+    },
+    { name: 'progress', type: 'number', description: '0–100' },
+    { name: 'error', type: 'string', description: 'Error message' },
+    {
+      name: 'errorKind',
+      type: "'type' | 'size' | 'upload'",
+      description: 'Only upload errors get a Retry button',
+    },
+    { name: 'result', type: 'R', description: 'What upload resolved with' },
+    { name: 'previewUrl', type: 'string', description: 'A blob: URL for images' },
+  ]}
+/>
+
+### Strings (`labels`)
+
+`prompt`, `browse`, `dragActive`, `dragReject`, `button`, `images`, `videos`, `audio`, `maxSize`,
+`maxFiles`, `tooManyFiles`, `invalidType`, `tooLarge`, `uploadError`, `uploaded`, `retry`,
+`cancel`, `remove`, `dismiss`, `list`. The ones that include a size or a count are functions:
+
+```tsx
+<FileUpload
+  labels={{
+    prompt: 'Drop a file here or',
+    browse: 'browse',
+    maxSize: (size) => `up to ${size}`,
+    tooLarge: (size) => `Larger than ${size}`,
+  }}
+/>
+```
+
+`matchesAccept(file, accept)` is exported too, so you can apply the same rule elsewhere.
+
+### Data attributes
+
+| Attribute       | Element         | Value                                   |
+| --------------- | --------------- | --------------------------------------- |
+| `data-variant`  | root            | `dropzone` · `button`                   |
+| `data-disabled` | root            | present when disabled                   |
+| `data-invalid`  | root            | present when invalid                    |
+| `data-drag`     | dropzone        | `idle` · `over` · `reject`              |
+| `data-status`   | file row (`li`) | `idle` · `uploading` · `done` · `error` |
+
+## Accessibility
+
+- **The dropzone** has `role="button"`, is reachable with `Tab`, and `Enter` or `Space` opens the
+  file dialog. Its name combines the `Field` label and its own text; the limits text is read via
+  `aria-describedby`.
+- **Drag feedback** ("Faylni qo'yib yuboring", "Bu turdagi fayl qabul qilinmaydi") is announced
+  through `aria-live="polite"`, and so is the `maxFiles` notice.
+- **Progress** uses `role="progressbar"` with `aria-valuenow` and the file name.
+- **Row buttons** include the file name: "Bekor qilish: report.pdf" (cancel, while uploading),
+  "O'chirish: …" (remove), and "Olib tashlash: …" (dismiss) for errors.
+- **The list** is a `<ul aria-label="Tanlangan fayllar">`; long names are shortened in the middle,
+  with the full name in `title`.
+- **Errors** are exposed as `aria-invalid` on the dropzone or button.

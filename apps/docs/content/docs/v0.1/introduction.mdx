@@ -1,0 +1,78 @@
+---
+title: Kirish
+description: Kutubxona nima, kimlar uchun va qanday tuzilgan.
+---
+
+`@akhatmirzo` — o'zbek tilida ishlaydigan React ilovalar uchun toolkit: komponentlar, dizayn
+tokenlari, hooklar va yordamchi funksiyalar. Telefon raqami `+998 90 123 45 67` ko'rinishida
+yoziladi, summa `1 250 000 so'm` bo'lib chiqadi, qidiruv "Gʻuzor", "G'uzor" va "Ғузор" ni bir xil
+topadi, kalendar esa dushanbadan boshlanadi. Bularning hammasi **standart holatda** ishlaydi —
+har loyihada qaytadan yozish shart emas.
+
+<ComponentPreview name="core/search" />
+
+Yuqoridagi qidiruv `@akhatmirzo/core` dagi bitta funksiya bilan ishlaydi: kirillcha
+so'rov lotincha nomni, lotincha so'rov kirillcha nomni topadi, mos kelgan qism esa asl matnda
+ajratib ko'rsatiladi.
+
+## Tamoyillar
+
+- **O'zbek tiliga moslik.** Komponentlardagi matnlar, oy va hafta kunlari o'zbekcha. Telefon
+  (`+998`), Uzcard va Humo kartalari, so'mdagi summalar uchun tayyor maydonlar bor. Qidiruv
+  lotin va kirill yozuvni, apostrofning barcha shakllarini (`'` `ʻ` `‘` `’`) bir xil tushunadi.
+- **Accessibility.** Overlay, menyu va tablar [Radix UI](https://www.radix-ui.com/) ustiga
+  qurilgan: fokus boshqaruvi, klaviatura va ARIA atributlari o'z joyida. `Field` label, tavsif
+  va xato matnini boshqaruv elementiga o'zi bog'laydi.
+- **Bitta qoida — bitta joyda.** Ranglar faqat semantik tokenlar orqali (`bg-surface`,
+  `text-text-muted`). Dark mode va brend rangi bitta CSS faylda almashadi, komponentlarga
+  tegilmaydi.
+- **Bir xil API.** Hamma boshqaruv elementlarida `size="sm" | "md" | "lg"` (32 / 40 / 48px),
+  boshqariladigan qiymat — `value` + `onValueChange`, ochiq/yopiq — `open` + `onOpenChange`.
+  Bitta komponentni o'rgansangiz, qolganini taxmin qila olasiz.
+- **Ortiqcha yuk yo'q.** Paketlar ESM va `sideEffects: false` — bundle'ga faqat import
+  qilganingiz tushadi. Stillarni sizning Tailwind build'ingiz yaratadi, runtime CSS-in-JS yo'q.
+
+## Paketlar
+
+Kutubxona to'rtta mustaqil paketdan iborat. Hammasi bitta repoda yashaydi, lekin alohida
+o'rnatiladi va alohida versiyalanadi.
+
+| Paket                | Nima beradi                                                      | Bog'liqliklar                           |
+| -------------------- | ---------------------------------------------------------------- | --------------------------------------- |
+| `@akhatmirzo/ui`     | 32 ta komponent oilasi: formalar, overlay, jadval, kalendar      | Radix, TanStack, cmdk, react-day-picker |
+| `@akhatmirzo/tokens` | Ranglar, tipografiya, radius, soya, animatsiya — CSS va Tailwind | yo'q (faqat CSS)                        |
+| `@akhatmirzo/core`   | Formatlash, validatsiya, matn, storage, API klient               | yo'q, React ham kerakmas                |
+| `@akhatmirzo/hooks`  | 12 ta React hook: `useDebounce`, `useHotkeys` va boshqalar       | faqat `react`                           |
+
+`@akhatmirzo/ui` qolgan uchtasiga tayanadi, lekin teskarisi emas: `core` ni backend'da yoki
+boshqa freymvorkda, `hooks` ni esa komponentlarsiz ishlatish mumkin.
+
+## Qachon ishlatish
+
+- **O'zbekistonga mo'ljallangan mahsulot** — admin panel, CRM, ichki tizim, onlayn do'kon.
+  Telefon, karta, so'm, sana va o'zbekcha qidiruv kabi mayda, lekin vaqt oladigan ishlar tayyor.
+- **React + Tailwind CSS v4 loyihasi.** Komponentlar Tailwind klasslari bilan yozilgan va
+  sizning Tailwind'ingiz orqali yig'iladi.
+- **Faqat funksiyalar kerak bo'lsa** — `@akhatmirzo/core` ni alohida o'rnating. U React'siz va
+  bog'liqliksiz, Node.js'da ham ishlaydi.
+- **Qachon mos emas:** Tailwind ishlatilmaydigan loyiha (komponentlar stilsiz qoladi) yoki
+  React Native — hozircha faqat web qo'llab-quvvatlanadi.
+
+## Holat
+
+Joriy versiya — **0.1.0**, npm'da ochiq (MIT litsenziya). `0.x` bosqichida API hali
+o'zgarishi mumkin: minor versiyalar (`0.1` → `0.2`) buzuvchi o'zgarishlar olib kelishi mumkin.
+Batafsil — [Versiyalar](./versions.mdx) sahifasida.
+
+## Keyingi qadamlar
+
+<Cards>
+  <Card title="O'rnatish" href="./installation" description="Paketlar, CSS va provayderlar" />
+  <Card
+    title="Mavzu va tokenlar"
+    href="./theming"
+    description="Ranglar, tipografiya va brend rangi"
+  />
+  <Card title="Button" href="./components/button" description="Birinchi komponent" />
+  <Card title="Hooklar" href="./hooks" description="12 ta tayyor React hook" />
+</Cards>

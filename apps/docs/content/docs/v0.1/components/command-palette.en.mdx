@@ -1,0 +1,271 @@
+---
+title: CommandPalette
+description: A Ctrl+K search and command window — fuzzy search, recent items, nested pages and server search.
+---
+
+<ComponentPreview name="command-palette/basic" />
+
+## Import
+
+```tsx
+import { CommandPalette } from '@akhatmirzo/ui';
+```
+
+## When to use
+
+- **Fast navigation in big apps** — admin panels, CRMs, internal tools. No digging through menus:
+  `Ctrl+K`, two or three letters, `Enter`.
+- **Frequent actions** — "New order", "Export", "Switch theme". Use `shortcut` to show the app's
+  own keyboard shortcuts next to each item.
+- **One per app** — usually in the layout, with a global `hotkey`. Two palettes with the same
+  `hotkey` on one page open together.
+- **Not a replacement for navigation** — it speeds up experienced users; you still need menus and
+  links.
+
+<Callout title="Ctrl+K is taken on this site" type="warn">
+  These docs use `Ctrl+K` for their own search, so the demo above uses `hotkey="mod+j"`. Keep the
+  default `mod+k` in your app — `mod` is `⌘` on macOS and `Ctrl` everywhere else.
+</Callout>
+
+## Groups and items
+
+`groups` is a list of headed groups. Each item has a `label` and optionally a `description`,
+`icon`, `shortcut`, `keywords` (synonyms) and `onSelect`. The palette closes after a selection
+(`keepOpen: true` keeps it open).
+
+```tsx title="AppCommands.tsx"
+import { CommandPalette, type CommandPaletteGroup } from '@akhatmirzo/ui';
+import { Package, Plus } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+
+export function AppCommands() {
+  const router = useRouter();
+  const groups: CommandPaletteGroup[] = [
+    {
+      heading: 'Sahifalar',
+      items: [
+        {
+          label: 'Buyurtmalar',
+          icon: <Package />,
+          keywords: ['zakaz', 'savdo'],
+          onSelect: () => router.push('/orders'),
+        },
+      ],
+    },
+    {
+      heading: 'Amallar',
+      items: [
+        {
+          label: 'Yangi buyurtma',
+          icon: <Plus />,
+          shortcut: ['mod', 'N'],
+          onSelect: () => router.push('/orders/new'),
+        },
+      ],
+    },
+  ];
+
+  return <CommandPalette groups={groups} />;
+}
+```
+
+Search is **fuzzy** — it matches letters in order: `ybu` → "Yangi buyurtma". Uzbek text is
+normalised, so `qo'sh`, `qoʻsh` and the Cyrillic `қўш` all find the same item. Results are ranked
+by match quality, and matching letters are highlighted.
+
+## Recent items
+
+With an empty query, the first group is "Oxirgi ishlatilganlar" (recent: 3 by default, stored in
+`localStorage` under `recentKey`). Items are remembered by `id`, or by `label` when there's no
+`id`. With several palettes in one app, give each its own `recentKey`; `recent={false}` turns the
+group off.
+
+## Nested pages and search-only groups
+
+Give an item a `page` and selecting it opens a new list — for example "Theme" → Light / Dark. A
+back button appears next to the search field, and `Backspace` on an empty query also goes back. A
+group with `searchOnly: true` only appears while searching — great for long lists like customers
+or products. Try searching for `aziza`.
+
+<ComponentPreview name="command-palette/pages" />
+
+## Server search
+
+`onSearch(query, { signal })` searches on the server. Requests are debounced by 300ms, results
+appear in a separate "Natijalar" group (`labels.results`), and a spinner shows while waiting. A new
+query or closing the palette aborts the previous request through `signal`. Local groups keep
+filtering at the same time; inside nested pages, `onSearch` isn't called. Try `ak` or `nodira`.
+
+<ComponentPreview name="command-palette/server" />
+
+```tsx
+<CommandPalette
+  groups={groups}
+  onSearch={async (query, { signal }) => {
+    const res = await fetch(`/api/customers?q=${encodeURIComponent(query)}`, { signal });
+    const customers: { id: number; name: string; phone: string }[] = await res.json();
+    return customers.map((c) => ({
+      id: `customer-${c.id}`,
+      label: c.name,
+      description: c.phone,
+      onSelect: () => router.push(`/customers/${c.id}`),
+    }));
+  }}
+/>
+```
+
+Server results aren't added to the recent items.
+
+## Opening and control
+
+There are three ways, and they work together:
+
+- **`hotkey`** — a global keyboard shortcut (default `'mod+k'`; it works inside inputs too).
+  `hotkey={false}` turns it off.
+- **`children`** — the trigger element (Radix `Trigger asChild`), usually a button.
+- **`open` / `onOpenChange`** — controlled state, e.g. to open it from a "Search" menu item.
+
+On close, focus returns to whatever opened the palette.
+
+## Props
+
+Remaining attributes (`className`, `aria-*`, `data-*` ...) go to the dialog panel.
+
+<PropsTable
+  rows={[
+    {
+      name: 'groups',
+      type: 'CommandPaletteGroup[]',
+      required: true,
+      description: 'Groups and their items',
+    },
+    {
+      name: 'hotkey',
+      type: 'string | false',
+      default: "'mod+k'",
+      description: 'Shortcut to open/close; false disables it',
+    },
+    { name: 'open', type: 'boolean', description: 'Controlled state' },
+    { name: 'defaultOpen', type: 'boolean', default: 'false' },
+    { name: 'onOpenChange', type: '(open: boolean) => void' },
+    {
+      name: 'placeholder',
+      type: 'string',
+      default: "'Qidirish yoki buyruq yozish...'",
+    },
+    {
+      name: 'onSearch',
+      type: '(query: string, context: CommandPaletteSearchContext) => Promise<CommandPaletteItem[]> | CommandPaletteItem[]',
+      description: 'Server search (300ms debounce); context: { signal }',
+    },
+    {
+      name: 'recent',
+      type: 'boolean',
+      default: 'true',
+      description: 'The "recent items" group',
+    },
+    {
+      name: 'recentKey',
+      type: 'string',
+      default: "'ak:command-palette:recent'",
+      description: 'localStorage key',
+    },
+    { name: 'recentLimit', type: 'number', default: '3' },
+    { name: 'labels', type: 'CommandPaletteLabels', description: 'UI strings' },
+    { name: 'children', type: 'ReactElement', description: 'Trigger element (asChild)' },
+    {
+      name: 'container',
+      type: 'HTMLElement | null',
+      description: 'Portal container (defaults to document.body)',
+    },
+    { name: 'overlayClassName', type: 'string' },
+    { name: 'onOpenAutoFocus', type: '(event: Event) => void' },
+    { name: 'onCloseAutoFocus', type: '(event: Event) => void' },
+  ]}
+/>
+
+### CommandPaletteItem
+
+<PropsTable
+  rows={[
+    {
+      name: 'id',
+      type: 'string',
+      description: 'Stable key (used for recent items); defaults to label',
+    },
+    { name: 'label', type: 'string', required: true },
+    { name: 'description', type: 'string', description: 'Second line (muted)' },
+    { name: 'icon', type: 'ReactNode' },
+    {
+      name: 'shortcut',
+      type: 'string[]',
+      description: "Shortcut to display, e.g. ['mod', 'N']",
+    },
+    { name: 'keywords', type: 'string[]', description: 'Extra search terms' },
+    { name: 'disabled', type: 'boolean' },
+    { name: 'onSelect', type: '() => void' },
+    {
+      name: 'page',
+      type: 'CommandPalettePage',
+      description: '{ title, placeholder?, groups } — a nested page',
+    },
+    {
+      name: 'keepOpen',
+      type: 'boolean',
+      description: 'true — the palette stays open after selection',
+    },
+  ]}
+/>
+
+<Callout title="shortcut is display-only">
+  `shortcut` draws the keys next to the item but doesn't listen for them. To make the shortcut work
+  while the palette is closed, wire it up separately with [useHotkeys](../hooks.mdx).
+</Callout>
+
+### CommandPaletteGroup
+
+<PropsTable
+  rows={[
+    { name: 'heading', type: 'string', required: true },
+    { name: 'items', type: 'CommandPaletteItem[]', required: true },
+    {
+      name: 'searchOnly',
+      type: 'boolean',
+      description: 'Only shown while searching (hidden for an empty query)',
+    },
+  ]}
+/>
+
+### Strings (`labels`)
+
+`title` (dialog title for screen readers), `search`, `list`, `recent`, `results`, `loading`,
+`empty`, `emptyDescription` (`(query) => ReactNode`), `back`, and `navigate`, `select`, `close` —
+the words in the footer hint.
+
+```tsx
+<CommandPalette
+  groups={groups}
+  labels={{ empty: 'No commands found', emptyDescription: (q) => `Nothing matches “${q}”` }}
+/>
+```
+
+## Keyboard
+
+| Key                       | Action                            |
+| ------------------------- | --------------------------------- |
+| `Ctrl+K` / `⌘K`           | Open / close (`hotkey`)           |
+| `↑ ↓`                     | Move through items (wraps around) |
+| `Enter`                   | Select                            |
+| `Esc`                     | Close                             |
+| `Backspace` (empty query) | Back from a nested page           |
+
+## Accessibility
+
+- **Modal dialog** (Radix): focus is trapped inside, lands in the search field on open and returns
+  to the trigger on close. The dialog title is visually hidden but announced (`labels.title`,
+  "Buyruqlar" by default).
+- **Search and list** are built on `cmdk`: a combobox with a listbox, and the active item is
+  announced through `aria-activedescendant`. The field's `aria-label` is `labels.search`.
+- **The back button** in a nested page includes the page name: "Orqaga: Mavzu".
+- **Icons** are decorative; the `Kbd` hints in the footer are visual only.
+- **Animation** falls back to a simple fade with `prefers-reduced-motion`.

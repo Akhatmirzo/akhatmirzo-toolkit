@@ -1,0 +1,133 @@
+---
+title: Card
+description: A content block composed of Card.Header, Card.Body and Card.Footer that can also act as a link.
+---
+
+<ComponentPreview name="card/basic" />
+
+## Import
+
+```tsx
+import { Card } from '@akhatmirzo/ui';
+```
+
+## When to use
+
+- **To group related information** — an order, a product, a stat, a settings section.
+- **Compose it:** `Card.Header` (title, description, an action on the right), `Card.Body` and
+  `Card.Footer`. All of them are optional.
+- **If the whole card is clickable**, pass an `<a>` or `<button>` with `interactive` and
+  `asChild` — not a `<div onClick>`.
+- **Don't nest cards.** A [`Divider`](./divider.mdx) or some spacing is enough for inner
+  grouping.
+
+## Variants
+
+`elevated` (default) has a shadow and border and stands out on a white page. `outline` is just a
+border, good for dense lists. `soft` has no border and a `surface-muted` background.
+
+<ComponentPreview name="card/variants" />
+
+## Padding
+
+`padding`: `none` is 0, `sm` 16px, `md` (default) 24px and `lg` 32px. The gap between sections
+scales with it.
+
+<ComponentPreview name="card/padding" />
+
+## With media
+
+With `padding="none"` and `overflow-hidden`, an image runs to the card's edges and you add
+padding around the text yourself.
+
+<ComponentPreview name="card/media" />
+
+## Clickable card
+
+`interactive` raises the shadow on hover and shows a pointer cursor. It's styling only — for
+keyboard support, pass an `<a>` or `<button>` with `asChild`, so the card gets `Tab` focus and
+opens with `Enter`.
+
+<ComponentPreview name="card/interactive" />
+
+```tsx
+import Link from 'next/link';
+
+<Card interactive asChild>
+  <Link href="/reports/sales">
+    <Card.Header title="Sales" description="October" />
+  </Link>
+</Card>;
+```
+
+## Props
+
+### Card
+
+`Card` accepts every other `<div>` attribute.
+
+<PropsTable
+  rows={[
+    {
+      name: 'variant',
+      type: "'elevated' | 'outline' | 'soft'",
+      default: "'elevated'",
+      description: 'Look',
+    },
+    {
+      name: 'padding',
+      type: "'none' | 'sm' | 'md' | 'lg'",
+      default: "'md'",
+      description: 'Padding: 0 / 16 / 24 / 32px',
+    },
+    {
+      name: 'interactive',
+      type: 'boolean | null',
+      default: 'false',
+      description: 'Hover and focus styles (styling only)',
+    },
+    {
+      name: 'asChild',
+      type: 'boolean',
+      default: 'false',
+      description: 'Renders its child instead of its own element (e.g. <a>)',
+    },
+  ]}
+/>
+
+### Card.Header
+
+Also exported as `CardHeader`. Accepts the remaining `<div>` attributes; `children` render below
+the title and description.
+
+<PropsTable
+  rows={[
+    { name: 'title', type: 'ReactNode', description: 'Title (<h3>)' },
+    { name: 'description', type: 'ReactNode', description: 'Muted text under the title' },
+    {
+      name: 'action',
+      type: 'ReactNode',
+      description: 'Element on the right: a badge, button or menu',
+    },
+  ]}
+/>
+
+### Card.Body and Card.Footer
+
+`CardBody` and `CardFooter` are plain `<div>`s that accept all their attributes. `Body` sets the
+text to `text-sm`; `Footer` lays its children out in a row with `gap-2` (use
+`className="justify-end"` to push them right).
+
+### Data attributes
+
+On the `Card` root: `data-variant`, `data-padding` and `data-interactive`. `cardVariants` is also
+exported if you need the styles on another element.
+
+## Accessibility
+
+- **A plain `<div>`** with no role. If it's a meaningful section, pass a `<section>` or
+  `<article>` with `asChild`.
+- **The `Card.Header` title is an `<h3>`.** If that doesn't fit your page's heading order, put
+  your own heading in `children` instead of `title`.
+- **A clickable card** only works from the keyboard when it's a real `<a>` / `<button>` via
+  `asChild`; the focus ring then wraps the whole card.

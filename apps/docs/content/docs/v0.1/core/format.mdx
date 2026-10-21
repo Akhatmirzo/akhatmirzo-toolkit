@@ -1,0 +1,261 @@
+---
+title: Formatlash
+description: "Son, so'm, telefon, karta, sana, nisbiy vaqt va fayl hajmini formatlash."
+---
+
+O'zbekistonda odatiy ko'rinishlar standart holatda: `1 250 000 so'm`, `+998 90 123 45 67`,
+`21 Oktabr 2026, Chorshanba`, `5 daqiqa oldin`. Funksiyalar `Intl` va brauzer locale'iga
+bog'liq emas — natija serverda ham, har qanday brauzerda ham bir xil. Noto'g'ri kirishda xato
+otilmaydi, bo'sh satr `''` qaytadi.
+
+```ts
+import {
+  formatNumber,
+  formatMoney,
+  formatPhone,
+  formatCardNumber,
+  formatDate,
+  parseDate,
+  timeAgo,
+  formatFileSize,
+} from '@akhatmirzo/core';
+```
+
+## Son va pul
+
+<ComponentPreview name="core/money" />
+
+### formatNumber
+
+```ts
+function formatNumber(n: number, options?: FormatNumberOptions): string;
+```
+
+Sonni minglik ajratuvchi bilan yozadi. Ajratuvchi — oddiy bo'sh joy (NBSP emas), shuning uchun
+natijani nusxalab boshqa joyga qo'yish oson. `NaN` va `Infinity` → `''`.
+
+```ts
+formatNumber(1250000); // '1 250 000'
+formatNumber(1250000.756); // '1 250 000.756'
+formatNumber(1250000.5, { decimals: 2 }); // '1 250 000.50'
+formatNumber(1234567.891, { separator: ',', decimals: 2 }); // '1,234,567.89'
+formatNumber(1234567.5, { decimalMark: ',', decimals: 1 }); // '1 234 567,5'
+formatNumber(-4500); // '-4 500'
+formatNumber(NaN); // ''
+```
+
+<PropsTable
+  rows={[
+    {
+      name: 'decimals',
+      type: 'number',
+      description: "Kasr qismidagi raqamlar (0–20). Berilmasa — son qanday bo'lsa, shunday",
+    },
+    { name: 'separator', type: 'string', default: "' '", description: 'Minglik ajratuvchi' },
+    { name: 'decimalMark', type: 'string', default: "'.'", description: 'Kasr ajratuvchisi' },
+  ]}
+/>
+
+### formatMoney
+
+```ts
+function formatMoney(n: number, options?: FormatMoneyOptions): string;
+```
+
+Pul summasi. Standart holatda butun songa yaxlitlanadi va `so'm` qo'shiladi.
+
+```ts
+formatMoney(1250000); // "1 250 000 so'm"
+formatMoney(1249999.6); // "1 250 000 so'm"
+formatMoney(99.5, { currency: 'UZS', decimals: 2 }); // '99.50 UZS'
+formatMoney(1250000, { currency: false }); // '1 250 000'
+formatMoney(-99.5, { decimals: 2 }); // "-99.50 so'm"
+```
+
+<PropsTable
+  rows={[
+    {
+      name: 'currency',
+      type: "\"so'm\" | 'UZS' | false",
+      default: '"so\'m"',
+      description: 'Valyuta belgisi; false — belgisiz',
+    },
+    { name: 'decimals', type: 'number', default: '0', description: 'Kasr qismidagi raqamlar' },
+    { name: 'separator', type: 'string', default: "' '", description: 'Minglik ajratuvchi' },
+    { name: 'decimalMark', type: 'string', default: "'.'", description: 'Kasr ajratuvchisi' },
+  ]}
+/>
+
+<Callout title="Kiritish maydoni kerakmi?">
+  Foydalanuvchi summa yozadigan joyda [`MoneyInput`](../components/masked-input.mdx) ishlating — u
+  yozish paytida formatlaydi va toza son qaytaradi.
+</Callout>
+
+### formatFileSize
+
+```ts
+function formatFileSize(bytes: number, decimals?: number): string;
+```
+
+Fayl hajmini o'qiladigan ko'rinishga keltiradi: `B`, `KB`, `MB`, `GB`, `TB` (1 KB = 1024 B).
+Ortiqcha nollar tashlanadi. Manfiy yoki noto'g'ri qiymat → `''`.
+
+```ts
+formatFileSize(512); // '512 B'
+formatFileSize(1024); // '1 KB'
+formatFileSize(1536); // '1.5 KB'
+formatFileSize(3565158); // '3.4 MB'
+formatFileSize(3565158, 0); // '3 MB'
+formatFileSize(-1); // ''
+```
+
+`decimals` — kasr qismidagi raqamlar soni, standart `1`.
+
+## Telefon va karta
+
+Ikkala funksiya ham **bosqichma-bosqich** formatlaydi — to'liq bo'lmagan raqamni ham. Shuning
+uchun ularni yozish paytida, `onChange` ichida chaqirish mumkin:
+
+<ComponentPreview name="core/phone-card" />
+
+### formatPhone
+
+```ts
+function formatPhone(input: string | number | null | undefined, style?: PhoneStyle): string;
+// PhoneStyle = 'international' | 'national'
+```
+
+O'zbekiston raqamini formatlaydi. Bo'shliq, chiziqcha va qavslar e'tiborsiz qoldiriladi.
+
+```ts
+formatPhone('901234567'); // '+998 90 123 45 67'
+formatPhone(901234567); // '+998 90 123 45 67'
+formatPhone('+998 (90) 123-45-67'); // '+998 90 123 45 67'
+formatPhone('+998901234567', 'national'); // '(90) 123-45-67'
+formatPhone('90123', 'national'); // '(90) 123'
+formatPhone(''); // ''
+```
+
+<Callout type="warn" title="998 prefiksi qachon olib tashlanadi">
+  `998` faqat `+` bilan yoki 9 tadan ko'p raqam berilganda davlat kodi deb hisoblanadi. Aks holda u
+  milliy raqamning boshi: `formatPhone('998123456')` → `'+998 99 812 34 56'` (operator `99`).
+</Callout>
+
+### formatCardNumber
+
+```ts
+function formatCardNumber(input: string | number | null | undefined): string;
+```
+
+Karta raqamini 4 tadan guruhlaydi, ko'pi bilan 19 raqam.
+
+```ts
+formatCardNumber('8600123412341234'); // '8600 1234 1234 1234'
+formatCardNumber('8600-1234-12'); // '8600 1234 12'
+```
+
+Raqam to'g'riligini tekshirish uchun — [`isValidCardNumber`](./validate.mdx#isvalidcardnumber).
+
+## Sana va vaqt
+
+<ComponentPreview name="core/date" />
+
+### formatDate
+
+```ts
+function formatDate(date: DateInput, pattern?: string): string;
+// DateInput = Date | number | string | null | undefined
+```
+
+Sanani shablon bo'yicha formatlaydi (mahalliy vaqtda). Oy va hafta kunlari o'zbekcha. Standart
+shablon — `'dd.MM.yyyy'`. Noto'g'ri sana → `''`.
+
+```ts
+const date = new Date(2026, 9, 21, 14, 5);
+
+formatDate(date); // '21.10.2026'
+formatDate(date, 'd MMMM yyyy, EEEE'); // '21 Oktabr 2026, Chorshanba'
+formatDate(date, 'd MMM, EEE'); // '21 Okt, Ch'
+formatDate(date, 'yyyy-MM-dd HH:mm'); // '2026-10-21 14:05'
+formatDate(date, 'EEEE, d MMMM [soat] HH:mm'); // 'Chorshanba, 21 Oktabr soat 14:05'
+formatDate('sana emas'); // ''
+```
+
+Jadvaldagi natijalar `new Date(2026, 2, 5, 9, 5, 7)` — 5-mart 2026, 09:05:07 uchun:
+
+| Token         | Natija        | Token      | Natija              |
+| ------------- | ------------- | ---------- | ------------------- |
+| `yyyy` / `yy` | `2026` / `26` | `HH` / `H` | `09` / `9` (soat)   |
+| `MMMM`        | `Mart`        | `mm` / `m` | `05` / `5` (daqiqa) |
+| `MMM`         | `Mar`         | `ss` / `s` | `07` / `7` (soniya) |
+| `MM` / `M`    | `03` / `3`    | `EEEE`     | `Payshanba`         |
+| `dd` / `d`    | `05` / `5`    | `EEE`      | `Pa`                |
+
+Kvadrat qavs ichidagi matn o'zgarmaydi: `'[soat] HH:mm'` → `'soat 14:05'`.
+
+### parseDate
+
+```ts
+function parseDate(input: string | null | undefined, pattern?: string): Date | null;
+```
+
+Matnni shu shablonlar bo'yicha sanaga aylantiradi (mahalliy vaqt). Shablonga mos kelmasa yoki
+bunday sana mavjud bo'lmasa — `null`. Oy nomlari katta-kichik harfga sezgir emas, `yy` → `20yy`,
+chetdagi bo'shliqlar e'tiborsiz.
+
+```ts
+parseDate('21.10.2026'); // Date: 21-oktabr 2026, 00:00
+parseDate('31.02.2026'); // null — 31-fevral yo'q
+parseDate('5 oktabr 2026', 'd MMMM yyyy'); // Date: 5-oktabr 2026
+parseDate('2026-10-21 14:30', 'yyyy-MM-dd HH:mm'); // Date: 21-oktabr 2026, 14:30
+parseDate('21.10.26', 'dd.MM.yy'); // Date: 21-oktabr 2026
+```
+
+### timeAgo
+
+```ts
+function timeAgo(date: DateInput, now?: DateInput): string;
+```
+
+Nisbiy vaqt: o'tmish uchun "… oldin", kelajak uchun "…dan keyin". Bir daqiqadan kam farq —
+"hozirgina", bir sutkagacha — daqiqa yoki soat. Sutkadan ko'p farqda kunlar kalendar bo'yicha
+sanaladi: 19-oktabr 23:00 21-oktabr ertalab 08:00 dan qaraganda (33 soat) "2 kun oldin" bo'ladi.
+`now` — taqqoslash nuqtasi, standart `new Date()`.
+
+<ComponentPreview name="core/time-ago" />
+
+```ts
+const now = new Date(2026, 9, 21, 12, 0);
+const minutes = (m: number) => new Date(now.getTime() - m * 60_000);
+
+timeAgo(minutes(0.5), now); // 'hozirgina'
+timeAgo(minutes(5), now); // '5 daqiqa oldin'
+timeAgo(minutes(180), now); // '3 soat oldin'
+timeAgo(minutes(1440), now); // 'kecha'
+timeAgo(minutes(4320), now); // '3 kun oldin'
+timeAgo(minutes(20160), now); // '2 hafta oldin'
+timeAgo(minutes(-120), now); // '2 soatdan keyin'
+timeAgo(minutes(-1440), now); // 'ertaga'
+```
+
+Birliklar: daqiqa, soat, kun, hafta, oy va yil.
+
+### Oy va hafta kunlari
+
+```ts
+const MONTHS_UZ: readonly ['Yanvar', 'Fevral', …, 'Dekabr'];
+const MONTHS_UZ_SHORT: readonly ['Yan', 'Fev', 'Mar', 'Apr', 'May', 'Iyn', 'Iyl', …];
+const WEEKDAYS_UZ: readonly ['Dushanba', 'Seshanba', …, 'Yakshanba'];
+const WEEKDAYS_UZ_SHORT: readonly ['Du', 'Se', 'Ch', 'Pa', 'Ju', 'Sh', 'Ya'];
+function weekdayIndex(date: Date): number; // 0 = Dushanba … 6 = Yakshanba
+```
+
+Hafta **dushanbadan** boshlanadi. JavaScript'ning `getDay()` esa yakshanbadan sanaydi, shuning
+uchun indeksni `weekdayIndex` bilan oling:
+
+```ts
+WEEKDAYS_UZ[weekdayIndex(new Date(2026, 9, 21))]; // 'Chorshanba'
+weekdayIndex(new Date(2026, 9, 25)); // 6 — yakshanba
+```
+
+Qisqa oy nomlarida Iyun va Iyul `Iyn` / `Iyl` — bir-biridan farqlanishi uchun.

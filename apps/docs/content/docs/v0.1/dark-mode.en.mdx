@@ -1,0 +1,170 @@
+---
+title: Dark mode
+description: Turn on dark mode with data-theme, next-themes or a theme switcher of your own.
+---
+
+Dark mode is a single attribute:
+
+```html
+<html data-theme="dark"></html>
+```
+
+With that attribute in place, every semantic token (`--ak-surface`, `--ak-text`,
+`--ak-primary-soft` ...) switches to its dark value and the components follow with no extra work.
+Without it, or with `data-theme="light"`, you get light mode. Tailwind's `dark:` variant is wired
+to the same attribute.
+
+<ComponentPreview name="theming/scoped" />
+
+<Callout title="The system setting isn't followed automatically">
+  `theme.css` doesn't look at `prefers-color-scheme` — your app decides which mode is on. That way
+  the user's choice, the OS setting and a saved value never fight each other. Both approaches are
+  shown below.
+</Callout>
+
+## With next-themes (Next.js)
+
+[next-themes](https://github.com/pacocoursey/next-themes) remembers the theme, follows the OS
+setting and prevents the white flash on page load. Tell it which attribute to set:
+
+<Install pkg="next-themes" />
+
+```tsx title="app/providers.tsx"
+'use client';
+
+import { ConfirmProvider, Toaster, TooltipProvider } from '@akhatmirzo/ui';
+import { ThemeProvider } from 'next-themes';
+import type { ReactNode } from 'react';
+
+export function Providers({ children }: { children: ReactNode }) {
+  return (
+    <ThemeProvider attribute="data-theme" defaultTheme="system" enableSystem>
+      <TooltipProvider>
+        <ConfirmProvider>
+          {children}
+          <Toaster />
+        </ConfirmProvider>
+      </TooltipProvider>
+    </ThemeProvider>
+  );
+}
+```
+
+next-themes changes the `<html>` attribute before the page paints, so add
+`suppressHydrationWarning` in `layout.tsx`:
+
+```tsx title="app/layout.tsx"
+<html lang="en" suppressHydrationWarning>
+```
+
+If another library in your project relies on `class="dark"`, set both attributes:
+`attribute={['class', 'data-theme']}`. This documentation site works exactly that way.
+
+### Theme switcher
+
+```tsx title="theme-toggle.tsx"
+'use client';
+
+import { IconButton } from '@akhatmirzo/ui';
+import { Moon, Sun } from 'lucide-react';
+import { useTheme } from 'next-themes';
+
+export function ThemeToggle() {
+  const { resolvedTheme, setTheme } = useTheme();
+  const dark = resolvedTheme === 'dark';
+
+  return (
+    <IconButton
+      variant="ghost"
+      aria-label={dark ? 'Switch to light mode' : 'Switch to dark mode'}
+      onClick={() => setTheme(dark ? 'light' : 'dark')}
+    >
+      {dark ? <Sun /> : <Moon />}
+    </IconButton>
+  );
+}
+```
+
+`resolvedTheme` is `undefined` during server rendering. If the icon swaps right after hydration,
+that's expected.
+
+## Without a library (Vite and others)
+
+If you manage the theme yourself, you need two things: a tiny script that sets the attribute
+**before** the page paints, and a hook that changes it.
+
+```html title="index.html"
+<head>
+  <script>
+    try {
+      // useLocalStorage stores the value as JSON: "dark"
+      const saved = JSON.parse(localStorage.getItem('theme') || 'null');
+      const system = matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+      document.documentElement.dataset.theme = saved || system;
+    } catch {}
+  </script>
+</head>
+```
+
+```tsx title="use-theme.ts"
+import { useLocalStorage } from '@akhatmirzo/hooks';
+import { useEffect } from 'react';
+
+type Theme = 'light' | 'dark';
+
+export function useTheme() {
+  const [theme, setTheme] = useLocalStorage<Theme>('theme', () =>
+    document.documentElement.dataset.theme === 'dark' ? 'dark' : 'light',
+  );
+
+  useEffect(() => {
+    document.documentElement.dataset.theme = theme;
+  }, [theme]);
+
+  return [theme, setTheme] as const;
+}
+```
+
+<Callout type="warn" title="Why the script matters">
+  If the attribute is only set after React loads, users see a white page for a split second. The
+  script in `<head>` removes that flash.
+</Callout>
+
+## On part of a page
+
+`data-theme` works on any element, not just `<html>` — the tokens switch inside that element. The
+demo above is built that way. Use it for a dark footer on a light page, or to compare themes side
+by side.
+
+```tsx
+<footer data-theme="dark" className="bg-background text-text">
+  ...
+</footer>
+```
+
+<Callout type="warn" title="Overlays render in a portal">
+  `Dialog`, `Popover`, `DropdownMenu`, `Tooltip` and toasts render into `document.body`, so they
+  take the theme of `<html>`, not of the surrounding block.
+</Callout>
+
+## What changes in dark mode
+
+- **Backgrounds.** The page is slate-900, cards and inputs slate-800, popovers and toasts one step
+  lighter (slate-750). In dark mode, elevation comes from a lighter surface rather than a shadow.
+- **Shadows.** `shadow-md` and larger get a 1px ring.
+- **The primary button stays the same** (indigo-600) for contrast. Hover states, soft fills and
+  links get lighter.
+- **Native controls.** `color-scheme: dark` is set, so scrollbars, date pickers and autofill go
+  dark too.
+
+## In your own styles
+
+If you style with semantic tokens, you'll rarely need `dark:` — `bg-surface text-text
+border-border` is right in both modes. Save `dark:` for places that need a genuinely different
+decision, such as dimming an image on a dark background: `dark:opacity-80`.
+
+To check the OS setting yourself, use [`useMediaQuery`](./hooks.mdx#usemediaquery):
+
+```tsx
+const prefersDark = useMediaQuery('(prefers-color-scheme: dark)');
+```

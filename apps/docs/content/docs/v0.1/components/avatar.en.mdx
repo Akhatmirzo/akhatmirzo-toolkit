@@ -1,0 +1,153 @@
+---
+title: Avatar
+description: A user's photo or initials, with a stable color per name, a status dot and grouping.
+---
+
+<ComponentPreview name="avatar/basic" />
+
+## Import
+
+```tsx
+import { Avatar, AvatarGroup } from '@akhatmirzo/ui';
+```
+
+## When to use
+
+- **To represent a person or an organization** — comments, chat, table rows, the profile menu.
+- **Always pass `name`**, even with a photo: if the image fails, the initials and color come from
+  the name, and screen readers read it.
+- **One name, one color.** The color is derived from the name, so people are recognizable by color
+  in a list too.
+- **For many participants**, use `AvatarGroup` with `max`: the rest collapse into "+N".
+
+## Sizes and shape
+
+`size`: `xs` 24, `sm` 32, `md` 40 (default), `lg` 48 and `xl` 64px. `shape`: `circle` (default)
+for people, `square` for stores, organizations and projects.
+
+<ComponentPreview name="avatar/sizes" />
+
+## Image and fallback
+
+With `src`, the photo is shown; while it loads or if it fails, you see the initials. Without a
+name either, a person icon (or your `fallback`) appears. The second avatar's image URL is broken
+on purpose.
+
+<ComponentPreview name="avatar/image" />
+
+## Status
+
+`status`: `online`, `offline` or `busy` — a colored dot in the corner. It's also added to the
+`aria-label` for screen readers: "Sarvar Abduxoliqov (onlayn)".
+
+<ComponentPreview name="avatar/status" />
+
+## Group
+
+`AvatarGroup` overlaps its avatars. `size` and `shape` pass from the group to its children;
+anything beyond `max` becomes "+N".
+
+<ComponentPreview name="avatar/group" />
+
+## Props
+
+### Avatar
+
+`Avatar` accepts every other `<span>` attribute except `children`.
+
+<PropsTable
+  rows={[
+    { name: 'src', type: 'string', description: 'Image URL' },
+    { name: 'alt', type: 'string', description: 'Name for screen readers (falls back to name)' },
+    {
+      name: 'name',
+      type: 'string',
+      description: 'Initials and background color are derived from it',
+    },
+    {
+      name: 'size',
+      type: "'xs' | 'sm' | 'md' | 'lg' | 'xl'",
+      default: "'md'",
+      description: "Size: 24 / 32 / 40 / 48 / 64px (inherits the group's inside a group)",
+    },
+    {
+      name: 'shape',
+      type: "'circle' | 'square'",
+      default: "'circle'",
+      description: "Shape (inherits the group's inside a group)",
+    },
+    {
+      name: 'status',
+      type: "'online' | 'offline' | 'busy'",
+      description: 'Status dot in the corner',
+    },
+    {
+      name: 'fallback',
+      type: 'ReactNode',
+      description: 'Shown when there is neither a name nor an image (default: a person icon)',
+    },
+    {
+      name: 'labels',
+      type: '{ status?: Partial<Record<AvatarStatus, string>> }',
+      default: "{ status: { online: 'onlayn', offline: 'oflayn', busy: 'band' } }",
+      description: 'Status names for screen readers',
+    },
+  ]}
+/>
+
+### AvatarGroup
+
+`AvatarGroup` accepts every other `<div>` attribute (`aria-label` ...).
+
+<PropsTable
+  rows={[
+    {
+      name: 'max',
+      type: 'number',
+      description: 'Maximum avatars to show; the rest become "+N"',
+    },
+    {
+      name: 'size',
+      type: "'xs' | 'sm' | 'md' | 'lg' | 'xl'",
+      default: "'md'",
+      description: 'Size of every avatar',
+    },
+    {
+      name: 'shape',
+      type: "'circle' | 'square'",
+      default: "'circle'",
+      description: 'Shape of every avatar',
+    },
+    {
+      name: 'labels',
+      type: '{ more?: (count: number) => string }',
+      description: 'Screen reader text for "+N" (default: "Yana N ta")',
+    },
+  ]}
+/>
+
+### Helper functions
+
+The logic behind Avatar is exported on its own too:
+
+```tsx
+import { getAvatarColor, getInitials } from '@akhatmirzo/ui';
+
+getInitials('Sarvar Abduxoliqov'); // 'SA'
+getInitials("o'tkir hoshimov"); // 'OH'
+getAvatarColor('Sarvar Abduxoliqov'); // 'bg-danger-soft text-danger-soft-foreground'
+```
+
+### Data attributes
+
+On the `Avatar` root: `data-size`, `data-shape`, `data-status` and `data-state` (`loading` ·
+`loaded` · `fallback`).
+
+## Accessibility
+
+- **`role="img"` with an `aria-label`** taken from `alt` or `name`, plus the status in brackets.
+  The initials and image inside are `aria-hidden`, so screen readers say the full name, not "SA".
+- **An avatar without a name** (no `alt`, no `name`) is treated as decoration and hidden
+  completely.
+- **The group** is `role="group"`; give it an `aria-label` ("Project members"). The "+N" is also
+  `role="img"` and reads "Yana N ta".

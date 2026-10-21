@@ -1,0 +1,245 @@
+---
+title: MaskedInput
+description: "Yozish paytida formatlanadigan maydonlar: telefon, summa, karta raqami va o'z niqobingiz."
+---
+
+<ComponentPreview name="masked-input/overview" align="start" />
+
+## Import
+
+```tsx
+import { CardInput, MaskedInput, MoneyInput, PhoneInput } from '@akhatmirzo/ui';
+```
+
+To'rt komponentning umumiy qoidasi: **ichki qiymat — toza, ko'rinish — formatlangan.** Ekranda
+"(90) 123-45-67", `onValueChange` da esa `"901234567"`. Serverga yuborish, saqlash va tekshirish
+uchun ortiqcha belgilarni tozalash shart emas.
+
+| Komponent     | Ko'rinish                   | Qiymat (`value`)     |
+| ------------- | --------------------------- | -------------------- |
+| `PhoneInput`  | `+998` (90) 123-45-67       | `"901234567"`        |
+| `MoneyInput`  | 1 250 000 so'm              | `1250000` (`number`) |
+| `CardInput`   | 8600 1234 1234 1234 UZCARD  | `"8600123412341234"` |
+| `MaskedInput` | AB 1234567 (`"AA 9999999"`) | `"AB1234567"`        |
+
+## Qachon ishlatish
+
+- **Format qat'iy bo'lgan ma'lumot uchun** — telefon, karta, pasport, avtomobil raqami.
+  Foydalanuvchi ajratuvchilarni o'zi yozmaydi, xato qilish imkoni kamayadi.
+- **Pul summasi uchun** — `MoneyInput`: minglik ajratuvchi o'qishni osonlashtiradi, qiymat esa
+  tayyor `number`.
+- **Erkin matn uchun ishlatmang** — ism, manzil, izoh oddiy [Input](./input.mdx) bilan qoladi.
+  Uzunligi o'zgaruvchan ma'lumotga niqob halal beradi.
+- **Har doim label bering** — [Field](./field.mdx) ichida. Placeholder ("(90) 123-45-67") faqat
+  namuna, label o'rnini bosmaydi.
+- **Hamma narsa `Input` dan meros:** `size`, `invalid`, `clearable`, `leftIcon`, `disabled`,
+  `readOnly` — barchasi xuddi [Input](./input.mdx) dagidek ishlaydi.
+
+## Kursor sakramaydi
+
+Formatlash paytida kursor joyida qoladi: raqamni o'rtadan o'chirsangiz yoki qo'shsangiz ham u
+"oxiriga qochmaydi". `Backspace` doimiy belgini (`-`, bo'sh joy, nuqta) emas, undan oldingi
+raqamni o'chiradi — `Delete` ham xuddi shunday, oldinga qarab.
+
+## PhoneInput
+
+O'zbekiston raqami: `+998` — o'chirib bo'lmaydigan prefiks, foydalanuvchi faqat 9 raqam yozadi.
+"+998 90 123 45 67" ni nusxalab joylasangiz ham to'g'ri tushadi. Operator kodi tekshiriladi (33,
+50, 55, 77, 88, 90, 91, 93, 94, 95, 97, 98, 99) — noto'g'ri kodda maydon avtomatik `invalid`
+bo'ladi.
+
+<ComponentPreview name="masked-input/phone" align="start" />
+
+`onValueChange` ikkinchi argumentda tafsilotlarni beradi: `{ valid, operator, complete }`. Xuddi
+shu ma'lumotni komponentdan tashqarida `getPhoneDetails(value)` bilan olasiz — masalan forma
+tekshiruvida.
+
+```tsx
+import { getPhoneDetails } from '@akhatmirzo/ui';
+
+getPhoneDetails('901234567'); // { valid: true, operator: '90', complete: true }
+getPhoneDetails('121234567'); // { valid: false, operator: null, complete: true }
+```
+
+## MoneyInput
+
+Minglik ajratuvchi — bo'sh joy, o'ngda valyuta (standart — "so'm"). Qiymat — `number | null`.
+Mobilda raqamli klaviatura ochiladi (`decimals` bo'lsa — kasr nuqtasi bilan).
+
+<ComponentPreview name="masked-input/money" align="start" />
+
+- `decimals` — kasr raqamlari soni (standart `0`). Vergul bilan yozilsa ham nuqtaga aylanadi.
+- `max` — undan katta qiymatni yozib bo'lmaydi (belgi qabul qilinmaydi).
+- `min` — kichik qiymat maydondan chiqqanda (`blur`) `min` ga tenglashtiriladi.
+- `currency={null}` — valyuta ko'rsatilmaydi; `currency="$"` yoki istalgan `ReactNode`.
+
+## CardInput
+
+Bank kartasi: 4 tadan guruh, o'ngda brend belgisi — **UZCARD** (8600), **HUMO** (9860), **VISA**
+(4) va Mastercard (51–55, 2221–2720). 16 raqam kiritilganda Luhn tekshiruvi o'tkaziladi; o'tmasa —
+maydon `invalid`.
+
+<ComponentPreview name="masked-input/card" align="start" />
+
+Brend belgisi rasmiy logo emas — semantik tokenlardagi neytral matnli belgi (dark mode'da ham
+o'qiladi). Rasmiy logo kerak bo'lsa, `renderBrand` bilan o'zingiz chizing:
+
+```tsx
+import { CardInput } from '@akhatmirzo/ui';
+
+<CardInput renderBrand={(brand) => <img src={`/cards/${brand}.svg`} alt="" className="h-5" />} />;
+```
+
+`getCardDetails(value)` — `{ brand, complete, valid }`; `CardBrandMark` komponenti ham eksport
+qilinadi (`<CardBrandMark brand="humo" />`).
+
+## O'z niqobingiz
+
+`MaskedInput` — umumiy niqob. Belgilar: `9` — raqam, `A` — harf, `*` — istalgan belgi (bo'sh
+joydan tashqari). Qolgan har qanday belgi — doimiy, foydalanuvchi uni yozmaydi. `uppercase` —
+harflarni avtomatik katta qiladi.
+
+<ComponentPreview name="masked-input/custom-mask" align="start" />
+
+`onValueChange(value, { formatted, complete })` — `complete` barcha o'rinlar to'lganini bildiradi.
+Ildiz elementda `data-mask` atributi bor.
+
+## Formada
+
+`name` bersangiz, formaga **toza** qiymatli yashirin `<input>` qo'shiladi — `FormData` da
+`"901234567"`, `"1250000"` kabi qiymat keladi, formatlangan matn emas.
+
+```tsx
+<form action="/api/order">
+  <PhoneInput name="phone" required />
+  <MoneyInput name="amount" />
+</form>
+```
+
+## Props
+
+Barcha komponentlar [Input](./input.mdx) props'larini (`size`, `invalid`, `clearable`,
+`leftIcon`, `disabled`, `readOnly`, `name`, `aria-*` ...) va `ref` ni qabul qiladi. `type` va
+`defaultValue` / `value` — o'zlariniki.
+
+### MaskedInput
+
+<PropsTable
+  rows={[
+    {
+      name: 'mask',
+      type: 'string',
+      required: true,
+      description: '9 — raqam, A — harf, * — istalgan; qolgani doimiy belgi',
+    },
+    { name: 'value', type: 'string', description: 'Toza qiymat, doimiy belgilarsiz: "AB1234567"' },
+    { name: 'defaultValue', type: 'string' },
+    {
+      name: 'onValueChange',
+      type: '(value: string, details: MaskedInputDetails) => void',
+      description: 'details: { formatted, complete }',
+    },
+    {
+      name: 'uppercase',
+      type: 'boolean',
+      default: 'false',
+      description: "Harflarni katta harfga o'tkazish",
+    },
+  ]}
+/>
+
+### PhoneInput
+
+`prefix` qabul qilinmaydi — u doim `+998`.
+
+<PropsTable
+  rows={[
+    { name: 'value', type: 'string', description: '9 raqam, +998 siz: "901234567"' },
+    { name: 'defaultValue', type: 'string' },
+    {
+      name: 'onValueChange',
+      type: '(value: string, details: PhoneInputDetails) => void',
+      description: 'details: { valid, operator, complete }',
+    },
+    {
+      name: 'validateOperator',
+      type: 'boolean',
+      default: 'true',
+      description: "Operator kodi noto'g'ri bo'lsa avtomatik invalid",
+    },
+    { name: 'placeholder', type: 'string', default: "'(90) 123-45-67'" },
+  ]}
+/>
+
+### MoneyInput
+
+<PropsTable
+  rows={[
+    { name: 'value', type: 'number | null' },
+    { name: 'defaultValue', type: 'number | null' },
+    { name: 'onValueChange', type: '(value: number | null) => void' },
+    {
+      name: 'currency',
+      type: 'ReactNode',
+      default: '"so\'m"',
+      description: "O'ngdagi valyuta; null — ko'rsatilmaydi",
+    },
+    { name: 'decimals', type: 'number', default: '0', description: 'Kasr raqamlari soni' },
+    {
+      name: 'min',
+      type: 'number',
+      description: 'Kichik qiymat blur paytida min ga tenglashtiriladi',
+    },
+    { name: 'max', type: 'number', description: "Undan katta qiymatni yozib bo'lmaydi" },
+    { name: 'placeholder', type: 'string', default: "'0'" },
+  ]}
+/>
+
+### CardInput
+
+<PropsTable
+  rows={[
+    { name: 'value', type: 'string', description: '16 raqam: "8600123412341234"' },
+    { name: 'defaultValue', type: 'string' },
+    {
+      name: 'onValueChange',
+      type: '(value: string, details: CardInputDetails) => void',
+      description: 'details: { brand, complete, valid }',
+    },
+    {
+      name: 'validateLuhn',
+      type: 'boolean',
+      default: 'true',
+      description: "To'liq kiritilganda Luhn xato bo'lsa avtomatik invalid",
+    },
+    {
+      name: 'renderBrand',
+      type: '(brand: CardBrand) => ReactNode',
+      description: "Brend belgisini o'zingiz chizish",
+    },
+    { name: 'leftIcon', type: 'ReactNode', description: 'Standart — karta ikonkasi' },
+    { name: 'placeholder', type: 'string', default: "'0000 0000 0000 0000'" },
+  ]}
+/>
+
+`CardBrand` — `'uzcard' | 'humo' | 'visa' | 'mastercard'` (`@akhatmirzo/core` dan).
+
+### Data atributlari
+
+| Atribut      | Komponent     | Qiymat                                    |
+| ------------ | ------------- | ----------------------------------------- |
+| `data-mask`  | `MaskedInput` | `mask` qiymati                            |
+| `data-brand` | `CardInput`   | `uzcard` · `humo` · `visa` · `mastercard` |
+
+## Accessibility
+
+- **Native `<input type="text">`** — ekran o'quvchi formatlangan matnni o'qiydi, tahrirlash
+  odatdagidek ishlaydi.
+- **Mobil klaviatura** turiga mos: `PhoneInput` — `inputMode="tel"`, `CardInput` va
+  `MoneyInput` — `numeric` (`decimals` bilan — `decimal`).
+- **Avtoto'ldirish:** `PhoneInput` — `autoComplete="tel-national"`, `CardInput` —
+  `autoComplete="cc-number"`. `MaskedInput` da avtoto'ldirish o'chiq (`off`), imlo tekshiruvi ham.
+- **Xato holati** (`validateOperator`, `validateLuhn`) `aria-invalid` sifatida beriladi. Xato
+  sababini matn bilan `Field` ning `error` prop'ida ko'rsating — rang yetarli emas.
+- **Valyuta va karta brendi** dekorativ (`aria-hidden`) — summa uchun label'ga valyutani yozing
+  ("Summa, so'm"), agar u muhim bo'lsa.

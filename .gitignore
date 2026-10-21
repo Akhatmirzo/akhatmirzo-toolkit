@@ -27,3 +27,9 @@ Thumbs.db
 
 # Claude Code local settings
 .claude/settings.local.json
+
+# Next.js
+.next/
+.source/
+next-env.d.ts
+.vercel

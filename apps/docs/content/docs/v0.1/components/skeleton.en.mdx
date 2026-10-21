@@ -1,0 +1,81 @@
+---
+title: Skeleton
+description: Shimmering placeholder blocks and text lines that stand in for loading content.
+---
+
+<ComponentPreview name="skeleton/loading-card" />
+
+## Import
+
+```tsx
+import { Skeleton } from '@akhatmirzo/ui';
+```
+
+## When to use
+
+- **When you know the shape of the content** — cards, lists, a profile, a table. The page doesn't
+  jump once data arrives.
+- **Mirror the real content:** a circle for the avatar, a short line for the title,
+  `Skeleton.Text` for paragraphs.
+- **For unknown shapes or short waits** (after a button click), use a [`Spinner`](./spinner.mdx)
+  or the `loading` prop on `Button`.
+- **Put `aria-busy` on the parent** — the skeletons themselves are hidden from screen readers.
+
+## Shapes
+
+Set the size with `className` (`h-4 w-32`, `size-10`). `variant="circle"` gives a circle for
+avatars; the default `rect` is a rectangle with rounded corners.
+
+<ComponentPreview name="skeleton/shapes" />
+
+## Text lines
+
+`Skeleton.Text` renders `lines` rows, with the last one at 60% width so it looks like a real
+paragraph.
+
+<ComponentPreview name="skeleton/text" />
+
+## Props
+
+### Skeleton
+
+`Skeleton` accepts every other `<div>` attribute.
+
+<PropsTable
+  rows={[
+    {
+      name: 'variant',
+      type: "'rect' | 'circle'",
+      default: "'rect'",
+      description: 'circle is for avatar placeholders',
+    },
+    {
+      name: 'className',
+      type: 'string',
+      description: 'Size and shape: h-4 w-32, size-10, rounded-lg',
+    },
+  ]}
+/>
+
+### Skeleton.Text
+
+Also exported as `SkeletonText`. Accepts the remaining `<div>` attributes.
+
+<PropsTable
+  rows={[
+    {
+      name: 'lines',
+      type: 'number',
+      default: '3',
+      description: 'Number of lines; with more than one, the last is 60% wide',
+    },
+  ]}
+/>
+
+## Accessibility
+
+- **`aria-hidden="true"`** — skeletons are invisible to screen readers, so empty blocks aren't
+  announced.
+- **Signal loading on the parent:** `aria-busy={loading}` (on the `Card` in the example above).
+  Add a visually hidden "Loading" text if you need one.
+- **Reduced motion.** With "reduce motion" turned on, the shimmer becomes a gentle pulse.

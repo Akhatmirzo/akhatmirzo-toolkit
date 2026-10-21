@@ -1,0 +1,104 @@
+---
+title: Kbd
+description: Displays keys and shortcuts; mod becomes Cmd on macOS and Ctrl everywhere else.
+---
+
+<ComponentPreview name="kbd/basic" />
+
+## Import
+
+```tsx
+import { Kbd } from '@akhatmirzo/ui';
+```
+
+## When to use
+
+- **To show shortcuts** — in menu items, [`Tooltip`](./tooltip.mdx),
+  [`CommandPalette`](./command-palette.mdx) and help text.
+- **Use the `keys` array for combinations** — each key is drawn separately and `mod` adapts to
+  the operating system.
+- **It only displays.** `Kbd` doesn't listen for key presses — use `useHotkeys` for that (see
+  the example below).
+- **Don't add a shortcut to every menu item** — keep them for frequent actions.
+
+## Key list (`keys`)
+
+Each item in `keys` is rendered separately. `mod` (case-insensitive) becomes `⌘` on macOS and
+iOS and `Ctrl` everywhere else. For a single key, plain `children` is enough.
+
+<ComponentPreview name="kbd/keys" />
+
+<Callout title="SSR and mod">
+  The platform is unknown on the server, so `Ctrl` renders first. In the browser it switches to `⌘`
+  on Apple devices — without a hydration mismatch.
+</Callout>
+
+## Sizes
+
+`sm` (default) is 20px, for inline text and menus. `md` is 24px, for standalone use or next to
+larger text.
+
+<ComponentPreview name="kbd/sizes" />
+
+## In a menu
+
+The most common case — a shortcut on the right side of a menu item.
+
+<ComponentPreview name="kbd/menu" />
+
+## Wiring up the shortcut
+
+`Kbd` and `useHotkeys` from `@akhatmirzo/hooks` follow the same `mod` rule, so the key you show
+always matches the key you listen for.
+
+```tsx title="search-hint.tsx"
+import { useHotkeys } from '@akhatmirzo/hooks';
+import { Kbd } from '@akhatmirzo/ui';
+import { useState } from 'react';
+
+export function SearchHint() {
+  const [open, setOpen] = useState(false);
+  useHotkeys('mod+k', () => setOpen(true));
+
+  return (
+    <p>
+      Search: <Kbd keys={['mod', 'K']} /> {open && '— opened'}
+    </p>
+  );
+}
+```
+
+## Props
+
+`Kbd` accepts every other `<kbd>` attribute (`className`, `title`, `data-*` ...).
+
+<PropsTable
+  rows={[
+    {
+      name: 'keys',
+      type: 'string[]',
+      description:
+        "Key sequence; 'mod' is ⌘ on macOS and Ctrl elsewhere. When set, children are ignored",
+    },
+    {
+      name: 'size',
+      type: "'sm' | 'md'",
+      default: "'sm'",
+      description: 'Height: 20 / 24px',
+    },
+    {
+      name: 'children',
+      type: 'ReactNode',
+      description: 'Content shown when keys is not set',
+    },
+  ]}
+/>
+
+The root element has a `data-size` attribute. `kbdVariants` is also exported if you need the
+styles on another element.
+
+## Accessibility
+
+- **A semantic `<kbd>` element** marks the content as keyboard input.
+- **Symbols** (`⌘`, `↵`, `↑`) aren't always read clearly by screen readers. For important
+  instructions, write the word instead: `<Kbd>Enter</Kbd>`.

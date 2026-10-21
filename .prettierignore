@@ -5,3 +5,9 @@ pnpm-lock.yaml
 # Hujjatlar va prototiplar qo'lda formatlangan
 *.md
 prototype
+.next
+.source
+next-env.d.ts
+
+# Docs: avtomatik yaratilgan demo registry
+apps/docs/components/demos/registry.generated.ts

@@ -1,0 +1,71 @@
+---
+title: Spinner
+description: 'A loading indicator with role="status" that inherits the text color, in 3 sizes.'
+---
+
+<ComponentPreview name="spinner/sizes" />
+
+## Import
+
+```tsx
+import { Spinner } from '@akhatmirzo/ui';
+```
+
+## When to use
+
+- **For short waits of unknown length** — while a request is in flight or a small block is
+  loading.
+- **Don't put a spinner in a button by hand** — [`Button`](./button.mdx) and
+  [`IconButton`](./icon-button.mdx) have a `loading` prop.
+- **If you know the shape of the content** — a list, card or table — use
+  [`Skeleton`](./skeleton.mdx) instead so the layout doesn't jump.
+- **One spinner per screen.** A dozen spinning indicators wear people out.
+
+## Sizes
+
+`sm` is 16px, `md` (default) is 20px and `lg` is 24px.
+
+## Color
+
+The spinner draws with `currentColor`, so it inherits the parent's text color. Set it with
+semantic tokens such as `className="text-primary"`.
+
+<ComponentPreview name="spinner/colors" />
+
+## With text
+
+When visible text sits next to it, hide the spinner with `aria-hidden` — otherwise screen readers
+announce it twice. For a standalone spinner, give `label` a specific message.
+
+<ComponentPreview name="spinner/with-text" />
+
+## Props
+
+`Spinner` accepts every other `<span>` attribute except `children`.
+
+<PropsTable
+  rows={[
+    {
+      name: 'size',
+      type: "'sm' | 'md' | 'lg'",
+      default: "'md'",
+      description: 'Size: 16 / 20 / 24px',
+    },
+    {
+      name: 'label',
+      type: 'string',
+      default: "'Yuklanmoqda'",
+      description: 'Hidden text for screen readers',
+    },
+  ]}
+/>
+
+The root element has a `data-size` attribute. The classes for the spinning ring are exported as
+`spinnerVariants`.
+
+## Accessibility
+
+- **`role="status"`** — screen readers read the hidden `label`; the spinning ring itself is
+  `aria-hidden`.
+- **Reduced motion.** With "reduce motion" turned on, the spinner keeps turning but slower
+  (1.5s), so the waiting state is still visible.

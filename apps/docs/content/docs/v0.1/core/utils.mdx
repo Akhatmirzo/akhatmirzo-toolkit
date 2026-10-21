@@ -1,0 +1,169 @@
+---
+title: Utilitalar
+description: 'debounce, throttle, sleep, groupBy, uniqueBy va clamp — umumiy yordamchi funksiyalar.'
+---
+
+Har loyihada qayta yoziladigan kichik funksiyalar. Bog'liqliksiz, React'siz va to'liq tiplangan.
+
+```ts
+import { debounce, throttle, sleep, groupBy, uniqueBy, clamp } from '@akhatmirzo/core';
+```
+
+## Vaqt bo'yicha cheklash
+
+Sichqonchani maydon ustida yurgizing va hisoblagichlarni solishtiring: `throttle` harakat
+davomida har 400 ms da bir marta ishlaydi, `debounce` esa faqat to'xtaganingizdan keyin bir marta.
+
+<ComponentPreview name="core/debounce-throttle" />
+
+### debounce
+
+```ts
+function debounce<A extends unknown[]>(fn: (...args: A) => unknown, ms: number): Debounced<A>;
+
+interface Debounced<A> {
+  (...args: A): void;
+  cancel(): void; // kutilayotgan chaqiruvni bekor qiladi
+  flush(): void; // kutilayotgan chaqiruvni darhol bajaradi
+  pending(): boolean; // kutilayotgan chaqiruv bormi
+}
+```
+
+Oxirgi chaqiruvdan `ms` millisekund o'tgach `fn` ni **oxirgi** argumentlar bilan bir marta
+chaqiradi. Qidiruv maydoni, avtomatik saqlash, oyna o'lchami o'zgarishi uchun.
+
+```ts
+const search = debounce((query: string) => api.get('/search', { query: { q: query } }), 300);
+
+search('t');
+search('to');
+search('tosh'); // 300 ms dan keyin faqat bitta so'rov: q=tosh
+
+search.pending(); // true
+search.flush(); // darhol yuborish (masalan, Enter bosilganda)
+search.cancel(); // bekor qilish (masalan, komponent yopilganda)
+```
+
+<Callout title="React komponentida">
+  Komponent ichida har render'da yangi `debounce` yaratilmasligi kerak.
+  [`useDebouncedCallback`](../hooks.mdx#usedebouncedcallback) buni o'zi hal qiladi va unmount'da
+  bekor qiladi.
+</Callout>
+
+### throttle
+
+```ts
+function throttle<A extends unknown[]>(fn: (...args: A) => unknown, ms: number): Throttled<A>;
+
+interface Throttled<A> {
+  (...args: A): void;
+  cancel(): void; // kutilayotgan (oxirgi) chaqiruvni bekor qiladi
+}
+```
+
+`fn` ni ko'pi bilan `ms` da bir marta chaqiradi: birinchi chaqiruv **darhol**, oraliqda
+kelganlarning oxirgisi — oraliq tugaganda. Scroll, sichqoncha harakati, tez-tez keladigan
+hodisalar uchun.
+
+```ts
+const onScroll = throttle(() => saveScrollPosition(window.scrollY), 100);
+window.addEventListener('scroll', onScroll);
+
+const log = throttle((n: number) => console.log(n), 50);
+log(1); // darhol: 1
+log(2);
+log(3); // 50 ms dan keyin: 3 (2 tashlab yuboriladi)
+```
+
+### sleep
+
+```ts
+function sleep(ms: number, signal?: AbortSignal): Promise<void>;
+```
+
+`ms` millisekund kutadi. `signal` bekor qilinsa, promise `signal.reason` (yoki `AbortError`)
+bilan reject bo'ladi — kutish osilib qolmaydi.
+
+```ts
+await sleep(500);
+
+// 3 marta urinish, oralarda 1 va 2 soniya kutib
+async function getStatus() {
+  for (let attempt = 0; ; attempt++) {
+    try {
+      return await api.get('/status');
+    } catch (error) {
+      if (attempt === 2) throw error;
+      await sleep(1000 * 2 ** attempt);
+    }
+  }
+}
+
+const controller = new AbortController();
+sleep(10_000, controller.signal).catch((e) => e.name); // 'AbortError'
+controller.abort();
+```
+
+## Massivlar
+
+### groupBy
+
+```ts
+function groupBy<T, K extends PropertyKey>(
+  items: readonly T[],
+  keyFn: (item: T, index: number) => K,
+): Record<K, T[]>;
+```
+
+Elementlarni kalit bo'yicha guruhlaydi, tartib saqlanadi. Natija prototipsiz obyekt — `'constructor'`
+yoki `'toString'` kabi kalitlar ham xavfsiz.
+
+```ts
+const users = [
+  { name: 'Ali', role: 'admin' },
+  { name: 'Vali', role: 'user' },
+  { name: 'Sardor', role: 'admin' },
+];
+
+groupBy(users, (u) => u.role);
+// {
+//   admin: [{ name: 'Ali', … }, { name: 'Sardor', … }],
+//   user: [{ name: 'Vali', … }],
+// }
+```
+
+### uniqueBy
+
+```ts
+function uniqueBy<T>(items: readonly T[], keyFn: (item: T, index: number) => unknown): T[];
+```
+
+Kalit bo'yicha takrorlarni olib tashlaydi — har bir kalitning **birinchi** elementi qoladi.
+
+```ts
+uniqueBy(
+  [
+    { id: 1, name: 'Toshkent' },
+    { id: 2, name: 'Samarqand' },
+    { id: 1, name: 'Toshkent (eski)' },
+  ],
+  (city) => city.id,
+);
+// [{ id: 1, name: 'Toshkent' }, { id: 2, name: 'Samarqand' }]
+```
+
+## Sonlar
+
+### clamp
+
+```ts
+function clamp(value: number, min: number, max: number): number;
+```
+
+Qiymatni `[min, max]` oralig'iga cheklaydi.
+
+```ts
+clamp(150, 0, 100); // 100
+clamp(-5, 0, 100); // 0
+clamp(42, 0, 100); // 42
+```

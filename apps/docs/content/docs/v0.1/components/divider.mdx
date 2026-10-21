@@ -1,0 +1,70 @@
+---
+title: Divider
+description: "Bo'limlarni ajratuvchi 1px chiziq: gorizontal yoki vertikal, o'rtasida matn bilan."
+---
+
+<ComponentPreview name="divider/basic" />
+
+## Import
+
+```tsx
+import { Divider } from '@akhatmirzo/ui';
+```
+
+## Qachon ishlatish
+
+- **Mazmunan farq qiladigan bo'laklarni ajratish uchun** — chekdagi jami summa, menyu guruhlari,
+  karta ichidagi bo'limlar.
+- **Ko'pincha bo'shliq yetarli.** Har bir element orasiga chiziq qo'ymang — sahifa
+  "panjara"ga aylanadi.
+- **Muqobil yo'llar orasida** — `label="yoki"`: "Telefon orqali kirish" / "Google orqali kirish".
+- **Faqat bezak bo'lsa** (masalan, navigatsiya bandlari orasida) — `decorative`.
+
+## Matn bilan
+
+`label` chiziq o'rtasiga matn qo'yadi. Matn satr bo'lsa, `aria-label` sifatida ham ishlatiladi.
+
+<ComponentPreview name="divider/label" />
+
+## Vertikal
+
+`orientation="vertical"` — qator ichida, balandligi ota elementga cho'ziladi. Ota elementga
+balandlik bering (`h-5`) yoki `items-stretch`.
+
+<ComponentPreview name="divider/vertical" />
+
+## Props
+
+`Divider` qolgan barcha `<div>` atributlarini qabul qiladi. Rangni `className` bilan
+o'zgartirasiz, masalan `bg-border-strong`.
+
+<PropsTable
+  rows={[
+    {
+      name: 'orientation',
+      type: "'horizontal' | 'vertical'",
+      default: "'horizontal'",
+      description: "Yo'nalish",
+    },
+    {
+      name: 'label',
+      type: 'ReactNode',
+      description: 'O\'rtadagi matn ("yoki")',
+    },
+    {
+      name: 'decorative',
+      type: 'boolean',
+      default: 'false',
+      description: 'Faqat bezak — ekran o\'quvchidan yashiriladi (role="none")',
+    },
+  ]}
+/>
+
+Ildiz elementda `data-orientation` atributi bor.
+
+## Accessibility
+
+- **`role="separator"`** va `aria-orientation` — ekran o'quvchi bo'limlar chegarasini aytadi.
+- **`label`** satr bo'lsa, ajratuvchining `aria-label` iga aylanadi.
+- **`decorative`** — `role="none"`: ma'nosiz chiziqlar o'qilmaydi. Navigatsiya bandlari, toolbar
+  guruhlari orasidagi chiziqlar uchun.

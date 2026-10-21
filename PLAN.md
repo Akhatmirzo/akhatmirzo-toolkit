@@ -177,6 +177,14 @@ Komponentlarni ertaroq ko'rish uchun: **4 → 5 → 3 → 6 → 7**.
 - [x] npm'ga nashr qilindi: @akhatmirzo/core, hooks, tokens, ui — 0.1.0 (registry'dan o'rnatib sinaldi)
 - [ ] Birinchi haqiqiy loyihada sinab ko'rish
 
+### 📚 9-bosqich: Hujjatlar sayti va README
+- [x] apps/docs: Fumadocs (Next.js 16), o'zbekcha + inglizcha (/uz, /en), minor versiyalar (v0.1, versiya tanlagich, `pnpm --filter docs docs:version`)
+- [x] 48 sahifa × 2 til: boshlash, mavzu, dark mode, versiyalar, 32 komponent, core, hooks; 203 jonli demo (Ko'rinish / Kod), props jadvallari
+- [x] Qidiruv (versiya bo'yicha filtr), sitemap, OG rasmlar, llms.txt
+- [x] Kuchli README'lar (badge'lar, tez boshlash, docs havolalari) + `ui`/`hooks` uchun 'use client' — patch changeset tayyor
+- [ ] Vercel'ga chiqarish (Root Directory: apps/docs)
+- [ ] Patch nashr (README va 'use client' npm'ga yetishi uchun)
+
 ---
 
 ## 6. "Tayyor" mezoni (Definition of Done)
