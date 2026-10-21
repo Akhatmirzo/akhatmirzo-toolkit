@@ -1,5 +1,5 @@
 {
   "baseBranch": "main",
-  "access": "restricted",
+  "access": "public",
   "ignore": ["playground"]
 }

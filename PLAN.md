@@ -168,9 +168,13 @@ Komponentlarni ertaroq ko'rish uchun: **4 → 5 → 3 → 6 → 7**.
 - [x] CommandPalette (Ctrl+K)
 - [x] Playground: "Ma'lumotlar" bo'limi
 
-### 📦 8-bosqich: Nashr va hujjat  ← **KEYINGI**
-- [ ] npm'ga publish (`@nom/*` scoped)
-- [ ] README'lar, ishlatish misollari
+### 📦 8-bosqich: Nashr va hujjat  ← **JARAYONDA**
+- [x] Qarorlar: npm public, GitHub public, MIT, birinchi versiya 0.1.0
+- [x] Paket metama'lumotlari, LICENSE, har bir paket uchun README, CHANGELOG (Changesets)
+- [x] CI: GitHub Actions (`pnpm check` + playground build)
+- [x] Qadoqlar (`pnpm pack`) alohida Vite ilovaga o'rnatilib sinaldi: tsc (skipLibCheck: false), build, brauzerda stillar, toast, confirm
+- [ ] GitHub'ga yuborish (Akhatmirzo/akhatmirzo-toolkit)
+- [ ] npm'ga nashr (`pnpm -r publish`)
 - [ ] Birinchi haqiqiy loyihada sinab ko'rish
 
 ---

@@ -1,7 +1,22 @@
 {
   "name": "@akhatmirzo/hooks",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "Qayta ishlatiladigan React hooklar",
+  "keywords": [
+    "react",
+    "hooks"
+  ],
+  "license": "MIT",
+  "author": "Akhatmirzo",
+  "homepage": "https://github.com/Akhatmirzo/akhatmirzo-toolkit/tree/main/packages/hooks#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Akhatmirzo/akhatmirzo-toolkit.git",
+    "directory": "packages/hooks"
+  },
+  "bugs": {
+    "url": "https://github.com/Akhatmirzo/akhatmirzo-toolkit/issues"
+  },
   "type": "module",
   "sideEffects": false,
   "files": [
@@ -27,5 +42,14 @@
     "@types/react-dom": "^19.3.0",
     "react": "^19.3.1",
     "react-dom": "^19.3.1"
+  },
+  "publishConfig": {
+    "access": "public",
+    "exports": {
+      ".": {
+        "types": "./dist/index.d.ts",
+        "import": "./dist/index.js"
+      }
+    }
   }
 }

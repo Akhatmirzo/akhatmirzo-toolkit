@@ -1,7 +1,26 @@
 {
   "name": "@akhatmirzo/core",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "Toza TypeScript yordamchi funksiyalar: formatlash, validatsiya, matn",
+  "keywords": [
+    "utils",
+    "formatting",
+    "validation",
+    "uzbek",
+    "uzbekistan",
+    "transliteration"
+  ],
+  "license": "MIT",
+  "author": "Akhatmirzo",
+  "homepage": "https://github.com/Akhatmirzo/akhatmirzo-toolkit/tree/main/packages/core#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Akhatmirzo/akhatmirzo-toolkit.git",
+    "directory": "packages/core"
+  },
+  "bugs": {
+    "url": "https://github.com/Akhatmirzo/akhatmirzo-toolkit/issues"
+  },
   "type": "module",
   "sideEffects": false,
   "files": [
@@ -18,5 +37,14 @@
   "scripts": {
     "build": "tsup",
     "typecheck": "tsc -p tsconfig.json"
+  },
+  "publishConfig": {
+    "access": "public",
+    "exports": {
+      ".": {
+        "types": "./dist/index.d.ts",
+        "import": "./dist/index.js"
+      }
+    }
   }
 }

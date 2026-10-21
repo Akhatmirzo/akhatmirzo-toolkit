@@ -173,6 +173,9 @@ importers:
         specifier: ^3.7.0
         version: 3.7.0
     devDependencies:
+      '@akhatmirzo/tokens':
+        specifier: workspace:^
+        version: link:../tokens
       '@types/react':
         specifier: ^19.3.0
         version: 19.3.0

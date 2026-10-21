@@ -1,7 +1,24 @@
 {
   "name": "@akhatmirzo/tokens",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "Dizayn tokenlari: CSS o'zgaruvchilari va Tailwind v4 @theme",
+  "keywords": [
+    "design-tokens",
+    "tailwindcss",
+    "css-variables",
+    "theme"
+  ],
+  "license": "MIT",
+  "author": "Akhatmirzo",
+  "homepage": "https://github.com/Akhatmirzo/akhatmirzo-toolkit/tree/main/packages/tokens#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Akhatmirzo/akhatmirzo-toolkit.git",
+    "directory": "packages/tokens"
+  },
+  "bugs": {
+    "url": "https://github.com/Akhatmirzo/akhatmirzo-toolkit/issues"
+  },
   "type": "module",
   "files": [
     "theme.css"
@@ -11,5 +28,8 @@
   },
   "sideEffects": [
     "*.css"
-  ]
+  ],
+  "publishConfig": {
+    "access": "public"
+  }
 }
