@@ -9,9 +9,18 @@ import {
   formatMoney,
   formatNumber,
   formatPhone,
+  formatDateRange,
+  formatDateUz,
+  formatDuration,
+  moneyToWords,
+  numberToWords,
+  ordinal,
+  ordinalWords,
   parseDate,
   timeAgo,
+  type DateUzStyle,
   type MoneyCurrency,
+  type MoneyToWordsOptions,
 } from '@akhatmirzo/core';
 import { Badge, Button, Field, Input } from '@akhatmirzo/ui';
 import { useMemo, useState, type ChangeEvent, type ReactNode } from 'react';
@@ -150,6 +159,156 @@ function PhoneSection() {
           {formatPhone('+998 (90) 123-45-67')}
         </Result>
         <Result call="formatPhone('998123456')">{formatPhone('998123456')}</Result>
+      </div>
+    </DemoSection>
+  );
+}
+
+type Script = 'latin' | 'cyrillic';
+type Tiyin = NonNullable<MoneyToWordsOptions['tiyin']>;
+
+function ScriptButtons({ value, onChange }: { value: Script; onChange: (s: Script) => void }) {
+  return (
+    <DemoRow label="script">
+      {(['latin', 'cyrillic'] as const).map((s) => (
+        <Button
+          key={s}
+          size="sm"
+          variant={value === s ? 'primary' : 'outline'}
+          onClick={() => onChange(s)}
+        >
+          {s}
+        </Button>
+      ))}
+    </DemoRow>
+  );
+}
+
+const WORD_SAMPLES = [0, 11, 21, 101, 1000, 1001, 100_000, 1_000_001, 2_300_000_000, 1e12, -15];
+
+function WordsSection() {
+  const [raw, setRaw] = useState('1250000.5');
+  const [script, setScript] = useState<Script>('latin');
+  const [formal, setFormal] = useState(false);
+  const [ascii, setAscii] = useState(false);
+  const [tiyin, setTiyin] = useState<Tiyin>('digits');
+  const n = Number(raw.replace(',', '.').replace(/\s/g, ''));
+  const opts = { script, formal, apostrophe: ascii ? 'ascii' : 'typographic' } as const;
+
+  return (
+    <DemoSection
+      title="Son va pul so'z bilan"
+      description={
+        <>
+          <Code>numberToWords</Code>, <Code>moneyToWords</Code>, <Code>ordinalWords</Code> —{' '}
+          <Code>±999 999 999 999 999</Code> gacha; kirill <Code>latToCyr</Code> orqali.
+        </>
+      }
+    >
+      <Field label="Son">
+        <Input value={raw} onChange={(e) => setRaw(e.target.value)} inputMode="decimal" />
+      </Field>
+      <ScriptButtons value={script} onChange={setScript} />
+      <DemoRow label="Opsiyalar">
+        <Button
+          size="sm"
+          variant={formal ? 'primary' : 'outline'}
+          onClick={() => setFormal(!formal)}
+        >
+          formal
+        </Button>
+        <Button size="sm" variant={ascii ? 'primary' : 'outline'} onClick={() => setAscii(!ascii)}>
+          apostrophe: ascii
+        </Button>
+        {(['digits', 'words', false] as const).map((t) => (
+          <Button
+            key={String(t)}
+            size="sm"
+            variant={tiyin === t ? 'primary' : 'outline'}
+            onClick={() => setTiyin(t)}
+          >
+            tiyin: {String(t)}
+          </Button>
+        ))}
+      </DemoRow>
+      <div>
+        <Result call="numberToWords(n)">{numberToWords(n, opts)}</Result>
+        <Result call="moneyToWords(n)">{moneyToWords(n, { ...opts, tiyin })}</Result>
+        <Result call="ordinal(n)">{ordinal(n)}</Result>
+        <Result call="ordinalWords(n)">{ordinalWords(n, opts)}</Result>
+      </div>
+      <div>
+        {WORD_SAMPLES.map((v) => (
+          <Result key={v} call={formatNumber(v)}>
+            {numberToWords(v, opts)}
+          </Result>
+        ))}
+      </div>
+    </DemoSection>
+  );
+}
+
+const DATE_STYLES: DateUzStyle[] = ['long', 'full', 'short', 'dayMonth', 'monthYear'];
+
+function DateUzSection() {
+  const [start, setStart] = useState('2026-10-20');
+  const [end, setEnd] = useState('2026-10-22');
+  const [script, setScript] = useState<Script>('latin');
+  const [seconds, setSeconds] = useState('8100');
+  const a = parseDate(start, 'yyyy-MM-dd');
+  const b = parseDate(end, 'yyyy-MM-dd');
+  const ms = Number(seconds || 0) * 1000;
+
+  return (
+    <DemoSection
+      title="O'zbekcha sana va davomiylik"
+      description={
+        <>
+          <Code>formatDateUz</Code>, <Code>formatDateRange</Code>, <Code>formatDuration</Code> — oy
+          nomlari kichik harf bilan, kun va yil defis bilan.
+        </>
+      }
+    >
+      <DemoGrid min={200}>
+        <Field label="Boshlanish">
+          <Input type="date" value={start} onChange={(e) => setStart(e.target.value)} />
+        </Field>
+        <Field label="Tugash">
+          <Input type="date" value={end} onChange={(e) => setEnd(e.target.value)} />
+        </Field>
+      </DemoGrid>
+      <ScriptButtons value={script} onChange={setScript} />
+      <div>
+        {DATE_STYLES.map((style) => (
+          <Result key={style} call={`formatDateUz(start, { style: '${style}' })`}>
+            {formatDateUz(a, { style, script })}
+          </Result>
+        ))}
+        <Result call="formatDateUz(new Date(), { time: true })">
+          {formatDateUz(new Date(), { time: true, script })}
+        </Result>
+        <Result call="formatDateRange(start, end)">{formatDateRange(a, b, { script })}</Result>
+        <Result call="formatDateRange(start, end, { style: 'short' })">
+          {formatDateRange(a, b, { style: 'short', script })}
+        </Result>
+      </div>
+      <Field label="Davomiylik">
+        <Input
+          value={seconds}
+          onChange={(e) => setSeconds(digitsOf(e.target.value).slice(0, 12))}
+          inputMode="numeric"
+          suffix="soniya"
+        />
+      </Field>
+      <div>
+        {[1, 2, 3, 4].map((units) => (
+          <Result key={units} call={`formatDuration(ms, { units: ${units} })`}>
+            {formatDuration(ms, { units, script })}
+          </Result>
+        ))}
+        <Result call="formatDuration(ms, { style: 'short' })">
+          {formatDuration(ms, { style: 'short', script })}
+        </Result>
       </div>
     </DemoSection>
   );
@@ -375,9 +534,11 @@ export default function Page() {
       }
     >
       <NumberSection />
+      <WordsSection />
       <PhoneSection />
       <CardSection />
       <DateSection />
+      <DateUzSection />
       <TimeAgoSection />
       <FileSizeSection />
     </DemoPage>

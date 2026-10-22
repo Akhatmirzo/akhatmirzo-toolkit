@@ -82,6 +82,50 @@ panel modal qatlamida ekanini o'zi aniqlaydi va z-index'ini ko'taradi, shuning u
 oyna ustida ochiladi. Hech narsa sozlash shart emas — tayyor misol Dialog sahifasidagi "Dialog
 ichida Select va Combobox" bo'limida.
 
+## RegionSelect
+
+O'zbekiston hududlari uchun tayyor `Select`: Qoraqalpog'iston Respublikasi, 12 viloyat va
+Toshkent shahri (`@akhatmirzo/core` dagi `UZ_REGIONS`). Qiymat — hudud `id` si (`'samarkand'`),
+nomlar joriy alifboda: `script` prop'i yoki [ScriptProvider](./script.mdx) dan.
+
+<ComponentPreview name="select/region" align="start" />
+
+```tsx
+import { RegionSelect } from '@akhatmirzo/ui';
+
+<RegionSelect value={region} onValueChange={(id, region) => setRegion(id)} />;
+```
+
+`Select` ning barcha prop'larini (`size`, `invalid`, `name`, `placeholder` ...) qabul qiladi.
+
+<PropsTable
+  rows={[
+    {
+      name: 'value',
+      type: 'UzRegionId',
+      description: "Hudud id si: 'tashkent-city', 'samarkand' ...",
+    },
+    { name: 'defaultValue', type: 'UzRegionId' },
+    {
+      name: 'onValueChange',
+      type: '(id: UzRegionId, region: UzRegion) => void',
+      description: "Ikkinchi argument — UZ_REGIONS dagi to'liq obyekt",
+    },
+    {
+      name: 'script',
+      type: "'latin' | 'cyrillic'",
+      description: "Nomlar alifbosi; standart — ScriptProvider dagi yoki 'latin'",
+    },
+    {
+      name: 'includeCity',
+      type: 'boolean',
+      default: 'true',
+      description: "Toshkent shahrini ro'yxatga qo'shish",
+    },
+    { name: 'placeholder', type: 'ReactNode', default: "'Hududni tanlang'" },
+  ]}
+/>
+
 ## Props
 
 ### Select

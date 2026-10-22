@@ -1,0 +1,360 @@
+---
+title: Hujjat identifikatorlari
+description: "JShShIR, STIR, pasport, avtomobil raqami, bank hisob raqami, MFO va O'zbekiston hududlari."
+---
+
+O'zbek hujjatlaridagi raqamlar uchun tekshiruv, formatlash va tahlil: JShShIR (PINFL), STIR (INN),
+pasport / ID karta, avtomobil davlat raqami, bank hisob raqami va MFO, hamda 14 ta hudud ro'yxati.
+Hech biri xato otmaydi: `null`, `undefined` yoki noto'g'ri kirishda `false` / `null` qaytaradi.
+Bo'shliq va chiziqchalar har doim e'tiborsiz qoldiriladi — `isValidX` ga foydalanuvchi yozgan
+matnni to'g'ridan-to'g'ri bering.
+
+```ts
+import {
+  isValidPinfl,
+  parsePinfl,
+  formatPinfl,
+  isValidInn,
+  formatInn,
+  isValidPassport,
+  formatPassport,
+  isValidCarPlate,
+  parseCarPlate,
+  formatCarPlate,
+  isValidBankAccount,
+  formatBankAccount,
+  isValidMfo,
+  UZ_REGIONS,
+  regionByPlateCode,
+} from '@akhatmirzo/core';
+```
+
+<Callout title="Faqat format tekshiriladi">
+  Bu funksiyalar yozishdagi xatoni ushlaydi — hujjat haqiqatan mavjudligini yoki kimga tegishli
+  ekanini bilmaydi. Muhim tekshiruvni serverda, rasmiy manba orqali qiling.
+</Callout>
+
+<ComponentPreview name="core/identifiers" />
+
+## JShShIR (PINFL)
+
+Jismoniy shaxsning shaxsiy identifikatsiya raqami — 14 raqam:
+
+| Raqamlar | Ma'nosi                                                                         |
+| -------- | ------------------------------------------------------------------------------- |
+| 1        | Jins va asr: 3 / 4 — 1900-yillar, 5 / 6 — 2000-yillar; toq — erkak, juft — ayol |
+| 2–7      | Tug'ilgan sana `DDMMYY`                                                         |
+| 8–13     | Tuman kodi va tartib raqami                                                     |
+| 14       | Nazorat raqami                                                                  |
+
+### parsePinfl
+
+```ts
+function parsePinfl(
+  input: string | number | null | undefined,
+  options?: PinflOptions, // { checksum?: boolean }
+): PinflInfo | null;
+
+interface PinflInfo {
+  gender: 'male' | 'female';
+  birthDate: Date; // mahalliy vaqt, 00:00
+}
+```
+
+Jins va tug'ilgan sanani ajratib oladi. Sana haqiqiy bo'lishi shart: 31-fevral yoki kabisa
+bo'lmagan yildagi 29-fevral — `null`.
+
+```ts
+parsePinfl('31503901234567'); // { gender: 'male', birthDate: new Date(1990, 2, 15) }
+parsePinfl('6 010120 1234567'); // { gender: 'female', birthDate: new Date(2020, 0, 1) }
+parsePinfl('33102901234567'); // null — 31-fevral yo'q
+parsePinfl('21503901234567'); // null — 1-raqam 3–6 bo'lishi kerak
+```
+
+### isValidPinfl
+
+```ts
+function isValidPinfl(input: string | number | null | undefined, options?: PinflOptions): boolean;
+```
+
+`parsePinfl(input, options) !== null` ning qisqa shakli.
+
+```ts
+isValidPinfl('31503901234567'); // true
+isValidPinfl('315039012345'); // false — 12 raqam
+isValidPinfl('31503901234562', { checksum: true }); // true
+isValidPinfl('31503901234567', { checksum: true }); // false — nazorat raqami mos emas
+```
+
+<Callout type="warn" title="checksum — tasdiqlanmagan">
+  `checksum: true` nazorat raqamini 7-3-1 og'irliklar va mod 10 bo'yicha tekshiradi. Bu algoritm
+  ochiq manbalardan olingan va haqiqiy JShShIR namunalarida hali tasdiqlanmagan, shuning uchun
+  standart holatda o'chirilgan (`false`). Yoqishdan oldin o'z ma'lumotlaringizda sinab ko'ring.
+</Callout>
+
+### formatPinfl
+
+```ts
+function formatPinfl(input: string | number | null | undefined): string;
+```
+
+Ko'rsatish uchun `00000 00000 0000` guruhlari. To'liq bo'lmagan qiymatni ham bosqichma-bosqich
+formatlaydi.
+
+```ts
+formatPinfl('31503901234567'); // '31503 90123 4567'
+formatPinfl('315039'); // '31503 9'
+```
+
+## STIR (INN)
+
+### isValidInn
+
+```ts
+function isValidInn(input: string | number | null | undefined): boolean;
+```
+
+Soliq to'lovchining identifikatsiya raqami: 9 raqam, `0` bilan boshlanmaydi.
+
+```ts
+isValidInn('123456789'); // true
+isValidInn('123 456 789'); // true
+isValidInn('012345678'); // false — 0 bilan boshlanadi
+isValidInn('12345678'); // false — 8 raqam
+```
+
+### formatInn
+
+```ts
+function formatInn(input: string | number | null | undefined): string;
+```
+
+```ts
+formatInn('123456789'); // '123 456 789'
+formatInn('1234'); // '123 4'
+```
+
+## Pasport va ID karta
+
+### isValidPassport
+
+```ts
+function isValidPassport(input: string | null | undefined): boolean;
+```
+
+Seriya va raqam: 2 lotin harf + 7 raqam (`AA1234567`). Kichik harflar, bo'shliq va chiziqcha
+qabul qilinadi. Kirill harflar (`АА`) — xato: ular lotin harflarga o'xshaydi, lekin boshqa belgi.
+
+```ts
+isValidPassport('AA1234567'); // true
+isValidPassport('ad 1234567'); // true
+isValidPassport('АА1234567'); // false — kirill harflar
+isValidPassport('A1234567'); // false — seriya 1 harf
+```
+
+### formatPassport
+
+```ts
+function formatPassport(input: string | null | undefined): string;
+```
+
+Harflarni katta qiladi va seriyani raqamdan bo'shliq bilan ajratadi.
+
+```ts
+formatPassport('aa1234567'); // 'AA 1234567'
+formatPassport('ad 12'); // 'AD 12'
+```
+
+## Avtomobil raqami
+
+Ikki format bor, ikkalasi ham hudud kodi bilan boshlanadi:
+
+| Turi           | Format        | Misol         |
+| -------------- | ------------- | ------------- |
+| Jismoniy shaxs | `00 A 000 AA` | `01 A 123 BC` |
+| Yuridik shaxs  | `00 000 AAA`  | `01 123 ABC`  |
+
+### parseCarPlate
+
+```ts
+function parseCarPlate(input: string | null | undefined): CarPlateInfo | null;
+
+interface CarPlateInfo {
+  region: UzRegion; // UZ_REGIONS dan
+  regionCode: string; // '01'
+  type: 'personal' | 'legal';
+}
+```
+
+Raqamni tahlil qiladi: format, hudud va tur. Harflar faqat lotin (kichik harf ham bo'ladi), hudud
+kodi `UZ_REGIONS` da bo'lishi shart.
+
+```ts
+parseCarPlate('01 A 123 BC'); // { region: { id: 'tashkent-city', … }, regionCode: '01', type: 'personal' }
+parseCarPlate('30 123 abc')?.type; // 'legal'
+parseCarPlate('00 A 123 BC'); // null — 00 kodi hech bir hududga tegishli emas
+```
+
+### isValidCarPlate
+
+```ts
+function isValidCarPlate(input: string | null | undefined): boolean;
+```
+
+```ts
+isValidCarPlate('01A123BC'); // true
+isValidCarPlate('01 1234 AB'); // false
+```
+
+### formatCarPlate
+
+```ts
+function formatCarPlate(input: string | null | undefined): string;
+```
+
+Ko'rsatish uchun bo'shliqlarni qo'yadi va harflarni katta qiladi. Tur 3-belgidan aniqlanadi
+(harf — jismoniy, raqam — yuridik), shuning uchun yozish paytida ham ishlaydi. Hudud kodi
+tekshirilmaydi.
+
+```ts
+formatCarPlate('01a123bc'); // '01 A 123 BC'
+formatCarPlate('01123abc'); // '01 123 ABC'
+formatCarPlate('01A1'); // '01 A 1'
+```
+
+## Bank rekvizitlari
+
+### isValidBankAccount
+
+```ts
+function isValidBankAccount(input: string | null | undefined): boolean;
+```
+
+Hisob raqami — aynan 20 raqam.
+
+```ts
+isValidBankAccount('20208000900012345001'); // true
+isValidBankAccount('2020 8000 9000 1234 5001'); // true
+isValidBankAccount('2020800090001234500'); // false — 19 raqam
+```
+
+### formatBankAccount
+
+```ts
+function formatBankAccount(input: string | null | undefined): string;
+```
+
+```ts
+formatBankAccount('20208000900012345001'); // '2020 8000 9000 1234 5001'
+```
+
+### isValidMfo
+
+```ts
+function isValidMfo(input: string | null | undefined): boolean;
+```
+
+Bank filiali kodi (MFO) — aynan 5 raqam. Boshidagi nollar muhim, shuning uchun faqat satr qabul
+qilinadi.
+
+```ts
+isValidMfo('00014'); // true
+isValidMfo('1234'); // false
+```
+
+## Hududlar
+
+### UZ_REGIONS
+
+```ts
+const UZ_REGIONS: readonly UzRegion[];
+
+interface UzRegion {
+  id: UzRegionId; // 'tashkent-city', 'andijan', ...
+  name: string; // 'Andijon viloyati'
+  nameCyr: string; // 'Андижон вилояти'
+  center: string; // 'Andijon'
+  plateCodes: readonly string[]; // ['60', '61', …, '69']
+}
+```
+
+O'zbekistonning 14 ta hududi rasmiy tartibda: Qoraqalpog'iston Respublikasi, 12 viloyat va
+Toshkent shahri. Nomlarda tipografik `ʻ` ishlatiladi (`Fargʻona viloyati`). `id` — o'zgarmaydigan
+kalit: ma'lumotlar bazasida nom emas, shuni saqlang.
+
+| `id`             | Nomi                          | Markazi   | Avto-raqam kodi |
+| ---------------- | ----------------------------- | --------- | --------------- |
+| `karakalpakstan` | Qoraqalpogʻiston Respublikasi | Nukus     | 95–99           |
+| `andijan`        | Andijon viloyati              | Andijon   | 60–69           |
+| `bukhara`        | Buxoro viloyati               | Buxoro    | 80–84           |
+| `jizzakh`        | Jizzax viloyati               | Jizzax    | 25–29           |
+| `kashkadarya`    | Qashqadaryo viloyati          | Qarshi    | 70–74           |
+| `navoi`          | Navoiy viloyati               | Navoiy    | 85–89           |
+| `namangan`       | Namangan viloyati             | Namangan  | 50–59           |
+| `samarkand`      | Samarqand viloyati            | Samarqand | 30–39           |
+| `surkhandarya`   | Surxondaryo viloyati          | Termiz    | 75–79           |
+| `syrdarya`       | Sirdaryo viloyati             | Guliston  | 20–24           |
+| `tashkent`       | Toshkent viloyati             | Nurafshon | 10–19           |
+| `fergana`        | Fargʻona viloyati             | Fargʻona  | 40–49           |
+| `khorezm`        | Xorazm viloyati               | Urganch   | 90–94           |
+| `tashkent-city`  | Toshkent shahri               | Toshkent  | 01–09           |
+
+```tsx title="region-select.tsx"
+import { UZ_REGIONS } from '@akhatmirzo/core';
+
+export function RegionOptions() {
+  return UZ_REGIONS.map((r) => (
+    <option key={r.id} value={r.id}>
+      {r.name}
+    </option>
+  ));
+}
+```
+
+### regionByPlateCode
+
+```ts
+function regionByPlateCode(code: string | number | null | undefined): UzRegion | null;
+```
+
+Avto-raqamdagi hudud kodi bo'yicha hududni topadi. Raqam berilsa, oldiga `0` qo'shiladi.
+
+```ts
+regionByPlateCode('01')?.id; // 'tashkent-city'
+regionByPlateCode(95)?.name; // 'Qoraqalpogʻiston Respublikasi'
+regionByPlateCode('02')?.id; // 'tashkent-city' (01–09 diapazoni)
+regionByPlateCode('00'); // null
+```
+
+## Tiplar
+
+```ts
+interface PinflOptions {
+  checksum?: boolean; // standart: false
+}
+interface PinflInfo {
+  gender: 'male' | 'female';
+  birthDate: Date;
+}
+type CarPlateType = 'personal' | 'legal';
+interface CarPlateInfo {
+  region: UzRegion;
+  regionCode: string;
+  type: CarPlateType;
+}
+type UzRegionId =
+  | 'karakalpakstan'
+  | 'andijan'
+  | 'bukhara'
+  | 'jizzakh'
+  | 'kashkadarya'
+  | 'navoi'
+  | 'namangan'
+  | 'samarkand'
+  | 'surkhandarya'
+  | 'syrdarya'
+  | 'tashkent'
+  | 'fergana'
+  | 'khorezm'
+  | 'tashkent-city';
+```

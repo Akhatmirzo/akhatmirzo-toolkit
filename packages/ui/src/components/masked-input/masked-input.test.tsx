@@ -3,6 +3,7 @@ import userEvent from '@testing-library/user-event';
 import { useState } from 'react';
 import { describe, expect, it, vi } from 'vitest';
 import { Field } from '../field';
+import { ScriptProvider } from '../script';
 import {
   applyInput,
   createMoneySpec,
@@ -287,5 +288,63 @@ describe('MaskedInput', () => {
     const ref = { current: null as HTMLInputElement | null };
     render(<MaskedInput mask="99" ref={ref} aria-label="x" />);
     expect(ref.current).toBe(box());
+  });
+});
+
+describe('MoneyInput showWords', () => {
+  const words = (c: HTMLElement) => c.querySelector('[data-slot="money-input-words"]')!;
+
+  it('summa ostida so`z bilan (lotin), yozish bilan yangilanadi, aria-live', async () => {
+    const user = userEvent.setup();
+    const { container } = render(<MoneyInput aria-label="Summa" showWords />);
+    const el = words(container);
+    expect(el).toHaveAttribute('aria-live', 'polite');
+    expect(el).toHaveClass('text-xs', 'text-text-muted');
+    expect(el).toHaveTextContent('');
+    expect(box().getAttribute('aria-describedby')).toContain(el.id);
+    await user.type(box(), '1250000');
+    expect(el).toHaveTextContent('Bir million ikki yuz ellik ming soʻm');
+    await user.type(box(), '{Backspace}');
+    expect(el).toHaveTextContent('Yuz yigirma besh ming soʻm');
+  });
+
+  it('kirill: script opsiyasi va ScriptProvider', () => {
+    const { container, unmount } = render(
+      <MoneyInput aria-label="Summa" defaultValue={1000} showWords={{ script: 'cyrillic' }} />,
+    );
+    expect(words(container)).toHaveTextContent('Минг сўм');
+    unmount();
+    const r = render(
+      <ScriptProvider defaultScript="cyrillic">
+        <MoneyInput aria-label="Summa" defaultValue={2500} showWords />
+      </ScriptProvider>,
+    );
+    expect(words(r.container)).toHaveTextContent('Икки минг беш юз сўм');
+  });
+
+  it('formal va boshqariladigan qiymat', () => {
+    const { container, rerender } = render(
+      <MoneyInput aria-label="Summa" value={1100} showWords={{ formal: true }} />,
+    );
+    expect(words(container)).toHaveTextContent('Bir ming bir yuz soʻm');
+    rerender(<MoneyInput aria-label="Summa" value={null} showWords={{ formal: true }} />);
+    expect(words(container)).toHaveTextContent('');
+  });
+
+  it('Field ichida: description va so`zlar ikkalasi aria-describedby da', () => {
+    const { container } = render(
+      <Field label="Summa" description="Shartnoma summasi">
+        <MoneyInput defaultValue={5000} showWords />
+      </Field>,
+    );
+    const describedBy = box().getAttribute('aria-describedby')!.split(' ');
+    expect(describedBy).toHaveLength(2);
+    expect(describedBy).toContain(words(container).id);
+    expect(screen.getByText('Shartnoma summasi')).toBeInTheDocument();
+  });
+
+  it('showWords siz — so`zlar bloki yo`q', () => {
+    const { container } = render(<MoneyInput aria-label="Summa" defaultValue={5000} />);
+    expect(container.querySelector('[data-slot="money-input-words"]')).toBeNull();
   });
 });

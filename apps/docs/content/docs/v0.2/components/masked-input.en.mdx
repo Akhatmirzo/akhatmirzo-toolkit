@@ -71,6 +71,21 @@ Spaces as the thousands separator, currency on the right ("so'm" by default). Th
 - `min` — smaller values snap up to `min` when the field loses focus.
 - `currency={null}` hides the currency; pass `currency="$"` or any `ReactNode` to change it.
 
+## Amount in words
+
+`showWords` spells the amount under the field: "Bir million ikki yuz ellik ming soʻm". It helps
+users double-check numbers in contracts, invoices and payment forms. The text comes from
+`moneyToWords` in `@akhatmirzo/core` and updates as you type.
+
+<ComponentPreview name="masked-input/money-words" align="start" />
+
+- `showWords={{ script: 'cyrillic' }}` — in Cyrillic. Without `script`, the
+  [ScriptProvider](./script.mdx) script is used (Latin when there is no provider).
+- `showWords={{ formal: true }}` — formal style: "bir yuz", "bir ming".
+- Inside a [Field](./field.mdx), the words appear under the field, after the `description`, and
+  are added to `aria-describedby`. The text sits in an `aria-live="polite"` region, so screen
+  readers announce the new amount.
+
 ## CardInput
 
 A bank card: groups of four, with a brand mark on the right — **UZCARD** (8600), **HUMO** (9860),
@@ -189,6 +204,12 @@ Every component accepts the [Input](./input.mdx) props (`size`, `invalid`, `clea
     { name: 'decimals', type: 'number', default: '0', description: 'Decimal places' },
     { name: 'min', type: 'number', description: 'Smaller values snap to min on blur' },
     { name: 'max', type: 'number', description: "Larger values can't be typed" },
+    {
+      name: 'showWords',
+      type: "boolean | { formal?: boolean; script?: 'latin' | 'cyrillic' }",
+      default: 'false',
+      description: 'Spell the amount in words under the field',
+    },
     { name: 'placeholder', type: 'string', default: "'0'" },
   ]}
 />

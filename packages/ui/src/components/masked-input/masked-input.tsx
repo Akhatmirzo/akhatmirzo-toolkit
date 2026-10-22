@@ -1,12 +1,14 @@
 import {
   detectCardBrand,
   isValidCardNumber,
+  moneyToWords,
   parsePhone,
   type CardBrand,
   type UzOperatorCode,
 } from '@akhatmirzo/core';
 import {
   useCallback,
+  useId,
   useLayoutEffect,
   useMemo,
   useReducer,
@@ -20,6 +22,7 @@ import {
 import { cn } from '../../lib/cn';
 import { assignRef } from '../../lib/refs';
 import { Input, type InputProps } from '../input';
+import { useScriptContext, type UzScript } from '../script/script-context';
 import {
   applyInput,
   cardSpec,
@@ -34,18 +37,23 @@ import {
   type MaskSpec,
 } from './mask-engine';
 
-type BaseInputProps = Omit<InputProps, 'value' | 'defaultValue' | 'type'>;
+/** @internal Hujjat inputlari (`document-inputs`) ham shu asosda quriladi */
+export type BaseInputProps = Omit<InputProps, 'value' | 'defaultValue' | 'type'>;
 
 /* ---------- Ichki: niqobli boshqaruv ---------- */
 
-interface MaskedControlProps extends BaseInputProps {
+/** @internal */
+export interface MaskedControlProps extends BaseInputProps {
   spec: MaskSpec;
   raw: string;
   onRawChange: (raw: string) => void;
 }
 
-/** Niqobli `<Input>`: formatlaydi, kursorni toza belgilar soni bo'yicha joyida saqlaydi */
-function MaskedControl({
+/**
+ * Niqobli `<Input>`: formatlaydi, kursorni toza belgilar soni bo'yicha joyida saqlaydi.
+ * @internal Paket ichida (hujjat inputlari) qayta ishlatiladi, ommaviy eksport qilinmaydi
+ */
+export function MaskedControl({
   spec,
   raw,
   onRawChange,
@@ -122,8 +130,8 @@ function MaskedControl({
   );
 }
 
-/** Toza qiymatni boshqariladigan/boshqarilmaydigan holatda saqlaydi */
-function useRawValue<V>(options: {
+/** Toza qiymatni boshqariladigan/boshqarilmaydigan holatda saqlaydi. @internal */
+export function useRawValue<V>(options: {
   value: V | undefined;
   defaultValue: V | undefined;
   toRaw: (value: V | undefined) => string;
@@ -274,6 +282,19 @@ export interface MoneyInputProps extends Omit<BaseInputProps, 'min' | 'max' | 'o
   /** Undan katta qiymat yozib bo'lmaydi */
   max?: number;
   onBlur?: (e: FocusEvent<HTMLInputElement>) => void;
+  /**
+   * Summani maydon ostida so'z bilan ko'rsatish ("Bir million ikki yuz ellik ming soʻm").
+   * `script` berilmasa — `ScriptProvider` dagi alifbo (yo'q bo'lsa lotin);
+   * `formal: true` — "bir yuz", "bir ming" (rasmiy hujjat uslubi)
+   */
+  showWords?: boolean | MoneyWordsOptions;
+}
+
+export interface MoneyWordsOptions {
+  /** Rasmiy uslub: "bir yuz", "bir ming". Default `false` */
+  formal?: boolean;
+  /** Alifbo. Default — `ScriptProvider` dagi yoki `'latin'` */
+  script?: UzScript;
 }
 
 /**
@@ -291,8 +312,12 @@ export function MoneyInput({
   onBlur,
   placeholder = '0',
   inputClassName,
+  showWords = false,
+  'aria-describedby': ariaDescribedBy,
   ...props
 }: MoneyInputProps) {
+  const scriptCtx = useScriptContext();
+  const wordsId = useId();
   const spec = useMemo(() => createMoneySpec(decimals, max), [decimals, max]);
   const [raw, setRaw] = useRawValue<number | null>({
     value,
@@ -310,7 +335,7 @@ export function MoneyInput({
     onBlur?.(e);
   };
 
-  return (
+  const control = (
     <MaskedControl
       spec={spec}
       raw={raw}
@@ -320,8 +345,39 @@ export function MoneyInput({
       rightIcon={currency ?? undefined}
       inputClassName={cn('tabular-nums', inputClassName)}
       onBlur={handleBlur}
+      aria-describedby={
+        showWords ? [wordsId, ariaDescribedBy].filter(Boolean).join(' ') : ariaDescribedBy
+      }
       {...props}
     />
+  );
+  if (!showWords) return control;
+
+  const opts = showWords === true ? {} : showWords;
+  const amount = rawToMoney(raw);
+  const words =
+    amount === null
+      ? ''
+      : moneyToWords(amount, {
+          script: opts.script ?? scriptCtx?.script ?? 'latin',
+          formal: opts.formal,
+          // Matnli valyuta ("$", "UZS") so'zda ham shunday; ReactNode yoki standart — soʻm
+          currency: typeof currency === 'string' && currency !== "so'm" ? currency : undefined,
+        });
+
+  return (
+    <div data-slot="money-input" className="flex w-full min-w-0 flex-col gap-1.5">
+      {control}
+      {/* Live region doim DOM'da — summa o'zgarganda ekran o'quvchi o'qiydi */}
+      <p
+        id={wordsId}
+        data-slot="money-input-words"
+        aria-live="polite"
+        className="min-h-4 text-xs text-text-muted"
+      >
+        {words}
+      </p>
+    </div>
   );
 }
 

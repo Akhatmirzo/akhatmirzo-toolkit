@@ -1,4 +1,5 @@
-import { Button, Field, Select } from '@akhatmirzo/ui';
+import type { UzRegionId } from '@akhatmirzo/core';
+import { Button, Field, RegionSelect, Select } from '@akhatmirzo/ui';
 import { useState, type FormEvent, type ReactNode } from 'react';
 import { Code, DemoGrid, DemoPage, DemoRow, DemoSection } from '../demo';
 import type { PageMeta } from '../pages';
@@ -52,6 +53,7 @@ export default function Page() {
   const [status, setStatus] = useState('new');
   const [submitted, setSubmitted] = useState<string>('—');
   const [error, setError] = useState<string | undefined>();
+  const [uzRegion, setUzRegion] = useState<UzRegionId | undefined>();
 
   const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -199,6 +201,20 @@ export default function Page() {
             </span>
           </DemoRow>
         </form>
+      </DemoSection>
+
+      <DemoSection title="RegionSelect" description="UZ_REGIONS dan; qiymat — hudud id si.">
+        <DemoGrid min={240}>
+          <Field label="Hudud" description={<Code>{uzRegion ?? '—'}</Code>}>
+            <RegionSelect value={uzRegion} onValueChange={setUzRegion} />
+          </Field>
+          <Field label="Kirill" description='script="cyrillic"'>
+            <RegionSelect script="cyrillic" defaultValue="karakalpakstan" />
+          </Field>
+          <Field label="Viloyatlar" description="includeCity={false}">
+            <RegionSelect includeCity={false} />
+          </Field>
+        </DemoGrid>
       </DemoSection>
     </DemoPage>
   );

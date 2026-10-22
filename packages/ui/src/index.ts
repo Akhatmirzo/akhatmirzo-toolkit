@@ -38,6 +38,7 @@ export * from './components/toast';
 // Menyu va tanlash (2-daraja)
 export * from './components/dropdown-menu';
 export * from './components/select';
+export * from './components/region-select';
 export * from './components/combobox';
 
 // Navigatsiya (2-daraja)
@@ -52,6 +53,10 @@ export * from './components/data-table';
 export * from './components/virtual-list';
 export * from './components/date-picker';
 export * from './components/masked-input';
+export * from './components/document-inputs';
 export * from './components/otp-input';
 export * from './components/file-upload';
 export * from './components/command-palette';
+
+// O'zbekcha (alifbo)
+export * from './components/script';

@@ -1,6 +1,6 @@
 ---
 title: Formatting
-description: Format numbers, so'm, phones, cards, dates, relative time and file sizes.
+description: Format numbers, so'm, phones, cards, dates, relative time, durations and file sizes; spell out numbers and money in Uzbek.
 ---
 
 The formats people expect in Uzbekistan work out of the box: `1 250 000 so'm`,
@@ -18,6 +18,13 @@ import {
   parseDate,
   timeAgo,
   formatFileSize,
+  numberToWords,
+  moneyToWords,
+  ordinal,
+  ordinalWords,
+  formatDateUz,
+  formatDateRange,
+  formatDuration,
 } from '@akhatmirzo/core';
 ```
 
@@ -266,3 +273,231 @@ weekdayIndex(new Date(2026, 9, 25)); // 6 — Sunday
 ```
 
 The short names for June and July are `Iyn` and `Iyl`, so they don't collide.
+
+## Numbers and money in words
+
+For invoices, contracts and receipts — spell out a number or an amount in Uzbek.
+
+<ComponentPreview name="core/number-words" />
+
+<Callout title="Script and apostrophe">
+  Every new function that returns text accepts `script: 'latin' | 'cyrillic'` (default `'latin'`;
+  Cyrillic goes through [`latToCyr`](./text.mdx)). Latin output uses the typographic `oʻ gʻ`
+  (U+02BB); pass `apostrophe: 'ascii'` for a plain `'`.
+</Callout>
+
+### numberToWords
+
+```ts
+function numberToWords(n: number, options?: NumberToWordsOptions): string;
+```
+
+Integers up to `±999 999 999 999 999` (trillions). The fractional part is dropped, negatives read
+`"minus …"`. `NaN`, `Infinity` and out-of-range numbers → `''`.
+
+```ts
+numberToWords(0); // 'nol'
+numberToWords(21); // 'yigirma bir'
+numberToWords(101); // 'yuz bir'
+numberToWords(1001); // 'ming bir'
+numberToWords(1_250_000); // 'bir million ikki yuz ellik ming'
+numberToWords(2_300_000_000); // 'ikki milliard uch yuz million'
+numberToWords(-15); // 'minus oʻn besh'
+numberToWords(3.99); // 'uch'
+numberToWords(1100, { formal: true }); // 'bir ming bir yuz'
+numberToWords(14, { apostrophe: 'ascii' }); // "o'n to'rt"
+numberToWords(1_250_000, { script: 'cyrillic' }); // 'бир миллион икки юз эллик минг'
+```
+
+By default `100` is `"yuz"` and `1000` is `"ming"` (only when the number starts with the thousands:
+`1 001 000` → `"bir million bir ming"`). `formal: true` is the official-document style:
+`"bir yuz"`, `"bir ming"`.
+
+<PropsTable
+  rows={[
+    {
+      name: 'formal',
+      type: 'boolean',
+      default: 'false',
+      description: '"bir yuz", "bir ming" (official style)',
+    },
+    { name: 'script', type: "'latin' | 'cyrillic'", default: "'latin'", description: 'Script' },
+    {
+      name: 'apostrophe',
+      type: "'typographic' | 'ascii'",
+      default: "'typographic'",
+      description: "Character in oʻ gʻ: ʻ or '",
+    },
+  ]}
+/>
+
+### moneyToWords
+
+```ts
+function moneyToWords(amount: number, options?: MoneyToWordsOptions): string;
+```
+
+Spells out an amount: capitalized, tiyin as digits (invoice style). The fraction is rounded to 2
+digits; 0 tiyin is omitted. Also accepts the `numberToWords` options.
+
+```ts
+moneyToWords(1_250_000.5); // 'Bir million ikki yuz ellik ming soʻm 50 tiyin'
+moneyToWords(1_250_000); // 'Bir million ikki yuz ellik ming soʻm'
+moneyToWords(10.25, { tiyin: 'words' }); // 'Oʻn soʻm yigirma besh tiyin'
+moneyToWords(10.25, { tiyin: false }); // 'Oʻn soʻm'
+moneyToWords(2500, { capitalize: false }); // 'ikki ming besh yuz soʻm'
+moneyToWords(2500, { currency: 'UZS' }); // 'Ikki ming besh yuz UZS'
+moneyToWords(100_000, { formal: true }); // 'Bir yuz ming soʻm'
+moneyToWords(1000, { script: 'cyrillic' }); // 'Минг сўм'
+```
+
+<PropsTable
+  rows={[
+    {
+      name: 'currency',
+      type: "\"so'm\" | 'UZS' | string",
+      default: '"so\'m"',
+      description: '"so\'m" — as a word (soʻm / сўм); any other string is appended as is',
+    },
+    {
+      name: 'tiyin',
+      type: "'digits' | 'words' | false",
+      default: "'digits'",
+      description: '"50 tiyin", "ellik tiyin" or omitted',
+    },
+    {
+      name: 'capitalize',
+      type: 'boolean',
+      default: 'true',
+      description: 'Capitalize first letter',
+    },
+    { name: 'formal', type: 'boolean', default: 'false', description: '"bir yuz", "bir ming"' },
+    { name: 'script', type: "'latin' | 'cyrillic'", default: "'latin'", description: 'Script' },
+    {
+      name: 'apostrophe',
+      type: "'typographic' | 'ascii'",
+      default: "'typographic'",
+      description: "Character in oʻ gʻ: ʻ or '",
+    },
+  ]}
+/>
+
+### ordinal and ordinalWords
+
+```ts
+function ordinal(n: number): string;
+function ordinalWords(n: number, options?: UzScriptOptions): string;
+```
+
+Ordinal numbers. `ordinal` — digits plus a hyphen (`22-oktabr`, `3-sinf`). `ordinalWords` — in
+words: `-nchi` after a final vowel, `-inchi` otherwise; compound numbers take the suffix on the last
+word. Negative or invalid numbers → `''`.
+
+```ts
+ordinal(3); // '3-'
+ordinalWords(1); // 'birinchi'
+ordinalWords(2); // 'ikkinchi'
+ordinalWords(4); // 'toʻrtinchi'
+ordinalWords(20); // 'yigirmanchi'
+ordinalWords(21); // 'yigirma birinchi'
+ordinalWords(1000); // 'minginchi'
+ordinalWords(2, { script: 'cyrillic' }); // 'иккинчи'
+```
+
+## Uzbek dates and durations
+
+Following Uzbek orthography: month names in lowercase, day and year joined with a hyphen —
+`22-oktabr`, `2026-yil`. The existing `formatDate` and `MONTHS_UZ` are unchanged (capitalized names
+are kept).
+
+<ComponentPreview name="core/date-uz" />
+
+### formatDateUz
+
+```ts
+function formatDateUz(date: DateInput, options?: FormatDateUzOptions): string;
+```
+
+Ready-made styles — no pattern to write. Invalid date → `''`.
+
+```ts
+const d = new Date(2026, 9, 22, 14, 30);
+
+formatDateUz(d); // '22-oktabr, 2026-yil'
+formatDateUz(d, { style: 'full' }); // '2026-yil 22-oktabr, payshanba'
+formatDateUz(d, { style: 'short' }); // '22-okt, 2026'
+formatDateUz(d, { style: 'dayMonth' }); // '22-oktabr'
+formatDateUz(d, { style: 'monthYear' }); // 'oktabr, 2026-yil'
+formatDateUz(d, { time: true }); // '22-oktabr, 2026-yil, 14:30'
+formatDateUz(d, { script: 'cyrillic' }); // '22-октябрь, 2026-йил'
+```
+
+Cyrillic month names use their standard spelling: `январь … июнь, июль … декабрь`.
+
+<PropsTable
+  rows={[
+    {
+      name: 'style',
+      type: "'long' | 'full' | 'short' | 'dayMonth' | 'monthYear'",
+      default: "'long'",
+      description: 'Output shape',
+    },
+    { name: 'time', type: 'boolean', default: 'false', description: 'Append ", HH:mm"' },
+    { name: 'script', type: "'latin' | 'cyrillic'", default: "'latin'", description: 'Script' },
+  ]}
+/>
+
+### formatDateRange
+
+```ts
+function formatDateRange(
+  start: DateInput,
+  end: DateInput,
+  options?: FormatDateRangeOptions,
+): string;
+```
+
+A date range without repetition. The same day gives a single date; if `start > end` they are
+swapped. Options: `style: 'long' | 'short'`, `script`.
+
+```ts
+formatDateRange(new Date(2026, 9, 20), new Date(2026, 9, 22)); // '20–22-oktabr, 2026-yil'
+formatDateRange(new Date(2026, 8, 30), new Date(2026, 9, 2)); // '30-sentabr – 2-oktabr, 2026-yil'
+formatDateRange(new Date(2026, 11, 30), new Date(2027, 0, 2));
+// '30-dekabr, 2026-yil – 2-yanvar, 2027-yil'
+formatDateRange(new Date(2026, 9, 20), new Date(2026, 9, 22), { style: 'short' });
+// '20–22-okt, 2026'
+```
+
+### formatDuration
+
+```ts
+function formatDuration(ms: number, options?: FormatDurationOptions): string;
+```
+
+A duration in milliseconds. Units: kun (day), soat (hour), daqiqa (minute), soniya (second). Takes
+`units` consecutive units starting from the largest non-zero one, skips zero values and truncates
+the remainder (no rounding). `< 1 s` → `'0 soniya'`; negative or invalid → `''`.
+
+```ts
+formatDuration(8_100_000); // '2 soat 15 daqiqa'
+formatDuration(90_061_000); // '1 kun 1 soat'
+formatDuration(90_061_000, { units: 3 }); // '1 kun 1 soat 1 daqiqa'
+formatDuration(45_000, { style: 'short' }); // '45 s'
+formatDuration(8_100_000, { style: 'short' }); // '2 soat 15 daq'
+formatDuration(500); // '0 soniya'
+formatDuration(8_100_000, { script: 'cyrillic' }); // '2 соат 15 дақиқа'
+```
+
+<PropsTable
+  rows={[
+    { name: 'units', type: 'number', default: '2', description: 'How many units (1–4)' },
+    {
+      name: 'style',
+      type: "'long' | 'short'",
+      default: "'long'",
+      description: 'short: kun, soat, daq, s',
+    },
+    { name: 'script', type: "'latin' | 'cyrillic'", default: "'latin'", description: 'Script' },
+  ]}
+/>

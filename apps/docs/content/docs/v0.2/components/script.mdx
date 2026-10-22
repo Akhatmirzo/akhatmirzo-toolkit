@@ -1,0 +1,188 @@
+---
+title: ScriptProvider
+description: "Kontentni foydalanuvchi tanlagan alifboda ko'rsatish: lotin yoki kirill, tanlov eslab qolinadi."
+---
+
+<ComponentPreview name="script/overview" align="start" />
+
+## Import
+
+```tsx
+import { ScriptProvider, ScriptToggle, Translit, useScript } from '@akhatmirzo/ui';
+```
+
+Matn bazada bitta alifboda saqlanadi (odatda lotin), foydalanuvchi esa uni o'zi tanlagan
+alifboda o'qiydi. O'girish `@akhatmirzo/core` dagi `toScript` orqali bajariladi — manba alifbo
+avtomatik aniqlanadi, shuning uchun kirillda saqlangan matn ham lotinga to'g'ri o'giriladi.
+
+| Qism             | Vazifasi                                                               |
+| ---------------- | ---------------------------------------------------------------------- |
+| `ScriptProvider` | Joriy alifboni saqlaydi (ixtiyoriy — `localStorage` da)                |
+| `ScriptToggle`   | "Lotin \| Кирилл" almashtirgich — `SegmentedControl` asosida           |
+| `Translit`       | Matnni joriy alifboda chizadi va `lang` atributini qo'yadi             |
+| `useScript`      | `{ script, setScript, t }` — o'z komponentlaringiz va atributlar uchun |
+
+## Qachon ishlatish
+
+- **O'zbek tilidagi ilova** — foydalanuvchilarning bir qismi kirillda o'qishni afzal ko'radi.
+  Kontentni ikki marta yozish shart emas.
+- **Sarlavha, tugma, qisqa matnlar** uchun `Translit` yoki `t()`. Foydalanuvchi kiritgan
+  ma'lumotni (ism, manzil) o'girmang — u qanday yozilgan bo'lsa, shunday qoladi.
+- **Atributlar uchun** (`placeholder`, `aria-label`, `title`) — `useScript().t`, chunki
+  `Translit` element chizadi.
+- **Boshqa tillar uchun emas** — bu tarjima emas, faqat o'zbek tilining ikki yozuvi o'rtasida
+  o'girish.
+
+## ScriptToggle
+
+Provider ichida uning holatini o'zi boshqaradi. Standart matnlar — "Lotin", "Кирилл", guruh nomi
+(`aria-label`) — "Alifbo"; ularni `labels` bilan o'zgartirasiz. [SegmentedControl](./segmented-control.mdx)
+prop'lari (`size`, `fullWidth`, `disabled` ...) ham ishlaydi.
+
+<ComponentPreview name="script/persist" align="start" />
+
+Provider'siz ham ishlatish mumkin — `value` va `onValueChange` bilan oddiy boshqariladigan
+komponent bo'ladi.
+
+## useScript
+
+`t(text)` — matnni joriy alifboga o'giradi. Provider tashqarisida `script` — `'latin'`, `t` esa
+matnni o'zgartirmaydi, shuning uchun komponentingiz provider'siz ham buzilmaydi.
+
+<ComponentPreview name="script/use-script" align="start" />
+
+```tsx
+const { script, setScript, t } = useScript();
+
+t('Salom'); // kirill tanlangan bo'lsa — "Салом"
+setScript('cyrillic');
+```
+
+## Tanlovni eslab qolish va SSR
+
+`storageKey` berilsa, tanlov `localStorage` da shu kalit bilan saqlanadi va boshqa tablar bilan
+sinxronlanadi. Server render va birinchi render doim `defaultScript` bilan bo'ladi — saqlangan
+qiymat gidratatsiyadan keyin o'qiladi. Shu tufayli Next.js'da gidratatsiya xatosi chiqmaydi.
+`localStorage` taqiqlangan bo'lsa (private rejim), tanlov faqat joriy sessiyada qoladi.
+
+```tsx title="app/layout.tsx"
+<ScriptProvider defaultScript="latin" storageKey="script">
+  {children}
+</ScriptProvider>
+```
+
+Boshqariladigan rejim: `script` + `onScriptChange` (masalan, tanlovni foydalanuvchi profilida
+saqlash uchun).
+
+## Boshqa komponentlar bilan
+
+Provider ichida [`RegionSelect`](./select.mdx#regionselect) hudud nomlarini va
+[`MoneyInput showWords`](./masked-input.mdx#summa-sozlar-bilan) summani joriy alifboda ko'rsatadi.
+
+## Props
+
+### ScriptProvider
+
+<PropsTable
+  rows={[
+    {
+      name: 'script',
+      type: "'latin' | 'cyrillic'",
+      description: 'Joriy alifbo (boshqariladigan rejim)',
+    },
+    {
+      name: 'defaultScript',
+      type: "'latin' | 'cyrillic'",
+      default: "'latin'",
+      description: "Boshlang'ich alifbo; SSR va birinchi render shu bilan",
+    },
+    {
+      name: 'onScriptChange',
+      type: '(script: UzScript) => void',
+      description: "Alifbo o'zgarganda",
+    },
+    {
+      name: 'storageKey',
+      type: 'string',
+      description: 'Tanlovni localStorage da shu kalit bilan eslab qolish',
+    },
+    { name: 'children', type: 'ReactNode' },
+  ]}
+/>
+
+### ScriptToggle
+
+[SegmentedControl](./segmented-control.mdx) prop'larini (`value`, `defaultValue`,
+`onValueChange` va `children` dan tashqari) qabul qiladi.
+
+<PropsTable
+  rows={[
+    {
+      name: 'value',
+      type: "'latin' | 'cyrillic'",
+      description: "Boshqariladigan qiymat; berilmasa — provider'dagi alifbo",
+    },
+    {
+      name: 'defaultValue',
+      type: "'latin' | 'cyrillic'",
+      default: "'latin'",
+      description: "Provider ham, value ham bo'lmaganda",
+    },
+    {
+      name: 'onValueChange',
+      type: '(script: UzScript) => void',
+      description: "Tanlov o'zgarganda (provider ham yangilanadi)",
+    },
+    {
+      name: 'labels',
+      type: '{ latin?: string; cyrillic?: string; group?: string }',
+      default: '{ latin: "Lotin", cyrillic: "Кирилл", group: "Alifbo" }',
+    },
+    { name: 'size', type: "'sm' | 'md' | 'lg'", default: "'md'" },
+  ]}
+/>
+
+### Translit
+
+Qolgan HTML atributlar elementga uzatiladi.
+
+<PropsTable
+  rows={[
+    {
+      name: 'children',
+      type: 'string',
+      required: true,
+      description: "O'giriladigan matn (lotin yoki kirill)",
+    },
+    {
+      name: 'as',
+      type: 'ElementType',
+      default: "'span'",
+      description: 'Render qilinadigan element',
+    },
+    {
+      name: 'lang',
+      type: 'string',
+      description: 'Standart — joriy alifboga qarab uz-Latn yoki uz-Cyrl',
+    },
+  ]}
+/>
+
+### useScript
+
+<PropsTable
+  rows={[
+    { name: 'script', type: "'latin' | 'cyrillic'", description: 'Joriy alifbo' },
+    { name: 'setScript', type: '(script: UzScript) => void', description: 'Alifboni almashtirish' },
+    { name: 't', type: '(text: string) => string', description: "Matnni joriy alifboga o'girish" },
+  ]}
+/>
+
+## Accessibility
+
+- **`lang` atributi.** `Translit` elementiga `lang="uz-Latn"` yoki `lang="uz-Cyrl"` qo'yiladi —
+  ekran o'quvchi to'g'ri talaffuzni tanlaydi, qidiruv tizimlari yozuvni aniqlaydi. Provider
+  bo'lmasa, `lang` matnning o'zidan aniqlanadi. `<html lang>` ga tegilmaydi.
+- **ScriptToggle** — `radiogroup` (`aria-label` — "Alifbo"), ←→ bilan yuriladi. "Кирилл"
+  tugmasida `lang="uz-Cyrl"` bor, shuning uchun lotin interfeysda ham to'g'ri o'qiladi.
+- **Fokus saqlanadi.** Alifbo almashganda faqat matn o'zgaradi, elementlar qayta yaratilmaydi.

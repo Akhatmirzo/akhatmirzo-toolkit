@@ -1,11 +1,14 @@
 import {
   cyrToLat,
+  detectScript,
+  fixApostrophes,
   fuzzyMatch,
   latToCyr,
   normalizeUz,
   searchMatch,
   slugify,
   splitByRanges,
+  toScript,
   truncate,
   truncateMiddle,
   type TextRange,
@@ -97,6 +100,7 @@ export default function Page() {
   const [cmdQuery, setCmdQuery] = useState('mq');
   const [slugInput, setSlugInput] = useState("Farg'ona viloyati — 2026");
   const [maxLen, setMaxLen] = useState(22);
+  const [scriptInput, setScriptInput] = useState("O'zbekiston g'alabasi, ma'no — Тошкент");
 
   const cityResults = useMemo(
     () => CITIES.map((city) => ({ city, ...searchMatch(city, cityQuery) })).filter((r) => r.match),
@@ -148,6 +152,51 @@ export default function Page() {
               </button>
             ),
           )}
+        </DemoRow>
+      </DemoSection>
+
+      <DemoSection
+        title="detectScript, toScript va fixApostrophes"
+        description={
+          <>
+            <Code>toScript</Code> faqat boshqa yozuvdagi qismni o'giradi (lotin natijada{' '}
+            <Code>oʻ gʻ ʼ</Code>). <Code>fixApostrophes</Code> — o/g dan keyin <Code>ʻ</Code>, so'z
+            ichida <Code>ʼ</Code>, qo'shtirnoqlarga tegmaydi.
+          </>
+        }
+      >
+        <Field label="Matn">
+          <Input value={scriptInput} onChange={(e) => setScriptInput(e.target.value)} clearable />
+        </Field>
+        <DemoRow label="detectScript">
+          <Badge color="info">{detectScript(scriptInput)}</Badge>
+        </DemoRow>
+        <DemoGrid min={220}>
+          <Result label="toScript(s, 'latin')" value={toScript(scriptInput, 'latin')} />
+          <Result label="toScript(s, 'cyrillic')" value={toScript(scriptInput, 'cyrillic')} />
+          <Result label="fixApostrophes" value={fixApostrophes(scriptInput)} />
+          <Result
+            label="fixApostrophes ascii"
+            value={fixApostrophes(scriptInput, { style: 'ascii' })}
+          />
+        </DemoGrid>
+        <DemoRow label="Tez misollar">
+          {[
+            "O'zbekiston g'alabasi, ma'no — Тошкент",
+            'Салом, дунё',
+            "'Salom' dedi, tog' va bog'",
+            "ta'lim, san'at, mo''tabar",
+            'Oʻzbekiston maʼnosi',
+          ].map((s) => (
+            <button
+              key={s}
+              type="button"
+              onClick={() => setScriptInput(s)}
+              className="cursor-pointer"
+            >
+              <Badge variant="outline">{s}</Badge>
+            </button>
+          ))}
         </DemoRow>
       </DemoSection>
 

@@ -81,6 +81,47 @@ the panel detects the modal layer and raises its z-index, so the list opens abov
 There is nothing to configure — see the "Select and Combobox inside a dialog" section on the
 Dialog page for a working example.
 
+## RegionSelect
+
+A ready-made `Select` for the regions of Uzbekistan: the Republic of Karakalpakstan, 12 regions
+and Tashkent city (`UZ_REGIONS` from `@akhatmirzo/core`). The value is the region `id`
+(`'samarkand'`); names follow the current script — the `script` prop or
+[ScriptProvider](./script.mdx).
+
+<ComponentPreview name="select/region" align="start" />
+
+```tsx
+import { RegionSelect } from '@akhatmirzo/ui';
+
+<RegionSelect value={region} onValueChange={(id, region) => setRegion(id)} />;
+```
+
+It accepts every `Select` prop (`size`, `invalid`, `name`, `placeholder` …).
+
+<PropsTable
+  rows={[
+    { name: 'value', type: 'UzRegionId', description: "Region id: 'tashkent-city', 'samarkand' …" },
+    { name: 'defaultValue', type: 'UzRegionId' },
+    {
+      name: 'onValueChange',
+      type: '(id: UzRegionId, region: UzRegion) => void',
+      description: 'The second argument is the full UZ_REGIONS object',
+    },
+    {
+      name: 'script',
+      type: "'latin' | 'cyrillic'",
+      description: "Script for names; defaults to the ScriptProvider script or 'latin'",
+    },
+    {
+      name: 'includeCity',
+      type: 'boolean',
+      default: 'true',
+      description: 'Include Tashkent city in the list',
+    },
+    { name: 'placeholder', type: 'ReactNode', default: "'Hududni tanlang'" },
+  ]}
+/>
+
 ## Props
 
 ### Select

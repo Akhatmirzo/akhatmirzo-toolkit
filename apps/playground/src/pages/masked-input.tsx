@@ -158,6 +158,27 @@ export default function Page() {
       </DemoSection>
 
       <DemoSection
+        title="MoneyInput showWords"
+        description="Summa ostida so'z bilan (aria-live), Field description'dan keyin."
+      >
+        <DemoGrid min={260}>
+          <Field label="Lotin" description="showWords">
+            <MoneyInput value={sum} onValueChange={setSum} showWords />
+          </Field>
+          <Field
+            label="Kirill, rasmiy"
+            description="showWords={{ script: 'cyrillic', formal: true }}"
+          >
+            <MoneyInput
+              value={sum}
+              onValueChange={setSum}
+              showWords={{ script: 'cyrillic', formal: true }}
+            />
+          </Field>
+        </DemoGrid>
+      </DemoSection>
+
+      <DemoSection
         title="Umumiy niqob"
         description={
           <>

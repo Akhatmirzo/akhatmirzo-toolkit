@@ -50,7 +50,8 @@ const MS_MINUTE = 60_000;
 const MS_HOUR = 3_600_000;
 const MS_DAY = 86_400_000;
 
-function toDate(value: DateInput): Date | null {
+/** @internal */
+export function toDate(value: DateInput): Date | null {
   if (value == null || value === '') return null;
   const date = value instanceof Date ? new Date(value.getTime()) : new Date(value);
   return Number.isNaN(date.getTime()) ? null : date;
