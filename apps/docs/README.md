@@ -1,6 +1,6 @@
 # docs — @akhatmirzo/ui hujjatlar sayti
 
-Next.js 16 + [Fumadocs](https://fumadocs.dev) 16. Manzil: https://akhatmirzo-toolkit.vercel.app
+Next.js 16 + [Fumadocs](https://fumadocs.dev) 16. Manzil: https://toolkit.akhatmirzo.uz
 
 - Tillar: `uz` (asosiy) va `en` — `/uz/...`, `/en/...`. `/` brauzer tiliga qarab (yoki `uz` ga)
   yo'naltiriladi.
@@ -110,11 +110,11 @@ tuzating (yoki eski API'ni deprecated sifatida qoldiring).
 - Output: `.next`
 - "Include source files outside of the Root Directory" yoqilgan bo'lsin (standart holatda yoqiq).
 
-Domen: `akhatmirzo-toolkit.vercel.app`. Sitemap, robots, OG va `metadataBase` uchun manzil
+Domen: `toolkit.akhatmirzo.uz`. Sitemap, robots, OG va `metadataBase` uchun manzil
 `lib/shared.ts` dagi `siteUrl` dan olinadi, u quyidagi tartibda aniqlanadi:
 
 1. `NEXT_PUBLIC_SITE_URL` — o'z domeningiz bo'lsa, Vercel'da shu o'zgaruvchini qo'shing
    (masalan `https://ui.example.uz`);
 2. `VERCEL_PROJECT_PRODUCTION_URL` — Vercel avtomatik beradigan production domeni (agar
    `akhatmirzo-toolkit` nomi band bo'lib, boshqa subdomen berilgan bo'lsa ham to'g'ri ishlaydi);
-3. aks holda `https://akhatmirzo-toolkit.vercel.app`.
+3. aks holda `https://toolkit.akhatmirzo.uz`.

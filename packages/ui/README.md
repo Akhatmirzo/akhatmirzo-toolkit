@@ -9,7 +9,7 @@
 **O'zbek tiliga moslangan, klaviatura bilan to'liq boshqariladigan React komponentlar — Tailwind
 CSS v4 va Radix UI asosida.**
 
-Hujjatlar, jonli demolar va props jadvallari: **https://akhatmirzo-toolkit.vercel.app**
+Hujjatlar, jonli demolar va props jadvallari: **https://toolkit.akhatmirzo.uz**
 
 ## Nimasi bilan foydali
 
@@ -68,7 +68,7 @@ export function App() {
 ```
 
 Next.js App Router'da komponentlarni client komponentlarda ishlating (`'use client'`), provayderlarni
-esa alohida faylga chiqaring — [qo'llanma](https://akhatmirzo-toolkit.vercel.app/uz/docs/v0.1/installation).
+esa alohida faylga chiqaring — [qo'llanma](https://toolkit.akhatmirzo.uz/uz/docs/v0.1/installation).
 
 ## Misol
 
@@ -120,13 +120,13 @@ export function ProfileForm() {
 
 | Bo'lim | Komponentlar |
 | --- | --- |
-| Asoslar     | [Button](https://akhatmirzo-toolkit.vercel.app/uz/docs/v0.1/components/button) · [IconButton](https://akhatmirzo-toolkit.vercel.app/uz/docs/v0.1/components/icon-button) · [Kbd](https://akhatmirzo-toolkit.vercel.app/uz/docs/v0.1/components/kbd) · [Spinner](https://akhatmirzo-toolkit.vercel.app/uz/docs/v0.1/components/spinner) |
-| Formalar    | [Field](https://akhatmirzo-toolkit.vercel.app/uz/docs/v0.1/components/field) · [Input](https://akhatmirzo-toolkit.vercel.app/uz/docs/v0.1/components/input) · [Textarea](https://akhatmirzo-toolkit.vercel.app/uz/docs/v0.1/components/textarea) · [Select](https://akhatmirzo-toolkit.vercel.app/uz/docs/v0.1/components/select) · [Combobox](https://akhatmirzo-toolkit.vercel.app/uz/docs/v0.1/components/combobox) · [DatePicker, DateRangePicker, Calendar](https://akhatmirzo-toolkit.vercel.app/uz/docs/v0.1/components/date-picker) · [PhoneInput, MoneyInput, CardInput, MaskedInput](https://akhatmirzo-toolkit.vercel.app/uz/docs/v0.1/components/masked-input) · [OtpInput, ResendTimer](https://akhatmirzo-toolkit.vercel.app/uz/docs/v0.1/components/otp-input) · [FileUpload](https://akhatmirzo-toolkit.vercel.app/uz/docs/v0.1/components/file-upload) |
-| Tanlov      | [Checkbox](https://akhatmirzo-toolkit.vercel.app/uz/docs/v0.1/components/checkbox) · [RadioGroup, Radio](https://akhatmirzo-toolkit.vercel.app/uz/docs/v0.1/components/radio-group) · [Switch](https://akhatmirzo-toolkit.vercel.app/uz/docs/v0.1/components/switch) |
-| Ko'rsatish  | [Badge](https://akhatmirzo-toolkit.vercel.app/uz/docs/v0.1/components/badge) · [Avatar, AvatarGroup](https://akhatmirzo-toolkit.vercel.app/uz/docs/v0.1/components/avatar) · [Card](https://akhatmirzo-toolkit.vercel.app/uz/docs/v0.1/components/card) · [Skeleton, SkeletonText](https://akhatmirzo-toolkit.vercel.app/uz/docs/v0.1/components/skeleton) · [Divider](https://akhatmirzo-toolkit.vercel.app/uz/docs/v0.1/components/divider) |
-| Overlay     | [Dialog, confirm()](https://akhatmirzo-toolkit.vercel.app/uz/docs/v0.1/components/dialog) · [Drawer](https://akhatmirzo-toolkit.vercel.app/uz/docs/v0.1/components/drawer) · [Popover](https://akhatmirzo-toolkit.vercel.app/uz/docs/v0.1/components/popover) · [Tooltip](https://akhatmirzo-toolkit.vercel.app/uz/docs/v0.1/components/tooltip) · [Toaster, toast()](https://akhatmirzo-toolkit.vercel.app/uz/docs/v0.1/components/toast) · [DropdownMenu](https://akhatmirzo-toolkit.vercel.app/uz/docs/v0.1/components/dropdown-menu) · [CommandPalette](https://akhatmirzo-toolkit.vercel.app/uz/docs/v0.1/components/command-palette) |
-| Navigatsiya | [Tabs](https://akhatmirzo-toolkit.vercel.app/uz/docs/v0.1/components/tabs) · [Accordion](https://akhatmirzo-toolkit.vercel.app/uz/docs/v0.1/components/accordion) |
-| Ma'lumotlar | [DataTable](https://akhatmirzo-toolkit.vercel.app/uz/docs/v0.1/components/data-table) · [VirtualList](https://akhatmirzo-toolkit.vercel.app/uz/docs/v0.1/components/virtual-list) |
+| Asoslar     | [Button](https://toolkit.akhatmirzo.uz/uz/docs/v0.1/components/button) · [IconButton](https://toolkit.akhatmirzo.uz/uz/docs/v0.1/components/icon-button) · [Kbd](https://toolkit.akhatmirzo.uz/uz/docs/v0.1/components/kbd) · [Spinner](https://toolkit.akhatmirzo.uz/uz/docs/v0.1/components/spinner) |
+| Formalar    | [Field](https://toolkit.akhatmirzo.uz/uz/docs/v0.1/components/field) · [Input](https://toolkit.akhatmirzo.uz/uz/docs/v0.1/components/input) · [Textarea](https://toolkit.akhatmirzo.uz/uz/docs/v0.1/components/textarea) · [Select](https://toolkit.akhatmirzo.uz/uz/docs/v0.1/components/select) · [Combobox](https://toolkit.akhatmirzo.uz/uz/docs/v0.1/components/combobox) · [DatePicker, DateRangePicker, Calendar](https://toolkit.akhatmirzo.uz/uz/docs/v0.1/components/date-picker) · [PhoneInput, MoneyInput, CardInput, MaskedInput](https://toolkit.akhatmirzo.uz/uz/docs/v0.1/components/masked-input) · [OtpInput, ResendTimer](https://toolkit.akhatmirzo.uz/uz/docs/v0.1/components/otp-input) · [FileUpload](https://toolkit.akhatmirzo.uz/uz/docs/v0.1/components/file-upload) |
+| Tanlov      | [Checkbox](https://toolkit.akhatmirzo.uz/uz/docs/v0.1/components/checkbox) · [RadioGroup, Radio](https://toolkit.akhatmirzo.uz/uz/docs/v0.1/components/radio-group) · [Switch](https://toolkit.akhatmirzo.uz/uz/docs/v0.1/components/switch) |
+| Ko'rsatish  | [Badge](https://toolkit.akhatmirzo.uz/uz/docs/v0.1/components/badge) · [Avatar, AvatarGroup](https://toolkit.akhatmirzo.uz/uz/docs/v0.1/components/avatar) · [Card](https://toolkit.akhatmirzo.uz/uz/docs/v0.1/components/card) · [Skeleton, SkeletonText](https://toolkit.akhatmirzo.uz/uz/docs/v0.1/components/skeleton) · [Divider](https://toolkit.akhatmirzo.uz/uz/docs/v0.1/components/divider) |
+| Overlay     | [Dialog, confirm()](https://toolkit.akhatmirzo.uz/uz/docs/v0.1/components/dialog) · [Drawer](https://toolkit.akhatmirzo.uz/uz/docs/v0.1/components/drawer) · [Popover](https://toolkit.akhatmirzo.uz/uz/docs/v0.1/components/popover) · [Tooltip](https://toolkit.akhatmirzo.uz/uz/docs/v0.1/components/tooltip) · [Toaster, toast()](https://toolkit.akhatmirzo.uz/uz/docs/v0.1/components/toast) · [DropdownMenu](https://toolkit.akhatmirzo.uz/uz/docs/v0.1/components/dropdown-menu) · [CommandPalette](https://toolkit.akhatmirzo.uz/uz/docs/v0.1/components/command-palette) |
+| Navigatsiya | [Tabs](https://toolkit.akhatmirzo.uz/uz/docs/v0.1/components/tabs) · [Accordion](https://toolkit.akhatmirzo.uz/uz/docs/v0.1/components/accordion) |
+| Ma'lumotlar | [DataTable](https://toolkit.akhatmirzo.uz/uz/docs/v0.1/components/data-table) · [VirtualList](https://toolkit.akhatmirzo.uz/uz/docs/v0.1/components/virtual-list) |
 
 Shuningdek yordamchilar: `cn` (clsx + tailwind-merge), `buttonVariants`, `badgeVariants`,
 `cardVariants`, `kbdVariants`, `spinnerVariants`, `useFieldControl`, `getInitials`,
@@ -174,4 +174,4 @@ pnpm add @akhatmirzo/ui @akhatmirzo/tokens
 ```
 
 Wrap your app once in `TooltipProvider` and `ConfirmProvider`, and render a `<Toaster />`.
-Full documentation in English: https://akhatmirzo-toolkit.vercel.app/en/docs/v0.1/introduction
+Full documentation in English: https://toolkit.akhatmirzo.uz/en/docs/v0.1/introduction

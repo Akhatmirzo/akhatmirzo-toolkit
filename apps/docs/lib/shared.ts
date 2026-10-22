@@ -10,7 +10,7 @@ export const siteUrl = (
   process.env.NEXT_PUBLIC_SITE_URL ||
   (process.env.VERCEL_PROJECT_PRODUCTION_URL
     ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
-    : 'https://akhatmirzo-toolkit.vercel.app')
+    : 'https://toolkit.akhatmirzo.uz')
 ).replace(/\/+$/, '');
 export const docsRoute = '/docs';
 export const docsImageRoute = '/og/docs';
