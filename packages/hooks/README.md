@@ -8,7 +8,7 @@
 
 **Har loyihada qayta yoziladigan React hooklar — bir marta, to'g'ri va testlar bilan.**
 
-Hujjatlar: **https://toolkit.akhatmirzo.uz/uz/docs/v0.1/hooks**
+Hujjatlar: **https://toolkit.akhatmirzo.uz/uz/docs/v0.2/hooks**
 
 - **Bog'liqliksiz** — faqat `react` (18+) peer bog'liqlik.
 - **SSR-xavfsiz** — serverda `window` yo'qligini hisobga oladi: `useMediaQuery` va
@@ -89,7 +89,7 @@ export function CopyCode({ code }: { code: string }) {
 ```
 
 Barcha hooklar, parametrlar va natijalar:
-[hujjatlarda](https://toolkit.akhatmirzo.uz/uz/docs/v0.1/hooks). Komponentlar kerak
+[hujjatlarda](https://toolkit.akhatmirzo.uz/uz/docs/v0.2/hooks). Komponentlar kerak
 bo'lsa — [`@akhatmirzo/ui`](https://www.npmjs.com/package/@akhatmirzo/ui).
 
 ## Litsenziya
@@ -110,4 +110,4 @@ and Ctrl elsewhere).
 pnpm add @akhatmirzo/hooks
 ```
 
-Docs: https://toolkit.akhatmirzo.uz/en/docs/v0.1/hooks
+Docs: https://toolkit.akhatmirzo.uz/en/docs/v0.2/hooks

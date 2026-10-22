@@ -1,0 +1,71 @@
+---
+title: Divider
+description: A 1px line that separates sections — horizontal or vertical, optionally with text in the middle.
+---
+
+<ComponentPreview name="divider/basic" />
+
+## Import
+
+```tsx
+import { Divider } from '@akhatmirzo/ui';
+```
+
+## When to use
+
+- **To separate parts that differ in meaning** — the total on a receipt, menu groups, sections
+  inside a card.
+- **Spacing is often enough.** Don't put a line between every item — the page turns into a grid.
+- **Between alternatives** — `label="or"`: "Sign in with phone" / "Sign in with Google".
+- **If it's purely decorative** (say, between navigation links), use `decorative`.
+
+## With text
+
+`label` puts text in the middle of the line. When it's a string, it also becomes the
+`aria-label`.
+
+<ComponentPreview name="divider/label" />
+
+## Vertical
+
+`orientation="vertical"` sits inside a row and stretches to the parent's height. Give the parent
+a height (`h-5`) or use `items-stretch`.
+
+<ComponentPreview name="divider/vertical" />
+
+## Props
+
+`Divider` accepts every other `<div>` attribute. Change the color with `className`, for example
+`bg-border-strong`.
+
+<PropsTable
+  rows={[
+    {
+      name: 'orientation',
+      type: "'horizontal' | 'vertical'",
+      default: "'horizontal'",
+      description: 'Direction',
+    },
+    {
+      name: 'label',
+      type: 'ReactNode',
+      description: 'Text in the middle ("or")',
+    },
+    {
+      name: 'decorative',
+      type: 'boolean',
+      default: 'false',
+      description: 'Decoration only — hidden from screen readers (role="none")',
+    },
+  ]}
+/>
+
+The root element has a `data-orientation` attribute.
+
+## Accessibility
+
+- **`role="separator"`** with `aria-orientation` — screen readers announce the boundary between
+  sections.
+- **A string `label`** becomes the separator's `aria-label`.
+- **`decorative`** sets `role="none"`, so meaningless lines aren't announced. Use it between
+  navigation links or toolbar groups.

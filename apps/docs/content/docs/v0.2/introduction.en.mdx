@@ -1,0 +1,76 @@
+---
+title: Introduction
+description: What the library is, who it is for and how it is organized.
+---
+
+`@akhatmirzo` is a toolkit for React apps that speak Uzbek: components, design tokens, hooks and
+utility functions. Phone numbers come out as `+998 90 123 45 67`, amounts as `1 250 000 so'm`,
+search treats "Gʻuzor", "G'uzor" and "Ғузор" as the same word, and the calendar starts on Monday.
+All of this works **out of the box**, so you stop rewriting it in every project.
+
+<ComponentPreview name="core/search" />
+
+The search above is a single function from `@akhatmirzo/core`. A Cyrillic query finds Latin
+names and vice versa, and the matched part is highlighted in the original text.
+
+## Principles
+
+- **Built for Uzbek.** Built-in labels, month and weekday names are in Uzbek. There are ready
+  fields for phones (`+998`), Uzcard and Humo cards and amounts in so'm. Search ignores the
+  difference between Latin and Cyrillic and between every apostrophe variant (`'` `ʻ` `‘` `’`).
+- **Accessible.** Overlays, menus and tabs sit on top of [Radix UI](https://www.radix-ui.com/),
+  so focus management, keyboard support and ARIA come for free. `Field` wires the label,
+  description and error message to its control automatically.
+- **One rule, one place.** Colors only come from semantic tokens (`bg-surface`,
+  `text-text-muted`). Dark mode and the brand color change in a single CSS file — the
+  components stay untouched.
+- **A consistent API.** Every control takes `size="sm" | "md" | "lg"` (32 / 40 / 48px), a
+  controlled value is `value` + `onValueChange`, open state is `open` + `onOpenChange`. Learn one
+  component and you can guess the rest.
+- **No dead weight.** The packages are ESM with `sideEffects: false`, so only what you import ends
+  up in your bundle. Your own Tailwind build generates the CSS — there is no runtime CSS-in-JS.
+
+## Packages
+
+The toolkit ships as four independent packages. They live in one repository, but you install and
+version them separately.
+
+| Package              | What you get                                                  | Dependencies                            |
+| -------------------- | ------------------------------------------------------------- | --------------------------------------- |
+| `@akhatmirzo/ui`     | 32 component families: forms, overlays, tables, calendar      | Radix, TanStack, cmdk, react-day-picker |
+| `@akhatmirzo/tokens` | Colors, typography, radii, shadows, motion — CSS and Tailwind | none (CSS only)                         |
+| `@akhatmirzo/core`   | Formatting, validation, text, storage, API client             | none, not even React                    |
+| `@akhatmirzo/hooks`  | 12 React hooks: `useDebounce`, `useHotkeys` and more          | `react` only                            |
+
+`@akhatmirzo/ui` builds on the other three, but not the other way around: you can run `core` on a
+server or in another framework, and use `hooks` without any components.
+
+## When to use
+
+- **Products for Uzbekistan** — admin panels, CRMs, internal tools, online stores. Phones, cards,
+  so'm, dates and Uzbek-aware search are small jobs that eat time; here they are done.
+- **React + Tailwind CSS v4 projects.** Components are styled with Tailwind classes and compiled
+  by your Tailwind build.
+- **When you only need the functions** — install `@akhatmirzo/core` on its own. It has no React
+  and no dependencies, and it runs in Node.js too.
+- **When it is not a fit:** projects without Tailwind (components render unstyled) and React
+  Native — only the web is supported for now.
+
+## Status
+
+The current version is **0.1.0**, published on npm under the MIT license. While the version starts
+with `0.`, the API can still change: a minor release (`0.1` → `0.2`) may include breaking changes.
+See [Versions](./versions.mdx) for details.
+
+## Next steps
+
+<Cards>
+  <Card title="Installation" href="./installation" description="Packages, CSS and providers" />
+  <Card
+    title="Theming and tokens"
+    href="./theming"
+    description="Colors, typography and the brand color"
+  />
+  <Card title="Button" href="./components/button" description="Your first component" />
+  <Card title="Hooks" href="./hooks" description="12 ready-made React hooks" />
+</Cards>

@@ -1,5 +1,11 @@
 # @akhatmirzo/core
 
+## 0.1.3
+
+### Patch Changes
+
+- c0b2353: npm'da topilishi uchun `package.json` metama'lumotlari yangilandi: inglizcha `description`, kengaytirilgan `keywords` va `author` (ism + sayt).
+
 ## 0.1.2
 
 ### Patch Changes

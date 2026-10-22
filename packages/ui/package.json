@@ -1,6 +1,6 @@
 {
   "name": "@akhatmirzo/ui",
-  "version": "0.1.2",
+  "version": "0.2.0",
   "description": "Accessible React UI components built on Tailwind CSS v4 and Radix UI: forms, overlays, DataTable, DatePicker, dark mode and Uzbek-ready inputs (phone, card, so'm).",
   "keywords": [
     "react",

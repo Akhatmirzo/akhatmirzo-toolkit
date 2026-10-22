@@ -1,5 +1,19 @@
 # @akhatmirzo/ui
 
+## 0.2.0
+
+### Minor Changes
+
+- 5614746: Yangi komponentlar: Alert, Progress va ProgressCircle, EmptyState, Slider, SegmentedControl, Pagination (+ PaginationInfo), Breadcrumb, Stepper.
+
+### Patch Changes
+
+- c0b2353: npm'da topilishi uchun `package.json` metama'lumotlari yangilandi: inglizcha `description`, kengaytirilgan `keywords` va `author` (ism + sayt).
+- Updated dependencies [c0b2353]
+  - @akhatmirzo/core@0.1.3
+  - @akhatmirzo/hooks@0.1.3
+  - @akhatmirzo/tokens@0.1.3
+
 ## 0.1.2
 
 ### Patch Changes

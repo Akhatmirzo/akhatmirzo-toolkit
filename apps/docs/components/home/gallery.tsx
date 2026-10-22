@@ -129,7 +129,7 @@ export function Gallery({ lang }: { lang: Lang }) {
             <Badge color="warning">{t.statuses[1]}</Badge>
             <Badge color="danger">{t.statuses[2]}</Badge>
             <Badge color="primary" variant="solid">
-              v0.1
+              v0.2
             </Badge>
           </div>
         </Card>

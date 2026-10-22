@@ -1,0 +1,382 @@
+---
+title: DatePicker
+description: "Sana va sanalar oralig'ini tanlash: qo'lda yozish, o'zbekcha kalendar, tayyor variantlar."
+---
+
+<ComponentPreview name="date-picker/basic" />
+
+## Import
+
+```tsx
+import { Calendar, DatePicker, DateRangePicker } from '@akhatmirzo/ui';
+```
+
+Uchta komponent bitta kalendar ustida qurilgan:
+
+| Komponent         | Vazifasi                                                            |
+| ----------------- | ------------------------------------------------------------------- |
+| `DatePicker`      | Bitta sana: Input ko'rinishidagi maydon + Popover'da kalendar       |
+| `DateRangePicker` | Sanalar oralig'i: tugma-trigger + ikki oylik kalendar               |
+| `Calendar`        | Popover'siz kalendar — sahifaga yoki o'z oynangizga joylashtiriladi |
+
+## Qachon ishlatish
+
+- **Aniq kun kerak bo'lsa** — yetkazish sanasi, uchrashuv, muddat. Faqat oy yoki yil kerak bo'lsa,
+  oddiy [Select](./select.mdx) yetarli.
+- **Tug'ilgan sana kabi uzoq sanalar uchun** ham `DatePicker` qulay: sanani klaviaturada yozib
+  qo'yish mumkin, kalendar sarlavhasi bosilsa oy va yil tanlanadi.
+- **Hisobot davri, ta'til, filtrlar** — `DateRangePicker`. Tayyor variantlar (`presets`) eng ko'p
+  ishlatiladigan oraliqlarni bir bosishda beradi.
+- **Cheklovlarni oldindan bering:** `minDate`, `maxDate`, `disabledDates`. Foydalanuvchi tanlab
+  bo'lmaydigan kunni ko'radi, lekin bosa olmaydi — keyin xato chiqargandan ko'ra yaxshi.
+- **Label uchun** maydonni [Field](./field.mdx) ichiga qo'ying — `id`, `aria-describedby` va
+  xato holati avtomatik ulanadi.
+
+## Qo'lda yozish
+
+Maydonga to'g'ridan-to'g'ri yozish mumkin: `__.__.____` niqobi nuqtalarni o'zi qo'yadi, oxirgi
+raqam kiritilganda sana tekshiriladi. Mavjud bo'lmagan sana (`31.02.2026`) — `invalid`, cheklovga
+tushmaydigan sana — `unavailable` xatosi. Xato turini `onErrorChange` orqali olasiz.
+
+<ComponentPreview name="date-picker/typing" />
+
+<Callout title="Xato matni bitta joyda">
+  Standart holatda `DatePicker` xatoni o'zi, maydon ostida ko'rsatadi. Agar `Field` ga `error`
+  berilgan bo'lsa (yoki `invalid`), ichki xato qatori yashiriladi — ikki qator xato chiqmasligi
+  uchun. Bu xatti-harakatni `showError` bilan majburan yoqish yoki o'chirish mumkin.
+</Callout>
+
+Niqob faqat raqamli shablonlarda ishlaydi (`dd.MM.yyyy`, `MM/dd/yyyy`). `format="d MMMM yyyy"`
+kabi so'zli shablonda maydon oddiy matn sifatida tahlil qilinadi.
+
+## Oy va yilni tanlash
+
+Kalendar sarlavhasini ("Oktabr 2026") bosing — oylar, keyin yillar ko'rinishiga o'tiladi. Bu
+tug'ilgan sana kabi uzoq sanalarga tez yetib borish uchun. `minDate` va `maxDate` dan tashqaridagi
+oylar va yillar o'chirilgan bo'ladi.
+
+<ComponentPreview name="date-picker/birthday" />
+
+## Tayyor variantlar
+
+`presets` — kalendar ostidagi tezkor tugmalar. `true` bersangiz: "Bugun", "Ertaga", "Bir haftadan
+keyin". O'zingizniki uchun `DatePreset[]` bering:
+
+```tsx
+import { DatePicker, type DatePreset } from '@akhatmirzo/ui';
+
+const presets: DatePreset[] = [
+  {
+    label: '3 kundan keyin',
+    date: (today) => new Date(today.getFullYear(), today.getMonth(), today.getDate() + 3),
+  },
+  { label: 'Yangi yil', date: new Date(2027, 0, 1) },
+];
+
+<DatePicker presets={presets} />;
+```
+
+Agar variant sanasi cheklovga tushmasa (masalan, yakshanba yopiq), eng yaqin ruxsat etilgan
+keyingi kun tanlanadi (31 kungacha qidiriladi).
+
+## O'lchamlar
+
+`sm`, `md`, `lg` — 32, 40 va 48px. Balandliklar [Input](./input.mdx) bilan bir xil.
+
+<ComponentPreview name="date-picker/sizes" />
+
+## Holatlar
+
+`disabled`, `readOnly`, xato va boshqa `format`. `readOnly` maydonda kalendar ochilmaydi.
+
+<ComponentPreview name="date-picker/states" align="start" />
+
+## DateRangePicker
+
+Oraliq ikkinchi kun bosilganda tasdiqlanadi. Birinchi kundan keyin kursor bilan yurganingizda
+oraliq oldindan ko'rinadi. Kompyuterda ikki oy, telefonda bitta oy ko'rsatiladi. `presets` uchun
+standart variantlar: "Bugun", "Oxirgi 7 kun", "Shu oy", "O'tgan oy".
+
+<ComponentPreview name="date-picker/range" />
+
+`onValueChange` faqat to'liq oraliq (`from` va `to` ikkalasi bor) bilan yoki tozalanganda `null`
+bilan chaqiriladi — yarim tanlangan oraliq tashqariga chiqmaydi.
+
+### O'z variantlaringiz va forma
+
+`DateRangePreset` da `range` — obyekt yoki `today` ni oladigan funksiya. `name` bersangiz, formaga
+ikkita yashirin maydon qo'shiladi: `${name}From` va `${name}To` (`yyyy-MM-dd`).
+
+<ComponentPreview name="date-picker/range-presets" />
+
+<Callout title="Qo'lda yozish faqat DatePicker'da">
+  `DateRangePicker` ning trigger'i — tugma, unga matn yozilmaydi. Klaviatura bilan `Enter`, `Space`
+  yoki `↓` bosing — kalendar ochiladi va fokus darhol kunga o'tadi.
+</Callout>
+
+## Calendar
+
+Kalendarni Popover'siz, to'g'ridan-to'g'ri sahifada ishlatish mumkin — masalan bron qilish
+sahifasida. `mode="range"` bilan oraliq tanlanadi.
+
+<ComponentPreview name="date-picker/calendar" />
+
+<ComponentPreview name="date-picker/calendar-range" />
+
+## Props
+
+### DatePicker
+
+Qolgan `<input>` atributlarini (`name`, `id`, `placeholder`, `required`, `readOnly`, `disabled`,
+`aria-*` ...) va `ref` ni qabul qiladi. `className` — ildiz elementga, `inputClassName` — ichki
+`<input>` ga. `name` berilsa, forma uchun yashirin maydon qo'shiladi (`yyyy-MM-dd`).
+
+<PropsTable
+  rows={[
+    { name: 'value', type: 'Date | null', description: 'Tanlangan sana (boshqariladigan)' },
+    { name: 'defaultValue', type: 'Date | null', description: "Boshlang'ich qiymat" },
+    {
+      name: 'onValueChange',
+      type: '(value: Date | null) => void',
+      description: "Sana tanlanganda, to'g'ri yozilganda yoki tozalanganda",
+    },
+    {
+      name: 'format',
+      type: 'string',
+      default: "'dd.MM.yyyy'",
+      description: "Ko'rsatish va yozish shabloni (core formatDate tokenlari)",
+    },
+    { name: 'minDate', type: 'Date', description: 'Eng erta ruxsat etilgan sana' },
+    { name: 'maxDate', type: 'Date', description: 'Eng kech ruxsat etilgan sana' },
+    {
+      name: 'disabledDates',
+      type: '(date: Date) => boolean',
+      description: "true qaytarsa — kunni tanlab bo'lmaydi",
+    },
+    {
+      name: 'presets',
+      type: 'boolean | DatePreset[]',
+      description: 'Kalendar ostidagi tayyor variantlar',
+    },
+    { name: 'size', type: "'sm' | 'md' | 'lg'", default: "'md'", description: 'Balandlik' },
+    {
+      name: 'invalid',
+      type: 'boolean',
+      description: "Xato holati (Field ichida error bo'lsa avtomatik)",
+    },
+    {
+      name: 'clearable',
+      type: 'boolean',
+      default: 'false',
+      description: "Qiymat bo'lsa ✕ tugmasi",
+    },
+    { name: 'open', type: 'boolean', description: 'Kalendar ochiqmi (boshqariladigan)' },
+    { name: 'defaultOpen', type: 'boolean', default: 'false' },
+    { name: 'onOpenChange', type: '(open: boolean) => void' },
+    { name: 'today', type: 'Date', description: 'Bugungi sana (standart — new Date())' },
+    { name: 'numberOfMonths', type: 'number', default: '1', description: "Ko'rsatiladigan oylar" },
+    {
+      name: 'onErrorChange',
+      type: '(error: DatePickerError | null) => void',
+      description: "Yozilgan matn xatosi o'zgarganda: 'invalid' yoki 'unavailable'",
+    },
+    {
+      name: 'showError',
+      type: 'boolean',
+      description: "Ichki xato matni. Standart — tashqi xato bo'lmasa ko'rinadi",
+    },
+    { name: 'labels', type: 'DatePickerLabels', description: 'Matnlar (pastda)' },
+    { name: 'inputClassName', type: 'string', description: 'Ichki <input> klassi' },
+    { name: 'contentClassName', type: 'string', description: 'Popover paneli klassi' },
+  ]}
+/>
+
+### DateRangePicker
+
+Qolgan `<button>` atributlarini qabul qiladi (trigger'ga). `className` — ildizga,
+`triggerClassName` — tugmaga.
+
+<PropsTable
+  rows={[
+    { name: 'value', type: 'DateRangeValue | null', description: '{ from, to } (boshqariladigan)' },
+    { name: 'defaultValue', type: 'DateRangeValue | null' },
+    {
+      name: 'onValueChange',
+      type: '(value: DateRangeValue | null) => void',
+      description: "Faqat to'liq oraliq yoki tozalanganda null bilan",
+    },
+    { name: 'format', type: 'string', default: "'dd.MM.yyyy'" },
+    { name: 'minDate', type: 'Date' },
+    { name: 'maxDate', type: 'Date' },
+    { name: 'disabledDates', type: '(date: Date) => boolean' },
+    {
+      name: 'presets',
+      type: 'boolean | DateRangePreset[]',
+      description: "true — Bugun, Oxirgi 7 kun, Shu oy, O'tgan oy",
+    },
+    {
+      name: 'numberOfMonths',
+      type: '1 | 2',
+      description: 'Standart — 2, telefonda (< 640px) 1',
+    },
+    { name: 'size', type: "'sm' | 'md' | 'lg'", default: "'md'" },
+    { name: 'invalid', type: 'boolean' },
+    { name: 'clearable', type: 'boolean', default: 'false' },
+    { name: 'open', type: 'boolean' },
+    { name: 'defaultOpen', type: 'boolean', default: 'false' },
+    { name: 'onOpenChange', type: '(open: boolean) => void' },
+    { name: 'today', type: 'Date' },
+    {
+      name: 'name',
+      type: 'string',
+      description: 'Forma uchun `${name}From` va `${name}To` yashirin maydonlari',
+    },
+    { name: 'labels', type: 'DateRangePickerLabels' },
+    { name: 'triggerClassName', type: 'string' },
+    { name: 'contentClassName', type: 'string' },
+  ]}
+/>
+
+### Calendar
+
+Qolgan `<div>` atributlarini qabul qiladi. `mode` ga qarab `value` turi o'zgaradi.
+
+<PropsTable
+  rows={[
+    {
+      name: 'mode',
+      type: "'single' | 'range'",
+      default: "'single'",
+      description: 'Bitta sana yoki oraliq',
+    },
+    {
+      name: 'value',
+      type: 'Date | null  /  DateRangeValue | null',
+      description: 'single / range',
+    },
+    { name: 'defaultValue', type: 'Date | null  /  DateRangeValue | null' },
+    {
+      name: 'onValueChange',
+      type: '(value: Date | null) => void  /  (value: DateRangeValue) => void',
+    },
+    { name: 'minDate', type: 'Date' },
+    { name: 'maxDate', type: 'Date' },
+    { name: 'disabledDates', type: '(date: Date) => boolean' },
+    { name: 'numberOfMonths', type: 'number', default: '1' },
+    { name: 'month', type: 'Date', description: "Ko'rsatilayotgan oy (boshqariladigan)" },
+    { name: 'defaultMonth', type: 'Date' },
+    { name: 'onMonthChange', type: '(month: Date) => void' },
+    {
+      name: 'view',
+      type: "'days' | 'months' | 'years'",
+      description: "Ko'rinish (boshqariladigan)",
+    },
+    { name: 'defaultView', type: "'days' | 'months' | 'years'", default: "'days'" },
+    { name: 'onViewChange', type: '(view: CalendarView) => void' },
+    { name: 'today', type: 'Date' },
+    {
+      name: 'showOutsideDays',
+      type: 'boolean',
+      description: "Qo'shni oylar kunlari. Standart — bitta oyda true, bir nechtasida false",
+    },
+    {
+      name: 'autoFocus',
+      type: 'boolean',
+      default: 'false',
+      description: 'Tanlangan (yoki bugungi) kunga fokus',
+    },
+    { name: 'footer', type: 'ReactNode', description: 'Kalendar ostidagi kontent' },
+    { name: 'labels', type: 'CalendarLabels' },
+  ]}
+/>
+
+### Tiplar
+
+```ts
+interface DateRangeValue {
+  from: Date | null;
+  to: Date | null; // null — oraliq hali tugallanmagan
+}
+
+interface DatePreset {
+  label: string;
+  date: Date | ((today: Date) => Date);
+}
+
+interface DateRangePreset {
+  label: string;
+  range: DateRangeValue | ((today: Date) => DateRangeValue);
+}
+```
+
+`isDateSelectable(date, { minDate, maxDate, disabledDates })` ham eksport qilinadi — o'z
+validatsiyangizda xuddi shu qoidani ishlatish uchun.
+
+### Matnlar (`labels`)
+
+Barcha matnlar o'zbekcha standart qiymatga ega. Boshqa tilga o'tkazish uchun kerakli kalitlarni
+bering — qolganlari standartda qoladi:
+
+```tsx
+<DatePicker
+  labels={{
+    placeholder: 'dd.mm.yyyy',
+    openCalendar: 'Open calendar',
+    clear: 'Clear',
+    invalidDate: 'Invalid date',
+    months: ['January', 'February' /* ... */],
+    weekdaysShort: ['Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su'],
+  }}
+/>
+```
+
+`CalendarLabels`: `previousMonth`, `nextMonth`, `previousYear`, `nextYear`, `previousYears`,
+`nextYears`, `chooseMonth`, `chooseYear`, `monthsGrid`, `yearsGrid`, `navigation`, `today`,
+`selected`, `months`, `monthsShort`, `weekdays`, `weekdaysShort` (hafta dushanbadan).
+`DatePickerLabels` bularga qo'shimcha: `placeholder`, `openCalendar`, `calendar`, `clear`,
+`presets`, `invalidDate`, `unavailableDate`, `today`, `tomorrow`, `inAWeek`.
+`DateRangePickerLabels`: `placeholder`, `calendar`, `clear`, `presets`, `pickEnd`, `separator`,
+`today`, `last7Days`, `thisMonth`, `lastMonth`.
+
+### Data atributlari
+
+| Atribut         | Element              | Qiymat                      |
+| --------------- | -------------------- | --------------------------- |
+| `data-size`     | maydon konteyneri    | `sm` · `md` · `lg`          |
+| `data-state`    | maydon konteyneri    | `open` · `closed`           |
+| `data-invalid`  | maydon konteyneri    | xato bo'lganda mavjud       |
+| `data-disabled` | maydon konteyneri    | `disabled` bo'lganda mavjud |
+| `data-readonly` | `DatePicker` maydoni | `readOnly` bo'lganda mavjud |
+
+## Klaviatura
+
+| Tugma                 | Harakat                                                     |
+| --------------------- | ----------------------------------------------------------- |
+| `↓` (maydon/trigger)  | Kalendarni ochadi va fokusni kunga o'tkazadi                |
+| `Enter` (maydonda)    | Yozilgan sanani tekshiradi va tasdiqlaydi                   |
+| `← →`                 | ±1 kun                                                      |
+| `↑ ↓`                 | ±1 hafta                                                    |
+| `PageUp` / `PageDown` | ±1 oy (`Shift` bilan — ±1 yil)                              |
+| `Home` / `End`        | Hafta boshi / oxiri                                         |
+| `Enter` / `Space`     | Kunni tanlash                                               |
+| `Esc`                 | Kalendarni yopadi; oy/yil ko'rinishida — kunlarga qaytaradi |
+
+Oy va yil to'rida: strelkalar bilan yuriladi (`↑ ↓` — bir qator), `Home` / `End` — birinchi va
+oxirgi element.
+
+## Accessibility
+
+- **Maydon** — oddiy `<input type="text">`: `aria-haspopup="dialog"`, `aria-expanded` va
+  ochiq paytda `aria-controls` kalendar paneliga ishora qiladi. Raqamli shablonda mobil
+  klaviatura raqamli bo'ladi (`inputMode="numeric"`).
+- **Kalendar paneli** `aria-label="Kalendar"` bilan nomlangan; ochilganda fokus maydonda qoladi,
+  `↓` yoki kalendar tugmasi bilan kunga o'tadi. Yopilganda fokus maydonga qaytadi.
+- **Xato** `aria-invalid` bilan belgilanadi, xato matni `aria-describedby` orqali maydonga
+  bog'langan va `aria-live="polite"` hududida e'lon qilinadi.
+- **Kun tugmalari** ekran o'quvchi uchun to'liq nom oladi: bugungi kunga "Bugun", tanlanganiga
+  "tanlangan" qo'shiladi. Tanlab bo'lmaydigan kunlar xira va ustidan chizilgan — bosilmaydi.
+- **Oy va yil to'rlari** — `role="group"`, har bir katakda to'liq `aria-label`, joriy oy/yil
+  `aria-current` bilan belgilangan.
+- **DateRangePicker:** birinchi kun tanlangach "Tugash sanasini tanlang" matni `aria-live`
+  hududida e'lon qilinadi; tayyor variant tugmalarida `aria-pressed` bor.
+- **Ikonkalar** `aria-hidden`; "Kalendarni ochish" va "Tozalash" tugmalarida `aria-label` bor.

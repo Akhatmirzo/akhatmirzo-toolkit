@@ -1,0 +1,268 @@
+---
+title: Formatting
+description: Format numbers, so'm, phones, cards, dates, relative time and file sizes.
+---
+
+The formats people expect in Uzbekistan work out of the box: `1 250 000 so'm`,
+`+998 90 123 45 67`, `21 Oktabr 2026, Chorshanba`, `5 daqiqa oldin`. The functions don't depend
+on `Intl` or the browser locale, so the output is identical on the server and in every browser.
+Bad input never throws — you get an empty string `''`.
+
+```ts
+import {
+  formatNumber,
+  formatMoney,
+  formatPhone,
+  formatCardNumber,
+  formatDate,
+  parseDate,
+  timeAgo,
+  formatFileSize,
+} from '@akhatmirzo/core';
+```
+
+## Numbers and money
+
+<ComponentPreview name="core/money" />
+
+### formatNumber
+
+```ts
+function formatNumber(n: number, options?: FormatNumberOptions): string;
+```
+
+Writes a number with a thousands separator. The separator is a regular space (not an NBSP), so the
+output is easy to copy and paste. `NaN` and `Infinity` return `''`.
+
+```ts
+formatNumber(1250000); // '1 250 000'
+formatNumber(1250000.756); // '1 250 000.756'
+formatNumber(1250000.5, { decimals: 2 }); // '1 250 000.50'
+formatNumber(1234567.891, { separator: ',', decimals: 2 }); // '1,234,567.89'
+formatNumber(1234567.5, { decimalMark: ',', decimals: 1 }); // '1 234 567,5'
+formatNumber(-4500); // '-4 500'
+formatNumber(NaN); // ''
+```
+
+<PropsTable
+  rows={[
+    {
+      name: 'decimals',
+      type: 'number',
+      description: 'Digits after the decimal mark (0–20). If omitted, the number is kept as is',
+    },
+    { name: 'separator', type: 'string', default: "' '", description: 'Thousands separator' },
+    { name: 'decimalMark', type: 'string', default: "'.'", description: 'Decimal mark' },
+  ]}
+/>
+
+### formatMoney
+
+```ts
+function formatMoney(n: number, options?: FormatMoneyOptions): string;
+```
+
+Formats an amount of money. By default it rounds to a whole number and appends `so'm`.
+
+```ts
+formatMoney(1250000); // "1 250 000 so'm"
+formatMoney(1249999.6); // "1 250 000 so'm"
+formatMoney(99.5, { currency: 'UZS', decimals: 2 }); // '99.50 UZS'
+formatMoney(1250000, { currency: false }); // '1 250 000'
+formatMoney(-99.5, { decimals: 2 }); // "-99.50 so'm"
+```
+
+<PropsTable
+  rows={[
+    {
+      name: 'currency',
+      type: "\"so'm\" | 'UZS' | false",
+      default: '"so\'m"',
+      description: 'Currency label; false hides it',
+    },
+    {
+      name: 'decimals',
+      type: 'number',
+      default: '0',
+      description: 'Digits after the decimal mark',
+    },
+    { name: 'separator', type: 'string', default: "' '", description: 'Thousands separator' },
+    { name: 'decimalMark', type: 'string', default: "'.'", description: 'Decimal mark' },
+  ]}
+/>
+
+<Callout title="Need an input field?">
+  Where users type an amount, use [`MoneyInput`](../components/masked-input.mdx) — it formats as
+  they type and gives you back a plain number.
+</Callout>
+
+### formatFileSize
+
+```ts
+function formatFileSize(bytes: number, decimals?: number): string;
+```
+
+Turns a byte count into something readable: `B`, `KB`, `MB`, `GB`, `TB` (1 KB = 1024 B). Trailing
+zeros are dropped. Negative or invalid values return `''`.
+
+```ts
+formatFileSize(512); // '512 B'
+formatFileSize(1024); // '1 KB'
+formatFileSize(1536); // '1.5 KB'
+formatFileSize(3565158); // '3.4 MB'
+formatFileSize(3565158, 0); // '3 MB'
+formatFileSize(-1); // ''
+```
+
+`decimals` is the number of digits after the decimal mark; the default is `1`.
+
+## Phones and cards
+
+Both functions format **progressively** — incomplete numbers too. That means you can call them
+while the user types, right inside `onChange`:
+
+<ComponentPreview name="core/phone-card" />
+
+### formatPhone
+
+```ts
+function formatPhone(input: string | number | null | undefined, style?: PhoneStyle): string;
+// PhoneStyle = 'international' | 'national'
+```
+
+Formats an Uzbek phone number. Spaces, dashes and parentheses are ignored.
+
+```ts
+formatPhone('901234567'); // '+998 90 123 45 67'
+formatPhone(901234567); // '+998 90 123 45 67'
+formatPhone('+998 (90) 123-45-67'); // '+998 90 123 45 67'
+formatPhone('+998901234567', 'national'); // '(90) 123-45-67'
+formatPhone('90123', 'national'); // '(90) 123'
+formatPhone(''); // ''
+```
+
+<Callout type="warn" title="When the 998 prefix is stripped">
+  `998` is only treated as the country code when it comes with a `+` or when there are more than 9
+  digits. Otherwise it's the start of a national number: `formatPhone('998123456')` returns `'+998
+  99 812 34 56'` (operator `99`).
+</Callout>
+
+### formatCardNumber
+
+```ts
+function formatCardNumber(input: string | number | null | undefined): string;
+```
+
+Groups a card number in blocks of four, up to 19 digits.
+
+```ts
+formatCardNumber('8600123412341234'); // '8600 1234 1234 1234'
+formatCardNumber('8600-1234-12'); // '8600 1234 12'
+```
+
+To check whether the number is valid, use
+[`isValidCardNumber`](./validate.mdx#isvalidcardnumber).
+
+## Dates and time
+
+<ComponentPreview name="core/date" />
+
+### formatDate
+
+```ts
+function formatDate(date: DateInput, pattern?: string): string;
+// DateInput = Date | number | string | null | undefined
+```
+
+Formats a date with a pattern, in local time. Month and weekday names are in Uzbek. The default
+pattern is `'dd.MM.yyyy'`. An invalid date returns `''`.
+
+```ts
+const date = new Date(2026, 9, 21, 14, 5);
+
+formatDate(date); // '21.10.2026'
+formatDate(date, 'd MMMM yyyy, EEEE'); // '21 Oktabr 2026, Chorshanba'
+formatDate(date, 'd MMM, EEE'); // '21 Okt, Ch'
+formatDate(date, 'yyyy-MM-dd HH:mm'); // '2026-10-21 14:05'
+formatDate(date, 'EEEE, d MMMM [soat] HH:mm'); // 'Chorshanba, 21 Oktabr soat 14:05'
+formatDate('sana emas'); // ''
+```
+
+The table shows the output for `new Date(2026, 2, 5, 9, 5, 7)` — March 5, 2026, 09:05:07:
+
+| Token         | Output        | Token      | Output               |
+| ------------- | ------------- | ---------- | -------------------- |
+| `yyyy` / `yy` | `2026` / `26` | `HH` / `H` | `09` / `9` (hours)   |
+| `MMMM`        | `Mart`        | `mm` / `m` | `05` / `5` (minutes) |
+| `MMM`         | `Mar`         | `ss` / `s` | `07` / `7` (seconds) |
+| `MM` / `M`    | `03` / `3`    | `EEEE`     | `Payshanba`          |
+| `dd` / `d`    | `05` / `5`    | `EEE`      | `Pa`                 |
+
+Text in square brackets is left as is: `'[soat] HH:mm'` gives `'soat 14:05'`.
+
+### parseDate
+
+```ts
+function parseDate(input: string | null | undefined, pattern?: string): Date | null;
+```
+
+Parses text into a date using the same tokens, in local time. Returns `null` when the text
+doesn't match the pattern or the date doesn't exist. Month names are case-insensitive, `yy` means
+`20yy`, and surrounding spaces are ignored.
+
+```ts
+parseDate('21.10.2026'); // Date: Oct 21, 2026, 00:00
+parseDate('31.02.2026'); // null — there is no February 31
+parseDate('5 oktabr 2026', 'd MMMM yyyy'); // Date: Oct 5, 2026
+parseDate('2026-10-21 14:30', 'yyyy-MM-dd HH:mm'); // Date: Oct 21, 2026, 14:30
+parseDate('21.10.26', 'dd.MM.yy'); // Date: Oct 21, 2026
+```
+
+### timeAgo
+
+```ts
+function timeAgo(date: DateInput, now?: DateInput): string;
+```
+
+Relative time in Uzbek: "… oldin" (ago) for the past, "…dan keyin" (in …) for the future. Less
+than a minute is "hozirgina" (just now); up to a day, you get minutes or hours. Beyond a day, days
+are counted by the calendar: 23:00 on Oct 19 seen from 08:00 on Oct 21 (33 hours) is
+"2 kun oldin". `now` is the reference point and defaults to `new Date()`.
+
+<ComponentPreview name="core/time-ago" />
+
+```ts
+const now = new Date(2026, 9, 21, 12, 0);
+const minutes = (m: number) => new Date(now.getTime() - m * 60_000);
+
+timeAgo(minutes(0.5), now); // 'hozirgina'
+timeAgo(minutes(5), now); // '5 daqiqa oldin'
+timeAgo(minutes(180), now); // '3 soat oldin'
+timeAgo(minutes(1440), now); // 'kecha'
+timeAgo(minutes(4320), now); // '3 kun oldin'
+timeAgo(minutes(20160), now); // '2 hafta oldin'
+timeAgo(minutes(-120), now); // '2 soatdan keyin'
+timeAgo(minutes(-1440), now); // 'ertaga'
+```
+
+Units: minutes, hours, days, weeks, months and years.
+
+### Months and weekdays
+
+```ts
+const MONTHS_UZ: readonly ['Yanvar', 'Fevral', …, 'Dekabr'];
+const MONTHS_UZ_SHORT: readonly ['Yan', 'Fev', 'Mar', 'Apr', 'May', 'Iyn', 'Iyl', …];
+const WEEKDAYS_UZ: readonly ['Dushanba', 'Seshanba', …, 'Yakshanba'];
+const WEEKDAYS_UZ_SHORT: readonly ['Du', 'Se', 'Ch', 'Pa', 'Ju', 'Sh', 'Ya'];
+function weekdayIndex(date: Date): number; // 0 = Monday … 6 = Sunday
+```
+
+The week starts on **Monday**. JavaScript's `getDay()` counts from Sunday, so get the index with
+`weekdayIndex`:
+
+```ts
+WEEKDAYS_UZ[weekdayIndex(new Date(2026, 9, 21))]; // 'Chorshanba'
+weekdayIndex(new Date(2026, 9, 25)); // 6 — Sunday
+```
+
+The short names for June and July are `Iyn` and `Iyl`, so they don't collide.

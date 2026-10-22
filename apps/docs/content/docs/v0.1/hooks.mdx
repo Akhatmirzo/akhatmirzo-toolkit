@@ -45,7 +45,7 @@ function useToggle(
 Mantiqiy holat. `toggle` barqaror (har render'da bir xil), shuning uchun uni to'g'ridan-to'g'ri
 `onClick` ga yoki boshqa hooklarga berish mumkin. `initial` — standart `false`.
 
-<ComponentPreview name="hooks/toggle" />
+<ComponentPreview name="archive/v0.1/hooks/toggle" />
 
 ```tsx
 const [open, toggleOpen, setOpen] = useToggle();
@@ -70,7 +70,7 @@ otadan keladi, aks holda ichki holat ishlatiladi. `onChange` ikkala rejimda ham,
 **haqiqatan o'zgarganda** chaqiriladi. Kutubxonadagi `Dialog`, `Tabs`, `Select` shu tamoyilda
 ishlaydi.
 
-<ComponentPreview name="hooks/controllable-state" />
+<ComponentPreview name="archive/v0.1/hooks/controllable-state" />
 
 ```tsx title="stepper.tsx"
 interface StepperProps {
@@ -103,7 +103,7 @@ function useDebounce<T>(value: T, ms?: number): T;
 Qiymatni kechiktiradi: oxirgi o'zgarishdan `ms` millisekund o'tgach yangilanadi (standart
 `300`). Har bir harfga so'rov yubormaslik uchun — qidiruv maydonining klassik vazifasi.
 
-<ComponentPreview name="hooks/debounce" />
+<ComponentPreview name="archive/v0.1/hooks/debounce" />
 
 ```tsx
 const [query, setQuery] = useState('');
@@ -134,7 +134,7 @@ Funksiyani kechiktiradi. Qiymat emas, **harakat** kechiktirilishi kerak bo'lgand
 avtomatik saqlash. Har doim eng so'nggi `fn` chaqiriladi (eski closure muammosi yo'q), unmount'da
 kutilayotgan chaqiruv bekor qilinadi. `ms` — standart `300`.
 
-<ComponentPreview name="hooks/debounced-callback" />
+<ComponentPreview name="archive/v0.1/hooks/debounced-callback" />
 
 ```tsx
 const save = useDebouncedCallback((text: string) => api.patch('/notes/1', { text }), 800);
@@ -163,7 +163,7 @@ function useLocalStorage<T>(
 sahifadagi bir xil kalitli boshqa hooklar va boshqa brauzer tablari ham yangilanadi. `remove`
 kalitni o'chiradi — qiymat `initial` ga qaytadi.
 
-<ComponentPreview name="hooks/local-storage" />
+<ComponentPreview name="archive/v0.1/hooks/local-storage" />
 
 ```tsx
 const [recent, setRecent, clearRecent] = useLocalStorage<string[]>('recent-searches', []);
@@ -189,7 +189,7 @@ function useMediaQuery(query: string, defaultValue?: boolean): boolean;
 CSS media so'rov mos keladimi — oyna o'lchami yoki tizim sozlamasi o'zgarganda yangilanadi.
 Serverda va `matchMedia` yo'q joyda `defaultValue` (standart `false`) qaytadi.
 
-<ComponentPreview name="hooks/media-query" />
+<ComponentPreview name="archive/v0.1/hooks/media-query" />
 
 ```tsx
 const isMobile = useMediaQuery('(max-width: 639px)');
@@ -213,7 +213,7 @@ Berilgan element(lar)dan **tashqarida** `pointerdown` bo'lganda `handler` chaqir
 nechta ref berish mumkin — masalan, tugma va panel: tugmaning o'ziga bosish "tashqari" hisoblanmaydi.
 `enabled` (standart `true`) — panel yopiq paytda tinglamaslik uchun.
 
-<ComponentPreview name="hooks/click-outside" />
+<ComponentPreview name="archive/v0.1/hooks/click-outside" />
 
 ```tsx
 const triggerRef = useRef<HTMLButtonElement>(null);
@@ -238,7 +238,7 @@ Matnni buferga nusxalaydi. `copy` muvaffaqiyatni qaytaradi va xato otmaydi. `cop
 `resetMs` davomida (standart `2000`) `true`, keyin o'zi `false` ga qaytadi; `0` — qaytmaydi.
 Clipboard API ishlamasa, eski usulga (`execCommand('copy')`) o'tadi.
 
-<ComponentPreview name="hooks/copy" />
+<ComponentPreview name="archive/v0.1/hooks/copy" />
 
 ```tsx
 const { copied, copy } = useCopyToClipboard();
@@ -259,7 +259,7 @@ ref** qaytaradi, shuning uchun element keyinroq yoki shartli render bo'lsa ham k
 `enabled: false` — kuzatish to'xtaydi (masalan, boshqa sahifa qolmaganda). `IntersectionObserver`
 yo'q muhitda `entry` — `null`.
 
-<ComponentPreview name="hooks/intersection" />
+<ComponentPreview name="archive/v0.1/hooks/intersection" />
 
 ```tsx
 const [sentinelRef, entry] = useIntersection<HTMLDivElement>({
@@ -306,7 +306,7 @@ ishga tushadi. `immediate: false` — faqat `run()` bilan. Faqat **eng so'nggi**
 qabul qilinadi: tez-tez bosilganda eski javob yangisining ustiga yozilmaydi. Unmount'dan keyin
 kelgan javob e'tiborsiz qoladi.
 
-<ComponentPreview name="hooks/async" />
+<ComponentPreview name="archive/v0.1/hooks/async" />
 
 ```tsx
 // Sahifa o'zgarganda o'zi yuklaydi
@@ -348,7 +348,7 @@ Sahifalash tugmalari ro'yxati: `1 … 4 5 6 … 20`. Tugmalar soni barqaror (`si
 shuning uchun sahifa almashganda panel "sakramaydi". Ko'p nuqta faqat 2 va undan ko'p sahifani
 yashirganda qo'yiladi.
 
-<ComponentPreview name="hooks/pagination" />
+<ComponentPreview name="archive/v0.1/hooks/pagination" />
 
 ```ts
 usePagination({ total: 200, pageSize: 10, page: 5 });
@@ -399,7 +399,7 @@ Global klaviatura yorliqlari. `mod` — macOS'da ⌘, boshqa tizimlarda Ctrl. Bi
 kombinatsiya vergul bilan: `'mod+k, /'`. Standart holatda input, textarea, select va
 contenteditable ichida ishlamaydi — foydalanuvchi yozayotgan matnga xalaqit bermaslik uchun.
 
-<ComponentPreview name="hooks/hotkeys" />
+<ComponentPreview name="archive/v0.1/hooks/hotkeys" />
 
 ```tsx
 useHotkeys('mod+k', () => setPaletteOpen(true));

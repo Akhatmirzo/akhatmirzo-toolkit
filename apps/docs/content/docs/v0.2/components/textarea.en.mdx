@@ -1,0 +1,116 @@
+---
+title: Textarea
+description: A multi-line text field that can grow with its content and count characters.
+---
+
+<ComponentPreview name="textarea/basic" />
+
+## Import
+
+```tsx
+import { Textarea } from '@akhatmirzo/ui';
+```
+
+## When to use
+
+- **For free-form, multi-line text** — comments, addresses, reviews, messages. For single-line
+  values, use [`Input`](./input.mdx).
+- **Always inside a [`Field`](./field.mdx)** — the label, hint and error get wired up for you.
+- **Use `autoResize` for chat and comment boxes**: the field grows as you type and scrolls inside
+  once it reaches `maxRows`.
+- **If there's a limit, pair `maxLength` with `showCount`** so people can see how much room is
+  left.
+
+## Auto-resize
+
+With `autoResize`, the height follows the content between `minRows` and `maxRows`. Without
+`maxRows`, it grows without limit. Manual resizing is turned off in this mode.
+
+<ComponentPreview name="textarea/auto-resize" />
+
+## Character count
+
+`showCount` shows the number of characters below the field; with `maxLength` it reads "64 / 120".
+The count turns red when you hit the limit.
+
+<ComponentPreview name="textarea/count" />
+
+## States and sizes
+
+The same states as `Input`: `invalid`, `disabled` and `readOnly`. Sizes (`sm`, `md`, `lg`) change
+the padding and font size; `minRows` controls the height.
+
+<ComponentPreview name="textarea/states" />
+
+## With Field
+
+<ComponentPreview name="textarea/with-field" />
+
+## Props
+
+`Textarea` accepts every other `<textarea>` attribute (`name`, `placeholder`, `maxLength`,
+`onChange` ...), and `ref` points to the inner `<textarea>`. Use `minRows` instead of `rows`.
+`className` goes to the outer container; use `textareaClassName` for the inner element.
+
+<PropsTable
+  rows={[
+    {
+      name: 'size',
+      type: "'sm' | 'md' | 'lg'",
+      default: "'md'",
+      description: 'Padding and font size',
+    },
+    {
+      name: 'invalid',
+      type: 'boolean',
+      description: 'Error state (automatic inside a Field with an error)',
+    },
+    {
+      name: 'autoResize',
+      type: 'boolean',
+      default: 'false',
+      description: 'Height grows with the content (minRows .. maxRows)',
+    },
+    {
+      name: 'minRows',
+      type: 'number',
+      default: '3',
+      description: 'Initial (and minimum) number of rows',
+    },
+    {
+      name: 'maxRows',
+      type: 'number',
+      description: 'Maximum rows with autoResize; scrolls inside after that',
+    },
+    {
+      name: 'showCount',
+      type: 'boolean',
+      default: 'false',
+      description: 'Character count; "120 / 500" with maxLength',
+    },
+    {
+      name: 'textareaClassName',
+      type: 'string',
+      description: 'Class for the inner <textarea>',
+    },
+    {
+      name: 'readOnly',
+      type: 'boolean',
+      default: 'false',
+      description: 'Read-only',
+    },
+  ]}
+/>
+
+### Data attributes
+
+Set on the outer container (`data-slot="textarea"`): `data-size`, `data-invalid`,
+`data-disabled` and `data-readonly`. The counter element has `data-slot="textarea-count"`.
+
+## Accessibility
+
+- **Native `<textarea>`** — focus with `Tab`; `Enter` inserts a new line.
+- **With Field**, `id`, `aria-describedby`, `aria-invalid` and `aria-required` are wired up
+  automatically.
+- **The counter** is added to `aria-describedby`, so screen readers mention the limit when the
+  field gets focus.

@@ -1,0 +1,142 @@
+---
+title: RadioGroup
+description: Pick one option from a set — native radios, arrow-key navigation and a card style.
+---
+
+<ComponentPreview name="radio-group/basic" />
+
+## Import
+
+```tsx
+import { Radio, RadioGroup } from '@akhatmirzo/ui';
+```
+
+## When to use
+
+- **To pick one of 2–5 options** — payment method, delivery type, plan. Every option stays
+  visible, which makes comparing easy.
+- **With many options** (more than 6), a [`Select`](./select.mdx) or
+  [`Combobox`](./combobox.mdx) saves space.
+- **If several can be picked**, use [`Checkbox`](./checkbox.mdx).
+- **When options need a price or a note**, use `variant="card"`: each option becomes a large
+  clickable card.
+- **Give the group a name** — via the `Field` `label` or `aria-label`.
+
+## Orientation
+
+`orientation="vertical"` (default) stacks options. `horizontal` puts them in a row and wraps when
+space runs out. Best for short labels.
+
+<ComponentPreview name="radio-group/horizontal" />
+
+## Sizes
+
+Set `size` on the group and every radio follows: `sm` is 16px, `md` (default) is 20px.
+
+<ComponentPreview name="radio-group/sizes" />
+
+## Card variant
+
+With `variant="card"`, each `Radio` becomes a bordered card that is highlighted in `primary` when
+selected. Great for prices, plans and payment methods: the label and description get plenty of
+room.
+
+<ComponentPreview name="radio-group/card" align="start" />
+
+## States
+
+Put `disabled` on the whole group or on a single `Radio`. `invalid` turns the circles' borders red
+and sets `aria-invalid` on the group and radios.
+
+<ComponentPreview name="radio-group/states" />
+
+## With Field
+
+Inside a `Field`, the group is linked to the label with `aria-labelledby`, the hint and error go
+into `aria-describedby`, and `required`, `disabled` and the error state pass down to the radios.
+
+<ComponentPreview name="radio-group/with-field" align="start" />
+
+## Props
+
+### RadioGroup
+
+`RadioGroup` accepts every other `<div>` attribute (`aria-label`, `className` ...).
+
+<PropsTable
+  rows={[
+    { name: 'value', type: 'string', description: 'Controlled value' },
+    {
+      name: 'defaultValue',
+      type: 'string',
+      description: 'Initial value (uncontrolled)',
+    },
+    {
+      name: 'onValueChange',
+      type: '(value: string) => void',
+      description: 'Called when another option is selected',
+    },
+    {
+      name: 'orientation',
+      type: "'vertical' | 'horizontal'",
+      default: "'vertical'",
+      description: 'Layout and aria-orientation',
+    },
+    {
+      name: 'variant',
+      type: "'default' | 'card'",
+      default: "'default'",
+      description: 'card turns each option into a clickable card',
+    },
+    {
+      name: 'size',
+      type: "'sm' | 'md'",
+      default: "'md'",
+      description: 'Circle size: 16 / 20px',
+    },
+    {
+      name: 'name',
+      type: 'string',
+      description: 'Shared name for the native radios (generated if omitted)',
+    },
+    { name: 'disabled', type: 'boolean', description: 'Disables the whole group' },
+    { name: 'required', type: 'boolean', description: 'A choice is required' },
+    {
+      name: 'invalid',
+      type: 'boolean',
+      description: 'Error state (automatic inside a Field with an error)',
+    },
+  ]}
+/>
+
+### Radio
+
+`Radio` accepts the remaining `<input>` attributes; `ref` points to the inner `<input>` and
+`className` goes to the root `<label>`. It only works inside a `RadioGroup`.
+
+<PropsTable
+  rows={[
+    { name: 'value', type: 'string', required: true, description: 'Option value' },
+    { name: 'label', type: 'ReactNode', description: 'Text next to the circle' },
+    { name: 'description', type: 'ReactNode', description: 'Hint under the label' },
+    { name: 'disabled', type: 'boolean', description: 'Disables just this option' },
+    { name: 'className', type: 'string', description: 'Class for the root <label>' },
+  ]}
+/>
+
+### Data attributes
+
+| Element      | Attributes                                                                       |
+| ------------ | -------------------------------------------------------------------------------- |
+| `RadioGroup` | `data-orientation`, `data-variant`, `data-size`, `data-invalid`, `data-disabled` |
+| `Radio`      | `data-state` (`checked` · `unchecked`), `data-disabled`                          |
+
+## Accessibility
+
+- **Native radios** sharing one `name`, so keyboard behavior comes from the browser: `Tab` moves
+  into and out of the group, `↑↓` / `←→` move between options and select them.
+- **`role="radiogroup"`** with `aria-orientation`; inside a `Field`, the name comes from the label
+  via `aria-labelledby`.
+- **States** are exposed on the group with `aria-required`, `aria-disabled` and `aria-invalid`.
+- **Descriptions** are linked to each radio with `aria-describedby`.
+- **In the card variant**, the focus ring wraps the whole card.

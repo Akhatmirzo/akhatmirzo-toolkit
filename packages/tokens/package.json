@@ -1,6 +1,6 @@
 {
   "name": "@akhatmirzo/tokens",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "description": "Design tokens for @akhatmirzo/ui: CSS variables and a Tailwind CSS v4 @theme with light and dark themes.",
   "keywords": [
     "design-tokens",

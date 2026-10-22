@@ -1,0 +1,187 @@
+---
+title: Drawer
+description: 'Ekran chetidan chiqadigan panel: filtrlar, mobil menyu va tafsilotlar uchun.'
+---
+
+<ComponentPreview name="drawer/filters" />
+
+## Import
+
+```tsx
+import { Drawer } from '@akhatmirzo/ui';
+```
+
+## Qachon ishlatish
+
+- **Filtrlar paneli** — ko'p maydonli filtrlar sahifani yopib qo'ymasdan yon tomonda turadi.
+- **Tafsilotlar ko'rinishi** — jadvaldagi buyurtma yoki mijozni bosganda ma'lumotlarini ochish.
+- **Mobil menyu** — `side="left"` bilan chapdan chiqadigan navigatsiya.
+- **Qisqa forma yoki tasdiqlash** uchun [`Dialog`](./dialog.mdx) to'g'riroq — diqqat markazda
+  bo'ladi.
+- Drawer ham modal: ochiq paytda sahifa bloklanadi. Sahifa bilan parallel ishlash kerak bo'lsa,
+  oddiy yon panel (layout) yasang.
+
+## Tuzilishi
+
+API [`Dialog`](./dialog.mdx) bilan bir xil — qismlar nomi ham, xulqi ham.
+
+| Qism             | Vazifasi                                             |
+| ---------------- | ---------------------------------------------------- |
+| `Drawer`         | Holat: `open`, `defaultOpen`, `onOpenChange`         |
+| `Drawer.Trigger` | Ochuvchi element (`asChild` bilan)                   |
+| `Drawer.Content` | Panel: fon, sarlavha, izoh, ✕ tugmasi, fokus tuzog'i |
+| `Drawer.Footer`  | Pastki tugmalar — panel tubiga yopishadi             |
+| `Drawer.Close`   | Bosilganda panelni yopadi (`asChild` bilan)          |
+
+```tsx
+<Drawer>
+  <Drawer.Trigger asChild>
+    <Button>Filtrlar</Button>
+  </Drawer.Trigger>
+  <Drawer.Content title="Filtrlar" description="Natijalarni toraytiring.">
+    {/* maydonlar */}
+    <Drawer.Footer>
+      <Drawer.Close asChild>
+        <Button>Bekor qilish</Button>
+      </Drawer.Close>
+      <Button variant="primary">Qo'llash</Button>
+    </Drawer.Footer>
+  </Drawer.Content>
+</Drawer>
+```
+
+## Tomonlar
+
+`side` — panel qaysi chetdan chiqishi: `right` (standart), `left`, `bottom`, `top`. Pastdan
+chiqadigan panelning tepasida tutqich chizig'i bo'ladi, burchaklari yumaloqlanadi.
+
+<ComponentPreview name="drawer/sides" />
+
+## O'lchamlar
+
+`size` — `sm` (320px), `md` (420px, standart), `lg` (560px). Chap va o'ng tomonda bu kenglik,
+past va tepada — balandlik. Tor ekranda panel ekrandan kengayib ketmaydi.
+
+<ComponentPreview name="drawer/sizes" />
+
+## Mobil menyu
+
+Navigatsiya uchun `side="left"` va `size="sm"`. Sarlavha ko'rinmasligi kerak bo'lsa `hideTitle`
+qo'ying — ekran o'quvchi uni baribir o'qiydi. Har bir havolani `Drawer.Close asChild` ga o'rasangiz,
+bosilganda menyu o'zi yopiladi.
+
+<ComponentPreview name="drawer/mobile-menu" />
+
+## Tafsilotlar
+
+`size="lg"` — buyurtma yoki mijoz ma'lumotlari uchun keng panel. `Drawer.Footer` kontent qisqa
+bo'lsa ham panel tubida turadi.
+
+<ComponentPreview name="drawer/details" />
+
+<Callout title="Ichida Select va Combobox">
+  `Drawer.Content` ichidagi [`Select`](./select.mdx), [`Combobox`](./combobox.mdx),
+  [`DropdownMenu`](./dropdown-menu.mdx) va [`Popover`](./popover.mdx) paneli drawer ustida ochiladi
+  — qo'shimcha sozlash kerak emas.
+</Callout>
+
+## Props
+
+### Drawer
+
+Radix Dialog `Root` prop'larini qabul qiladi: `open`, `defaultOpen`, `onOpenChange`, `modal`.
+
+### Drawer.Content
+
+Qolgan `<div>` atributlari, `ref` va Radix hodisalari (`onEscapeKeyDown`, `onOpenAutoFocus` ...)
+panelga uzatiladi.
+
+<PropsTable
+  rows={[
+    {
+      name: 'title',
+      type: 'ReactNode',
+      required: true,
+      description: "Sarlavha — ekran o'quvchi uchun ham",
+    },
+    { name: 'description', type: 'ReactNode', description: 'Sarlavha ostidagi izoh' },
+    {
+      name: 'side',
+      type: "'right' | 'left' | 'bottom' | 'top'",
+      default: "'right'",
+      description: 'Qaysi chetdan chiqadi',
+    },
+    {
+      name: 'size',
+      type: "'sm' | 'md' | 'lg'",
+      default: "'md'",
+      description: '320 / 420 / 560px — kenglik yoki balandlik',
+    },
+    {
+      name: 'hideTitle',
+      type: 'boolean',
+      default: 'false',
+      description: "Sarlavhani ko'rinmas qiladi (ekran o'quvchi o'qiydi)",
+    },
+    {
+      name: 'closeButton',
+      type: 'boolean',
+      default: 'true',
+      description: "O'ng yuqorida ✕ tugmasi",
+    },
+    {
+      name: 'dismissible',
+      type: 'boolean',
+      default: 'true',
+      description: 'false — tashqariga bosish yopmaydi (Esc ishlaydi)',
+    },
+    { name: 'overlayClassName', type: 'string', description: 'Fon (overlay) uchun klass' },
+    {
+      name: 'container',
+      type: 'HTMLElement | null',
+      description: 'Portal konteyneri (standart — document.body)',
+    },
+    {
+      name: 'labels',
+      type: '{ close?: string }',
+      default: "{ close: 'Yopish' }",
+      description: '✕ tugmasining nomi',
+    },
+  ]}
+/>
+
+### Drawer.Trigger, Drawer.Close, Drawer.Footer
+
+`Drawer.Trigger` va `Drawer.Close` — `asChild` bilan o'z elementingizni oladi. `Drawer.Footer` —
+oddiy `<div>`: tugmalar o'ngga tekislanadi va panel tubiga yopishadi (`mt-auto`).
+
+### Data atributlari
+
+| Atribut      | Qayerda | Qiymat                              |
+| ------------ | ------- | ----------------------------------- |
+| `data-state` | panel   | `open` · `closed`                   |
+| `data-side`  | panel   | `right` · `left` · `bottom` · `top` |
+| `data-size`  | panel   | `sm` · `md` · `lg`                  |
+
+Dastlabki fokusni o'zingiz tanlash uchun elementga `data-autofocus` qo'ying.
+
+## Klaviatura
+
+| Tugma         | Harakat                                                   |
+| ------------- | --------------------------------------------------------- |
+| `Tab`         | Panel ichidagi keyingi element (fokus paneldan chiqmaydi) |
+| `Shift + Tab` | Oldingi element                                           |
+| `Esc`         | Panelni yopadi, fokus ochgan elementga qaytadi            |
+
+## Accessibility
+
+- **Rol va nom.** Panel — `role="dialog"`, `aria-labelledby` sarlavhaga, `aria-describedby`
+  izohga ulanadi (izoh bo'lmasa — qo'yilmaydi).
+- **Fokus tuzog'i va scroll.** Ochiq paytda fokus panel ichida aylanadi, sahifa scroll
+  qilinmaydi va ekran o'quvchidan yashiriladi.
+- **Dastlabki fokus:** `[data-autofocus]` → birinchi maydon → birinchi tugma (✕ dan tashqari) →
+  panelning o'zi.
+- **Fokusni qaytarish.** Yopilgach fokus triggerga, trigger bo'lmasa — ochilishdan oldingi
+  elementga qaytadi.
+- **Tutqich chizig'i** (`side="bottom"`) faqat bezak — `aria-hidden`.
+- **Kamroq harakat.** `prefers-reduced-motion` da siljish o'rniga shaffoflik animatsiyasi.

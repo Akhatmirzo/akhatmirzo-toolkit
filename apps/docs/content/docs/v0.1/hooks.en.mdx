@@ -45,7 +45,7 @@ function useToggle(
 A boolean state. `toggle` is stable (the same on every render), so you can pass it straight to
 `onClick` or to other hooks. `initial` defaults to `false`.
 
-<ComponentPreview name="hooks/toggle" />
+<ComponentPreview name="archive/v0.1/hooks/toggle" />
 
 ```tsx
 const [open, toggleOpen, setOpen] = useToggle();
@@ -69,7 +69,7 @@ Lets your own component be both **controlled** (`value` + `onValueChange`) and *
 state is used. `onChange` fires in both modes, and only when the value **actually changes**.
 The library's `Dialog`, `Tabs` and `Select` follow the same pattern.
 
-<ComponentPreview name="hooks/controllable-state" />
+<ComponentPreview name="archive/v0.1/hooks/controllable-state" />
 
 ```tsx title="stepper.tsx"
 interface StepperProps {
@@ -102,7 +102,7 @@ function useDebounce<T>(value: T, ms?: number): T;
 Delays a value: it updates `ms` milliseconds after the last change (default `300`). The classic
 use is a search field that shouldn't fire a request on every keystroke.
 
-<ComponentPreview name="hooks/debounce" />
+<ComponentPreview name="archive/v0.1/hooks/debounce" />
 
 ```tsx
 const [query, setQuery] = useState('');
@@ -133,7 +133,7 @@ Delays a function. Use it when you need to delay an **action** rather than a val
 for example. It always calls the latest `fn` (no stale closures), and a pending call is cancelled
 on unmount. `ms` defaults to `300`.
 
-<ComponentPreview name="hooks/debounced-callback" />
+<ComponentPreview name="archive/v0.1/hooks/debounced-callback" />
 
 ```tsx
 const save = useDebouncedCallback((text: string) => api.patch('/notes/1', { text }), 800);
@@ -162,7 +162,7 @@ State synced with `localStorage`. The value is stored as JSON and stays **in syn
 with the same key on the page and other browser tabs update too. `remove` deletes the key and the
 value falls back to `initial`.
 
-<ComponentPreview name="hooks/local-storage" />
+<ComponentPreview name="archive/v0.1/hooks/local-storage" />
 
 ```tsx
 const [recent, setRecent, clearRecent] = useLocalStorage<string[]>('recent-searches', []);
@@ -188,7 +188,7 @@ function useMediaQuery(query: string, defaultValue?: boolean): boolean;
 Whether a CSS media query matches — it updates when the window size or an OS setting changes. On
 the server, and where `matchMedia` doesn't exist, it returns `defaultValue` (default `false`).
 
-<ComponentPreview name="hooks/media-query" />
+<ComponentPreview name="archive/v0.1/hooks/media-query" />
 
 ```tsx
 const isMobile = useMediaQuery('(max-width: 639px)');
@@ -212,7 +212,7 @@ Calls `handler` on a `pointerdown` **outside** the given element(s). You can pas
 for example the button and the panel, so clicking the button itself doesn't count as "outside".
 `enabled` (default `true`) lets you stop listening while the panel is closed.
 
-<ComponentPreview name="hooks/click-outside" />
+<ComponentPreview name="archive/v0.1/hooks/click-outside" />
 
 ```tsx
 const triggerRef = useRef<HTMLButtonElement>(null);
@@ -237,7 +237,7 @@ Copies text to the clipboard. `copy` resolves to whether it worked and never thr
 stays `true` for `resetMs` (default `2000`) and then resets on its own; `0` means it never resets.
 When the Clipboard API isn't available, it falls back to `execCommand('copy')`.
 
-<ComponentPreview name="hooks/copy" />
+<ComponentPreview name="archive/v0.1/hooks/copy" />
 
 ```tsx
 const { copied, copy } = useCopyToClipboard();
@@ -258,7 +258,7 @@ Tracks when an element enters the viewport — for infinite scroll and lazy load
 `enabled: false` stops observing (for example, when there are no more pages). Where
 `IntersectionObserver` doesn't exist, `entry` is `null`.
 
-<ComponentPreview name="hooks/intersection" />
+<ComponentPreview name="archive/v0.1/hooks/intersection" />
 
 ```tsx
 const [sentinelRef, entry] = useIntersection<HTMLDivElement>({
@@ -305,7 +305,7 @@ whenever `deps` change; with `immediate: false` it only runs through `run()`. On
 call wins: if the user clicks quickly, an old response never overwrites a newer one. Responses
 that arrive after unmount are ignored.
 
-<ComponentPreview name="hooks/async" />
+<ComponentPreview name="archive/v0.1/hooks/async" />
 
 ```tsx
 // Loads by itself whenever the page changes
@@ -348,7 +348,7 @@ The list of pagination buttons: `1 … 4 5 6 … 20`. The number of buttons is s
 (`siblings * 2 + 5`), so the bar doesn't jump around as the page changes. An ellipsis only appears
 when it hides 2 or more pages.
 
-<ComponentPreview name="hooks/pagination" />
+<ComponentPreview name="archive/v0.1/hooks/pagination" />
 
 ```ts
 usePagination({ total: 200, pageSize: 10, page: 5 });
@@ -399,7 +399,7 @@ Global keyboard shortcuts. `mod` is ⌘ on macOS and Ctrl everywhere else. Separ
 with commas: `'mod+k, /'`. By default, shortcuts don't fire inside inputs, textareas, selects and
 contenteditable elements, so they never get in the way of typing.
 
-<ComponentPreview name="hooks/hotkeys" />
+<ComponentPreview name="archive/v0.1/hooks/hotkeys" />
 
 ```tsx
 useHotkeys('mod+k', () => setPaletteOpen(true));

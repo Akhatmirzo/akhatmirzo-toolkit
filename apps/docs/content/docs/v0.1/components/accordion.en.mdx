@@ -3,7 +3,7 @@ title: Accordion
 description: Collapsible sections for FAQs, settings and long forms.
 ---
 
-<ComponentPreview name="accordion/basic" align="start" />
+<ComponentPreview name="archive/v0.1/accordion/basic" align="start" />
 
 ## Import
 
@@ -44,7 +44,7 @@ To put your own content in the header (a badge, an icon), skip `title` and write
 | `bordered`  | All sections in one card, divided by lines        |
 | `ghost`     | No background, just divider lines                 |
 
-<ComponentPreview name="accordion/variants" align="start" />
+<ComponentPreview name="archive/v0.1/accordion/variants" align="start" />
 
 ## Several open at once
 
@@ -52,7 +52,7 @@ By default (`type="single"`), one section is open at a time — opening another 
 previous one. With `type="multiple"`, several can be open together; `value` and `defaultValue`
 become arrays.
 
-<ComponentPreview name="accordion/multiple" align="start" />
+<ComponentPreview name="archive/v0.1/accordion/multiple" align="start" />
 
 ## Always one open
 
@@ -60,21 +60,21 @@ With `type="single"`, clicking the open section closes it (`collapsible` default
 With `collapsible={false}`, exactly one section always stays open — it behaves like picking one
 of several options.
 
-<ComponentPreview name="accordion/non-collapsible" align="start" />
+<ComponentPreview name="archive/v0.1/accordion/non-collapsible" align="start" />
 
 ## Composition
 
 Inside an `Accordion.Item`, use `Accordion.Trigger` and `Accordion.Content` to add a badge, an
 icon or a second line to the header. A single section can be turned off with `disabled`.
 
-<ComponentPreview name="accordion/composition" align="start" />
+<ComponentPreview name="archive/v0.1/accordion/composition" align="start" />
 
 ## Controlled
 
 With `value` + `onValueChange`, you decide which sections are open — for an "Expand all" button,
 syncing with the URL and so on.
 
-<ComponentPreview name="accordion/controlled" align="start" />
+<ComponentPreview name="archive/v0.1/accordion/controlled" align="start" />
 
 ## Props
 

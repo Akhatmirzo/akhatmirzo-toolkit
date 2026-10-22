@@ -26,7 +26,7 @@ import {
 
 Type some text or pick one of the samples below:
 
-<ComponentPreview name="core/translit" />
+<ComponentPreview name="archive/v0.1/core/translit" />
 
 ### cyrToLat
 
@@ -122,7 +122,7 @@ lists every match in the **original** text (`[start, end)`, compatible with `sli
 highlight a Latin query inside Cyrillic text. An empty query matches everything. The `Combobox`
 search and the `DataTable` filter are built on it.
 
-<ComponentPreview name="core/search" />
+<ComponentPreview name="archive/v0.1/core/search" />
 
 ```ts
 searchMatch('Toshkent', 'тош'); // { match: true, ranges: [[0, 4]] }
@@ -147,7 +147,7 @@ Matches at the start of a word and consecutive matches score higher. Returns `nu
 no match. Normalization is the same as in `searchMatch`, and spaces in the query are ignored.
 `CommandPalette` uses it.
 
-<ComponentPreview name="core/fuzzy" />
+<ComponentPreview name="archive/v0.1/core/fuzzy" />
 
 ```ts
 fuzzyMatch('Yangi buyurtma', 'ybu'); // { score: 23, ranges: [[0, 1], [6, 8]] }
@@ -190,7 +190,7 @@ export function Highlight({ text, query }: { text: string; query: string }) {
 
 ## Text helpers
 
-<ComponentPreview name="core/truncate" />
+<ComponentPreview name="archive/v0.1/core/truncate" />
 
 ### slugify
 

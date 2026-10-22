@@ -3,7 +3,7 @@ title: CommandPalette
 description: A Ctrl+K search and command window — fuzzy search, recent items, nested pages and server search.
 ---
 
-<ComponentPreview name="command-palette/basic" />
+<ComponentPreview name="archive/v0.1/command-palette/basic" />
 
 ## Import
 
@@ -87,7 +87,7 @@ back button appears next to the search field, and `Backspace` on an empty query 
 group with `searchOnly: true` only appears while searching — great for long lists like customers
 or products. Try searching for `aziza`.
 
-<ComponentPreview name="command-palette/pages" />
+<ComponentPreview name="archive/v0.1/command-palette/pages" />
 
 ## Server search
 
@@ -96,7 +96,7 @@ appear in a separate "Natijalar" group (`labels.results`), and a spinner shows w
 query or closing the palette aborts the previous request through `signal`. Local groups keep
 filtering at the same time; inside nested pages, `onSearch` isn't called. Try `ak` or `nodira`.
 
-<ComponentPreview name="command-palette/server" />
+<ComponentPreview name="archive/v0.1/command-palette/server" />
 
 ```tsx
 <CommandPalette

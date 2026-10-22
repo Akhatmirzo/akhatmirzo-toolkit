@@ -1,0 +1,127 @@
+---
+title: IconButton
+description: "Faqat ikonkadan iborat kvadrat tugma: aria-label majburiy, 3 o'lcham."
+---
+
+<ComponentPreview name="icon-button/variants" />
+
+## Import
+
+```tsx
+import { IconButton } from '@akhatmirzo/ui';
+```
+
+## Qachon ishlatish
+
+- **Joy tor bo'lsa va ikonka hammaga tanish bo'lsa** — yopish (✕), tahrirlash, o'chirish,
+  toolbar tugmalari. Ma'nosi aniq bo'lmasa, matnli [`Button`](./button.mdx) ishlating.
+- **`aria-label` — majburiy.** TypeScript usiz kompilyatsiya qilmaydi. Ekran o'quvchi ikonkani
+  ko'rmaydi, faqat shu matnni o'qiydi — harakatni fe'l bilan yozing: "Yopish", "Tahrirlash".
+- **Ko'rinadigan izoh kerak bo'lsa** — tugmani [`Tooltip`](./tooltip.mdx) ga o'rang.
+- **Toolbar va jadval qatorlarida** `ghost` variant eng yengil ko'rinadi.
+
+## Variantlar
+
+`Button` dagi variantlar, `link` dan tashqari: `primary`, `soft` (standart), `outline`, `ghost`,
+`danger`. Har birining ma'nosi [Button](./button.mdx) sahifasida.
+
+## O'lchamlar
+
+Kvadrat: 32, 40 va 48px — `Button`, `Input` balandliklari bilan bir xil. Ikonka o'lchami
+avtomatik: 16 / 18 / 20px. `sm` ning ko'rinmas bosish maydoni 40px gacha kengaytirilgan.
+
+<ComponentPreview name="icon-button/sizes" />
+
+## Holatlar
+
+`loading` paytida ikonka o'rnida spinner aylanadi, tugma fokusda qoladi, bosish e'tiborsiz
+qoldiriladi. Birinchi tugmani bosib ko'ring.
+
+<ComponentPreview name="icon-button/states" />
+
+## Moslashtirish
+
+Shakl va joylashuvni `className` bilan o'zgartirasiz — masalan, dumaloq "suzuvchi" tugma uchun
+`rounded-full`. Pastdagi misolda `ghost` tugmalardan toolbar yig'ilgan.
+
+<ComponentPreview name="icon-button/toolbar" />
+
+## Havola sifatida (`asChild`)
+
+`IconButton` ham `asChild` ni qabul qiladi: stil tugmaniki, element esa sizning `<a>` (yoki
+Next.js `<Link>`) ingiz.
+
+<ComponentPreview name="icon-button/as-child" />
+
+## Props
+
+`IconButton` — `Button` ustidagi yupqa qobiq. `Button` ning `loading`, `disabled`, `asChild`,
+`labels` va boshqa barcha `<button>` atributlarini qabul qiladi; `leftIcon`, `rightIcon` va
+`fullWidth` bu yerda yo'q.
+
+<PropsTable
+  rows={[
+    {
+      name: 'aria-label',
+      type: 'string',
+      required: true,
+      description: "Ekran o'quvchi o'qiydigan nom",
+    },
+    {
+      name: 'variant',
+      type: "'primary' | 'soft' | 'outline' | 'ghost' | 'danger'",
+      default: "'soft'",
+      description: "Ko'rinish va vazn",
+    },
+    {
+      name: 'size',
+      type: "'sm' | 'md' | 'lg'",
+      default: "'md'",
+      description: "Kvadrat o'lchami: 32 / 40 / 48px",
+    },
+    {
+      name: 'loading',
+      type: 'boolean',
+      default: 'false',
+      description: "Ikonka o'rniga spinner, bosish o'chadi, aria-busy qo'yiladi",
+    },
+    {
+      name: 'disabled',
+      type: 'boolean',
+      default: 'false',
+      description: "Tugmani o'chiradi",
+    },
+    {
+      name: 'asChild',
+      type: 'boolean',
+      default: 'false',
+      description: "O'z elementi o'rniga bolasini render qiladi (masalan, <a>)",
+    },
+    {
+      name: 'labels',
+      type: '{ loading?: string }',
+      default: "{ loading: 'Yuklanmoqda' }",
+      description: "Ekran o'quvchi uchun yuklanish matni",
+    },
+    {
+      name: 'children',
+      type: 'ReactNode',
+      description: 'Ikonka (SVG). Matn yozmang — buning uchun Button bor',
+    },
+  ]}
+/>
+
+Data atributlari `Button` bilan bir xil: `data-variant`, `data-size`, `data-disabled`,
+`data-loading`.
+
+## Accessibility
+
+- **Nom majburiy.** `aria-label` TypeScript darajasida talab qilinadi — nomsiz tugma
+  kompilyatsiyadan o'tmaydi.
+- **Native `<button type="button">`** — `Enter` va `Space` bilan bosiladi, forma ichida
+  tasodifan yubormaydi.
+- **Ikonka ekran o'quvchidan yashiriladi** (`aria-hidden`), o'qiladigan yagona narsa —
+  `aria-label`.
+- **Yuklanish.** `aria-busy="true"` qo'yiladi va yashirin `aria-live` hudud `labels.loading`
+  matnini e'lon qiladi.
+- **Kichik o'lcham.** `size="sm"` ko'rinishda 32px, lekin bosish maydoni 40px.

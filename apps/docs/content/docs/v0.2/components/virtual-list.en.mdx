@@ -1,0 +1,182 @@
+---
+title: VirtualList
+description: Render lists of 10,000+ items smoothly by drawing only the rows on screen.
+---
+
+<ComponentPreview name="virtual-list/basic" align="start" />
+
+## Import
+
+```tsx
+import { VirtualList, type VirtualListHandle } from '@akhatmirzo/ui';
+```
+
+The list above holds 10,000 entries, yet only about 20 rows exist in the DOM at any moment: the
+visible ones plus a small buffer on each side (`overscan`). Rows are recycled as you scroll (built
+on [TanStack Virtual](https://tanstack.com/virtual)).
+
+## When to use
+
+- **Lists with hundreds or thousands of items** — logs, messages, notifications, catalogs. Under
+  about 100 items, a plain list is simpler and just as fast.
+- **Infinite scrolling** — with `onEndReached` and `loadingMore`, no pagination buttons.
+- **Need a table** with columns, sorting and filters? Use the `virtual` mode of
+  [DataTable](./data-table.mdx).
+- **Give it a fixed height:** `height` is required — a virtual list needs its own scroll container.
+- **Give every row a stable key** (`getItemKey`) so rows don't get mixed up when items are added or
+  removed.
+
+## Jumping to a row
+
+`ref` isn't a DOM element but a handle (`VirtualListHandle`): `scrollToIndex`, `scrollToOffset`,
+`measure`, plus the scroll container as `element`. In the demo above, type a number and press
+`Enter`.
+
+```tsx
+const ref = useRef<VirtualListHandle>(null);
+
+ref.current?.scrollToIndex(4999, { align: 'start' }); // row 5,000 at the top
+ref.current?.scrollToOffset(0); // back to the start
+ref.current?.element?.focus(); // the DOM element
+```
+
+## Variable heights
+
+When rows have different heights (messages, comments), pass `dynamic`: each row is measured after
+it renders. `estimateSize` then becomes just the initial guess — the closer it is to the real
+average, the smoother the scrollbar.
+
+<ComponentPreview name="virtual-list/dynamic" align="start" />
+
+<Callout title="Size the row itself">
+  Without `dynamic`, each row gets the `estimateSize` height — make the element inside match it
+  (`h-12` = 48px). Use `gap` for spacing between rows; don't use `margin`, it isn't measured.
+</Callout>
+
+## Infinite loading
+
+`onEndReached` fires when `endReachedThreshold` rows (5 by default) are left, **once** per list
+length. Set `loadingMore` while fetching: a spinner row appears at the bottom and `onEndReached`
+won't fire again. If the request fails (`loadingMore` goes back to false but the length didn't
+change), it fires again on the next scroll, so retrying comes for free.
+
+<ComponentPreview name="virtual-list/infinite" align="start" />
+
+## Empty state
+
+When `items` is empty, `emptyState` is shown (default: "Ro'yxat bo'sh", "the list is empty").
+
+<ComponentPreview name="virtual-list/empty" />
+
+## Props
+
+Accepts the remaining `<div>` attributes (applied to the scroll container). `aria-label` /
+`aria-labelledby` go to the inner list element (`role="list"`).
+
+<PropsTable
+  rows={[
+    { name: 'items', type: 'readonly T[]', required: true, description: 'The items' },
+    {
+      name: 'renderItem',
+      type: '(item: T, index: number) => ReactNode',
+      required: true,
+      description: 'Renders one row',
+    },
+    {
+      name: 'estimateSize',
+      type: 'number | ((index: number) => number)',
+      required: true,
+      description: 'Estimated row height in px',
+    },
+    {
+      name: 'height',
+      type: 'number | string',
+      required: true,
+      description: 'Container height: px or a CSS value ("60vh")',
+    },
+    {
+      name: 'overscan',
+      type: 'number',
+      default: '5',
+      description: 'Extra rows rendered outside the viewport',
+    },
+    {
+      name: 'dynamic',
+      type: 'boolean',
+      default: 'false',
+      description: 'Rows have different heights — measure them',
+    },
+    {
+      name: 'getItemKey',
+      type: '(item: T, index: number) => string | number',
+      description: 'Row key (defaults to the index)',
+    },
+    { name: 'gap', type: 'number', default: '0', description: 'Space between rows in px' },
+    {
+      name: 'onEndReached',
+      type: '() => void',
+      description: 'Near the end of the list (once per length)',
+    },
+    {
+      name: 'endReachedThreshold',
+      type: 'number',
+      default: '5',
+      description: 'How many rows before the end',
+    },
+    {
+      name: 'loadingMore',
+      type: 'boolean',
+      default: 'false',
+      description: "Spinner row at the bottom; onEndReached won't fire meanwhile",
+    },
+    { name: 'emptyState', type: 'ReactNode', description: 'Shown when the list is empty' },
+    { name: 'onScroll', type: "ComponentProps<'div'>['onScroll']" },
+    {
+      name: 'labels',
+      type: '{ loadingMore?: string; empty?: ReactNode }',
+      default: "{ loadingMore: 'Yuklanmoqda...', empty: \"Ro'yxat bo'sh\" }",
+    },
+    { name: 'listClassName', type: 'string', description: 'Class for the role="list" element' },
+    {
+      name: 'ref',
+      type: 'Ref<VirtualListHandle>',
+      description: 'Control handle; the DOM node is handle.element',
+    },
+  ]}
+/>
+
+### VirtualListHandle
+
+<PropsTable
+  rows={[
+    { name: 'element', type: 'HTMLDivElement | null', description: 'The scroll container' },
+    {
+      name: 'scrollToIndex',
+      type: '(index: number, options?: ScrollToOptions) => void',
+      description: "options: { align?: 'start' | 'center' | 'end' | 'auto', behavior? }",
+    },
+    { name: 'scrollToOffset', type: '(offset: number, options?: ScrollToOptions) => void' },
+    {
+      name: 'measure',
+      type: '() => void',
+      description: 'Clears the size cache and measures rows again',
+    },
+  ]}
+/>
+
+## Keyboard
+
+The scroll container is reachable with `Tab` (with a visible focus ring). Once focused, the
+browser's usual scroll keys work: `↑ ↓`, `PageUp` / `PageDown`, `Home` / `End`, `Space`.
+
+## Accessibility
+
+- **List semantics:** the inner element has `role="list"` and each row `role="listitem"`, with
+  `aria-setsize` (total) and `aria-posinset` (position) — screen readers announce "item 5,000 of
+  10,000" even though only 20 rows are in the DOM.
+- **Name it:** pass `aria-label` or `aria-labelledby`; it goes to the list.
+- **Loading:** while `loadingMore` is on, the list has `aria-busy`, and the spinner's hidden text
+  (`labels.loadingMore`) is read out.
+- **Interactive content** inside rows (buttons, links) works as usual, but off-screen rows aren't in
+  the DOM — the browser's find-in-page (`Ctrl+F`) won't see them. Add your own search field if
+  users need it.

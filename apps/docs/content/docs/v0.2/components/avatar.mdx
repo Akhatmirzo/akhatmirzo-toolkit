@@ -1,0 +1,152 @@
+---
+title: Avatar
+description: 'Foydalanuvchi rasmi yoki bosh harflari: ismdan doimiy rang, holat nuqtasi va guruh.'
+---
+
+<ComponentPreview name="avatar/basic" />
+
+## Import
+
+```tsx
+import { Avatar, AvatarGroup } from '@akhatmirzo/ui';
+```
+
+## Qachon ishlatish
+
+- **Odam yoki tashkilotni ko'rsatish uchun** — izohlar, chat, jadval qatorlari, profil menyusi.
+- **Har doim `name` bering**, rasm bo'lsa ham: rasm yuklanmasa, bosh harflar va rang ismdan
+  olinadi, ekran o'quvchi esa ismni o'qiydi.
+- **Bir ism — doim bir rang.** Rang ismdan hisoblanadi, shuning uchun foydalanuvchini ro'yxatda
+  rangidan ham tanish mumkin.
+- **Ko'p ishtirokchi bo'lsa** — `AvatarGroup` va `max`: ortiqchasi "+N" ga yig'iladi.
+
+## O'lchamlar va shakl
+
+`size`: `xs` 24, `sm` 32, `md` 40 (standart), `lg` 48, `xl` 64px. `shape`: `circle` (standart) —
+odamlar uchun, `square` — do'kon, tashkilot, loyiha uchun.
+
+<ComponentPreview name="avatar/sizes" />
+
+## Rasm va zaxira ko'rinish
+
+`src` berilsa rasm chiqadi; yuklanguncha va yuklanmasa — bosh harflar. Ism ham bo'lmasa, odam
+ikonkasi (yoki `fallback`) ko'rsatiladi. Ikkinchi avatarda rasm manzili ataylab noto'g'ri.
+
+<ComponentPreview name="avatar/image" />
+
+## Holat
+
+`status`: `online`, `offline`, `busy` — burchakda rangli nuqta. Holat ekran o'quvchi uchun
+`aria-label` ga ham qo'shiladi: "Sarvar Abduxoliqov (onlayn)".
+
+<ComponentPreview name="avatar/status" />
+
+## Guruh
+
+`AvatarGroup` avatarlarni ustma-ust joylaydi. `size` va `shape` guruhdan bolalarga o'tadi;
+`max` dan ortiqchasi "+N" bo'lib chiqadi.
+
+<ComponentPreview name="avatar/group" />
+
+## Props
+
+### Avatar
+
+`Avatar` qolgan barcha `<span>` atributlarini qabul qiladi (`children` dan tashqari).
+
+<PropsTable
+  rows={[
+    { name: 'src', type: 'string', description: 'Rasm manzili' },
+    { name: 'alt', type: 'string', description: "Ekran o'quvchi uchun nom (berilmasa — name)" },
+    {
+      name: 'name',
+      type: 'string',
+      description: 'Bosh harflar va fon rangi shu ismdan olinadi',
+    },
+    {
+      name: 'size',
+      type: "'xs' | 'sm' | 'md' | 'lg' | 'xl'",
+      default: "'md'",
+      description: "O'lcham: 24 / 32 / 40 / 48 / 64px (guruh ichida — guruhniki)",
+    },
+    {
+      name: 'shape',
+      type: "'circle' | 'square'",
+      default: "'circle'",
+      description: 'Shakl (guruh ichida — guruhniki)',
+    },
+    {
+      name: 'status',
+      type: "'online' | 'offline' | 'busy'",
+      description: 'Burchakdagi holat nuqtasi',
+    },
+    {
+      name: 'fallback',
+      type: 'ReactNode',
+      description: "Ism ham, rasm ham bo'lmaganda (standart — odam ikonkasi)",
+    },
+    {
+      name: 'labels',
+      type: '{ status?: Partial<Record<AvatarStatus, string>> }',
+      default: "{ status: { online: 'onlayn', offline: 'oflayn', busy: 'band' } }",
+      description: "Holat nomlari (ekran o'quvchi uchun)",
+    },
+  ]}
+/>
+
+### AvatarGroup
+
+`AvatarGroup` qolgan barcha `<div>` atributlarini (`aria-label` ...) qabul qiladi.
+
+<PropsTable
+  rows={[
+    {
+      name: 'max',
+      type: 'number',
+      description: 'Ko\'pi bilan nechta avatar ko\'rsatiladi; qolgani "+N"',
+    },
+    {
+      name: 'size',
+      type: "'xs' | 'sm' | 'md' | 'lg' | 'xl'",
+      default: "'md'",
+      description: "Barcha avatarlar o'lchami",
+    },
+    {
+      name: 'shape',
+      type: "'circle' | 'square'",
+      default: "'circle'",
+      description: 'Barcha avatarlar shakli',
+    },
+    {
+      name: 'labels',
+      type: '{ more?: (count: number) => string }',
+      description: 'Ekran o\'quvchi uchun "+N" matni (standart — "Yana N ta")',
+    },
+  ]}
+/>
+
+### Yordamchi funksiyalar
+
+Avatar ishlatadigan mantiq alohida ham eksport qilinadi:
+
+```tsx
+import { getAvatarColor, getInitials } from '@akhatmirzo/ui';
+
+getInitials('Sarvar Abduxoliqov'); // 'SA'
+getInitials("o'tkir hoshimov"); // 'OH'
+getAvatarColor('Sarvar Abduxoliqov'); // 'bg-danger-soft text-danger-soft-foreground'
+```
+
+### Data atributlari
+
+`Avatar` ildizida: `data-size`, `data-shape`, `data-status`, `data-state` (`loading` ·
+`loaded` · `fallback`).
+
+## Accessibility
+
+- **`role="img"` va `aria-label`** — `alt` yoki `name` dan, holat bo'lsa qavs ichida qo'shiladi.
+  Ichidagi bosh harflar va rasm `aria-hidden` — ekran o'quvchi "SA" ni emas, to'liq ismni
+  o'qiydi.
+- **Nomsiz avatar** (na `alt`, na `name`) bezak hisoblanadi va butunlay yashiriladi.
+- **Guruh** `role="group"`; unga `aria-label` bering ("Loyiha ishtirokchilari"). "+N" ham
+  `role="img"` va "Yana N ta" deb o'qiladi.

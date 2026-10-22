@@ -1,0 +1,71 @@
+---
+title: Spinner
+description: 'Yuklanish belgisi: role="status", matn rangini oladi, 3 o''lcham.'
+---
+
+<ComponentPreview name="spinner/sizes" />
+
+## Import
+
+```tsx
+import { Spinner } from '@akhatmirzo/ui';
+```
+
+## Qachon ishlatish
+
+- **Qisqa, davomiyligi noma'lum kutishlar uchun** — so'rov yuborilganda, kichik blok
+  yuklanayotganda.
+- **Tugmada spinner qo'lda qo'ymang** — [`Button`](./button.mdx) va
+  [`IconButton`](./icon-button.mdx) da `loading` prop'i bor.
+- **Kontentning shakli ma'lum bo'lsa** — ro'yxat, karta, jadval — [`Skeleton`](./skeleton.mdx)
+  yaxshiroq: sahifa "sakramaydi".
+- **Bir ekranda bitta spinner.** O'nlab aylanayotgan belgi foydalanuvchini charchatadi.
+
+## O'lchamlar
+
+`sm` — 16px, `md` (standart) — 20px, `lg` — 24px.
+
+## Rang
+
+Spinner `currentColor` bilan chiziladi — ota elementning matn rangini oladi. Rangni
+`className="text-primary"` kabi semantik tokenlar bilan bering.
+
+<ComponentPreview name="spinner/colors" />
+
+## Matn bilan
+
+Yonida ko'rinadigan matn bo'lsa, spinnerni `aria-hidden` bilan yashiring — aks holda ekran
+o'quvchi ikki marta o'qiydi. Yolg'iz spinner uchun esa `label` ga aniq matn bering.
+
+<ComponentPreview name="spinner/with-text" />
+
+## Props
+
+`Spinner` qolgan barcha `<span>` atributlarini qabul qiladi (`children` dan tashqari).
+
+<PropsTable
+  rows={[
+    {
+      name: 'size',
+      type: "'sm' | 'md' | 'lg'",
+      default: "'md'",
+      description: "O'lcham: 16 / 20 / 24px",
+    },
+    {
+      name: 'label',
+      type: 'string',
+      default: "'Yuklanmoqda'",
+      description: "Ekran o'quvchi uchun yashirin matn",
+    },
+  ]}
+/>
+
+Ildiz elementda `data-size` atributi bor. Aylanadigan doira klasslari `spinnerVariants` sifatida
+eksport qilinadi.
+
+## Accessibility
+
+- **`role="status"`** — ekran o'quvchi yashirin `label` matnini o'qiydi; aylanadigan doiraning
+  o'zi `aria-hidden`.
+- **Kamaytirilgan harakat.** Tizimda "reduce motion" yoqilgan bo'lsa, spinner to'xtamaydi, lekin
+  sekinroq (1.5s) aylanadi — kutish holati baribir ko'rinadi.

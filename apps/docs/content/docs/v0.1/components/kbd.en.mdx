@@ -3,7 +3,7 @@ title: Kbd
 description: Displays keys and shortcuts; mod becomes Cmd on macOS and Ctrl everywhere else.
 ---
 
-<ComponentPreview name="kbd/basic" />
+<ComponentPreview name="archive/v0.1/kbd/basic" />
 
 ## Import
 
@@ -26,7 +26,7 @@ import { Kbd } from '@akhatmirzo/ui';
 Each item in `keys` is rendered separately. `mod` (case-insensitive) becomes `⌘` on macOS and
 iOS and `Ctrl` everywhere else. For a single key, plain `children` is enough.
 
-<ComponentPreview name="kbd/keys" />
+<ComponentPreview name="archive/v0.1/kbd/keys" />
 
 <Callout title="SSR and mod">
   The platform is unknown on the server, so `Ctrl` renders first. In the browser it switches to `⌘`
@@ -38,13 +38,13 @@ iOS and `Ctrl` everywhere else. For a single key, plain `children` is enough.
 `sm` (default) is 20px, for inline text and menus. `md` is 24px, for standalone use or next to
 larger text.
 
-<ComponentPreview name="kbd/sizes" />
+<ComponentPreview name="archive/v0.1/kbd/sizes" />
 
 ## In a menu
 
 The most common case — a shortcut on the right side of a menu item.
 
-<ComponentPreview name="kbd/menu" />
+<ComponentPreview name="archive/v0.1/kbd/menu" />
 
 ## Wiring up the shortcut
 

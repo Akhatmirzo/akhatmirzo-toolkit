@@ -1,0 +1,141 @@
+---
+title: RadioGroup
+description: "Bir nechta variantdan bittasini tanlash: native radio'lar, strelkalar bilan yurish, card ko'rinishi."
+---
+
+<ComponentPreview name="radio-group/basic" />
+
+## Import
+
+```tsx
+import { Radio, RadioGroup } from '@akhatmirzo/ui';
+```
+
+## Qachon ishlatish
+
+- **2–5 ta variantdan bittasi tanlanadigan bo'lsa** — to'lov usuli, yetkazib berish turi, tarif.
+  Hamma variant ko'rinib turadi, solishtirish oson.
+- **Variantlar ko'p bo'lsa** (6 tadan ortiq) — [`Select`](./select.mdx) yoki
+  [`Combobox`](./combobox.mdx) joyni tejaydi.
+- **Bir nechtasini tanlash mumkin bo'lsa** — [`Checkbox`](./checkbox.mdx).
+- **Tanlovga narx yoki izoh kerak bo'lsa** — `variant="card"`: har bir variant katta bosiladigan
+  karta.
+- **Guruhga nom bering** — `Field` ning `label` i yoki `aria-label`.
+
+## Yo'nalish
+
+`orientation="vertical"` (standart) — ustma-ust. `horizontal` — bir qatorda, joy yetmasa keyingi
+qatorga o'tadi. Qisqa variantlar uchun.
+
+<ComponentPreview name="radio-group/horizontal" />
+
+## O'lchamlar
+
+`size` guruhga beriladi va barcha radio'larga o'tadi: `sm` — 16px, `md` (standart) — 20px.
+
+<ComponentPreview name="radio-group/sizes" />
+
+## Card varianti
+
+`variant="card"` — har bir `Radio` chegarali karta, tanlanganda `primary` rangda ajraladi. Narx,
+tarif va to'lov usullari uchun qulay: label va izoh katta maydonda.
+
+<ComponentPreview name="radio-group/card" align="start" />
+
+## Holatlar
+
+`disabled` butun guruhga yoki bitta `Radio` ga beriladi. `invalid` — doiralar chegarasi qizil,
+guruh va radio'larda `aria-invalid`.
+
+<ComponentPreview name="radio-group/states" />
+
+## Field bilan
+
+`Field` ichida guruh label'ga `aria-labelledby` orqali bog'lanadi, izoh va xato
+`aria-describedby` ga tushadi; `required`, `disabled` va xato holati radio'larga o'tadi.
+
+<ComponentPreview name="radio-group/with-field" align="start" />
+
+## Props
+
+### RadioGroup
+
+`RadioGroup` qolgan barcha `<div>` atributlarini (`aria-label`, `className` ...) qabul qiladi.
+
+<PropsTable
+  rows={[
+    { name: 'value', type: 'string', description: 'Boshqariladigan qiymat' },
+    {
+      name: 'defaultValue',
+      type: 'string',
+      description: "Boshlang'ich qiymat (boshqarilmaydigan rejim)",
+    },
+    {
+      name: 'onValueChange',
+      type: '(value: string) => void',
+      description: 'Boshqa variant tanlanganda',
+    },
+    {
+      name: 'orientation',
+      type: "'vertical' | 'horizontal'",
+      default: "'vertical'",
+      description: 'Joylashuv va aria-orientation',
+    },
+    {
+      name: 'variant',
+      type: "'default' | 'card'",
+      default: "'default'",
+      description: 'card — har bir variant bosiladigan karta',
+    },
+    {
+      name: 'size',
+      type: "'sm' | 'md'",
+      default: "'md'",
+      description: "Doira o'lchami: 16 / 20px",
+    },
+    {
+      name: 'name',
+      type: 'string',
+      description: "Native radio'lar uchun umumiy name (berilmasa avtomatik)",
+    },
+    { name: 'disabled', type: 'boolean', description: "Butun guruhni o'chiradi" },
+    { name: 'required', type: 'boolean', description: 'Majburiy tanlov' },
+    {
+      name: 'invalid',
+      type: 'boolean',
+      description: "Xato holati (Field ichida error bo'lsa avtomatik)",
+    },
+  ]}
+/>
+
+### Radio
+
+`Radio` qolgan `<input>` atributlarini qabul qiladi; `ref` ichki `<input>` ga, `className` —
+ildiz `<label>` ga. Faqat `RadioGroup` ichida ishlaydi.
+
+<PropsTable
+  rows={[
+    { name: 'value', type: 'string', required: true, description: 'Variant qiymati' },
+    { name: 'label', type: 'ReactNode', description: 'Doira yonidagi matn' },
+    { name: 'description', type: 'ReactNode', description: 'Label ostidagi izoh' },
+    { name: 'disabled', type: 'boolean', description: "Faqat shu variantni o'chiradi" },
+    { name: 'className', type: 'string', description: 'Ildiz <label> elementi klassi' },
+  ]}
+/>
+
+### Data atributlari
+
+| Element      | Atribut                                                                          |
+| ------------ | -------------------------------------------------------------------------------- |
+| `RadioGroup` | `data-orientation`, `data-variant`, `data-size`, `data-invalid`, `data-disabled` |
+| `Radio`      | `data-state` (`checked` · `unchecked`), `data-disabled`                          |
+
+## Accessibility
+
+- **Native radio'lar** bir `name` bilan — klaviatura xatti-harakati brauzerniki: `Tab` guruhga
+  kiradi va chiqadi, `↑↓` / `←→` variantlar orasida yuradi va tanlaydi.
+- **`role="radiogroup"`** va `aria-orientation`; `Field` ichida nom `aria-labelledby` orqali
+  label'dan olinadi.
+- **Holatlar** guruhda `aria-required`, `aria-disabled`, `aria-invalid` bilan aytiladi.
+- **Izohlar** har bir radio'ga `aria-describedby` orqali bog'langan.
+- **Card variantida** fokus halqasi butun kartaga chiziladi.

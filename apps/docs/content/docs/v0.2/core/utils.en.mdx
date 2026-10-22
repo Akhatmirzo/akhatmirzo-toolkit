@@ -1,0 +1,169 @@
+---
+title: Utilities
+description: debounce, throttle, sleep, groupBy, uniqueBy and clamp — general-purpose helpers.
+---
+
+Small functions you end up rewriting in every project. No dependencies, no React, fully typed.
+
+```ts
+import { debounce, throttle, sleep, groupBy, uniqueBy, clamp } from '@akhatmirzo/core';
+```
+
+## Rate limiting
+
+Move the pointer over the area and compare the counters: `throttle` fires once every 400 ms while
+you move, `debounce` fires once after you stop.
+
+<ComponentPreview name="core/debounce-throttle" />
+
+### debounce
+
+```ts
+function debounce<A extends unknown[]>(fn: (...args: A) => unknown, ms: number): Debounced<A>;
+
+interface Debounced<A> {
+  (...args: A): void;
+  cancel(): void; // drops the pending call
+  flush(): void; // runs the pending call right away
+  pending(): boolean; // whether a call is pending
+}
+```
+
+Calls `fn` once, `ms` milliseconds after the last call, with the **latest** arguments. Use it for
+search fields, autosave and window resizing.
+
+```ts
+const search = debounce((query: string) => api.get('/search', { query: { q: query } }), 300);
+
+search('t');
+search('to');
+search('tosh'); // after 300 ms, a single request: q=tosh
+
+search.pending(); // true
+search.flush(); // send now (e.g. when Enter is pressed)
+search.cancel(); // drop it (e.g. when the component closes)
+```
+
+<Callout title="Inside a React component">
+  Don't create a new `debounce` on every render.
+  [`useDebouncedCallback`](../hooks.mdx#usedebouncedcallback) handles that for you and cancels on
+  unmount.
+</Callout>
+
+### throttle
+
+```ts
+function throttle<A extends unknown[]>(fn: (...args: A) => unknown, ms: number): Throttled<A>;
+
+interface Throttled<A> {
+  (...args: A): void;
+  cancel(): void; // drops the pending (trailing) call
+}
+```
+
+Calls `fn` at most once every `ms`: the first call runs **immediately**, and the last call made
+during the interval runs when the interval ends. Use it for scroll, pointer movement and other
+high-frequency events.
+
+```ts
+const onScroll = throttle(() => saveScrollPosition(window.scrollY), 100);
+window.addEventListener('scroll', onScroll);
+
+const log = throttle((n: number) => console.log(n), 50);
+log(1); // immediately: 1
+log(2);
+log(3); // after 50 ms: 3 (2 is skipped)
+```
+
+### sleep
+
+```ts
+function sleep(ms: number, signal?: AbortSignal): Promise<void>;
+```
+
+Waits `ms` milliseconds. If `signal` is aborted, the promise rejects with `signal.reason` (or an
+`AbortError`), so the wait never hangs.
+
+```ts
+await sleep(500);
+
+// Try 3 times, waiting 1 and then 2 seconds in between
+async function getStatus() {
+  for (let attempt = 0; ; attempt++) {
+    try {
+      return await api.get('/status');
+    } catch (error) {
+      if (attempt === 2) throw error;
+      await sleep(1000 * 2 ** attempt);
+    }
+  }
+}
+
+const controller = new AbortController();
+sleep(10_000, controller.signal).catch((e) => e.name); // 'AbortError'
+controller.abort();
+```
+
+## Arrays
+
+### groupBy
+
+```ts
+function groupBy<T, K extends PropertyKey>(
+  items: readonly T[],
+  keyFn: (item: T, index: number) => K,
+): Record<K, T[]>;
+```
+
+Groups items by key and keeps their order. The result has no prototype, so keys like
+`'constructor'` or `'toString'` are safe.
+
+```ts
+const users = [
+  { name: 'Ali', role: 'admin' },
+  { name: 'Vali', role: 'user' },
+  { name: 'Sardor', role: 'admin' },
+];
+
+groupBy(users, (u) => u.role);
+// {
+//   admin: [{ name: 'Ali', … }, { name: 'Sardor', … }],
+//   user: [{ name: 'Vali', … }],
+// }
+```
+
+### uniqueBy
+
+```ts
+function uniqueBy<T>(items: readonly T[], keyFn: (item: T, index: number) => unknown): T[];
+```
+
+Removes duplicates by key — the **first** item for each key wins.
+
+```ts
+uniqueBy(
+  [
+    { id: 1, name: 'Toshkent' },
+    { id: 2, name: 'Samarqand' },
+    { id: 1, name: 'Toshkent (eski)' },
+  ],
+  (city) => city.id,
+);
+// [{ id: 1, name: 'Toshkent' }, { id: 2, name: 'Samarqand' }]
+```
+
+## Numbers
+
+### clamp
+
+```ts
+function clamp(value: number, min: number, max: number): number;
+```
+
+Keeps a value within `[min, max]`.
+
+```ts
+clamp(150, 0, 100); // 100
+clamp(-5, 0, 100); // 0
+clamp(42, 0, 100); // 42
+```

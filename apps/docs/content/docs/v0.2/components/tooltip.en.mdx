@@ -1,0 +1,173 @@
+---
+title: Tooltip
+description: A short hint that appears on hover or focus, with an optional keyboard shortcut.
+---
+
+<ComponentPreview name="tooltip/basic" />
+
+## Import
+
+```tsx
+import { Tooltip, TooltipProvider } from '@akhatmirzo/ui';
+```
+
+## When to use
+
+- **To explain an icon button** — the most common case: put the action into words and show its
+  shortcut (`⌘C`).
+- **Short text only.** No buttons or links inside — for interactive content, use a
+  [`Popover`](./popover.mdx).
+- **Don't hide essential information.** Tooltips never show on phones, so anything users must
+  know belongs on the page itself.
+- **Not a replacement for `aria-label`.** Icon buttons still need an `aria-label`; the tooltip
+  is an extra for sighted users.
+
+## TooltipProvider
+
+Put one `TooltipProvider` at the root of your app: all tooltips share the same delay, and moving
+from one to the next opens it **without a delay** (try moving across the buttons above). Tooltips
+work without a provider too — each creates its own — you just lose that instant hand-off.
+
+```tsx title="app/providers.tsx"
+'use client';
+
+import { TooltipProvider } from '@akhatmirzo/ui';
+import type { ReactNode } from 'react';
+
+export function Providers({ children }: { children: ReactNode }) {
+  return <TooltipProvider delay={300}>{children}</TooltipProvider>;
+}
+```
+
+## Sides
+
+`side` is `top` (default), `right`, `bottom` or `left`. Near the edge of the screen, the tooltip
+flips to the opposite side.
+
+<ComponentPreview name="tooltip/sides" />
+
+## Delay and long text
+
+`delay` is how long to wait before opening, in ms. By default it comes from the provider (300).
+Text longer than 240px wraps to the next line — but a tooltip is best kept to a line or two.
+
+<ComponentPreview name="tooltip/delay" />
+
+## On a disabled button
+
+A `disabled` button doesn't fire events, so a tooltip can't attach to it directly. Wrap the
+button in a `span` with `tabIndex={0}` — keyboard users get the explanation too.
+
+<ComponentPreview name="tooltip/disabled-button" />
+
+## Controlled and disabled
+
+Use `open` + `onOpenChange` to open the tooltip from code. `disabled` turns the tooltip off for a
+while and leaves the trigger as is. An empty `content` renders no tooltip either.
+
+<ComponentPreview name="tooltip/controlled" />
+
+## Props
+
+### Tooltip
+
+The rest of the Radix `Tooltip.Content` props (`alignOffset`, `avoidCollisions`,
+`onEscapeKeyDown` ...) and `className` go to the tooltip panel.
+
+<PropsTable
+  rows={[
+    {
+      name: 'content',
+      type: 'ReactNode',
+      required: true,
+      description: 'Short text. When empty, no tooltip is shown',
+    },
+    {
+      name: 'children',
+      type: 'ReactElement',
+      required: true,
+      description: 'The trigger — a single element that accepts a ref and events',
+    },
+    {
+      name: 'side',
+      type: "'top' | 'right' | 'bottom' | 'left'",
+      default: "'top'",
+      description: 'Preferred side',
+    },
+    {
+      name: 'align',
+      type: "'start' | 'center' | 'end'",
+      default: "'center'",
+      description: 'Alignment along the trigger',
+    },
+    { name: 'sideOffset', type: 'number', default: '6', description: 'Gap to the trigger, px' },
+    {
+      name: 'collisionPadding',
+      type: 'number',
+      default: '8',
+      description: 'Minimum distance from the screen edge, px',
+    },
+    {
+      name: 'delay',
+      type: 'number',
+      description: 'Open delay in ms (defaults to the provider, or 300)',
+    },
+    { name: 'shortcut', type: 'string[]', description: "A Kbd next to the text: ['mod', 'C']" },
+    { name: 'open', type: 'boolean', description: 'Controlled mode' },
+    { name: 'defaultOpen', type: 'boolean', default: 'false', description: 'Open on first render' },
+    {
+      name: 'onOpenChange',
+      type: '(open: boolean) => void',
+      description: 'Called when it opens or closes',
+    },
+    {
+      name: 'disabled',
+      type: 'boolean',
+      default: 'false',
+      description: 'Turns the tooltip off',
+    },
+  ]}
+/>
+
+### TooltipProvider
+
+Also available as `Tooltip.Provider`.
+
+<PropsTable
+  rows={[
+    { name: 'delay', type: 'number', default: '300', description: 'Open delay, ms' },
+    {
+      name: 'skipDelay',
+      type: 'number',
+      default: '300',
+      description: 'Within this window, the next tooltip opens instantly, ms',
+    },
+    { name: 'children', type: 'ReactNode', required: true, description: 'Your app' },
+  ]}
+/>
+
+### Data attributes
+
+| Attribute    | On    | Value                                      |
+| ------------ | ----- | ------------------------------------------ |
+| `data-state` | panel | `delayed-open` · `instant-open` · `closed` |
+| `data-side`  | panel | `top` · `right` · `bottom` · `left`        |
+| `data-slot`  | panel | `tooltip`                                  |
+
+## Keyboard
+
+| Key           | Action                                        |
+| ------------- | --------------------------------------------- |
+| `Tab` (focus) | The tooltip shows when the trigger is focused |
+| `Esc`         | Closes the tooltip                            |
+
+## Accessibility
+
+- **Wiring.** While open, the trigger points to the tooltip text with `aria-describedby`, so
+  screen readers read the hint after the button's name.
+- **Shows on keyboard focus,** not only on hover.
+- **Touch devices** (no hover, coarse pointer) never open tooltips — a tap just activates the
+  button.
+- **Color.** Tooltips use inverted colors (`bg-text`, `text-background`), so contrast holds in
+  both light and dark mode.
+- **Reduced motion.** With `prefers-reduced-motion`, only a fade is used.

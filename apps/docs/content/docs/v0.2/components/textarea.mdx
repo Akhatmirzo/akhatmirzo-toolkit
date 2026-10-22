@@ -1,0 +1,115 @@
+---
+title: Textarea
+description: "Ko'p qatorli matn maydoni: matnga qarab o'sadi va belgilarni sanaydi."
+---
+
+<ComponentPreview name="textarea/basic" />
+
+## Import
+
+```tsx
+import { Textarea } from '@akhatmirzo/ui';
+```
+
+## Qachon ishlatish
+
+- **Erkin, ko'p qatorli matn uchun** — izoh, manzil, sharh, xabar. Bir qatorli qiymatga
+  [`Input`](./input.mdx).
+- **Doim [`Field`](./field.mdx) ichida** — label, izoh va xato o'zi ulanadi.
+- **Chat va izoh maydonlarida `autoResize`** ishlating: maydon matn bilan birga o'sadi,
+  `maxRows` dan keyin ichki scroll paydo bo'ladi.
+- **Cheklov bo'lsa, `maxLength` ni `showCount` bilan** bering — foydalanuvchi qancha joy qolganini
+  ko'rib turadi.
+
+## Avtomatik balandlik
+
+`autoResize` — balandlik `minRows` dan `maxRows` gacha matnga moslashadi. `maxRows` berilmasa,
+cheklovsiz o'sadi. Bu rejimda qo'lda cho'zish (resize) o'chiriladi.
+
+<ComponentPreview name="textarea/auto-resize" />
+
+## Belgilar soni
+
+`showCount` maydon ostida belgilar sonini ko'rsatadi; `maxLength` bilan "64 / 120" ko'rinishida.
+Chegaraga yetganda son qizaradi.
+
+<ComponentPreview name="textarea/count" />
+
+## Holatlar va o'lchamlar
+
+`Input` dagi holatlar: `invalid`, `disabled`, `readOnly`. O'lchamlar (`sm`, `md`, `lg`) ichki
+bo'shliq va shrift o'lchamini o'zgartiradi; balandlikni `minRows` belgilaydi.
+
+<ComponentPreview name="textarea/states" />
+
+## Field bilan
+
+<ComponentPreview name="textarea/with-field" />
+
+## Props
+
+`Textarea` qolgan barcha `<textarea>` atributlarini (`name`, `placeholder`, `maxLength`,
+`onChange` ...) qabul qiladi; `ref` ichki `<textarea>` ga tushadi. `rows` o'rniga `minRows`
+ishlatiladi. `className` — tashqi konteynerga, ichki elementga — `textareaClassName`.
+
+<PropsTable
+  rows={[
+    {
+      name: 'size',
+      type: "'sm' | 'md' | 'lg'",
+      default: "'md'",
+      description: "Ichki bo'shliq va shrift o'lchami",
+    },
+    {
+      name: 'invalid',
+      type: 'boolean',
+      description: "Xato holati (Field ichida error bo'lsa avtomatik)",
+    },
+    {
+      name: 'autoResize',
+      type: 'boolean',
+      default: 'false',
+      description: "Balandlik matnga qarab o'sadi (minRows .. maxRows)",
+    },
+    {
+      name: 'minRows',
+      type: 'number',
+      default: '3',
+      description: "Boshlang'ich (va eng kichik) qatorlar soni",
+    },
+    {
+      name: 'maxRows',
+      type: 'number',
+      description: "autoResize'da eng ko'p qatorlar; undan keyin ichki scroll",
+    },
+    {
+      name: 'showCount',
+      type: 'boolean',
+      default: 'false',
+      description: 'Belgilar soni; maxLength bilan "120 / 500"',
+    },
+    {
+      name: 'textareaClassName',
+      type: 'string',
+      description: 'Ichki <textarea> klassi',
+    },
+    {
+      name: 'readOnly',
+      type: 'boolean',
+      default: 'false',
+      description: "Faqat o'qish uchun",
+    },
+  ]}
+/>
+
+### Data atributlari
+
+Atributlar tashqi konteynerda (`data-slot="textarea"`): `data-size`, `data-invalid`,
+`data-disabled`, `data-readonly`. Hisoblagich elementi — `data-slot="textarea-count"`.
+
+## Accessibility
+
+- **Native `<textarea>`** — `Tab` bilan fokuslanadi, `Enter` yangi qator qo'shadi.
+- **Field bilan** `id`, `aria-describedby`, `aria-invalid` va `aria-required` avtomatik ulanadi.
+- **Hisoblagich** `aria-describedby` ga qo'shiladi — ekran o'quvchi maydonga kelganda limitni
+  ham aytadi.

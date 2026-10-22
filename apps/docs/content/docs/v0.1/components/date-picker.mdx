@@ -3,7 +3,7 @@ title: DatePicker
 description: "Sana va sanalar oralig'ini tanlash: qo'lda yozish, o'zbekcha kalendar, tayyor variantlar."
 ---
 
-<ComponentPreview name="date-picker/basic" />
+<ComponentPreview name="archive/v0.1/date-picker/basic" />
 
 ## Import
 
@@ -38,7 +38,7 @@ Maydonga to'g'ridan-to'g'ri yozish mumkin: `__.__.____` niqobi nuqtalarni o'zi q
 raqam kiritilganda sana tekshiriladi. Mavjud bo'lmagan sana (`31.02.2026`) — `invalid`, cheklovga
 tushmaydigan sana — `unavailable` xatosi. Xato turini `onErrorChange` orqali olasiz.
 
-<ComponentPreview name="date-picker/typing" />
+<ComponentPreview name="archive/v0.1/date-picker/typing" />
 
 <Callout title="Xato matni bitta joyda">
   Standart holatda `DatePicker` xatoni o'zi, maydon ostida ko'rsatadi. Agar `Field` ga `error`
@@ -55,7 +55,7 @@ Kalendar sarlavhasini ("Oktabr 2026") bosing — oylar, keyin yillar ko'rinishig
 tug'ilgan sana kabi uzoq sanalarga tez yetib borish uchun. `minDate` va `maxDate` dan tashqaridagi
 oylar va yillar o'chirilgan bo'ladi.
 
-<ComponentPreview name="date-picker/birthday" />
+<ComponentPreview name="archive/v0.1/date-picker/birthday" />
 
 ## Tayyor variantlar
 
@@ -83,13 +83,13 @@ keyingi kun tanlanadi (31 kungacha qidiriladi).
 
 `sm`, `md`, `lg` — 32, 40 va 48px. Balandliklar [Input](./input.mdx) bilan bir xil.
 
-<ComponentPreview name="date-picker/sizes" />
+<ComponentPreview name="archive/v0.1/date-picker/sizes" />
 
 ## Holatlar
 
 `disabled`, `readOnly`, xato va boshqa `format`. `readOnly` maydonda kalendar ochilmaydi.
 
-<ComponentPreview name="date-picker/states" align="start" />
+<ComponentPreview name="archive/v0.1/date-picker/states" align="start" />
 
 ## DateRangePicker
 
@@ -97,7 +97,7 @@ Oraliq ikkinchi kun bosilganda tasdiqlanadi. Birinchi kundan keyin kursor bilan 
 oraliq oldindan ko'rinadi. Kompyuterda ikki oy, telefonda bitta oy ko'rsatiladi. `presets` uchun
 standart variantlar: "Bugun", "Oxirgi 7 kun", "Shu oy", "O'tgan oy".
 
-<ComponentPreview name="date-picker/range" />
+<ComponentPreview name="archive/v0.1/date-picker/range" />
 
 `onValueChange` faqat to'liq oraliq (`from` va `to` ikkalasi bor) bilan yoki tozalanganda `null`
 bilan chaqiriladi — yarim tanlangan oraliq tashqariga chiqmaydi.
@@ -107,7 +107,7 @@ bilan chaqiriladi — yarim tanlangan oraliq tashqariga chiqmaydi.
 `DateRangePreset` da `range` — obyekt yoki `today` ni oladigan funksiya. `name` bersangiz, formaga
 ikkita yashirin maydon qo'shiladi: `${name}From` va `${name}To` (`yyyy-MM-dd`).
 
-<ComponentPreview name="date-picker/range-presets" />
+<ComponentPreview name="archive/v0.1/date-picker/range-presets" />
 
 <Callout title="Qo'lda yozish faqat DatePicker'da">
   `DateRangePicker` ning trigger'i — tugma, unga matn yozilmaydi. Klaviatura bilan `Enter`, `Space`
@@ -119,9 +119,9 @@ ikkita yashirin maydon qo'shiladi: `${name}From` va `${name}To` (`yyyy-MM-dd`).
 Kalendarni Popover'siz, to'g'ridan-to'g'ri sahifada ishlatish mumkin — masalan bron qilish
 sahifasida. `mode="range"` bilan oraliq tanlanadi.
 
-<ComponentPreview name="date-picker/calendar" />
+<ComponentPreview name="archive/v0.1/date-picker/calendar" />
 
-<ComponentPreview name="date-picker/calendar-range" />
+<ComponentPreview name="archive/v0.1/date-picker/calendar-range" />
 
 ## Props
 

@@ -1,0 +1,383 @@
+---
+title: DatePicker
+description: Pick a date or a date range — type it in or use the calendar, with ready-made presets.
+---
+
+<ComponentPreview name="date-picker/basic" />
+
+## Import
+
+```tsx
+import { Calendar, DatePicker, DateRangePicker } from '@akhatmirzo/ui';
+```
+
+Three components share one calendar:
+
+| Component         | What it does                                                     |
+| ----------------- | ---------------------------------------------------------------- |
+| `DatePicker`      | A single date: an Input-style field plus a calendar in a popover |
+| `DateRangePicker` | A date range: a button trigger plus a two-month calendar         |
+| `Calendar`        | The calendar on its own — place it on a page or in your own UI   |
+
+## When to use
+
+- **When you need an exact day** — a delivery date, a meeting, a deadline. If you only need a
+  month or a year, a plain [Select](./select.mdx) is enough.
+- **Far-away dates like birthdays** work well too: users can type the date, and clicking the
+  calendar caption switches to month and year selection.
+- **Report periods, vacations, filters** call for `DateRangePicker`. `presets` give the most
+  common ranges in one click.
+- **Set limits up front:** `minDate`, `maxDate`, `disabledDates`. Users see the blocked days but
+  can't pick them — better than showing an error afterwards.
+- **Need a label?** Wrap the field in [Field](./field.mdx): `id`, `aria-describedby` and the error
+  state are wired up for you.
+
+## Typing a date
+
+Users can type straight into the field. The `__.__.____` mask adds the dots, and the date is
+checked as soon as the last digit is in. A date that doesn't exist (`31.02.2026`) is `invalid`; a
+date outside your limits is `unavailable`. Read the error type with `onErrorChange`.
+
+<ComponentPreview name="date-picker/typing" />
+
+<Callout title="One error message, not two">
+  By default `DatePicker` shows its own error under the field. When the surrounding `Field` has an
+  `error` (or you pass `invalid`), the built-in message is hidden so the user doesn't see two lines.
+  Use `showError` to force it on or off.
+</Callout>
+
+The mask only works with numeric formats (`dd.MM.yyyy`, `MM/dd/yyyy`). With a word-based format
+such as `format="d MMMM yyyy"`, the field is parsed as plain text.
+
+## Month and year view
+
+Click the calendar caption ("Oktabr 2026") to jump to a month grid, then to a year grid. It's the
+fastest way to reach a date decades away. Months and years outside `minDate` / `maxDate` are
+disabled.
+
+<ComponentPreview name="date-picker/birthday" />
+
+## Presets
+
+`presets` adds quick buttons under the calendar. Pass `true` for "Today", "Tomorrow" and "In a
+week" (labelled in Uzbek by default). For your own, pass a `DatePreset[]`:
+
+```tsx
+import { DatePicker, type DatePreset } from '@akhatmirzo/ui';
+
+const presets: DatePreset[] = [
+  {
+    label: 'In 3 days',
+    date: (today) => new Date(today.getFullYear(), today.getMonth(), today.getDate() + 3),
+  },
+  { label: 'New Year', date: new Date(2027, 0, 1) },
+];
+
+<DatePicker presets={presets} />;
+```
+
+If a preset lands on a blocked day (say, a closed Sunday), the next allowed day is picked instead
+(it looks up to 31 days ahead).
+
+## Sizes
+
+`sm`, `md`, `lg` — 32, 40 and 48px, the same heights as [Input](./input.mdx).
+
+<ComponentPreview name="date-picker/sizes" />
+
+## States
+
+`disabled`, `readOnly`, an error and a custom `format`. A `readOnly` field never opens the
+calendar.
+
+<ComponentPreview name="date-picker/states" align="start" />
+
+## DateRangePicker
+
+The range is confirmed on the second click. After the first day, moving the pointer previews the
+range. Desktop shows two months, phones show one. With `presets`, the defaults are "Today", "Last 7
+days", "This month" and "Last month".
+
+<ComponentPreview name="date-picker/range" />
+
+`onValueChange` only fires with a complete range (both `from` and `to`) or with `null` when
+cleared — a half-picked range never leaks out.
+
+### Custom presets and forms
+
+In a `DateRangePreset`, `range` is either an object or a function that receives `today`. Pass
+`name` and the form gets two hidden fields: `${name}From` and `${name}To` (`yyyy-MM-dd`).
+
+<ComponentPreview name="date-picker/range-presets" />
+
+<Callout title="Typing is DatePicker-only">
+  The `DateRangePicker` trigger is a button, so there's no text to type. From the keyboard, press
+  `Enter`, `Space` or `↓` — the calendar opens with focus already on a day.
+</Callout>
+
+## Calendar
+
+Use the calendar without a popover, right on the page — a booking screen, for example. Set
+`mode="range"` to select a range.
+
+<ComponentPreview name="date-picker/calendar" />
+
+<ComponentPreview name="date-picker/calendar-range" />
+
+## Props
+
+### DatePicker
+
+Accepts the remaining `<input>` attributes (`name`, `id`, `placeholder`, `required`, `readOnly`,
+`disabled`, `aria-*` ...) and `ref`. `className` goes on the root, `inputClassName` on the inner
+`<input>`. With `name`, a hidden form field is added (`yyyy-MM-dd`).
+
+<PropsTable
+  rows={[
+    { name: 'value', type: 'Date | null', description: 'Selected date (controlled)' },
+    { name: 'defaultValue', type: 'Date | null', description: 'Initial value' },
+    {
+      name: 'onValueChange',
+      type: '(value: Date | null) => void',
+      description: 'Called when a date is picked, typed correctly or cleared',
+    },
+    {
+      name: 'format',
+      type: 'string',
+      default: "'dd.MM.yyyy'",
+      description: 'Display and input format (core formatDate tokens)',
+    },
+    { name: 'minDate', type: 'Date', description: 'Earliest allowed date' },
+    { name: 'maxDate', type: 'Date', description: 'Latest allowed date' },
+    {
+      name: 'disabledDates',
+      type: '(date: Date) => boolean',
+      description: 'Return true to block a day',
+    },
+    {
+      name: 'presets',
+      type: 'boolean | DatePreset[]',
+      description: 'Quick options under the calendar',
+    },
+    { name: 'size', type: "'sm' | 'md' | 'lg'", default: "'md'", description: 'Height' },
+    {
+      name: 'invalid',
+      type: 'boolean',
+      description: 'Error state (automatic inside a Field with an error)',
+    },
+    {
+      name: 'clearable',
+      type: 'boolean',
+      default: 'false',
+      description: 'Shows a ✕ button when there is a value',
+    },
+    { name: 'open', type: 'boolean', description: 'Whether the calendar is open (controlled)' },
+    { name: 'defaultOpen', type: 'boolean', default: 'false' },
+    { name: 'onOpenChange', type: '(open: boolean) => void' },
+    { name: 'today', type: 'Date', description: "Today's date (defaults to new Date())" },
+    { name: 'numberOfMonths', type: 'number', default: '1', description: 'Months shown' },
+    {
+      name: 'onErrorChange',
+      type: '(error: DatePickerError | null) => void',
+      description: "Typed-text error changed: 'invalid' or 'unavailable'",
+    },
+    {
+      name: 'showError',
+      type: 'boolean',
+      description: 'Built-in error text. By default shown only when there is no outside error',
+    },
+    { name: 'labels', type: 'DatePickerLabels', description: 'UI strings (see below)' },
+    { name: 'inputClassName', type: 'string', description: 'Class for the inner <input>' },
+    { name: 'contentClassName', type: 'string', description: 'Class for the popover panel' },
+  ]}
+/>
+
+### DateRangePicker
+
+Accepts the remaining `<button>` attributes (applied to the trigger). `className` goes on the
+root, `triggerClassName` on the button.
+
+<PropsTable
+  rows={[
+    { name: 'value', type: 'DateRangeValue | null', description: '{ from, to } (controlled)' },
+    { name: 'defaultValue', type: 'DateRangeValue | null' },
+    {
+      name: 'onValueChange',
+      type: '(value: DateRangeValue | null) => void',
+      description: 'Only with a complete range, or null when cleared',
+    },
+    { name: 'format', type: 'string', default: "'dd.MM.yyyy'" },
+    { name: 'minDate', type: 'Date' },
+    { name: 'maxDate', type: 'Date' },
+    { name: 'disabledDates', type: '(date: Date) => boolean' },
+    {
+      name: 'presets',
+      type: 'boolean | DateRangePreset[]',
+      description: 'true — today, last 7 days, this month, last month',
+    },
+    {
+      name: 'numberOfMonths',
+      type: '1 | 2',
+      description: 'Defaults to 2, or 1 on phones (< 640px)',
+    },
+    { name: 'size', type: "'sm' | 'md' | 'lg'", default: "'md'" },
+    { name: 'invalid', type: 'boolean' },
+    { name: 'clearable', type: 'boolean', default: 'false' },
+    { name: 'open', type: 'boolean' },
+    { name: 'defaultOpen', type: 'boolean', default: 'false' },
+    { name: 'onOpenChange', type: '(open: boolean) => void' },
+    { name: 'today', type: 'Date' },
+    {
+      name: 'name',
+      type: 'string',
+      description: 'Adds hidden `${name}From` and `${name}To` form fields',
+    },
+    { name: 'labels', type: 'DateRangePickerLabels' },
+    { name: 'triggerClassName', type: 'string' },
+    { name: 'contentClassName', type: 'string' },
+  ]}
+/>
+
+### Calendar
+
+Accepts the remaining `<div>` attributes. The type of `value` depends on `mode`.
+
+<PropsTable
+  rows={[
+    {
+      name: 'mode',
+      type: "'single' | 'range'",
+      default: "'single'",
+      description: 'One date or a range',
+    },
+    {
+      name: 'value',
+      type: 'Date | null  /  DateRangeValue | null',
+      description: 'single / range',
+    },
+    { name: 'defaultValue', type: 'Date | null  /  DateRangeValue | null' },
+    {
+      name: 'onValueChange',
+      type: '(value: Date | null) => void  /  (value: DateRangeValue) => void',
+    },
+    { name: 'minDate', type: 'Date' },
+    { name: 'maxDate', type: 'Date' },
+    { name: 'disabledDates', type: '(date: Date) => boolean' },
+    { name: 'numberOfMonths', type: 'number', default: '1' },
+    { name: 'month', type: 'Date', description: 'Displayed month (controlled)' },
+    { name: 'defaultMonth', type: 'Date' },
+    { name: 'onMonthChange', type: '(month: Date) => void' },
+    {
+      name: 'view',
+      type: "'days' | 'months' | 'years'",
+      description: 'Current view (controlled)',
+    },
+    { name: 'defaultView', type: "'days' | 'months' | 'years'", default: "'days'" },
+    { name: 'onViewChange', type: '(view: CalendarView) => void' },
+    { name: 'today', type: 'Date' },
+    {
+      name: 'showOutsideDays',
+      type: 'boolean',
+      description: 'Days from adjacent months. Defaults to true for one month, false for several',
+    },
+    {
+      name: 'autoFocus',
+      type: 'boolean',
+      default: 'false',
+      description: "Focus the selected day (or today's)",
+    },
+    { name: 'footer', type: 'ReactNode', description: 'Content under the calendar' },
+    { name: 'labels', type: 'CalendarLabels' },
+  ]}
+/>
+
+### Types
+
+```ts
+interface DateRangeValue {
+  from: Date | null;
+  to: Date | null; // null — the range isn't finished yet
+}
+
+interface DatePreset {
+  label: string;
+  date: Date | ((today: Date) => Date);
+}
+
+interface DateRangePreset {
+  label: string;
+  range: DateRangeValue | ((today: Date) => DateRangeValue);
+}
+```
+
+`isDateSelectable(date, { minDate, maxDate, disabledDates })` is exported too, so your own
+validation can apply exactly the same rule.
+
+### Strings (`labels`)
+
+Every string has an Uzbek default. To localize, pass only the keys you need — the rest keep their
+defaults:
+
+```tsx
+<DatePicker
+  labels={{
+    placeholder: 'dd.mm.yyyy',
+    openCalendar: 'Open calendar',
+    clear: 'Clear',
+    invalidDate: 'Invalid date',
+    months: ['January', 'February' /* ... */],
+    weekdaysShort: ['Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su'],
+  }}
+/>
+```
+
+`CalendarLabels`: `previousMonth`, `nextMonth`, `previousYear`, `nextYear`, `previousYears`,
+`nextYears`, `chooseMonth`, `chooseYear`, `monthsGrid`, `yearsGrid`, `navigation`, `today`,
+`selected`, `months`, `monthsShort`, `weekdays`, `weekdaysShort` (weeks start on Monday).
+`DatePickerLabels` adds: `placeholder`, `openCalendar`, `calendar`, `clear`, `presets`,
+`invalidDate`, `unavailableDate`, `today`, `tomorrow`, `inAWeek`.
+`DateRangePickerLabels`: `placeholder`, `calendar`, `clear`, `presets`, `pickEnd`, `separator`,
+`today`, `last7Days`, `thisMonth`, `lastMonth`.
+
+### Data attributes
+
+| Attribute       | Element            | Value                   |
+| --------------- | ------------------ | ----------------------- |
+| `data-size`     | field container    | `sm` · `md` · `lg`      |
+| `data-state`    | field container    | `open` · `closed`       |
+| `data-invalid`  | field container    | present when invalid    |
+| `data-disabled` | field container    | present when disabled   |
+| `data-readonly` | `DatePicker` field | present when `readOnly` |
+
+## Keyboard
+
+| Key                    | Action                                                     |
+| ---------------------- | ---------------------------------------------------------- |
+| `↓` (field/trigger)    | Opens the calendar and moves focus to a day                |
+| `Enter` (in the field) | Checks and confirms the typed date                         |
+| `← →`                  | ±1 day                                                     |
+| `↑ ↓`                  | ±1 week                                                    |
+| `PageUp` / `PageDown`  | ±1 month (`Shift` — ±1 year)                               |
+| `Home` / `End`         | Start / end of the week                                    |
+| `Enter` / `Space`      | Select the day                                             |
+| `Esc`                  | Closes the calendar; in month/year view, goes back to days |
+
+In the month and year grids, arrow keys move between cells (`↑ ↓` jump a row) and `Home` / `End`
+go to the first and last cell.
+
+## Accessibility
+
+- **The field** is a plain `<input type="text">` with `aria-haspopup="dialog"`, `aria-expanded`,
+  and `aria-controls` pointing to the calendar while it's open. Numeric formats bring up a numeric
+  keyboard on phones (`inputMode="numeric"`).
+- **The calendar panel** is labelled "Kalendar". Opening it keeps focus in the field; `↓` or the
+  calendar button moves focus to a day. On close, focus returns to the field.
+- **Errors** set `aria-invalid`; the message is linked through `aria-describedby` and announced
+  from an `aria-live="polite"` region.
+- **Day buttons** get a full accessible name: today's date gets "Bugun" ("today"), the selected one
+  gets "tanlangan" ("selected"). Blocked days are dimmed and struck through, and can't be picked.
+- **Month and year grids** use `role="group"`, every cell has a full `aria-label`, and the current
+  one is marked with `aria-current`.
+- **DateRangePicker:** after the first day, "Tugash sanasini tanlang" ("pick the end date") is
+  announced from an `aria-live` region; preset buttons carry `aria-pressed`.
+- **Icons** are `aria-hidden`; the "open calendar" and "clear" buttons have an `aria-label`.

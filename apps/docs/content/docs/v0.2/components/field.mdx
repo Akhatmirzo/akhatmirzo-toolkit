@@ -1,0 +1,173 @@
+---
+title: Field
+description: "Forma maydonining label, izoh va xato matnini o'raydi va ARIA atributlarini avtomatik ulaydi."
+---
+
+<ComponentPreview name="field/basic" />
+
+## Import
+
+```tsx
+import { Field } from '@akhatmirzo/ui';
+```
+
+## Qachon ishlatish
+
+- **Har bir forma maydoni uchun** — `Input`, `Textarea`, `Select`, `Checkbox`, `RadioGroup`,
+  `Switch` va boshqalar. `id`, `htmlFor`, `aria-describedby`, `aria-invalid`, `aria-required`
+  ni qo'lda yozish shart emas.
+- **Xatoni `error` ga bering**, alohida `<p>` ga emas — shunda boshqaruv elementi ham qizil
+  bo'ladi, ekran o'quvchi ham xatoni o'qiydi.
+- **`description` — qisqa yo'l-yo'riq** uchun: format, cheklov, nima uchun kerakligi. Uzun
+  matnni sahifaga chiqaring.
+- **Bitta `Field` — bitta boshqaruv elementi.** Ikki maydonni bitta label ostiga qo'ymang.
+
+## Validatsiya
+
+`error` bo'sh bo'lmasa, maydon xato holatiga o'tadi: boshqaruv elementi `aria-invalid` oladi,
+chegarasi qizarib, ostida ikonka bilan xato matni chiqadi. Xatolar `aria-live` hududida —
+paydo bo'lganda ekran o'quvchi e'lon qiladi. Formani bo'sh holda yuborib ko'ring.
+
+<ComponentPreview name="field/validation" />
+
+## Gorizontal joylashuv
+
+`orientation="horizontal"` — label chapda (160px), boshqaruv elementi o'ngda. Sozlamalar
+sahifalari va keng formalar uchun.
+
+<ComponentPreview name="field/horizontal" />
+
+## O'chirilgan holat
+
+`Field` dagi `disabled` ichidagi boshqaruv elementini ham o'chiradi, label esa xiralashadi.
+
+<ComponentPreview name="field/disabled" />
+
+## O'z boshqaruv elementingiz (`useFieldControl`)
+
+Kutubxonadagi barcha forma komponentlari `useFieldControl` hook'i orqali `Field` ga ulanadi. Siz
+ham o'z elementingizni (native `<select>`, uchinchi tomon kutubxonasi) shu hook bilan ulaysiz:
+`controlProps` ni elementga yoyasiz — qolgani avtomatik.
+
+<ComponentPreview name="field/custom-control" />
+
+`useFieldControl` `Field` tashqarisida ham ishlaydi — u holda o'zining `id` sini yaratadi.
+
+## Props
+
+`Field` qolgan barcha `<div>` atributlarini qabul qiladi.
+
+<PropsTable
+  rows={[
+    {
+      name: 'children',
+      type: 'ReactNode',
+      required: true,
+      description: 'Boshqaruv elementi (Input, Select, Checkbox ...)',
+    },
+    {
+      name: 'label',
+      type: 'ReactNode',
+      description: "Maydon nomi; <label htmlFor> bilan elementga bog'lanadi",
+    },
+    {
+      name: 'description',
+      type: 'ReactNode',
+      description: 'Label ostidagi yordamchi matn (aria-describedby)',
+    },
+    {
+      name: 'error',
+      type: 'ReactNode',
+      description: "Bo'lsa — element invalid bo'ladi, matn qizil ikonka bilan chiqadi",
+    },
+    {
+      name: 'required',
+      type: 'boolean',
+      default: 'false',
+      description: 'Label yonida *, elementga aria-required',
+    },
+    {
+      name: 'disabled',
+      type: 'boolean',
+      default: 'false',
+      description: "Ichidagi boshqaruv elementini ham o'chiradi",
+    },
+    {
+      name: 'orientation',
+      type: "'vertical' | 'horizontal'",
+      default: "'vertical'",
+      description: 'Label tepada yoki chapda',
+    },
+  ]}
+/>
+
+### useFieldControl
+
+```ts
+function useFieldControl(options?: FieldControlOptions): FieldControlResult;
+```
+
+`options` — elementning o'z qiymatlari; ular `Field` dan kelganlari bilan birlashtiriladi
+(`invalid`, `required`, `disabled` — "yoki" mantig'ida).
+
+<PropsTable
+  rows={[
+    { name: 'id', type: 'string', description: "O'z id'si — berilsa, label shunga ulanadi" },
+    { name: 'invalid', type: 'boolean', description: 'Xato holati' },
+    { name: 'required', type: 'boolean', description: 'Majburiy maydon' },
+    { name: 'disabled', type: 'boolean', description: "O'chirilgan" },
+    {
+      name: 'aria-describedby',
+      type: 'string',
+      description: "Qo'shimcha izoh id'lari — Field'nikiga qo'shiladi",
+    },
+    {
+      name: 'aria-invalid',
+      type: "boolean | 'true' | 'false' | 'grammar' | 'spelling'",
+      description: "true yoki 'true' — invalid bilan bir xil",
+    },
+  ]}
+/>
+
+Qaytaradigan qiymat:
+
+<PropsTable
+  rows={[
+    { name: 'id', type: 'string', description: 'Elementga beriladigan id' },
+    {
+      name: 'labelId',
+      type: 'string | undefined',
+      description:
+        "Field label'ining id'si — htmlFor ishlamaydigan elementlar uchun aria-labelledby",
+    },
+    { name: 'invalid', type: 'boolean', description: 'Yakuniy xato holati' },
+    { name: 'required', type: 'boolean', description: 'Yakuniy majburiylik' },
+    { name: 'disabled', type: 'boolean', description: "Yakuniy o'chirilganlik" },
+    {
+      name: 'controlProps',
+      type: "{ id; 'aria-describedby'?; 'aria-invalid'?: true; 'aria-required'?: true }",
+      description: "Elementga to'g'ridan-to'g'ri yoyiladigan atributlar",
+    },
+  ]}
+/>
+
+### Data atributlari
+
+| Atribut            | Qiymat                      |
+| ------------------ | --------------------------- |
+| `data-slot`        | `field`                     |
+| `data-orientation` | `vertical` · `horizontal`   |
+| `data-invalid`     | `error` bo'lganda mavjud    |
+| `data-disabled`    | `disabled` bo'lganda mavjud |
+
+## Accessibility
+
+- **Label bog'lanadi.** `<label htmlFor>` boshqaruv elementining `id` siga ulanadi; elementga
+  o'z `id` ingizni bersangiz, label shunga moslashadi.
+- **Izoh va xato** `aria-describedby` orqali o'qiladi — fokus maydonga kelganda ekran o'quvchi
+  label'dan keyin ularni ham aytadi.
+- **Xato e'loni.** Xato matni doim DOM'da turadigan `aria-live="polite"` hudud ichida — birinchi
+  paydo bo'lgan xato ham e'lon qilinadi.
+- **Majburiy maydon.** `*` belgisi `aria-hidden`, o'rniga elementga `aria-required` qo'yiladi.
+- **`RadioGroup` kabi `<div>` elementlar** label bilan `htmlFor` orqali bog'lanmaydi — ular
+  `labelId` orqali `aria-labelledby` oladi (avtomatik).
