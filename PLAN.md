@@ -184,7 +184,7 @@ Komponentlarni ertaroq ko'rish uchun: **4 → 5 → 3 → 6 → 7**.
 - [x] Kuchli README'lar (badge'lar, tez boshlash, docs havolalari) + `ui`/`hooks` uchun 'use client' — patch changeset tayyor
 - [x] Namuna ilovalar (/examples): do'kon admin paneli, bank ilovasi, kirish/ro'yxatdan o'tish, savatcha va to'lov, xodimlar va sozlamalar — statik ma'lumotlar, to'liq funksional, Recharts grafiklari
 - [ ] Vercel'ga chiqarish (Root Directory: apps/docs)
-- [ ] Patch nashr (README va 'use client' npm'ga yetishi uchun)
+- [x] 0.1.1 npm'ga nashr qilindi: yangi README'lar va ui/hooks uchun 'use client'
 
 ---
 

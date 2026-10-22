@@ -1,5 +1,15 @@
 # @akhatmirzo/ui
 
+## 0.1.1
+
+### Patch Changes
+
+- 1c79da8: README'lar yangilandi: hujjatlar sayti havolalari, badge'lar, to'liq misollar. `ui` va `hooks` dist fayllariga `'use client'` direktivasi qo'shildi — Next.js App Router'da server komponentlardan import qilganda xato bermaydi.
+- Updated dependencies [1c79da8]
+  - @akhatmirzo/core@0.1.1
+  - @akhatmirzo/hooks@0.1.1
+  - @akhatmirzo/tokens@0.1.1
+
 ## 0.1.0
 
 ### Minor Changes
