@@ -1,0 +1,93 @@
+---
+title: EmptyState
+description: For empty lists, searches with no results and first-run screens — an icon, a title, a description and actions.
+---
+
+<ComponentPreview name="empty-state/basic" />
+
+## Import
+
+```tsx
+import { EmptyState } from '@akhatmirzo/ui';
+```
+
+## When to use
+
+- **When a list or table is empty** — "No orders yet". Instead of blank space, explain what
+  happened and what to do next.
+- **When a search or filter returns nothing** — suggest changing the query or clearing filters.
+- **On first run** — guide people to their first action (`size="lg"`).
+- **One main action** — `action` (`primary`), with an optional `secondaryAction` (`ghost`).
+- **Keep the title short and the description useful** — not "Nothing here", but "Your first order
+  will show up here".
+
+## No search results
+
+`bordered` adds a dashed border for use inside a section.
+
+<ComponentPreview name="empty-state/search" align="start" />
+
+## Sizes
+
+`size`: `sm` has 24px vertical padding, `md` (default) 40px and `lg` 64px, with a 64px icon circle
+and a larger title.
+
+<ComponentPreview name="empty-state/sizes" />
+
+## With DataTable
+
+When a `DataTable` is empty, its `empty` slot draws this same layout. Pass `icon`, `title`,
+`description` and `action` to `empty`, just like with EmptyState.
+
+<ComponentPreview name="empty-state/data-table" align="start" />
+
+## Props
+
+`EmptyState` accepts every other `<div>` attribute (except `title`, which is used as a prop).
+
+<PropsTable
+  rows={[
+    { name: 'title', type: 'ReactNode', required: true, description: 'Title' },
+    { name: 'description', type: 'ReactNode', description: 'Short description (max 40ch wide)' },
+    {
+      name: 'icon',
+      type: 'ReactNode',
+      description: 'Shown in a 48px circle (64px on lg)',
+    },
+    { name: 'action', type: 'ReactNode', description: 'Main action' },
+    { name: 'secondaryAction', type: 'ReactNode', description: 'Secondary action' },
+    {
+      name: 'size',
+      type: "'sm' | 'md' | 'lg'",
+      default: "'md'",
+      description: 'Vertical padding: 24 / 40 / 64px',
+    },
+    {
+      name: 'bordered',
+      type: 'boolean',
+      default: 'false',
+      description: 'Dashed border and radius (for use inside a section)',
+    },
+    {
+      name: 'headingLevel',
+      type: '2 | 3 | 4 | 5 | 6',
+      default: '3',
+      description: 'Title tag (h2–h6)',
+    },
+  ]}
+/>
+
+### Data attributes
+
+On the root: `data-size` and `data-bordered` (when bordered). `emptyStateVariants` is exported too,
+so you can apply the styles to another element.
+
+## Accessibility
+
+- **The title is a real `h*` element** — `h3` by default. Set `headingLevel` to fit your page so the
+  heading order stays intact.
+- **The icon is decorative** — it's `aria-hidden` together with its circle.
+- **Actions** are your own buttons and work with the keyboard as usual. On narrow screens
+  (< 640px) they stack and go full width.
+- **If the content changes dynamically** (search) and you want it announced, put `role="status"` on
+  the surrounding container.

@@ -1,0 +1,128 @@
+---
+title: Stepper
+description: A progress indicator for multi-step flows like checkout, sign-up and setup wizards.
+---
+
+<ComponentPreview name="stepper/basic" align="start" />
+
+## Import
+
+```tsx
+import { Stepper } from '@akhatmirzo/ui';
+```
+
+## When to use
+
+- **Sequential flows** — checkout (Cart → Delivery → Payment), sign-up, application forms. Users
+  see where they are and how much is left.
+- **3–6 steps** work best. If you have more, group them.
+- **Not for independent sections** — use [`Tabs`](./tabs.mdx) for those.
+- **Not for site structure** — use [`Breadcrumb`](./breadcrumb.mdx).
+
+## Steps and statuses
+
+`steps` is a list of `{ title, description?, icon?, optional?, status? }`. `value` is the current
+step index (0-based). Each step's status (`data-status`) is derived automatically:
+
+| Status     | When                       | Circle                       |
+| ---------- | -------------------------- | ---------------------------- |
+| `complete` | index `< value`            | filled `primary` + ✓         |
+| `current`  | index `= value`            | `primary` border with a halo |
+| `upcoming` | index `> value`            | gray border + number         |
+| `error`    | step has `status: 'error'` | `danger` fill + !            |
+
+`value={steps.length}` marks every step as complete. The connector fills with `primary` up to the
+current step (300ms).
+
+<ComponentPreview name="stepper/states" align="start" />
+
+## Navigating between steps
+
+With `onValueChange`, completed steps become buttons, so users can go back and fix their input.
+`allowFutureSteps` lets them jump ahead too (useful for optional setup wizards). The current step is
+never a button.
+
+## Vertical
+
+`orientation="vertical"` stacks the steps in a column — handy for long descriptions or a side panel.
+
+<ComponentPreview name="stepper/vertical" align="start" />
+
+## Sizes
+
+`size` — `sm` (24px circle) or `md` (32px, default).
+
+<ComponentPreview name="stepper/sizes" align="start" />
+
+## Compact view
+
+`compact="auto"` (default) switches a horizontal stepper to `2 / 4 · Yetkazib berish` plus a
+progress bar on screens narrower than 640px. Both views are rendered and CSS hides one, so there is
+no SSR hydration mismatch. `compact` always uses the compact view, `compact={false}` never does.
+
+<ComponentPreview name="stepper/compact" align="start" />
+
+## Props
+
+Other `<div>` attributes go to the root; `aria-label` / `aria-labelledby` go to the `<ol>` list.
+
+<PropsTable
+  rows={[
+    {
+      name: 'steps',
+      type: "{ title: ReactNode; description?: ReactNode; icon?: ReactNode; optional?: boolean; status?: 'error' }[]",
+      required: true,
+      description: 'The steps',
+    },
+    { name: 'value', type: 'number', description: 'Current step index, 0-based (controlled)' },
+    { name: 'defaultValue', type: 'number', default: '0', description: 'Initial step' },
+    {
+      name: 'onValueChange',
+      type: '(index: number) => void',
+      description: 'Makes completed steps clickable',
+    },
+    {
+      name: 'allowFutureSteps',
+      type: 'boolean',
+      default: 'false',
+      description: 'Allow jumping to upcoming steps',
+    },
+    {
+      name: 'orientation',
+      type: "'horizontal' | 'vertical'",
+      default: "'horizontal'",
+      description: 'Direction',
+    },
+    { name: 'size', type: "'sm' | 'md'", default: "'md'", description: 'Circle: 24 / 32px' },
+    {
+      name: 'compact',
+      type: "boolean | 'auto'",
+      default: "'auto'",
+      description: 'Compact view; `auto` — horizontal only, below 640px',
+    },
+    {
+      name: 'labels',
+      type: '{ step?: (i, n) => string; optional?; completed?; error? }',
+      description: 'Screen reader texts (Uzbek by default)',
+    },
+  ]}
+/>
+
+### Data attributes
+
+| Attribute          | Where           | Value                                         |
+| ------------------ | --------------- | --------------------------------------------- |
+| `data-status`      | step, indicator | `complete` · `current` · `upcoming` · `error` |
+| `data-clickable`   | step button     | present on clickable steps                    |
+| `data-orientation` | root, list      | `horizontal` · `vertical`                     |
+| `data-size`        | root            | `sm` · `md`                                   |
+
+## Accessibility
+
+- **Structure.** Steps live in an `<ol>`; give it an `aria-label` ("Order steps").
+- **The current step** has `aria-current="step"`.
+- **Hidden texts.** Each step starts with "2-qadam, 4 tadan" (step 2 of 4); completed steps add
+  "bajarildi" and errors add "xato". Color is not the only signal — there are ✓ and ! icons too.
+- **Keyboard.** Clickable steps are plain `<button>`s: `Tab` to move, `Enter` / `Space` to select.
+  Other steps are not focusable.
+- **Motion.** Connector and color transitions are disabled under `prefers-reduced-motion`.

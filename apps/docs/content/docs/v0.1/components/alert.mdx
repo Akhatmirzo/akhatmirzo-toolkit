@@ -1,0 +1,111 @@
+---
+title: Alert
+description: 'Sahifa ichidagi doimiy xabar: 6 rang, 3 variant, harakat tugmasi, yopish va banner rejimi.'
+---
+
+<ComponentPreview name="alert/colors" />
+
+## Import
+
+```tsx
+import { Alert } from '@akhatmirzo/ui';
+```
+
+## Qachon ishlatish
+
+- **Sahifada qolishi kerak bo'lgan xabar uchun** — obuna tugashi, to'lov xatosi, formadagi umumiy
+  muammo. Alert o'zi yo'qolmaydi va kontent oqimida turadi.
+- **Qisqa, vaqtinchalik xabar uchun** — "Saqlandi", "Nusxa olindi" — [`Toast`](./toast.mdx)
+  ishlating.
+- **Rangni ma'noga moslang:** `danger` — xato, `warning` — ogohlantirish, `success` — muvaffaqiyat,
+  `info` — ma'lumot. Sarlavha muammoni o'zi aytsin — faqat rangga tayanmang.
+- **Bitta harakat yetarli** — "Qayta urinish", "To'lash". Ko'p tugmali xabar o'rniga
+  [`Dialog`](./dialog.mdx) ni ko'rib chiqing.
+- **Yopishni ilova boshqaradi** — `onClose` da Alert'ni o'zingiz olib tashlaysiz.
+
+## Ranglar
+
+`color`: `info` (standart), `neutral`, `primary`, `success`, `warning`, `danger`. Har bir rangga
+mos ichki ikonka bor: ⓘ, ✓, △, ⊗. O'z ikonkangizni `icon` bilan bering, `icon={false}` —
+ikonkasiz.
+
+## Variantlar
+
+`variant`: `soft` (standart) — och fon, `outline` — rangli chegara va oddiy fon, `solid` — to'q
+fon, eng ko'p e'tibor tortadi.
+
+<ComponentPreview name="alert/variants" />
+
+## Harakat va yopish
+
+`action` — o'ng tomondagi tugma (tor ekranda matn ostiga tushadi). `onClose` berilsa, ✕ tugmasi
+chiqadi.
+
+<ComponentPreview name="alert/actions" />
+
+## Banner
+
+`banner` — sahifa tepasi uchun: burchaklar to'g'ri, faqat pastki chegara, kontent markazda.
+
+<ComponentPreview name="alert/banner" align="start" />
+
+## Props
+
+`Alert` qolgan barcha `<div>` atributlarini qabul qiladi (`color` va `title` dan tashqari — ular
+prop sifatida band).
+
+<PropsTable
+  rows={[
+    {
+      name: 'color',
+      type: "'neutral' | 'primary' | 'success' | 'warning' | 'danger' | 'info'",
+      default: "'info'",
+      description: "Rang (ma'no) va ichki ikonka",
+    },
+    {
+      name: 'variant',
+      type: "'soft' | 'outline' | 'solid'",
+      default: "'soft'",
+      description: "Ko'rinish",
+    },
+    { name: 'title', type: 'ReactNode', description: 'Qalin sarlavha' },
+    {
+      name: 'icon',
+      type: 'ReactNode | false',
+      description: 'Ikonka. Standart — rangga mos ichki SVG; false — ikonkasiz',
+    },
+    {
+      name: 'action',
+      type: 'ReactNode',
+      description: "O'ng tomondagi harakat (tor ekranda matn ostida)",
+    },
+    { name: 'onClose', type: '() => void', description: 'Berilsa — ✕ tugmasi chiqadi' },
+    {
+      name: 'banner',
+      type: 'boolean',
+      default: 'false',
+      description: 'Sahifa tepasi uchun: radius 0, faqat pastki chegara, kontent markazda',
+    },
+    {
+      name: 'labels',
+      type: '{ close?: string }',
+      default: "{ close: 'Yopish' }",
+      description: '✕ tugmasining aria-label matni',
+    },
+  ]}
+/>
+
+### Data atributlari
+
+Ildiz elementda: `data-color`, `data-variant`, `data-banner` (banner rejimida). Stilni boshqa
+elementga qo'llash uchun `alertVariants` ham eksport qilinadi.
+
+## Accessibility
+
+- **Rol rangga qarab:** `danger` va `warning` — `role="alert"` (ekran o'quvchi darhol o'qiydi),
+  qolganlari — `role="status"` (navbat bilan o'qiladi). Kerak bo'lsa `role` ni o'zingiz bering.
+- **Rang yagona signal emas** — ikonka va sarlavha ham xabar turini bildiradi. Ikonka `aria-hidden`.
+- **✕ tugmasi** — haqiqiy `<button>`, `Tab` bilan fokuslanadi, `Enter` / `Space` bilan bosiladi.
+  Yorlig'i `labels.close` bilan o'zgaradi.
+- **Sahifa yuklanganda allaqachon bor** Alert'lar e'lon qilinmasligi mumkin — `role="alert"` asosan
+  keyin paydo bo'lgan xabarlar uchun ishlaydi.

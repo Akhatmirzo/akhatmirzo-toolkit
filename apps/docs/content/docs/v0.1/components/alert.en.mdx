@@ -1,0 +1,110 @@
+---
+title: Alert
+description: An inline, persistent message — 6 colors, 3 variants, an action slot, a close button and a banner mode.
+---
+
+<ComponentPreview name="alert/colors" />
+
+## Import
+
+```tsx
+import { Alert } from '@akhatmirzo/ui';
+```
+
+## When to use
+
+- **For messages that should stay on the page** — an expiring subscription, a failed payment, a
+  form-level problem. An alert doesn't disappear by itself; it sits in the content flow.
+- **For short, temporary feedback** — "Saved", "Copied" — use a [`Toast`](./toast.mdx) instead.
+- **Match the color to the meaning:** `danger` for errors, `warning` for warnings, `success` for
+  success, `info` for information. Let the title state the problem — don't rely on color alone.
+- **One action is enough** — "Try again", "Pay now". If you need more, consider a
+  [`Dialog`](./dialog.mdx).
+- **Your app controls dismissal** — remove the alert yourself in `onClose`.
+
+## Colors
+
+`color`: `info` (default), `neutral`, `primary`, `success`, `warning` and `danger`. Each color has
+a matching built-in icon: ⓘ, ✓, △, ⊗. Pass your own with `icon`, or `icon={false}` for none.
+
+## Variants
+
+`variant`: `soft` (default) is a light background, `outline` is a colored border on the surface
+color, and `solid` is a strong background that draws the most attention.
+
+<ComponentPreview name="alert/variants" />
+
+## Action and close
+
+`action` renders on the right (it drops below the text on narrow screens). Pass `onClose` to show
+a ✕ button.
+
+<ComponentPreview name="alert/actions" />
+
+## Banner
+
+`banner` is for the top of a page: square corners, a bottom border only and centered content.
+
+<ComponentPreview name="alert/banner" align="start" />
+
+## Props
+
+`Alert` accepts every other `<div>` attribute (except `color` and `title`, which are used as
+props).
+
+<PropsTable
+  rows={[
+    {
+      name: 'color',
+      type: "'neutral' | 'primary' | 'success' | 'warning' | 'danger' | 'info'",
+      default: "'info'",
+      description: 'Color (meaning) and built-in icon',
+    },
+    {
+      name: 'variant',
+      type: "'soft' | 'outline' | 'solid'",
+      default: "'soft'",
+      description: 'Visual style',
+    },
+    { name: 'title', type: 'ReactNode', description: 'Bold title' },
+    {
+      name: 'icon',
+      type: 'ReactNode | false',
+      description: 'Icon. Defaults to a built-in SVG for the color; false hides it',
+    },
+    {
+      name: 'action',
+      type: 'ReactNode',
+      description: 'Action on the right (below the text on narrow screens)',
+    },
+    { name: 'onClose', type: '() => void', description: 'Shows a ✕ button when set' },
+    {
+      name: 'banner',
+      type: 'boolean',
+      default: 'false',
+      description: 'Top-of-page mode: no radius, bottom border only, centered content',
+    },
+    {
+      name: 'labels',
+      type: '{ close?: string }',
+      default: "{ close: 'Yopish' }",
+      description: 'aria-label of the ✕ button',
+    },
+  ]}
+/>
+
+### Data attributes
+
+On the root: `data-color`, `data-variant` and `data-banner` (in banner mode). `alertVariants` is
+exported too, so you can apply the styles to another element.
+
+## Accessibility
+
+- **The role follows the color:** `danger` and `warning` get `role="alert"` (read out right away),
+  the rest get `role="status"` (read politely). Pass your own `role` if you need to.
+- **Color is never the only signal** — the icon and title also tell the type. The icon is
+  `aria-hidden`.
+- **The ✕ button** is a real `<button>`: it's reachable with `Tab` and works with `Enter` / `Space`.
+  Change its label with `labels.close`.
+- **Alerts present on page load** may not be announced — `role="alert"` mainly helps with messages
+  that appear later.

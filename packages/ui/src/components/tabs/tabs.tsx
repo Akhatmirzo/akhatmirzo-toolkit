@@ -215,7 +215,7 @@ function TabsList({
         className={cn(
           'pointer-events-none absolute top-0 left-0 -z-10 opacity-0',
           'data-animate:transition-[transform,width,height] data-animate:duration-moderate data-animate:ease-in-out',
-          'motion-reduce:transition-none',
+          'motion-reduce:data-animate:transition-none',
           indicatorStyles[variant],
           variant === 'underline' &&
             (horizontal ? 'top-auto bottom-0 h-0.5' : 'left-0 w-0.5 rounded-full'),

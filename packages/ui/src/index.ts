@@ -15,6 +15,8 @@ export * from './components/textarea';
 export * from './components/checkbox';
 export * from './components/radio-group';
 export * from './components/switch';
+export * from './components/slider';
+export * from './components/segmented-control';
 
 // Ko'rsatish
 export * from './components/badge';
@@ -22,6 +24,9 @@ export * from './components/avatar';
 export * from './components/card';
 export * from './components/skeleton';
 export * from './components/divider';
+export * from './components/alert';
+export * from './components/progress';
+export * from './components/empty-state';
 
 // Overlay (2-daraja)
 export * from './components/dialog';
@@ -38,6 +43,9 @@ export * from './components/combobox';
 // Navigatsiya (2-daraja)
 export * from './components/tabs';
 export * from './components/accordion';
+export * from './components/pagination';
+export * from './components/breadcrumb';
+export * from './components/stepper';
 
 // Murakkab (3-daraja)
 export * from './components/data-table';

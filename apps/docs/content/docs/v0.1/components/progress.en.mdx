@@ -1,0 +1,113 @@
+---
+title: Progress
+description: Progress indicators as a bar (Progress) and a circle (ProgressCircle) — determinate and indeterminate, 4 colors, 3 sizes.
+---
+
+<ComponentPreview name="progress/basic" />
+
+## Import
+
+```tsx
+import { Progress, ProgressCircle } from '@akhatmirzo/ui';
+```
+
+## When to use
+
+- **For tasks with a known length** — file uploads, exports, profile completion.
+- **When you can't tell how long it takes**, pass `value={null}` (indeterminate).
+- **For short waits** (under a second) you don't need a progress bar — a
+  [`Spinner`](./spinner.mdx) inside the button is enough.
+- **Use the circle** in cards, next to avatars or where space is tight; **use the bar** in lists
+  and forms.
+- **Show the number too** (`showValue`) so people see the exact value.
+
+## Indeterminate
+
+When `value` is missing or `null`, a segment slides across the bar and the circle spins. With
+reduced motion enabled (`prefers-reduced-motion`), only a soft pulse remains.
+
+<ComponentPreview name="progress/indeterminate" align="start" />
+
+## Colors and sizes
+
+`color`: `primary` (default), `success`, `warning` and `danger`. `size`: `sm` is a 4px bar, `md`
+8px and `lg` 12px.
+
+<ComponentPreview name="progress/colors-sizes" />
+
+## ProgressCircle
+
+Circle sizes: `sm` is 24px, `md` 40px and `lg` 64px. `showValue` puts the value in the middle
+(not on `sm` — there's no room). On the circle, `label` isn't visible; it becomes the accessible
+name.
+
+<ComponentPreview name="progress/circle" />
+
+## Live example
+
+When the value changes, the bar moves smoothly over 300ms. You can switch the color to `success`
+once it's done.
+
+<ComponentPreview name="progress/upload" align="start" />
+
+## Props
+
+`Progress` and `ProgressCircle` share the same props and pass every other `<div>` attribute to the
+root (except `color`).
+
+<PropsTable
+  rows={[
+    {
+      name: 'value',
+      type: 'number | null',
+      default: 'null',
+      description: 'Current value (clamped to 0…max); null means indeterminate',
+    },
+    { name: 'max', type: 'number', default: '100', description: 'Maximum value' },
+    {
+      name: 'color',
+      type: "'primary' | 'success' | 'warning' | 'danger'",
+      default: "'primary'",
+      description: 'Fill color',
+    },
+    {
+      name: 'size',
+      type: "'sm' | 'md' | 'lg'",
+      default: "'md'",
+      description: 'Bar: 4 / 8 / 12px; circle: 24 / 40 / 64px',
+    },
+    {
+      name: 'label',
+      type: 'ReactNode',
+      description: 'Bar: shown above on the left; circle: hidden accessible name (aria-label)',
+    },
+    {
+      name: 'showValue',
+      type: 'boolean',
+      default: 'false',
+      description: 'Value text: right of the bar, center of the circle (not on sm circles)',
+    },
+    {
+      name: 'formatValue',
+      type: '(value: number, max: number) => string',
+      default: '"64%"',
+      description: 'Value text, both visible and for aria-valuetext',
+    },
+  ]}
+/>
+
+### Data attributes
+
+On the root: `data-state` (`indeterminate` · `loading` · `complete`), `data-color` and
+`data-size`.
+
+## Accessibility
+
+- **`role="progressbar"`** with `aria-valuemin`, `aria-valuemax`, `aria-valuenow` and
+  `aria-valuetext` (the `formatValue` result) set for you.
+- **When indeterminate**, `aria-valuenow` and `aria-valuetext` are omitted, so screen readers treat
+  it as busy.
+- **A name is required:** pass `label`, or set `aria-label` / `aria-labelledby` yourself. On the bar
+  `label` is linked with `aria-labelledby`; on the circle a text `label` becomes `aria-label`.
+- **The visible value** is `aria-hidden` — it's already read via `aria-valuetext`.
+- **With reduced motion**, sliding and spinning stop and only a pulse remains.
