@@ -41,6 +41,11 @@ export function baseOptions(lang: Lang): BaseLayoutProps {
         url: docsHome(lang),
         active: 'none',
       },
+      {
+        text: t.nav.examples,
+        url: `/${lang}/examples`,
+        active: 'nested-url',
+      },
     ],
   };
 }

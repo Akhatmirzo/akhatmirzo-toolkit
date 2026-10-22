@@ -10,6 +10,7 @@ const uz = {
   nav: {
     docs: 'Hujjatlar',
     components: 'Komponentlar',
+    examples: 'Namunalar',
   },
   preview: {
     preview: "Ko'rinish",
@@ -121,6 +122,7 @@ const en: Dictionary = {
   nav: {
     docs: 'Docs',
     components: 'Components',
+    examples: 'Examples',
   },
   preview: {
     preview: 'Preview',

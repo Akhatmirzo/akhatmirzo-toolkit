@@ -182,6 +182,7 @@ Komponentlarni ertaroq ko'rish uchun: **4 → 5 → 3 → 6 → 7**.
 - [x] 48 sahifa × 2 til: boshlash, mavzu, dark mode, versiyalar, 32 komponent, core, hooks; 203 jonli demo (Ko'rinish / Kod), props jadvallari
 - [x] Qidiruv (versiya bo'yicha filtr), sitemap, OG rasmlar, llms.txt
 - [x] Kuchli README'lar (badge'lar, tez boshlash, docs havolalari) + `ui`/`hooks` uchun 'use client' — patch changeset tayyor
+- [x] Namuna ilovalar (/examples): do'kon admin paneli, bank ilovasi, kirish/ro'yxatdan o'tish, savatcha va to'lov, xodimlar va sozlamalar — statik ma'lumotlar, to'liq funksional, Recharts grafiklari
 - [ ] Vercel'ga chiqarish (Root Directory: apps/docs)
 - [ ] Patch nashr (README va 'use client' npm'ga yetishi uchun)
 
