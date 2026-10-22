@@ -1,18 +1,36 @@
 {
   "name": "@akhatmirzo/ui",
   "version": "0.1.2",
-  "description": "Tailwind v4 va Radix asosidagi React komponentlar",
+  "description": "Accessible React UI components built on Tailwind CSS v4 and Radix UI: forms, overlays, DataTable, DatePicker, dark mode and Uzbek-ready inputs (phone, card, so'm).",
   "keywords": [
     "react",
-    "components",
+    "react-components",
     "ui",
+    "ui-library",
+    "components",
+    "component-library",
+    "tailwind",
     "tailwindcss",
+    "tailwind-v4",
+    "radix",
     "radix-ui",
     "design-system",
-    "uzbek"
+    "typescript",
+    "accessible",
+    "a11y",
+    "dark-mode",
+    "headless",
+    "forms",
+    "datatable",
+    "datepicker",
+    "uzbek",
+    "uzbekistan"
   ],
   "license": "MIT",
-  "author": "Akhatmirzo",
+  "author": {
+    "name": "Akhatmirzo Umarov",
+    "url": "https://akhatmirzo.uz"
+  },
   "homepage": "https://toolkit.akhatmirzo.uz/uz/docs/v0.1/introduction",
   "repository": {
     "type": "git",

@@ -1,10 +1,9 @@
-import type { Metadata } from 'next';
 import { SecurityPage } from '@/components/examples/workspace/security/security-page';
+import { exampleMetadata } from '@/lib/example-pages';
 
-export const metadata: Metadata = {
-  title: 'Xavfsizlik — Xodimlar va sozlamalar',
-  description: "Parol, ikki bosqichli autentifikatsiya, faol sessiyalar va hisobni o'chirish.",
-};
+export function generateMetadata({ params }: PageProps<'/[lang]/examples/workspace/security'>) {
+  return exampleMetadata(params, 'workspace/security');
+}
 
 export default function Page() {
   return <SecurityPage />;

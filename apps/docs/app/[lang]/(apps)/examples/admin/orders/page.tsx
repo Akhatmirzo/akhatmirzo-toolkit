@@ -1,12 +1,8 @@
-import type { Metadata } from 'next';
 import { OrdersPage } from '@/components/examples/admin/orders/orders-page';
+import { exampleMetadata } from '@/lib/example-pages';
 
-export function generateMetadata(): Metadata {
-  return {
-    title: "Buyurtmalar · Do'kon admin paneli",
-    description:
-      'Buyurtmalar jadvali: qidiruv, filtrlar, ommaviy amallar, CSV eksport va buyurtma tafsilotlari.',
-  };
+export function generateMetadata({ params }: PageProps<'/[lang]/examples/admin/orders'>) {
+  return exampleMetadata(params, 'admin/orders');
 }
 
 export default function Page() {

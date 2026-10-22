@@ -1,13 +1,27 @@
 {
   "name": "@akhatmirzo/hooks",
   "version": "0.1.2",
-  "description": "Qayta ishlatiladigan React hooklar",
+  "description": "Small, SSR-safe React hooks in TypeScript: useDebounce, useLocalStorage, useMediaQuery, useHotkeys, useAsync, usePagination and more.",
   "keywords": [
     "react",
-    "hooks"
+    "hooks",
+    "react-hooks",
+    "typescript",
+    "ssr",
+    "use-debounce",
+    "use-local-storage",
+    "use-media-query",
+    "use-hotkeys",
+    "use-click-outside",
+    "use-async",
+    "pagination",
+    "tree-shakeable"
   ],
   "license": "MIT",
-  "author": "Akhatmirzo",
+  "author": {
+    "name": "Akhatmirzo Umarov",
+    "url": "https://akhatmirzo.uz"
+  },
   "homepage": "https://toolkit.akhatmirzo.uz/uz/docs/v0.1/hooks",
   "repository": {
     "type": "git",

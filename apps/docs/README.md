@@ -110,11 +110,11 @@ tuzating (yoki eski API'ni deprecated sifatida qoldiring).
 - Output: `.next`
 - "Include source files outside of the Root Directory" yoqilgan bo'lsin (standart holatda yoqiq).
 
-Domen: `toolkit.akhatmirzo.uz`. Sitemap, robots, OG va `metadataBase` uchun manzil
-`lib/shared.ts` dagi `siteUrl` dan olinadi, u quyidagi tartibda aniqlanadi:
+Domen: `toolkit.akhatmirzo.uz`. Sitemap, robots, OG, kanonik havolalar va `metadataBase` uchun
+manzil `lib/shared.ts` dagi `siteUrl` dan olinadi: `NEXT_PUBLIC_SITE_URL` (boshqa domenga
+ko'chirilsa, Vercel'da shu o'zgaruvchini qo'shing), aks holda `https://toolkit.akhatmirzo.uz`.
+Preview build'lar ham kanonikni production domeniga ko'rsatadi — ataylab shunday.
 
-1. `NEXT_PUBLIC_SITE_URL` — o'z domeningiz bo'lsa, Vercel'da shu o'zgaruvchini qo'shing
-   (masalan `https://ui.example.uz`);
-2. `VERCEL_PROJECT_PRODUCTION_URL` — Vercel avtomatik beradigan production domeni (agar
-   `akhatmirzo-toolkit` nomi band bo'lib, boshqa subdomen berilgan bo'lsa ham to'g'ri ishlaydi);
-3. aks holda `https://toolkit.akhatmirzo.uz`.
+Sitemap'dagi `lastmod` git tarixidan olinadi (`lib/last-modified.ts`). Vercel sayoz klon qiladi —
+to'g'ri sanalar uchun loyiha sozlamalariga `VERCEL_DEEP_CLONE=true` muhit o'zgaruvchisini qo'shing
+(bo'lmasa, tarixi klonga sig'magan sahifalarda `lastmod` shunchaki yozilmaydi).

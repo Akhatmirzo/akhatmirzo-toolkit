@@ -3,14 +3,12 @@ import { i18n } from './i18n';
 
 export const appName = '@akhatmirzo/ui';
 /**
- * Saytning to'liq manzili (sitemap, robots, OG, `metadataBase`).
- * Tartib: `NEXT_PUBLIC_SITE_URL` (o'z domeningiz) → Vercel production domeni → standart manzil.
+ * Saytning to'liq manzili (sitemap, robots, OG, kanonik havolalar, `metadataBase`).
+ * `NEXT_PUBLIC_SITE_URL` bo'lmasa — production domeni. Vercel preview build'lari ham kanonikni
+ * production'ga ko'rsatadi (preview nusxalari qidiruvda dublikat bo'lmasin).
  */
 export const siteUrl = (
-  process.env.NEXT_PUBLIC_SITE_URL ||
-  (process.env.VERCEL_PROJECT_PRODUCTION_URL
-    ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
-    : 'https://toolkit.akhatmirzo.uz')
+  process.env.NEXT_PUBLIC_SITE_URL || 'https://toolkit.akhatmirzo.uz'
 ).replace(/\/+$/, '');
 export const docsRoute = '/docs';
 export const docsImageRoute = '/og/docs';

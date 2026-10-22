@@ -1,10 +1,9 @@
-import type { Metadata } from 'next';
 import { ForgotPasswordFlow } from '@/components/examples/auth/forgot-password-flow';
+import { exampleMetadata } from '@/lib/example-pages';
 
-export const metadata: Metadata = {
-  title: 'Parolni tiklash',
-  description: 'Telefon raqam, SMS kod va yangi parol orqali parolni tiklash.',
-};
+export function generateMetadata({ params }: PageProps<'/[lang]/examples/auth/forgot-password'>) {
+  return exampleMetadata(params, 'auth/forgot-password');
+}
 
 export default function ForgotPasswordPage() {
   return <ForgotPasswordFlow />;

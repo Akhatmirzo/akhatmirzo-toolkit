@@ -1,11 +1,8 @@
-import type { Metadata } from 'next';
 import { PaymentsView } from '@/components/examples/bank/payments/payments-view';
+import { exampleMetadata } from '@/lib/example-pages';
 
-export async function generateMetadata(): Promise<Metadata> {
-  return {
-    title: "To'lovlar — Bank ilovasi",
-    description: 'Mobil aloqa, internet, kommunal va davlat xizmatlari.',
-  };
+export function generateMetadata({ params }: PageProps<'/[lang]/examples/bank/payments'>) {
+  return exampleMetadata(params, 'bank/payments');
 }
 
 export default function PaymentsPage() {

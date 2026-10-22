@@ -1,11 +1,8 @@
-import type { Metadata } from 'next';
 import { CustomersPage } from '@/components/examples/admin/customers/customers-page';
+import { exampleMetadata } from '@/lib/example-pages';
 
-export function generateMetadata(): Metadata {
-  return {
-    title: "Mijozlar · Do'kon admin paneli",
-    description: "Mijozlar ro'yxati, xaridlar tarixi va mijoz kartasi.",
-  };
+export function generateMetadata({ params }: PageProps<'/[lang]/examples/admin/customers'>) {
+  return exampleMetadata(params, 'admin/customers');
 }
 
 export default function Page() {

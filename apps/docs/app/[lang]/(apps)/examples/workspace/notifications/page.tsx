@@ -1,10 +1,11 @@
-import type { Metadata } from 'next';
 import { NotificationsPage } from '@/components/examples/workspace/notifications/notifications-page';
+import { exampleMetadata } from '@/lib/example-pages';
 
-export const metadata: Metadata = {
-  title: 'Bildirishnomalar — Xodimlar va sozlamalar',
-  description: 'Bildirishnoma kanallari, hodisalar va jim soatlar.',
-};
+export function generateMetadata({
+  params,
+}: PageProps<'/[lang]/examples/workspace/notifications'>) {
+  return exampleMetadata(params, 'workspace/notifications');
+}
 
 export default function Page() {
   return <NotificationsPage />;

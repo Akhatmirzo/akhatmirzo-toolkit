@@ -1,10 +1,9 @@
-import type { Metadata } from 'next';
 import { TeamPage } from '@/components/examples/workspace/team/team-page';
+import { exampleMetadata } from '@/lib/example-pages';
 
-export const metadata: Metadata = {
-  title: 'Xodimlar — Xodimlar va sozlamalar',
-  description: "Jamoa a'zolari ro'yxati: qidiruv, filtrlar, qo'shish, tahrirlash va o'chirish.",
-};
+export function generateMetadata({ params }: PageProps<'/[lang]/examples/workspace'>) {
+  return exampleMetadata(params, 'workspace');
+}
 
 export default function Page() {
   return <TeamPage />;

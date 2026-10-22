@@ -1,9 +1,8 @@
-import type { Metadata } from 'next';
 import { SuccessView } from '@/components/examples/checkout/success-view';
-import { checkoutMetadata } from '@/components/examples/checkout/meta';
+import { exampleMetadata } from '@/lib/example-pages';
 
-export async function generateMetadata(): Promise<Metadata> {
-  return checkoutMetadata('Buyurtma qabul qilindi');
+export function generateMetadata({ params }: PageProps<'/[lang]/examples/checkout/success'>) {
+  return exampleMetadata(params, 'checkout/success');
 }
 
 export default function Page() {

@@ -1,12 +1,8 @@
-import type { Metadata } from 'next';
 import { DashboardPage } from '@/components/examples/admin/dashboard/dashboard-page';
+import { exampleMetadata } from '@/lib/example-pages';
 
-export function generateMetadata(): Metadata {
-  return {
-    title: "Bosh sahifa · Do'kon admin paneli",
-    description:
-      "Savdo statistikasi, grafiklar, eng ko'p sotilgan mahsulotlar va so'nggi buyurtmalar.",
-  };
+export function generateMetadata({ params }: PageProps<'/[lang]/examples/admin'>) {
+  return exampleMetadata(params, 'admin');
 }
 
 export default function Page() {

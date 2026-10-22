@@ -3,6 +3,7 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { exampleHref, examples, examplesSourceUrl } from '@/lib/examples';
 import { toLang, type Lang } from '@/lib/i18n';
+import { languageAlternates, pageMetadata, siteImageUrl } from '@/lib/seo';
 
 const text = {
   uz: {
@@ -24,8 +25,16 @@ const text = {
 export async function generateMetadata({
   params,
 }: PageProps<'/[lang]/examples'>): Promise<Metadata> {
-  const t = text[toLang((await params).lang)];
-  return { title: t.title, description: t.lead };
+  const lang = toLang((await params).lang);
+  const t = text[lang];
+  return pageMetadata({
+    lang,
+    title: t.title,
+    description: t.lead,
+    canonical: `/${lang}/examples`,
+    languages: languageAlternates('/examples'),
+    image: siteImageUrl(lang, ['examples']),
+  });
 }
 
 export default async function ExamplesPage({ params }: PageProps<'/[lang]/examples'>) {

@@ -7,6 +7,7 @@ import { LibraryProviders } from '@/components/providers';
 import { VersionedSearchDialog } from '@/components/search-dialog';
 import { getDictionary } from '@/lib/dictionary';
 import { i18n, isLang } from '@/lib/i18n';
+import { author, ogLocales, siteImageUrl } from '@/lib/seo';
 import { appName, siteUrl } from '@/lib/shared';
 import { uiText } from '@/lib/translations';
 
@@ -21,17 +22,20 @@ export async function generateMetadata(props: LayoutProps<'/[lang]'>): Promise<M
 
   return {
     metadataBase: new URL(siteUrl),
-    title: { default: t.meta.title, template: `%s — ${appName}` },
+    title: { default: t.meta.title, template: `%s · ${appName}` },
     description: t.meta.description,
     applicationName: appName,
-    alternates: {
-      languages: Object.fromEntries(i18n.languages.map((l) => [l, `/${l}`])),
-    },
+    authors: [{ name: author.name, url: author.url }],
+    creator: author.name,
+    // Kanonik + hreflang har bir sahifada (`lib/seo.tsx` → `pageMetadata`): bu yerda berilsa,
+    // o'zi bermagan sahifalar bosh sahifaning havolalarini meros qilib olardi
     openGraph: {
       siteName: appName,
-      locale: lang === 'uz' ? 'uz_UZ' : 'en_US',
+      locale: ogLocales[lang],
       type: 'website',
+      images: siteImageUrl(lang),
     },
+    twitter: { card: 'summary_large_image', images: siteImageUrl(lang) },
   };
 }
 

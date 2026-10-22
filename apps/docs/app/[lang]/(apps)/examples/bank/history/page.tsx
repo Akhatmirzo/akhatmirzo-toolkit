@@ -1,12 +1,9 @@
-import type { Metadata } from 'next';
 import { Suspense } from 'react';
 import { HistoryView } from '@/components/examples/bank/history-view';
+import { exampleMetadata } from '@/lib/example-pages';
 
-export async function generateMetadata(): Promise<Metadata> {
-  return {
-    title: 'Tarix — Bank ilovasi',
-    description: "Operatsiyalar tarixi: qidiruv, filtrlar va sanalar oralig'i.",
-  };
+export function generateMetadata({ params }: PageProps<'/[lang]/examples/bank/history'>) {
+  return exampleMetadata(params, 'bank/history');
 }
 
 export default function HistoryPage() {

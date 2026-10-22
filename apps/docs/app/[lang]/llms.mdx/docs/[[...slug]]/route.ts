@@ -1,6 +1,6 @@
 import { notFound } from 'next/navigation';
 import { toLang } from '@/lib/i18n';
-import { getPageMarkdownUrl } from '@/lib/shared';
+import { getPageMarkdownUrl, siteUrl } from '@/lib/shared';
 import { docsLlms, source } from '@/lib/source';
 
 export const revalidate = false;
@@ -16,6 +16,8 @@ export async function GET(
   return new Response(await docsLlms.page(page), {
     headers: {
       'Content-Type': 'text/markdown',
+      // Markdown nusxa — HTML sahifaning dublikati: qidiruv tizimlari HTML'ni indekslasin
+      Link: `<${siteUrl}${page.url}>; rel="canonical"`,
     },
   });
 }

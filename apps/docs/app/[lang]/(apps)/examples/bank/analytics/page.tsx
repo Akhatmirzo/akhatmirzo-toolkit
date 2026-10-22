@@ -1,8 +1,8 @@
-import type { Metadata } from 'next';
 import { AnalyticsView } from '@/components/examples/bank/analytics-view';
+import { exampleMetadata } from '@/lib/example-pages';
 
-export async function generateMetadata(): Promise<Metadata> {
-  return { title: 'Tahlil — Bank ilovasi', description: 'Xarajatlar toifalar va oylar kesimida.' };
+export function generateMetadata({ params }: PageProps<'/[lang]/examples/bank/analytics'>) {
+  return exampleMetadata(params, 'bank/analytics');
 }
 
 export default function AnalyticsPage() {

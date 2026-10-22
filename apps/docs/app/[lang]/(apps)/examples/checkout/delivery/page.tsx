@@ -1,9 +1,8 @@
-import type { Metadata } from 'next';
 import { DeliveryStep } from '@/components/examples/checkout/delivery-step';
-import { checkoutMetadata } from '@/components/examples/checkout/meta';
+import { exampleMetadata } from '@/lib/example-pages';
 
-export async function generateMetadata(): Promise<Metadata> {
-  return checkoutMetadata('Yetkazib berish');
+export function generateMetadata({ params }: PageProps<'/[lang]/examples/checkout/delivery'>) {
+  return exampleMetadata(params, 'checkout/delivery');
 }
 
 export default function Page() {

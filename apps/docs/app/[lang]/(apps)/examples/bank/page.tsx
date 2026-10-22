@@ -1,8 +1,8 @@
-import type { Metadata } from 'next';
 import { HomeView } from '@/components/examples/bank/home-view';
+import { exampleMetadata } from '@/lib/example-pages';
 
-export async function generateMetadata(): Promise<Metadata> {
-  return { title: 'Bank ilovasi', description: "Kartalar, balans va so'nggi operatsiyalar." };
+export function generateMetadata({ params }: PageProps<'/[lang]/examples/bank'>) {
+  return exampleMetadata(params, 'bank');
 }
 
 export default function BankHomePage() {

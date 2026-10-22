@@ -1,10 +1,9 @@
-import type { Metadata } from 'next';
 import { VerifyFlow } from '@/components/examples/auth/verify-flow';
+import { exampleMetadata } from '@/lib/example-pages';
 
-export const metadata: Metadata = {
-  title: 'SMS kodni tasdiqlash',
-  description: 'OtpInput va ResendTimer bilan SMS kodni tasdiqlash.',
-};
+export function generateMetadata({ params }: PageProps<'/[lang]/examples/auth/verify'>) {
+  return exampleMetadata(params, 'auth/verify');
+}
 
 export default function VerifyPage() {
   return <VerifyFlow />;

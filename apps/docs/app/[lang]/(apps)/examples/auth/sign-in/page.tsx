@@ -1,11 +1,9 @@
-import type { Metadata } from 'next';
 import { SignIn } from '@/components/examples/auth/sign-in-form';
+import { exampleMetadata } from '@/lib/example-pages';
 
-export const metadata: Metadata = {
-  title: 'Kirish',
-  description:
-    'Telefon raqam yoki email bilan kirish: validatsiya, bloklash taymeri, SMS tasdiqlash.',
-};
+export function generateMetadata({ params }: PageProps<'/[lang]/examples/auth/sign-in'>) {
+  return exampleMetadata(params, 'auth/sign-in');
+}
 
 export default function SignInPage() {
   return <SignIn />;

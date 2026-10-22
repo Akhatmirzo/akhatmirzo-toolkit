@@ -1,9 +1,8 @@
-import type { Metadata } from 'next';
 import { CartStep } from '@/components/examples/checkout/cart-step';
-import { checkoutMetadata } from '@/components/examples/checkout/meta';
+import { exampleMetadata } from '@/lib/example-pages';
 
-export async function generateMetadata(): Promise<Metadata> {
-  return checkoutMetadata('Savatcha');
+export function generateMetadata({ params }: PageProps<'/[lang]/examples/checkout/cart'>) {
+  return exampleMetadata(params, 'checkout/cart');
 }
 
 export default function Page() {

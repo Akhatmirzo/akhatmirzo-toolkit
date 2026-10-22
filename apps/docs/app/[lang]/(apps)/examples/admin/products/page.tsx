@@ -1,11 +1,8 @@
-import type { Metadata } from 'next';
 import { ProductsPage } from '@/components/examples/admin/products/products-page';
+import { exampleMetadata } from '@/lib/example-pages';
 
-export function generateMetadata(): Metadata {
-  return {
-    title: "Mahsulotlar · Do'kon admin paneli",
-    description: "Mahsulotlar katalogi: qidiruv, toifalar, qo'shish, tahrirlash va o'chirish.",
-  };
+export function generateMetadata({ params }: PageProps<'/[lang]/examples/admin/products'>) {
+  return exampleMetadata(params, 'admin/products');
 }
 
 export default function Page() {

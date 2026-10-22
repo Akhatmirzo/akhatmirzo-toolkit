@@ -1,4 +1,5 @@
 import { Accessibility, ArrowRight, Boxes, Languages, Layers, Leaf, Moon } from 'lucide-react';
+import type { Metadata } from 'next';
 import Link from 'next/link';
 import type { ReactNode } from 'react';
 import { CopyCommand } from '@/components/home/copy-command';
@@ -6,6 +7,7 @@ import { Gallery } from '@/components/home/gallery';
 import { getDictionary } from '@/lib/dictionary';
 import { toLang, type Lang } from '@/lib/i18n';
 import { docsHome } from '@/lib/layout.shared';
+import { homeJsonLd, JsonLd, languageAlternates, pageMetadata, siteImageUrl } from '@/lib/seo';
 import { githubUrl, npmUrl } from '@/lib/shared';
 import { latestVersion } from '@/lib/versions';
 
@@ -45,13 +47,29 @@ function GitHubIcon() {
 const btn =
   'focus-ring inline-flex h-11 items-center justify-center gap-2 rounded-xl px-5 text-sm font-semibold transition-colors duration-base';
 
+export async function generateMetadata({ params }: PageProps<'/[lang]'>): Promise<Metadata> {
+  const lang = toLang((await params).lang);
+  const t = getDictionary(lang).meta;
+  return pageMetadata({
+    lang,
+    title: t.title,
+    absoluteTitle: true,
+    description: t.description,
+    canonical: `/${lang}`,
+    languages: languageAlternates(''),
+    image: siteImageUrl(lang),
+  });
+}
+
 export default async function HomePage({ params }: PageProps<'/[lang]'>) {
   const lang: Lang = toLang((await params).lang);
-  const t = getDictionary(lang).home;
+  const dict = getDictionary(lang);
+  const t = dict.home;
   const docs = (path: string) => `/${lang}/docs/${latestVersion}/${path}`;
 
   return (
     <div className="flex flex-1 flex-col font-sans text-text">
+      <JsonLd data={homeJsonLd(lang, dict.meta.description)} />
       {/* Hero */}
       <section className="relative overflow-hidden border-b border-border">
         <div

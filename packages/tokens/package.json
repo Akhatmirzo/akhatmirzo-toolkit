@@ -1,15 +1,25 @@
 {
   "name": "@akhatmirzo/tokens",
   "version": "0.1.2",
-  "description": "Dizayn tokenlari: CSS o'zgaruvchilari va Tailwind v4 @theme",
+  "description": "Design tokens for @akhatmirzo/ui: CSS variables and a Tailwind CSS v4 @theme with light and dark themes.",
   "keywords": [
     "design-tokens",
+    "tokens",
+    "design-system",
+    "tailwind",
     "tailwindcss",
+    "tailwind-v4",
     "css-variables",
-    "theme"
+    "theme",
+    "theming",
+    "dark-mode",
+    "css"
   ],
   "license": "MIT",
-  "author": "Akhatmirzo",
+  "author": {
+    "name": "Akhatmirzo Umarov",
+    "url": "https://akhatmirzo.uz"
+  },
   "homepage": "https://toolkit.akhatmirzo.uz/uz/docs/v0.1/theming",
   "repository": {
     "type": "git",

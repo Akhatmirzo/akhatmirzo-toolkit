@@ -1,12 +1,9 @@
-import type { Metadata } from 'next';
 import { Suspense } from 'react';
 import { TransferView } from '@/components/examples/bank/transfer/transfer-view';
+import { exampleMetadata } from '@/lib/example-pages';
 
-export async function generateMetadata(): Promise<Metadata> {
-  return {
-    title: "O'tkazma — Bank ilovasi",
-    description: "Karta yoki telefon raqami bo'yicha o'tkazma.",
-  };
+export function generateMetadata({ params }: PageProps<'/[lang]/examples/bank/transfer'>) {
+  return exampleMetadata(params, 'bank/transfer');
 }
 
 export default function TransferPage() {
