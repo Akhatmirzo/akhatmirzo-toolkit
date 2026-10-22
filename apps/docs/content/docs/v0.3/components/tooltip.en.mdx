@@ -3,7 +3,7 @@ title: Tooltip
 description: A short hint that appears on hover or focus, with an optional keyboard shortcut.
 ---
 
-<ComponentPreview name="tooltip/basic" />
+<ComponentPreview name="archive/v0.3/tooltip/basic" />
 
 ## Import
 
@@ -44,28 +44,28 @@ export function Providers({ children }: { children: ReactNode }) {
 `side` is `top` (default), `right`, `bottom` or `left`. Near the edge of the screen, the tooltip
 flips to the opposite side.
 
-<ComponentPreview name="tooltip/sides" />
+<ComponentPreview name="archive/v0.3/tooltip/sides" />
 
 ## Delay and long text
 
 `delay` is how long to wait before opening, in ms. By default it comes from the provider (300).
 Text longer than 240px wraps to the next line — but a tooltip is best kept to a line or two.
 
-<ComponentPreview name="tooltip/delay" />
+<ComponentPreview name="archive/v0.3/tooltip/delay" />
 
 ## On a disabled button
 
 A `disabled` button doesn't fire events, so a tooltip can't attach to it directly. Wrap the
 button in a `span` with `tabIndex={0}` — keyboard users get the explanation too.
 
-<ComponentPreview name="tooltip/disabled-button" />
+<ComponentPreview name="archive/v0.3/tooltip/disabled-button" />
 
 ## Controlled and disabled
 
 Use `open` + `onOpenChange` to open the tooltip from code. `disabled` turns the tooltip off for a
 while and leaves the trigger as is. An empty `content` renders no tooltip either.
 
-<ComponentPreview name="tooltip/controlled" />
+<ComponentPreview name="archive/v0.3/tooltip/controlled" />
 
 ## Props
 

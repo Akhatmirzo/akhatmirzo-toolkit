@@ -1,0 +1,13 @@
+{
+  "name": "register",
+  "title": {
+    "uz": "Ro'yxatdan o'tish",
+    "en": "Register"
+  },
+  "description": {
+    "uz": "Ism, +998 telefon, parol kuchi ko'rsatkichi va shartlarga rozilik bilan ro'yxatdan o'tish formasi.",
+    "en": "Sign-up form with name, +998 phone, a password strength meter and terms consent."
+  },
+  "dependencies": ["@akhatmirzo/core", "lucide-react"],
+  "category": "auth"
+}

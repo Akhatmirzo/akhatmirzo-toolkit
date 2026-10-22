@@ -1,0 +1,104 @@
+---
+title: Kbd
+description: "Klaviatura tugmalari va qisqa yo'llarni ko'rsatadi; mod tizimga qarab Cmd yoki Ctrl bo'ladi."
+---
+
+<ComponentPreview name="kbd/basic" />
+
+## Import
+
+```tsx
+import { Kbd } from '@akhatmirzo/ui';
+```
+
+## Qachon ishlatish
+
+- **Qisqa yo'llarni ko'rsatish uchun** — menyu bandlari, [`Tooltip`](./tooltip.mdx),
+  [`CommandPalette`](./command-palette.mdx) va yordam matnlarida.
+- **Kombinatsiyalar uchun `keys` massivini** ishlating — har bir tugma alohida chiziladi, `mod`
+  esa operatsion tizimga qarab almashadi.
+- **Bu faqat ko'rsatish.** `Kbd` tugma bosilishini tinglamaydi — buning uchun `useHotkeys` bor
+  (pastda misol).
+- **Har bir menyu bandiga qisqa yo'l yozmang** — faqat tez-tez ishlatiladigan harakatlarga.
+
+## Tugmalar ro'yxati (`keys`)
+
+`keys` dagi har bir element alohida chiziladi. `mod` (katta-kichik harf farqi yo'q) macOS va
+iOS'da `⌘`, boshqa tizimlarda `Ctrl` ga aylanadi. Bitta tugma uchun oddiy `children` yetarli.
+
+<ComponentPreview name="kbd/keys" />
+
+<Callout title="SSR va mod">
+  Serverda platforma noma'lum, shuning uchun avval `Ctrl` chiziladi. Brauzerda Apple qurilmalarida
+  `⌘` ga almashadi — gidratatsiya xatosi bo'lmaydi.
+</Callout>
+
+## O'lchamlar
+
+`sm` (standart) — 20px, matn ichida va menyularda. `md` — 24px, alohida turganda yoki kattaroq
+matn yonida.
+
+<ComponentPreview name="kbd/sizes" />
+
+## Menyuda
+
+Eng ko'p uchraydigan holat — menyu bandining o'ng tomonidagi qisqa yo'l.
+
+<ComponentPreview name="kbd/menu" />
+
+## Qisqa yo'lni ishlatish
+
+`Kbd` va `@akhatmirzo/hooks` dagi `useHotkeys` bir xil `mod` qoidasiga amal qiladi: ko'rsatilgan
+tugma va tinglanadigan tugma doim mos keladi.
+
+```tsx title="search-hint.tsx"
+import { useHotkeys } from '@akhatmirzo/hooks';
+import { Kbd } from '@akhatmirzo/ui';
+import { useState } from 'react';
+
+export function SearchHint() {
+  const [open, setOpen] = useState(false);
+  useHotkeys('mod+k', () => setOpen(true));
+
+  return (
+    <p>
+      Qidirish: <Kbd keys={['mod', 'K']} /> {open && '— ochildi'}
+    </p>
+  );
+}
+```
+
+## Props
+
+`Kbd` qolgan barcha `<kbd>` atributlarini (`className`, `title`, `data-*` ...) qabul qiladi.
+
+<PropsTable
+  rows={[
+    {
+      name: 'keys',
+      type: 'string[]',
+      description:
+        "Tugmalar ketma-ketligi; 'mod' — macOS'da ⌘, boshqalarida Ctrl. Berilsa, children ko'rsatilmaydi",
+    },
+    {
+      name: 'size',
+      type: "'sm' | 'md'",
+      default: "'sm'",
+      description: 'Balandlik: 20 / 24px',
+    },
+    {
+      name: 'children',
+      type: 'ReactNode',
+      description: "keys berilmaganda ko'rsatiladigan matn",
+    },
+  ]}
+/>
+
+Ildiz elementda `data-size` atributi bor. Stilni boshqa elementga qo'llash uchun `kbdVariants`
+ham eksport qilinadi.
+
+## Accessibility
+
+- **Semantik `<kbd>` elementi** — bu klaviatura kiritishi ekani belgilanadi.
+- **Belgilar** (`⌘`, `↵`, `↑`) ekran o'quvchida har doim ham tushunarli o'qilmaydi. Muhim
+  ko'rsatmalarda belgi o'rniga so'z yozing: `<Kbd>Enter</Kbd>`.

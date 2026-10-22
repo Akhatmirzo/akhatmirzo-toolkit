@@ -1,0 +1,64 @@
+---
+title: All blocks
+description: 'Ready-made sections to copy into your app: auth, pricing, dashboard, data table and a full app layout.'
+full: true
+---
+
+Blocks are ready-made page sections built from the library's components. Each one is **a single
+self-contained file**: it owns its state, uses only `@akhatmirzo/*` packages and `lucide-react`
+icons, and ships with Uzbek copy. Copy the file into your project and make it yours.
+
+## All blocks
+
+<BlockGallery />
+
+## How to add a block
+
+<Steps>
+<Step>
+
+### Prepare the project
+
+Installs the packages and wires the tokens into your global CSS (see [CLI](../cli.mdx)):
+
+```bash
+npx @akhatmirzo/cli init
+```
+
+</Step>
+<Step>
+
+### Add a block
+
+```bash
+npx @akhatmirzo/cli add login pricing
+```
+
+Files land in `components/blocks/`. Or copy the code by hand from the "Code" tab on a block page.
+
+</Step>
+<Step>
+
+### Use it on a page
+
+```tsx title="app/login/page.tsx"
+import Login from '@/components/blocks/login';
+
+export default function Page() {
+  return <Login />;
+}
+```
+
+</Step>
+</Steps>
+
+## Responsive by container
+
+Blocks respond to their **container width** (`@container`), not the viewport: drop one into a
+narrow column and it switches to its mobile layout. Check it with the desktop / tablet / mobile
+buttons above each preview, or drag the bottom-right corner.
+
+<Callout title="Toast messages">
+  Some blocks call `toast()` — render `<Toaster />` at the root of your app
+  ([Toast](../components/toast.mdx)).
+</Callout>

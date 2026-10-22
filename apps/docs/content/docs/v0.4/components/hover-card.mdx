@@ -1,0 +1,145 @@
+---
+title: HoverCard
+description: "Havola ustiga kursor kelganda chiqadigan oldindan ko'rish kartasi: profil, mahsulot, havola tafsiloti."
+---
+
+<ComponentPreview name="hover-card/profile" />
+
+## Import
+
+```tsx
+import { HoverCard } from '@akhatmirzo/ui';
+```
+
+## Qachon ishlatish
+
+- **Havola orqasidagi narsani oldindan ko'rsatish** — foydalanuvchi profili, mahsulot, hujjat.
+  Foydalanuvchi sahifadan chiqmasdan "bu nima?" degan savolga javob oladi.
+- **Faqat qo'shimcha ma'lumot.** Karta sensorli ekranda ochilmaydi va ekran o'quvchi uni
+  o'qimasligi mumkin — trigger o'zi havola bo'lsin, ma'lumot esa havola ochadigan sahifada ham
+  bo'lsin.
+- **Qisqa matnli izoh** uchun — [`Tooltip`](./tooltip.mdx).
+- **Ichida tugma, forma** kerak bo'lsa — bosish bilan ochiladigan [`Popover`](./popover.mdx).
+
+## Tuzilishi
+
+| Qism                | Vazifasi                                                          |
+| ------------------- | ----------------------------------------------------------------- |
+| `HoverCard`         | Holat va kechikishlar: `openDelay`, `closeDelay`, `open`          |
+| `HoverCard.Trigger` | Havola (standart — `<a>`; o'z elementingiz uchun `asChild`)       |
+| `HoverCard.Content` | Panel: Popover bilan bir xil ko'rinish, portal, joylashuv, `size` |
+
+```tsx
+<HoverCard openDelay={400}>
+  <HoverCard.Trigger asChild>
+    <a href="/u/akhatmirzo">@akhatmirzo</a>
+  </HoverCard.Trigger>
+  <HoverCard.Content side="bottom" align="start">
+    …profil…
+  </HoverCard.Content>
+</HoverCard>
+```
+
+Karta kursor kelgandan **500ms** keyin ochiladi va kursor ketgandan **200ms** keyin yopiladi —
+tasodifiy o'tib ketishda chiqmaydi, kartaga o'tish uchun esa vaqt qoladi. Klaviatura bilan
+fokuslanganda ham ochiladi.
+
+## O'lchamlar
+
+`size` — `sm` (240px) yoki `md` (320px, standart). Boshqa kenglik uchun `className` bering.
+
+<ComponentPreview name="hover-card/sizes" />
+
+## Joylashuv
+
+`side` — `top`, `right`, `bottom` (standart) yoki `left`; `align` — `start`, `center` (standart)
+yoki `end`. Panel triggerdan 6px uzoqlikda turadi va ekran chetiga yetsa, teskari tomonga o'tadi.
+
+<ComponentPreview name="hover-card/placement" />
+
+<Callout title="Muhim ma'lumotni yashirmang">
+  Telefon va planshetda hover yo'q — HoverCard u yerda umuman ochilmaydi. Narx, holat, xato kabi
+  muhim ma'lumot sahifaning o'zida ko'rinsin.
+</Callout>
+
+## Props
+
+### HoverCard
+
+<PropsTable
+  rows={[
+    {
+      name: 'openDelay',
+      type: 'number',
+      default: '500',
+      description: 'Kursor kelgandan keyin ochilish kechikishi, ms',
+    },
+    {
+      name: 'closeDelay',
+      type: 'number',
+      default: '200',
+      description: 'Kursor ketgandan keyin yopilish kechikishi, ms',
+    },
+    { name: 'open', type: 'boolean', description: 'Ochiqmi (boshqariladigan rejim)' },
+    { name: 'defaultOpen', type: 'boolean', description: "Boshlang'ich holatda ochiq" },
+    { name: 'onOpenChange', type: '(open: boolean) => void', description: 'Ochilib-yopilganda' },
+  ]}
+/>
+
+### HoverCard.Content
+
+Radix `HoverCard.Content` ning qolgan prop'lari (`alignOffset`, `avoidCollisions` ...), `<div>`
+atributlari va `ref` ham qabul qilinadi.
+
+<PropsTable
+  rows={[
+    {
+      name: 'size',
+      type: "'sm' | 'md'",
+      default: "'md'",
+      description: 'Kenglik: 240 / 320px',
+    },
+    {
+      name: 'side',
+      type: "'top' | 'right' | 'bottom' | 'left'",
+      default: "'bottom'",
+      description: 'Qaysi tomonda ochiladi',
+    },
+    {
+      name: 'align',
+      type: "'start' | 'center' | 'end'",
+      default: "'center'",
+      description: "Trigger bo'ylab tekislash",
+    },
+    { name: 'sideOffset', type: 'number', default: '6', description: 'Triggerdan masofa, px' },
+    {
+      name: 'collisionPadding',
+      type: 'number',
+      default: '8',
+      description: 'Ekran chetidan minimal masofa, px',
+    },
+    {
+      name: 'container',
+      type: 'HTMLElement | null',
+      description: 'Portal konteyneri (standart — document.body)',
+    },
+  ]}
+/>
+
+### Data atributlari
+
+| Atribut      | Qayerda        | Qiymat                              |
+| ------------ | -------------- | ----------------------------------- |
+| `data-state` | trigger, panel | `open` · `closed`                   |
+| `data-side`  | panel          | `top` · `right` · `bottom` · `left` |
+| `data-size`  | panel          | `sm` · `md`                         |
+
+## Accessibility
+
+- **Faqat qo'shimcha.** Karta ekran o'quvchiga e'lon qilinmaydi va fokus unga o'tmaydi — undagi
+  ma'lumot havola ochadigan sahifada ham bo'lishi kerak.
+- **Klaviatura.** Trigger fokus olganda karta ochiladi, fokus ketganda yopiladi; `Esc` ham
+  yopadi.
+- **Sensorli ekran.** Touch bilan ochilmaydi — bosish havolaning o'zini ochadi.
+- **Ichida interaktiv element** (tugma, forma) qo'ymang — ularga klaviatura bilan yetib bo'lmaydi.
+  Bunday holatda [`Popover`](./popover.mdx) ishlating.

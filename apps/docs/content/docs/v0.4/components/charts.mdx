@@ -1,0 +1,274 @@
+---
+title: Charts
+description: "Recharts asosidagi grafiklar: tayyor AreaChart, BarChart, LineChart, DonutChart, Sparkline va o'z grafigingiz uchun primitivlar."
+---
+
+<ComponentPreview name="charts/area" align="start" />
+
+## O'rnatish
+
+Grafiklar alohida kirish nuqtasida — `@akhatmirzo/ui/charts`. Ular [Recharts](https://recharts.github.io)
+ustiga qurilgan, u esa **ixtiyoriy** peer bog'liqlik: grafik ishlatmasangiz, o'rnatish shart emas va
+asosiy `@akhatmirzo/ui` importi uni tortmaydi.
+
+<Install pkg="recharts" />
+
+## Import
+
+```tsx
+import { AreaChart, BarChart, LineChart, DonutChart, Sparkline } from '@akhatmirzo/ui/charts';
+```
+
+## Qachon ishlatish
+
+- **Vaqt bo'yicha o'zgarish** — `AreaChart` yoki `LineChart` (oylik tushum, kunlik tashriflar).
+- **Kategoriyalarni solishtirish** — `BarChart` (viloyatlar, mahsulotlar). Nomlar uzun bo'lsa —
+  `orientation="horizontal"`.
+- **Butunning qismlari** — `DonutChart`, 5–6 bo'lakdan oshmasin; qolganini "Boshqalar"ga yig'ing.
+- **Kichik trend** — `Sparkline` KPI kartalar va jadval kataklarida.
+- **Aniq qiymat muhim bo'lsa** — grafik o'rniga yoki yonida jadval bering (pastda
+  [Accessibility](#accessibility)).
+
+## Tayyor grafiklar
+
+Hammasi bir xil props bilan ishlaydi: `data` — obyektlar ro'yxati, `index` — kategoriya maydoni
+(x o'qi), `series` — ko'rsatiladigan raqamli maydonlar. Ranglar faqat tokenlardan olinadi, shuning
+uchun dark rejimda o'zi moslashadi.
+
+### AreaChart
+
+Yuqoridagi namuna. `stacked` — seriyalarni ustma-ust yig'adi, `curve` — `monotone` (standart),
+`linear` yoki `step`.
+
+### BarChart
+
+`stacked` — bitta ustunga yig'ish, umumiy hajmni va tarkibni birga ko'rsatadi.
+
+<ComponentPreview name="charts/bar" align="start" />
+
+`orientation="horizontal"` — yotiq chiziqlar: uzun nomlar va reytinglar uchun qulay. Prop nomi
+ko'rinishga qarab tanlangan (`vertical` — tik ustunlar) va ataylab Recharts'ning `layout` idan
+farqli: Recharts'da `layout="vertical"` aksincha yotiq chiziqlar chizadi.
+
+<ComponentPreview name="charts/bar-horizontal" align="start" />
+
+### LineChart
+
+Bir nechta ko'rsatkichni solishtirish uchun. Bu yerda `curve="linear"`.
+
+<ComponentPreview name="charts/line" align="start" />
+
+### DonutChart
+
+`index` — bo'lak nomi, `value` — qiymat maydoni. Markazda `centerLabel` va jami (`valueFormat`
+bilan) ko'rinadi; `centerValue` bilan o'zgartiring yoki `null` bilan yashiring.
+
+<ComponentPreview name="charts/donut" />
+
+### Sparkline
+
+O'qlar, to'r va tooltip'siz kichik chiziq. Qiymat yonida matn bilan berilgan bo'lsa — `aria-hidden`
+bilan bezak sifatida belgilang, aks holda `aria-label` bering.
+
+<ComponentPreview name="charts/sparkline" />
+
+## Formatlash
+
+`valueFormat` — tooltip va qiymat o'qidagi ko'rinish (standart — `formatNumber`: `1 250 000`),
+`indexFormat` — kategoriya o'qi va tooltip sarlavhasi. Pul uchun `formatMoney` ni ishlating; o'qda
+uzun qiymatlar joy egallasa, qisqa ko'rinish bering (`42,5 mln so'm`).
+
+```tsx
+import { formatMoney } from '@akhatmirzo/core';
+
+<BarChart valueFormat={(v) => formatMoney(v)} indexFormat={(d) => d.slice(0, 3)} … />
+```
+
+## Holatlar
+
+`loading` — grafik o'rnida Skeleton (`aria-busy`), ma'lumot bo'sh bo'lsa — `EmptyState`
+("Ma'lumot yo'q"). O'z bo'sh holatingizni `emptyState` bilan bering, matnlarni — `labels` bilan.
+
+<ComponentPreview name="charts/states" align="start" />
+
+## Primitivlar: o'z grafigingiz
+
+Tayyor grafik yetmasa (ikki o'qli, aralash, maxsus shakllar), Recharts'ning o'zi bilan yig'ing —
+kutubxona uslubini primitivlar beradi:
+
+- `ChartContainer` — responsiv o'rovchi: `role="figure"` + `aria-label` (majburiy), `description`,
+  `config` → CSS o'zgaruvchilar (`tushum` → `var(--chart-tushum)`). Balandlik — `height` yoki
+  `className="h-72"` (standart 280px).
+- `ChartTooltip` — `<Tooltip content={<ChartTooltip format={formatMoney} />} />`; nomlarni
+  `config` dagi `label` dan oladi.
+- `ChartLegend` — `<Legend content={<ChartLegend />} />` yoki grafikdan tashqarida `payload` bilan.
+- `chartColors` (5 ta seriya rangi), `axisProps`, `gridProps`, `cursorProps`, `resolveChartColor`.
+
+<ComponentPreview name="charts/custom" align="start" />
+
+## Props
+
+Tayyor grafiklar qolgan `<div>` atributlarini ildizga o'tkazadi (`className`, `ref`, `id` ...).
+`aria-label` yoki `title` dan biri **majburiy** — TypeScript talab qiladi.
+
+### Umumiy (AreaChart, BarChart, LineChart)
+
+<PropsTable
+  rows={[
+    { name: 'data', type: 'readonly T[]', required: true, description: "Ma'lumotlar" },
+    { name: 'index', type: 'keyof T', required: true, description: "Kategoriya (x o'qi) maydoni" },
+    {
+      name: 'series',
+      type: '{ key: keyof T; label?: string; color?: ChartColor }[]',
+      required: true,
+      description: 'Seriyalar. Rang berilmasa — chartColors palitrasidan ketma-ket',
+    },
+    {
+      name: 'aria-label / title',
+      type: 'string',
+      required: true,
+      description: "Ekran o'quvchi uchun nom (biri yetarli)",
+    },
+    { name: 'description', type: 'ReactNode', description: 'Qisqa xulosa (aria-describedby)' },
+    {
+      name: 'valueFormat',
+      type: '(value: number) => string',
+      default: 'formatNumber',
+      description: "Tooltip va qiymat o'qi",
+    },
+    {
+      name: 'indexFormat',
+      type: '(value: T[K]) => string',
+      description: "Kategoriya o'qi va tooltip sarlavhasi",
+    },
+    { name: 'height', type: 'number', default: '280', description: 'Balandlik, px' },
+    { name: 'legend', type: 'boolean', default: 'true' },
+    { name: 'grid', type: 'boolean', default: 'true', description: "Punktir to'r chiziqlari" },
+    { name: 'tooltip', type: 'boolean', default: 'true' },
+    { name: 'loading', type: 'boolean', default: 'false', description: "Skeleton ko'rsatadi" },
+    {
+      name: 'emptyState',
+      type: 'ReactNode',
+      description: "Bo'sh holat. Standart — EmptyState (\"Ma'lumot yo'q\")",
+    },
+    {
+      name: 'labels',
+      type: '{ empty?: string; loading?: string }',
+      default: "{ empty: \"Ma'lumot yo'q\", loading: 'Yuklanmoqda' }",
+    },
+  ]}
+/>
+
+### Qo'shimcha
+
+<PropsTable
+  rows={[
+    {
+      name: 'stacked',
+      type: 'boolean',
+      default: 'false',
+      description: "AreaChart, BarChart — seriyalarni yig'ish",
+    },
+    {
+      name: 'curve',
+      type: "'monotone' | 'linear' | 'step'",
+      default: "'monotone'",
+      description: 'AreaChart, LineChart',
+    },
+    {
+      name: 'orientation',
+      type: "'vertical' | 'horizontal'",
+      default: "'vertical'",
+      description: 'BarChart: vertical — tik ustunlar, horizontal — yotiq chiziqlar',
+    },
+  ]}
+/>
+
+### DonutChart
+
+`data`, `aria-label`/`title`, `description`, `valueFormat`, `indexFormat`, `height`, `legend`,
+`tooltip`, `loading`, `emptyState`, `labels` — yuqoridagidek (`series` va `grid` yo'q).
+
+<PropsTable
+  rows={[
+    { name: 'index', type: 'keyof T', required: true, description: "Bo'lak nomi maydoni" },
+    { name: 'value', type: 'keyof T', required: true, description: "Bo'lak qiymati maydoni" },
+    {
+      name: 'colors',
+      type: 'ChartColor[]',
+      description: 'Ranglar ketma-ketligi. Standart — chartColors',
+    },
+    { name: 'centerLabel', type: 'ReactNode', description: 'Markazdagi izoh ("Jami")' },
+    {
+      name: 'centerValue',
+      type: 'ReactNode',
+      default: 'valueFormat(jami)',
+      description: "Markazdagi qiymat; null — ko'rsatilmaydi",
+    },
+  ]}
+/>
+
+### Sparkline
+
+<PropsTable
+  rows={[
+    { name: 'data', type: 'readonly number[]', required: true },
+    {
+      name: 'aria-label / title / aria-hidden',
+      type: 'string | true',
+      required: true,
+      description: 'Nom yoki bezak belgisi',
+    },
+    { name: 'color', type: 'ChartColor', default: "'primary'" },
+    { name: 'variant', type: "'area' | 'line'", default: "'area'" },
+    { name: 'curve', type: "'monotone' | 'linear' | 'step'", default: "'monotone'" },
+    { name: 'height', type: 'number', default: '36', description: 'Balandlik, px' },
+  ]}
+/>
+
+### ChartContainer
+
+<PropsTable
+  rows={[
+    { name: 'children', type: 'ReactNode', required: true, description: 'Recharts grafigi' },
+    {
+      name: 'aria-label / title',
+      type: 'string',
+      required: true,
+      description: "Ekran o'quvchi uchun nom",
+    },
+    {
+      name: 'config',
+      type: 'Record<string, { label?: ReactNode; color?: ChartColor }>',
+      description: 'Kalit → var(--chart-<kalit>), label — tooltip va legend uchun',
+    },
+    { name: 'height', type: 'number | string', description: 'Standart — 280px (h-70)' },
+    { name: 'description', type: 'ReactNode', description: 'Qisqa xulosa (aria-describedby)' },
+  ]}
+/>
+
+`ChartColor` — token nomi (`primary`, `success`, `warning`, `danger`, `info`, `neutral`, `sky`,
+`emerald`, `amber`, `rose`) yoki istalgan CSS qiymat (`var(--ak-indigo-400)`). Hex dark rejimga
+moslashmaydi — tokenlarni afzal ko'ring.
+
+### Data atributlari
+
+Tayyor grafik ildizida: `data-state` (`ready` · `loading` · `empty`), `data-loading`.
+
+## Accessibility
+
+- **Nom majburiy** — har grafik `role="figure"` va `aria-label` (yoki `title`) oladi (`img` emas:
+  ichidagi klaviatura qatlami interaktiv, `img` esa bolalarini yashiradi; `Sparkline` — `img`).
+  Nomda nima ko'rsatilganini va davrni yozing: "Oylik tushum, yanvar–iyun".
+- **Xulosa** — asosiy xulosani `description` ga yozing ("Iyunda tushum 63 mln so'mga yetdi"), u
+  `aria-describedby` orqali o'qiladi.
+- **Klaviatura** — Recharts `accessibilityLayer` yoqilgan: grafikka Tab bilan o'tib, `←` `→`
+  strelkalari bilan nuqtalar orasida yurasiz, tooltip ochiladi. `Sparkline` da tooltip yo'q,
+  shuning uchun u fokus olmaydi.
+- **Jadval ko'rinishini ham bering** — grafik aniq qiymatni o'qishga mos emas. Muhim hisobotlarda
+  "Grafik / Jadval" almashtirgichi yoki grafik ostida jadval qo'ying:
+
+<ComponentPreview name="charts/table-view" align="start" />
+
+- **Rang yagona signal emas** — legend va tooltip seriya nomini matn bilan ko'rsatadi.
+- **Harakat** — `prefers-reduced-motion` yoqilgan bo'lsa, Recharts kirish animatsiyasini o'chiradi.

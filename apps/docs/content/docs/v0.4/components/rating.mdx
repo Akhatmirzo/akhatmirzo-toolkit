@@ -1,0 +1,134 @@
+---
+title: Rating
+description: "Yulduzli baho: klaviatura, yarim qiymatlar, hover'da oldindan ko'rish va sharhlar uchun faqat o'qish rejimi."
+---
+
+<ComponentPreview name="rating/basic" />
+
+## Import
+
+```tsx
+import { Rating } from '@akhatmirzo/ui';
+```
+
+## Qachon ishlatish
+
+- **Mahsulot, xizmat yoki kuryerni baholash** — foydalanuvchi bir bosishda fikrini bildiradi.
+- **Sharhlar ro'yxatida** o'rtacha bahoni ko'rsatish — `readOnly` (kasr qiymatlar ham aniq
+  chiziladi: 4.3 → 4 ta to'liq va 0.3 qism).
+- **Aniq son yoki keng shkala** kerak bo'lsa (0–100) — [`Slider`](./slider.mdx) qulayroq.
+- **Ma'nosi har xil variantlar** ("Yomon / O'rtacha / Yaxshi") — [`SegmentedControl`](./segmented-control.mdx)
+  yoki [`RadioGroup`](./radio-group.mdx).
+
+## Yarim qiymatlar
+
+`allowHalf` — har bir yulduzning chap yarmi `x.5`, o'ng yarmi `x` qiymatini beradi; strelkalar
+0.5 qadam bilan yuradi. Yarim yulduz `clip-path` bilan chiziladi.
+
+<ComponentPreview name="rating/half" />
+
+## Faqat o'qish
+
+`readOnly` — interaktiv emas: element `role="img"` va `aria-label="4.5 / 5"` bilan bitta rasm
+sifatida o'qiladi. Qiymat yaxlitlanmaydi — `3.7` aniq 3.7 yulduz bo'lib chiziladi.
+
+<ComponentPreview name="rating/read-only" align="start" />
+
+## Rang, ikonka va o'lcham
+
+- `color` — to'lgan yulduz rangi: `warning` (standart), `primary`, `danger`. Bo'sh yulduzlar —
+  `text-muted` rangida.
+- `icon` — ichki yulduz o'rniga istalgan ikonka (`currentColor` bilan bo'yaladigan SVG).
+- `size` — `sm` 16px, `md` 20px (standart), `lg` 28px.
+- `max` — yulduzlar soni (standart 5).
+
+<ComponentPreview name="rating/custom" align="start" />
+
+## Tozalash va Field
+
+`allowClear` (standart `true`) — tanlangan yulduzni qayta bossangiz qiymat `0` bo'ladi.
+Majburiy baholashda `allowClear={false}` qo'ying. [`Field`](./field.mdx) ichida label guruh nomiga,
+izoh `aria-describedby` ga aylanadi.
+
+<ComponentPreview name="rating/with-field" align="start" />
+
+## Props
+
+Qolgan `<div>` atributlari ildiz elementga, `ref` ham shunga tushadi.
+
+<PropsTable
+  rows={[
+    { name: 'value', type: 'number', description: 'Qiymat (boshqariladigan rejim)' },
+    { name: 'defaultValue', type: 'number', default: '0', description: "Boshlang'ich qiymat" },
+    { name: 'onValueChange', type: '(value: number) => void', description: "Qiymat o'zgarganda" },
+    { name: 'max', type: 'number', default: '5', description: 'Yulduzlar soni' },
+    { name: 'allowHalf', type: 'boolean', default: 'false', description: '0.5 qadam' },
+    {
+      name: 'allowClear',
+      type: 'boolean',
+      default: 'true',
+      description: 'Tanlangan qiymatni qayta bosish 0 qiladi',
+    },
+    {
+      name: 'readOnly',
+      type: 'boolean',
+      default: 'false',
+      description: 'Faqat ko\'rsatish: role="img" + aria-label',
+    },
+    { name: 'disabled', type: 'boolean', description: "O'chirilgan holat (fokus olmaydi)" },
+    {
+      name: 'size',
+      type: "'sm' | 'md' | 'lg'",
+      default: "'md'",
+      description: "Yulduz o'lchami 16 / 20 / 28px",
+    },
+    {
+      name: 'icon',
+      type: 'ReactNode',
+      default: 'yulduz SVG',
+      description: "Yulduz o'rniga ikonka",
+    },
+    {
+      name: 'color',
+      type: "'warning' | 'primary' | 'danger'",
+      default: "'warning'",
+      description: "To'lgan yulduz rangi",
+    },
+    {
+      name: 'labels',
+      type: '{ value?: (value: number, max: number) => string; group?: string }',
+      default: "'${v} / ${max}', 'Baho'",
+      description: "Radio va readOnly nomi; guruh nomi (Field va aria-label bo'lmasa)",
+    },
+  ]}
+/>
+
+### Data atributlari
+
+| Atribut         | Qayerda | Qiymat                             |
+| --------------- | ------- | ---------------------------------- |
+| `data-size`     | ildiz   | `sm` · `md` · `lg`                 |
+| `data-hover`    | ildiz   | sichqoncha yulduzlar ustida bo'lsa |
+| `data-readonly` | ildiz   | `readOnly` da mavjud               |
+| `data-disabled` | ildiz   | o'chirilganda mavjud               |
+| `data-state`    | radio   | `checked` · `unchecked`            |
+| `data-state`    | yulduz  | `full` · `partial` · `empty`       |
+
+## Klaviatura
+
+| Tugma             | Harakat                                       |
+| ----------------- | --------------------------------------------- |
+| `Tab`             | Guruhga kirish (tanlangan yulduzga)           |
+| `→` `↑` / `←` `↓` | Bir qadam oshirish / kamaytirish (va tanlash) |
+| `Home` / `End`    | Eng kichik (1 yoki 0.5) / eng katta qiymat    |
+| `Space` / `Enter` | Fokusdagi yulduzni tanlash (qayta — tozalash) |
+
+## Accessibility
+
+- **Interaktiv** — `role="radiogroup"`, har bir qiymat `role="radio"` (`aria-checked`,
+  `aria-label="3 / 5"`); `allowHalf` da har yulduzda ikkita radio. Roving tabindex: guruhda bitta
+  `Tab` to'xtashi.
+- **Nom.** `Field` label'i `aria-labelledby` orqali, aks holda `aria-label` yoki `labels.group`
+  ("Baho").
+- **readOnly** — `role="img"` va `aria-label` (`labels.value`), yulduzlar `aria-hidden`.
+- **Disabled** — `aria-disabled`, radiolar fokus olmaydi.

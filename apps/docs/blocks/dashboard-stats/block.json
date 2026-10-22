@@ -1,0 +1,13 @@
+{
+  "name": "dashboard-stats",
+  "title": {
+    "uz": "Dashboard statistikasi",
+    "en": "Dashboard stats"
+  },
+  "description": {
+    "uz": "Sparkline bilan 4 ta KPI kartochka, AreaChart va hududlar bo'yicha ulush.",
+    "en": "Four KPI cards with sparklines, an AreaChart and a share-by-region list."
+  },
+  "dependencies": ["@akhatmirzo/core", "lucide-react", "recharts"],
+  "category": "dashboard"
+}

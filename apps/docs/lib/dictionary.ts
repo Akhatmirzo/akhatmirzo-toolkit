@@ -17,6 +17,17 @@ const uz = {
     code: 'Kod',
     notFound: 'Demo topilmadi',
   },
+  blocks: {
+    viewport: "Ko'rinish kengligi",
+    desktop: 'Kompyuter',
+    tablet: 'Planshet',
+    mobile: 'Telefon',
+    cli: "CLI orqali qo'shish",
+    copy: 'Nusxalash',
+    copied: 'Nusxalandi',
+    open: "Blokni ko'rish",
+    resizeHint: "O'ng pastki burchakdan tortib kenglikni o'zgartiring",
+  },
   props: {
     prop: 'Prop',
     type: 'Tip',
@@ -35,10 +46,10 @@ const uz = {
     goLatest: "Eng so'nggisiga o'tish",
   },
   home: {
-    badge: "v0.3 — npm'da",
+    badge: "v0.4 — npm'da",
     titleTop: "O'zbek tiliga moslangan",
     titleAccent: 'React komponentlar',
-    lead: "Tailwind CSS v4 va Radix ustiga qurilgan 43 ta komponent, formatlash va validatsiya funksiyalari, hooklar va dizayn tokenlari. Telefon, karta va so'm — qutidan tayyor.",
+    lead: "Tailwind CSS v4 va Radix ustiga qurilgan 50 ta komponent, grafiklar va formalar, formatlash va validatsiya funksiyalari, hooklar, dizayn tokenlari va tayyor bloklar. Telefon, karta va so'm — qutidan tayyor.",
     start: 'Boshlash',
     components: "Komponentlarni ko'rish",
     copy: 'Nusxalash',
@@ -69,8 +80,8 @@ const uz = {
       },
       {
         icon: 'boxes',
-        title: '43 ta komponent',
-        text: "Tugmadan tortib DataTable, DatePicker, CommandPalette va VirtualList'gacha.",
+        title: '50 ta komponent',
+        text: "Tugmadan tortib DataTable, DatePicker, CommandPalette, grafiklar va AppShell'gacha.",
       },
       {
         icon: 'leaf',
@@ -129,6 +140,17 @@ const en: Dictionary = {
     code: 'Code',
     notFound: 'Demo not found',
   },
+  blocks: {
+    viewport: 'Preview width',
+    desktop: 'Desktop',
+    tablet: 'Tablet',
+    mobile: 'Mobile',
+    cli: 'Add with the CLI',
+    copy: 'Copy',
+    copied: 'Copied',
+    open: 'View block',
+    resizeHint: 'Drag the bottom-right corner to resize',
+  },
   props: {
     prop: 'Prop',
     type: 'Type',
@@ -147,10 +169,10 @@ const en: Dictionary = {
     goLatest: 'Go to the latest docs',
   },
   home: {
-    badge: 'v0.3 — on npm',
+    badge: 'v0.4 — on npm',
     titleTop: 'React components',
     titleAccent: 'built for Uzbek',
-    lead: "Thirty-two components on Tailwind CSS v4 and Radix, plus formatting and validation helpers, hooks and design tokens. Phone numbers, cards and so'm amounts work out of the box.",
+    lead: "50 components on Tailwind CSS v4 and Radix, plus charts and forms, formatting and validation helpers, hooks, design tokens and ready-made blocks. Phone numbers, cards and so'm amounts work out of the box.",
     start: 'Get started',
     components: 'Browse components',
     copy: 'Copy',
@@ -181,8 +203,8 @@ const en: Dictionary = {
       },
       {
         icon: 'boxes',
-        title: '43 components',
-        text: 'From buttons all the way to DataTable, DatePicker, CommandPalette and VirtualList.',
+        title: '50 components',
+        text: 'From buttons all the way to DataTable, DatePicker, CommandPalette, charts and AppShell.',
       },
       {
         icon: 'leaf',

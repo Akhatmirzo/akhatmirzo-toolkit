@@ -1,0 +1,39 @@
+---
+title: 'Register'
+description: 'Sign-up form with name, +998 phone, a password strength meter and terms consent.'
+full: true
+---
+
+<BlockPreview name="register" />
+
+## What's inside
+
+- First and last name sit side by side in wide containers and stack in narrow ones.
+- Password strength — `passwordStrength` drives a live `Progress` bar and checklist.
+- After the first submit, errors update as you type.
+- Terms consent — a `Checkbox` with links in its label.
+
+## Components used
+
+- [Card](../components/card.mdx)
+- [Field](../components/field.mdx)
+- [Input](../components/input.mdx)
+- [PhoneInput](../components/masked-input.mdx)
+- [Progress](../components/progress.mdx)
+- [Checkbox](../components/checkbox.mdx)
+- [Button](../components/button.mdx)
+- [toast](../components/toast.mdx)
+- [`passwordStrength, parsePhone`](../core/validate.mdx)
+
+## Installation
+
+The CLI copies the block file into your project (`components/blocks/register.tsx`) and offers to
+install the packages it needs:
+
+```bash
+npx @akhatmirzo/cli add register
+```
+
+Manually: install the packages and copy the file from the "Code" tab into your project.
+
+<BlockInstall name="register" />

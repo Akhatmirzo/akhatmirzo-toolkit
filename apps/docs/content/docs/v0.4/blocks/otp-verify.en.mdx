@@ -1,0 +1,36 @@
+---
+title: 'OTP verification'
+description: 'Verify a 6-digit SMS code: OtpInput, a useCountdown resend timer and limited attempts.'
+full: true
+---
+
+<BlockPreview name="otp-verify" />
+
+## What's inside
+
+- The code is checked automatically once complete (`onComplete`); the test code is `246810`.
+- A wrong code marks the field `invalid` and shows the remaining attempts.
+- The resend button stays disabled until `useCountdown(59)` finishes.
+- A success state after verification.
+
+## Components used
+
+- [Card](../components/card.mdx)
+- [Field](../components/field.mdx)
+- [OtpInput](../components/otp-input.mdx)
+- [Button](../components/button.mdx)
+- [toast](../components/toast.mdx)
+- [`useCountdown`](../hooks.mdx)
+
+## Installation
+
+The CLI copies the block file into your project (`components/blocks/otp-verify.tsx`) and offers to
+install the packages it needs:
+
+```bash
+npx @akhatmirzo/cli add otp-verify
+```
+
+Manually: install the packages and copy the file from the "Code" tab into your project.
+
+<BlockInstall name="otp-verify" />

@@ -30,7 +30,7 @@ import {
 
 ## Numbers and money
 
-<ComponentPreview name="core/money" />
+<ComponentPreview name="archive/v0.3/core/money" />
 
 ### formatNumber
 
@@ -128,7 +128,7 @@ formatFileSize(-1); // ''
 Both functions format **progressively** — incomplete numbers too. That means you can call them
 while the user types, right inside `onChange`:
 
-<ComponentPreview name="core/phone-card" />
+<ComponentPreview name="archive/v0.3/core/phone-card" />
 
 ### formatPhone
 
@@ -172,7 +172,7 @@ To check whether the number is valid, use
 
 ## Dates and time
 
-<ComponentPreview name="core/date" />
+<ComponentPreview name="archive/v0.3/core/date" />
 
 ### formatDate
 
@@ -236,7 +236,7 @@ than a minute is "hozirgina" (just now); up to a day, you get minutes or hours. 
 are counted by the calendar: 23:00 on Oct 19 seen from 08:00 on Oct 21 (33 hours) is
 "2 kun oldin". `now` is the reference point and defaults to `new Date()`.
 
-<ComponentPreview name="core/time-ago" />
+<ComponentPreview name="archive/v0.3/core/time-ago" />
 
 ```ts
 const now = new Date(2026, 9, 21, 12, 0);
@@ -278,7 +278,7 @@ The short names for June and July are `Iyn` and `Iyl`, so they don't collide.
 
 For invoices, contracts and receipts — spell out a number or an amount in Uzbek.
 
-<ComponentPreview name="core/number-words" />
+<ComponentPreview name="archive/v0.3/core/number-words" />
 
 <Callout title="Script and apostrophe">
   Every new function that returns text accepts `script: 'latin' | 'cyrillic'` (default `'latin'`;
@@ -410,7 +410,7 @@ Following Uzbek orthography: month names in lowercase, day and year joined with 
 `22-oktabr`, `2026-yil`. The existing `formatDate` and `MONTHS_UZ` are unchanged (capitalized names
 are kept).
 
-<ComponentPreview name="core/date-uz" />
+<ComponentPreview name="archive/v0.3/core/date-uz" />
 
 ### formatDateUz
 

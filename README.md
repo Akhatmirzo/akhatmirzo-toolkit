@@ -2,8 +2,8 @@
 
 # @akhatmirzo toolkit
 
-**O'zbek tilida o'ylab yaratilgan React komponentlar, dizayn tokenlari, hooklar va yordamchi
-funksiyalar.**
+**O'zbek tilida o'ylab yaratilgan React komponentlar, grafiklar va formalar, dizayn tokenlari,
+hooklar, yordamchi funksiyalar va tayyor bloklar uchun CLI.**
 
 [![npm](https://img.shields.io/npm/v/@akhatmirzo/ui?label=%40akhatmirzo%2Fui&color=4f46e5)](https://www.npmjs.com/package/@akhatmirzo/ui)
 [![npm yuklab olishlar](https://img.shields.io/npm/dm/@akhatmirzo/ui?label=yuklab%20olishlar)](https://www.npmjs.com/package/@akhatmirzo/ui)
@@ -12,7 +12,7 @@ funksiyalar.**
 [![Litsenziya: MIT](https://img.shields.io/badge/litsenziya-MIT-22c55e)](LICENSE)
 
 [**Hujjatlar**](https://toolkit.akhatmirzo.uz) ·
-[O'rnatish](https://toolkit.akhatmirzo.uz/uz/docs/v0.3/installation) ·
+[O'rnatish](https://toolkit.akhatmirzo.uz/uz/docs/v0.4/installation) ·
 [Komponentlar](#komponentlar) ·
 [English](#english)
 
@@ -41,6 +41,9 @@ hammasi bu yerda **standart holatda** ishlaydi. Har loyihada qaytadan yozish sha
 - **Tree-shaking.** Paketlar ESM, `sideEffects: false`. Faqat import qilgan narsangiz bundle'ga
   tushadi.
 - **TypeScript.** `strict` rejimda yozilgan, barcha props va funksiyalar to'liq tiplangan.
+- **Grafiklar, formalar, bloklar.** Recharts asosidagi grafiklar, react-hook-form + `zUz` zod
+  sxemalari bilan formalar va `npx @akhatmirzo/cli add login` bilan kodingizga ko'chiriladigan
+  tayyor bloklar.
 - **Bog'liqliksiz yadro.** `@akhatmirzo/core` hech qanday paketga bog'liq emas va React'siz
   ishlaydi — uni backend'da yoki boshqa freymvorkda ham ishlatish mumkin.
 
@@ -112,16 +115,17 @@ export function ContactForm() {
 ```
 
 Next.js (App Router) bilan ishlatish, dark mode va mavzuni moslash —
-[o'rnatish qo'llanmasida](https://toolkit.akhatmirzo.uz/uz/docs/v0.3/installation).
+[o'rnatish qo'llanmasida](https://toolkit.akhatmirzo.uz/uz/docs/v0.4/installation).
 
 ## Paketlar
 
 | Paket                                     | Versiya                                                                                                                | Vazifasi                                                                    |
 | ----------------------------------------- | ---------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------- |
-| [`@akhatmirzo/ui`](packages/ui)           | [![npm](https://img.shields.io/npm/v/@akhatmirzo/ui?label=)](https://www.npmjs.com/package/@akhatmirzo/ui)             | 43 ta komponent oilasi (Tailwind v4 + Radix)                                 |
+| [`@akhatmirzo/ui`](packages/ui)           | [![npm](https://img.shields.io/npm/v/@akhatmirzo/ui?label=)](https://www.npmjs.com/package/@akhatmirzo/ui)             | 50 ta komponent oilasi (Tailwind v4 + Radix), `/charts` va `/form`          |
 | [`@akhatmirzo/tokens`](packages/tokens)   | [![npm](https://img.shields.io/npm/v/@akhatmirzo/tokens?label=)](https://www.npmjs.com/package/@akhatmirzo/tokens)     | Dizayn tokenlari: CSS o'zgaruvchilari va Tailwind v4 `@theme`               |
-| [`@akhatmirzo/core`](packages/core)       | [![npm](https://img.shields.io/npm/v/@akhatmirzo/core?label=)](https://www.npmjs.com/package/@akhatmirzo/core)         | Formatlash, validatsiya, matn, storage va API — React'siz, bog'liqliksiz    |
-| [`@akhatmirzo/hooks`](packages/hooks)     | [![npm](https://img.shields.io/npm/v/@akhatmirzo/hooks?label=)](https://www.npmjs.com/package/@akhatmirzo/hooks)       | React hooklar: `useDebounce`, `useHotkeys`, `useLocalStorage` va boshqalar  |
+| [`@akhatmirzo/core`](packages/core)       | [![npm](https://img.shields.io/npm/v/@akhatmirzo/core?label=)](https://www.npmjs.com/package/@akhatmirzo/core)         | Formatlash, validatsiya, matn, hujjat raqamlari, storage va API; `/zod` — `zUz` sxemalari |
+| [`@akhatmirzo/hooks`](packages/hooks)     | [![npm](https://img.shields.io/npm/v/@akhatmirzo/hooks?label=)](https://www.npmjs.com/package/@akhatmirzo/hooks)       | 27 ta React hook: `useDebounce`, `useHotkeys`, `useCountdown` va boshqalar   |
+| [`@akhatmirzo/cli`](packages/cli)         | [![npm](https://img.shields.io/npm/v/@akhatmirzo/cli?label=)](https://www.npmjs.com/package/@akhatmirzo/cli)           | `npx @akhatmirzo/cli init \| add \| list` — sozlash va tayyor bloklar |
 
 `@akhatmirzo/ui` o'zi `core` va `hooks` ni bog'liqlik sifatida oladi. Ularni kodingizda
 to'g'ridan-to'g'ri import qilsangiz, `package.json` ga ham qo'shing.
@@ -132,17 +136,35 @@ Har bir nom hujjatdagi sahifasiga olib boradi — jonli demo, kod va props jadva
 
 | Bo'lim | Komponentlar |
 | --- | --- |
-| Asoslar     | [Button](https://toolkit.akhatmirzo.uz/uz/docs/v0.3/components/button) · [IconButton](https://toolkit.akhatmirzo.uz/uz/docs/v0.3/components/icon-button) · [Kbd](https://toolkit.akhatmirzo.uz/uz/docs/v0.3/components/kbd) · [Spinner](https://toolkit.akhatmirzo.uz/uz/docs/v0.3/components/spinner) |
-| Formalar    | [Field](https://toolkit.akhatmirzo.uz/uz/docs/v0.3/components/field) · [Input](https://toolkit.akhatmirzo.uz/uz/docs/v0.3/components/input) · [Textarea](https://toolkit.akhatmirzo.uz/uz/docs/v0.3/components/textarea) · [Select](https://toolkit.akhatmirzo.uz/uz/docs/v0.3/components/select) · [Combobox](https://toolkit.akhatmirzo.uz/uz/docs/v0.3/components/combobox) · [DatePicker, DateRangePicker, Calendar](https://toolkit.akhatmirzo.uz/uz/docs/v0.3/components/date-picker) · [PhoneInput, MoneyInput, CardInput, MaskedInput](https://toolkit.akhatmirzo.uz/uz/docs/v0.3/components/masked-input) · [OtpInput](https://toolkit.akhatmirzo.uz/uz/docs/v0.3/components/otp-input) · [FileUpload](https://toolkit.akhatmirzo.uz/uz/docs/v0.3/components/file-upload) · [PinflInput, PassportInput, InnInput, CarPlateInput, BankAccountInput](https://toolkit.akhatmirzo.uz/uz/docs/v0.3/components/document-inputs) · [RegionSelect](https://toolkit.akhatmirzo.uz/uz/docs/v0.3/components/select#regionselect) |
-| Tanlov      | [Checkbox](https://toolkit.akhatmirzo.uz/uz/docs/v0.3/components/checkbox) · [RadioGroup](https://toolkit.akhatmirzo.uz/uz/docs/v0.3/components/radio-group) · [Switch](https://toolkit.akhatmirzo.uz/uz/docs/v0.3/components/switch) · [Slider](https://toolkit.akhatmirzo.uz/uz/docs/v0.3/components/slider) · [SegmentedControl](https://toolkit.akhatmirzo.uz/uz/docs/v0.3/components/segmented-control) |
-| Ko'rsatish  | [Badge](https://toolkit.akhatmirzo.uz/uz/docs/v0.3/components/badge) · [Avatar, AvatarGroup](https://toolkit.akhatmirzo.uz/uz/docs/v0.3/components/avatar) · [Card](https://toolkit.akhatmirzo.uz/uz/docs/v0.3/components/card) · [Skeleton](https://toolkit.akhatmirzo.uz/uz/docs/v0.3/components/skeleton) · [Divider](https://toolkit.akhatmirzo.uz/uz/docs/v0.3/components/divider) · [Alert](https://toolkit.akhatmirzo.uz/uz/docs/v0.3/components/alert) · [Progress, ProgressCircle](https://toolkit.akhatmirzo.uz/uz/docs/v0.3/components/progress) · [EmptyState](https://toolkit.akhatmirzo.uz/uz/docs/v0.3/components/empty-state) |
-| Overlay     | [Dialog, confirm()](https://toolkit.akhatmirzo.uz/uz/docs/v0.3/components/dialog) · [Drawer](https://toolkit.akhatmirzo.uz/uz/docs/v0.3/components/drawer) · [Popover](https://toolkit.akhatmirzo.uz/uz/docs/v0.3/components/popover) · [Tooltip](https://toolkit.akhatmirzo.uz/uz/docs/v0.3/components/tooltip) · [Toast, toast()](https://toolkit.akhatmirzo.uz/uz/docs/v0.3/components/toast) · [DropdownMenu](https://toolkit.akhatmirzo.uz/uz/docs/v0.3/components/dropdown-menu) · [CommandPalette](https://toolkit.akhatmirzo.uz/uz/docs/v0.3/components/command-palette) |
-| Navigatsiya | [Tabs](https://toolkit.akhatmirzo.uz/uz/docs/v0.3/components/tabs) · [Accordion](https://toolkit.akhatmirzo.uz/uz/docs/v0.3/components/accordion) · [Pagination, PaginationInfo](https://toolkit.akhatmirzo.uz/uz/docs/v0.3/components/pagination) · [Breadcrumb](https://toolkit.akhatmirzo.uz/uz/docs/v0.3/components/breadcrumb) · [Stepper](https://toolkit.akhatmirzo.uz/uz/docs/v0.3/components/stepper) · [ScriptProvider, ScriptToggle, Translit](https://toolkit.akhatmirzo.uz/uz/docs/v0.3/components/script) |
-| Ma'lumotlar | [DataTable](https://toolkit.akhatmirzo.uz/uz/docs/v0.3/components/data-table) · [VirtualList](https://toolkit.akhatmirzo.uz/uz/docs/v0.3/components/virtual-list) |
+| Asoslar     | [Button](https://toolkit.akhatmirzo.uz/uz/docs/v0.4/components/button) · [IconButton](https://toolkit.akhatmirzo.uz/uz/docs/v0.4/components/icon-button) · [Kbd](https://toolkit.akhatmirzo.uz/uz/docs/v0.4/components/kbd) · [Spinner](https://toolkit.akhatmirzo.uz/uz/docs/v0.4/components/spinner) |
+| Formalar    | [Field](https://toolkit.akhatmirzo.uz/uz/docs/v0.4/components/field) · [Input](https://toolkit.akhatmirzo.uz/uz/docs/v0.4/components/input) · [Textarea](https://toolkit.akhatmirzo.uz/uz/docs/v0.4/components/textarea) · [Select](https://toolkit.akhatmirzo.uz/uz/docs/v0.4/components/select) · [Combobox](https://toolkit.akhatmirzo.uz/uz/docs/v0.4/components/combobox) · [DatePicker, DateRangePicker, Calendar](https://toolkit.akhatmirzo.uz/uz/docs/v0.4/components/date-picker) · [PhoneInput, MoneyInput, CardInput, MaskedInput](https://toolkit.akhatmirzo.uz/uz/docs/v0.4/components/masked-input) · [OtpInput](https://toolkit.akhatmirzo.uz/uz/docs/v0.4/components/otp-input) · [FileUpload](https://toolkit.akhatmirzo.uz/uz/docs/v0.4/components/file-upload) · [TagInput](https://toolkit.akhatmirzo.uz/uz/docs/v0.4/components/tag-input) · [ColorPicker](https://toolkit.akhatmirzo.uz/uz/docs/v0.4/components/color-picker) · [PinflInput, PassportInput, InnInput, CarPlateInput, BankAccountInput](https://toolkit.akhatmirzo.uz/uz/docs/v0.4/components/document-inputs) · [RegionSelect](https://toolkit.akhatmirzo.uz/uz/docs/v0.4/components/select#regionselect) |
+| Tanlov      | [Checkbox](https://toolkit.akhatmirzo.uz/uz/docs/v0.4/components/checkbox) · [RadioGroup](https://toolkit.akhatmirzo.uz/uz/docs/v0.4/components/radio-group) · [Switch](https://toolkit.akhatmirzo.uz/uz/docs/v0.4/components/switch) · [Slider](https://toolkit.akhatmirzo.uz/uz/docs/v0.4/components/slider) · [SegmentedControl](https://toolkit.akhatmirzo.uz/uz/docs/v0.4/components/segmented-control) · [Rating](https://toolkit.akhatmirzo.uz/uz/docs/v0.4/components/rating) |
+| Ko'rsatish  | [Badge](https://toolkit.akhatmirzo.uz/uz/docs/v0.4/components/badge) · [Avatar, AvatarGroup](https://toolkit.akhatmirzo.uz/uz/docs/v0.4/components/avatar) · [Card](https://toolkit.akhatmirzo.uz/uz/docs/v0.4/components/card) · [Skeleton](https://toolkit.akhatmirzo.uz/uz/docs/v0.4/components/skeleton) · [Divider](https://toolkit.akhatmirzo.uz/uz/docs/v0.4/components/divider) · [Alert](https://toolkit.akhatmirzo.uz/uz/docs/v0.4/components/alert) · [Progress, ProgressCircle](https://toolkit.akhatmirzo.uz/uz/docs/v0.4/components/progress) · [EmptyState](https://toolkit.akhatmirzo.uz/uz/docs/v0.4/components/empty-state) |
+| Overlay     | [Dialog, confirm()](https://toolkit.akhatmirzo.uz/uz/docs/v0.4/components/dialog) · [Drawer](https://toolkit.akhatmirzo.uz/uz/docs/v0.4/components/drawer) · [Popover](https://toolkit.akhatmirzo.uz/uz/docs/v0.4/components/popover) · [Tooltip](https://toolkit.akhatmirzo.uz/uz/docs/v0.4/components/tooltip) · [Toast, toast()](https://toolkit.akhatmirzo.uz/uz/docs/v0.4/components/toast) · [DropdownMenu](https://toolkit.akhatmirzo.uz/uz/docs/v0.4/components/dropdown-menu) · [CommandPalette](https://toolkit.akhatmirzo.uz/uz/docs/v0.4/components/command-palette) · [ContextMenu](https://toolkit.akhatmirzo.uz/uz/docs/v0.4/components/context-menu) · [HoverCard](https://toolkit.akhatmirzo.uz/uz/docs/v0.4/components/hover-card) |
+| Navigatsiya | [Tabs](https://toolkit.akhatmirzo.uz/uz/docs/v0.4/components/tabs) · [Accordion](https://toolkit.akhatmirzo.uz/uz/docs/v0.4/components/accordion) · [Pagination, PaginationInfo](https://toolkit.akhatmirzo.uz/uz/docs/v0.4/components/pagination) · [Breadcrumb](https://toolkit.akhatmirzo.uz/uz/docs/v0.4/components/breadcrumb) · [Stepper](https://toolkit.akhatmirzo.uz/uz/docs/v0.4/components/stepper) · [ScriptProvider, ScriptToggle, Translit](https://toolkit.akhatmirzo.uz/uz/docs/v0.4/components/script) |
+| Ma'lumotlar | [DataTable](https://toolkit.akhatmirzo.uz/uz/docs/v0.4/components/data-table) · [VirtualList](https://toolkit.akhatmirzo.uz/uz/docs/v0.4/components/virtual-list) · [Charts](https://toolkit.akhatmirzo.uz/uz/docs/v0.4/components/charts) |
+| Layout      | [AppShell, Sidebar](https://toolkit.akhatmirzo.uz/uz/docs/v0.4/components/app-shell) |
+
+Jami **50 ta komponent oilasi**. Grafiklar `@akhatmirzo/ui/charts` (`recharts` kerak), formalar
+esa `@akhatmirzo/ui/form` (`react-hook-form` kerak) kirish nuqtasidan olinadi — asosiy import
+ularni tortmaydi.
 
 Umumiy qoidalar: boshqaruv elementlarida `size="sm" | "md" | "lg"` (32 / 40 / 48 px),
 `className`, `ref` va qolgan HTML atributlari; holatlar `data-*` atributlarida (`data-state`,
 `data-disabled` ...) — ularga CSS'dan bemalol ulanish mumkin.
+
+## Bloklar va CLI
+
+Tayyor sahifa bo'laklari — kirish, ro'yxatdan o'tish, SMS kod, narxlar, dashboard, jadval sahifasi,
+sozlamalar, to'lov, AppShell layout. CLI ularni paket ichidan emas, **sizning kodingizga**
+ko'chiradi:
+
+```bash
+npx @akhatmirzo/cli init        # paketlar + CSS sozlamasi (tokenlar, @source)
+npx @akhatmirzo/cli add login   # blokni components/blocks ga ko'chirish
+```
+
+Bloklar: [hujjatlarda](https://toolkit.akhatmirzo.uz/uz/docs/v0.4/blocks) · CLI: [packages/cli](packages/cli#readme).
 
 ## Core va hooks — qisqa misollar
 
@@ -154,6 +176,7 @@ import {
   formatMoney,
   formatPhone,
   normalizeUz,
+  numberToWords,
   parsePhone,
   searchMatch,
   timeAgo,
@@ -168,6 +191,15 @@ timeAgo(new Date(Date.now() - 5 * 60_000)); // '5 daqiqa oldin'
 cyrToLat('Ўзбекистон'); // "O'zbekiston"
 normalizeUz('Gʻuzor') === normalizeUz("G'uzor"); // true
 searchMatch('Toshkent', 'тош'); // { match: true, ranges: [[0, 4]] }
+numberToWords(1_250_000); // 'bir million ikki yuz ellik ming'
+```
+
+```ts
+import { zUz } from '@akhatmirzo/core/zod'; // zod v4 — ixtiyoriy peer
+import { z } from 'zod';
+
+const schema = z.object({ phone: zUz.phone(), pinfl: zUz.pinfl(), amount: zUz.money() });
+// '+998 90 123-45-67' → '998901234567', '1 250 000' → 1250000; xatolar o'zbekcha
 ```
 
 ```tsx
@@ -185,7 +217,7 @@ function Search() {
 
 Barcha funksiyalar: [core](packages/core#readme) ·
 [hooks](packages/hooks#readme) ·
-[hujjatlarda](https://toolkit.akhatmirzo.uz/uz/docs/v0.3/core/format).
+[hujjatlarda](https://toolkit.akhatmirzo.uz/uz/docs/v0.4/core/format).
 
 ## Brauzerlar
 
@@ -223,6 +255,7 @@ pnpm dev                      # playground → http://localhost:5173
 
 ```
 packages/
+  cli/       @akhatmirzo/cli     — init / add / list
   core/      @akhatmirzo/core    — toza TypeScript funksiyalar
   hooks/     @akhatmirzo/hooks   — React hooklar
   tokens/    @akhatmirzo/tokens  — theme.css
@@ -274,7 +307,8 @@ Hujjatlar sayti har bir minor versiya uchun alohida saqlanadi (`v0.1`, `v0.2` ..
 versiyani ishlatayotgan bo'lsangiz ham, unga mos sahifalarni topasiz.
 
 O'zgarishlar tarixi: [ui](packages/ui/CHANGELOG.md) · [core](packages/core/CHANGELOG.md) ·
-[hooks](packages/hooks/CHANGELOG.md) · [tokens](packages/tokens/CHANGELOG.md).
+[hooks](packages/hooks/CHANGELOG.md) · [tokens](packages/tokens/CHANGELOG.md) ·
+[cli](packages/cli/CHANGELOG.md).
 
 ## Litsenziya
 
@@ -284,7 +318,8 @@ O'zgarishlar tarixi: [ui](packages/ui/CHANGELOG.md) · [core](packages/core/CHAN
 
 ## English
 
-**React components, design tokens, hooks and utilities built with Uzbek in mind.**
+**React components, charts and forms, design tokens, hooks, utilities and a blocks CLI — built
+with Uzbek in mind.**
 
 Phone numbers render as `+998 90 123 45 67`, amounts as `1 250 000 so'm`, search treats Latin and
 Cyrillic (and every apostrophe variant) as the same text, and calendars start on Monday — all out
@@ -330,10 +365,14 @@ export function App() {
 
 | Package              | What it does                                                    |
 | -------------------- | --------------------------------------------------------------- |
-| `@akhatmirzo/ui`     | 43 component families (Tailwind v4 + Radix)                       |
+| `@akhatmirzo/ui`     | 50 component families (Tailwind v4 + Radix); `/charts` (Recharts) and `/form` (react-hook-form) |
 | `@akhatmirzo/tokens` | Design tokens as CSS variables and a Tailwind v4 `@theme`       |
-| `@akhatmirzo/core`   | Formatting, validation, text, storage and API helpers — no deps |
-| `@akhatmirzo/hooks`  | React hooks: `useDebounce`, `useHotkeys`, `useLocalStorage` ... |
+| `@akhatmirzo/core`   | Formatting, validation, text, identifiers, storage and API helpers — no deps; `/zod` with `zUz` schemas |
+| `@akhatmirzo/hooks`  | 27 React hooks: `useDebounce`, `useHotkeys`, `useCountdown` ... |
+| `@akhatmirzo/cli`    | `npx @akhatmirzo/cli init \| add \| list` — setup and ready-made blocks |
+
+Ready-made blocks (login, register, OTP, pricing, dashboard, data table page, settings, checkout,
+app shell) are copied into your own code with `npx @akhatmirzo/cli add login`.
 
 Browser support follows Tailwind CSS v4: Chrome/Edge 111+, Safari 16.4+, Firefox 128+.
 

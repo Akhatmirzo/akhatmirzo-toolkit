@@ -1,0 +1,266 @@
+---
+title: Storage and API
+description: Storage with expiry (TTL) and a light API client that reports errors in Uzbek.
+---
+
+Two small things every project ends up needing: a safe wrapper around `localStorage` and an API
+client on top of `fetch`. Both have no dependencies and work during SSR.
+
+```ts
+import { createStorage, createApiClient, isApiError } from '@akhatmirzo/core';
+```
+
+## Storage
+
+<ComponentPreview name="core/storage" />
+
+### createStorage
+
+```ts
+function createStorage(options?: CreateStorageOptions): TypedStorage;
+```
+
+A wrapper around `localStorage` (or any other storage): it stores values as JSON, supports expiry
+(`ttl`) and **never throws**. When storage is missing (SSR), blocked (private mode) or full, it
+quietly does nothing: `set` returns `false` and `get` returns `null`.
+
+```ts title="lib/storage.ts"
+import { createStorage } from '@akhatmirzo/core';
+
+export const storage = createStorage({ prefix: 'app:' });
+
+storage.set('token', 'abc', { ttl: 60 * 60 * 1000 }); // true — expires in 1 hour
+storage.get<string>('token'); // 'abc'
+storage.get<string[]>('recent', []); // [] — fallback when the key is missing
+storage.set('user', { id: 7, name: 'Sarvar' }); // objects work too
+storage.set('user', undefined); // removes the key
+storage.remove('token');
+storage.clear(); // only keys that start with "app:"
+```
+
+<PropsTable
+  rows={[
+    { name: 'prefix', type: 'string', description: "Prepended to every key, e.g. 'app:'" },
+    {
+      name: 'storage',
+      type: 'StorageLike',
+      default: 'localStorage',
+      description: 'sessionStorage, createMemoryStorage() or any object with the same interface',
+    },
+  ]}
+/>
+
+`TypedStorage` methods:
+
+| Method                      | What it does                                                                             |
+| --------------------------- | ---------------------------------------------------------------------------------------- |
+| `get<T>(key)`               | The value, or `null` (missing, expired or broken JSON)                                   |
+| `get<T>(key, fallback)`     | The value, or `fallback`                                                                 |
+| `set(key, value, { ttl? })` | Stores as JSON; `ttl` is in milliseconds. `undefined` removes the key. Returns `boolean` |
+| `remove(key)`               | Removes the key                                                                          |
+| `clear()`                   | Removes the prefixed keys (all keys when there's no prefix)                              |
+
+Reading an expired entry returns `null` and removes it from storage.
+
+<Callout type="warn" title="Don't share a key with useLocalStorage">
+  `createStorage` writes values inside a `{"v": ..., "e": ...}` envelope, while `useLocalStorage`
+  ([hooks](../hooks.mdx#uselocalstorage)) writes plain JSON. If both read the same key, they won't
+  understand each other.
+</Callout>
+
+### createMemoryStorage
+
+```ts
+function createMemoryStorage(): StorageLike;
+```
+
+An in-memory storage — for tests, or for environments with no `localStorage` at all.
+
+```ts
+const storage = createStorage({ storage: createMemoryStorage() });
+```
+
+## API client
+
+<ComponentPreview name="core/api-errors" />
+
+Click the buttons: every HTTP status and the timeout turn into the same `ApiError` type with an
+Uzbek message. The demo uses a fake `fetch` instead of a real server.
+
+### createApiClient
+
+```ts
+function createApiClient(options: ApiClientOptions): ApiClient;
+```
+
+A light wrapper around `fetch`. Here's what it does:
+
+- builds the URL from `baseUrl` + path + `query` (`undefined` and `null` values are skipped);
+- serializes `body` to JSON and sets `Content-Type: application/json` (strings are sent as is);
+- adds `Authorization: Bearer <token>` when `getToken()` returns a value;
+- returns JSON or text based on the response `Content-Type`; 204, 205 or an empty body gives
+  `undefined`;
+- turns every failure — HTTP errors, network, timeout, abort — into **one** `ApiError` type.
+
+```ts title="lib/api.ts"
+import { createApiClient } from '@akhatmirzo/core';
+import { storage } from './storage';
+
+export const api = createApiClient({
+  baseUrl: 'https://api.example.uz/v1',
+  getToken: () => storage.get<string>('token'),
+  timeout: 10_000,
+});
+```
+
+```ts
+interface Order {
+  id: number;
+  total: number;
+}
+
+const orders = await api.get<Order[]>('/orders', { query: { page: 2, status: ['new', 'paid'] } });
+// GET https://api.example.uz/v1/orders?page=2&status=new&status=paid
+
+const created = await api.post<Order>('/orders', { total: 1250000 });
+await api.patch(`/orders/${created.id}`, { total: 1300000 });
+await api.delete(`/orders/${created.id}`); // 204 → undefined
+```
+
+<PropsTable
+  rows={[
+    {
+      name: 'baseUrl',
+      type: 'string',
+      required: true,
+      description: "For example 'https://api.example.uz/v1' or '/api'",
+    },
+    {
+      name: 'getToken',
+      type: '() => string | null | undefined | Promise<string | null | undefined>',
+      description: 'Called on every request; a value becomes the Bearer token',
+    },
+    {
+      name: 'timeout',
+      type: 'number',
+      default: '15000',
+      description: 'Milliseconds; 0 disables it',
+    },
+    {
+      name: 'headers',
+      type: 'Record<string, string>',
+      description: 'Headers added to every request',
+    },
+    {
+      name: 'fetch',
+      type: 'FetchLike',
+      default: 'globalThis.fetch',
+      description: 'Your own fetch (tests, Node, proxies)',
+    },
+  ]}
+/>
+
+`ApiClient` methods: `get(path, options?)`, `delete(path, options?)`,
+`post(path, body?, options?)`, `put(path, body?, options?)`, `patch(path, body?, options?)` and
+the general `request(method, path, options?)`. Per-request options:
+
+<PropsTable
+  rows={[
+    {
+      name: 'query',
+      type: 'Record<string, QueryValue | readonly QueryValue[]>',
+      description: 'undefined and null are skipped; an array repeats the key',
+    },
+    {
+      name: 'body',
+      type: 'unknown',
+      description: 'Only in request(); post/put/patch take it as the 2nd argument',
+    },
+    { name: 'headers', type: 'Record<string, string>', description: 'Headers for this request' },
+    { name: 'signal', type: 'AbortSignal', description: 'Cancels the request' },
+    {
+      name: 'timeout',
+      type: 'number',
+      description: 'Timeout for this request (ms); 0 disables it',
+    },
+  ]}
+/>
+
+### Handling errors
+
+```ts
+import { isApiError } from '@akhatmirzo/core';
+import { toast } from '@akhatmirzo/ui';
+
+try {
+  await api.post('/orders', form);
+} catch (error) {
+  if (!isApiError(error)) throw error;
+  if (error.code === 'HTTP' && error.status === 401) return logout();
+  toast.error(error.message); // "Serverda xatolik. Keyinroq urinib ko'ring."
+}
+```
+
+### ApiError
+
+```ts
+class ApiError extends Error {
+  name: string; // 'ApiError'
+  readonly status: number; // HTTP status; 0 for other errors
+  readonly code: 'HTTP' | 'NETWORK' | 'TIMEOUT' | 'ABORTED' | 'PARSE';
+  readonly data?: unknown; // the server response (JSON or text), if any
+}
+
+function isApiError(error: unknown): error is ApiError;
+```
+
+| `code`    | When                                   | `message`                                 |
+| --------- | -------------------------------------- | ----------------------------------------- |
+| `HTTP`    | The server returned 4xx or 5xx         | The server's `message` field or a default |
+| `NETWORK` | Couldn't connect                       | "Ulanib bo'lmadi. Internetni tekshiring." |
+| `TIMEOUT` | Took longer than `timeout`             | "So'rov vaqti tugadi."                    |
+| `ABORTED` | Cancelled through `signal`             | "So'rov bekor qilindi."                   |
+| `PARSE`   | The response claims JSON but is broken | "Server javobini o'qib bo'lmadi."         |
+
+For HTTP errors, if the server's JSON has a `message` string, that's what you get:
+`{ "message": "Buyurtma topilmadi" }` → `error.message === 'Buyurtma topilmadi'`. Otherwise it's
+`httpErrorMessage(status)`.
+
+### httpErrorMessage
+
+```ts
+function httpErrorMessage(status: number): string;
+```
+
+The default Uzbek message for an HTTP status:
+
+| Status | Message                                          | Meaning                             |
+| ------ | ------------------------------------------------ | ----------------------------------- |
+| 400    | So'rov noto'g'ri.                                | Bad request                         |
+| 401    | Avtorizatsiyadan o'tilmagan. Qaytadan kiring.    | Not signed in, please sign in again |
+| 403    | Bu amal uchun ruxsat yo'q.                       | Not allowed                         |
+| 404    | Topilmadi.                                       | Not found                           |
+| 409    | Ziddiyat: ma'lumot allaqachon o'zgargan.         | Conflict: the data has changed      |
+| 422    | Ma'lumotlar noto'g'ri to'ldirilgan.              | Invalid data                        |
+| 429    | Juda ko'p so'rov. Birozdan so'ng urinib ko'ring. | Too many requests                   |
+| 5xx    | Serverda xatolik. Keyinroq urinib ko'ring.       | Server error, try again later       |
+| other  | So'rov bajarilmadi (418).                        | Request failed (status)             |
+
+`API_MESSAGES` is an object with the messages for non-HTTP errors (`NETWORK`, `TIMEOUT`,
+`ABORTED`, `PARSE`).
+
+### buildUrl
+
+```ts
+function buildUrl(baseUrl: string, path: string, query?: QueryParams): string;
+```
+
+The URL builder the client uses internally — handy on its own too, for example for a download
+link. When `path` is a full URL, `baseUrl` is ignored.
+
+```ts
+buildUrl('/api/', '/users', { page: 2, q: undefined }); // '/api/users?page=2'
+buildUrl('/api', 'orders', { status: ['new', 'paid'] }); // '/api/orders?status=new&status=paid'
+buildUrl('/api', '/search?x=1', { page: 2 }); // '/api/search?x=1&page=2'
+buildUrl('/api', 'https://cdn.example.uz/x.json'); // 'https://cdn.example.uz/x.json'
+```

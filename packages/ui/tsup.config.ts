@@ -1,7 +1,11 @@
 import { defineConfig } from 'tsup';
 
 export default defineConfig({
-  entry: ['src/index.ts'],
+  entry: {
+    index: 'src/index.ts',
+    'charts/index': 'src/charts/index.ts',
+    'form/index': 'src/form/index.ts',
+  },
   format: ['esm'],
   dts: true,
   sourcemap: true,

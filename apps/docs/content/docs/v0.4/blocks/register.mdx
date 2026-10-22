@@ -1,0 +1,39 @@
+---
+title: "Ro'yxatdan o'tish"
+description: "Ism, +998 telefon, parol kuchi ko'rsatkichi va shartlarga rozilik bilan ro'yxatdan o'tish formasi."
+full: true
+---
+
+<BlockPreview name="register" />
+
+## Tarkibi
+
+- Ism va familiya keng konteynerda yonma-yon, torda ustma-ust.
+- Parol kuchi — `passwordStrength` natijasi `Progress` va shartlar ro'yxatida jonli ko'rinadi.
+- Xatolar birinchi yuborishdan keyin yozish paytida yangilanadi.
+- Shartlarga rozilik — havolali `Checkbox` yorlig'i.
+
+## Ishlatilgan komponentlar
+
+- [Card](../components/card.mdx)
+- [Field](../components/field.mdx)
+- [Input](../components/input.mdx)
+- [PhoneInput](../components/masked-input.mdx)
+- [Progress](../components/progress.mdx)
+- [Checkbox](../components/checkbox.mdx)
+- [Button](../components/button.mdx)
+- [toast](../components/toast.mdx)
+- [`passwordStrength, parsePhone`](../core/validate.mdx)
+
+## O'rnatish
+
+CLI blok faylini loyihangizga (`components/blocks/register.tsx`) ko'chiradi va kerakli paketlarni
+o'rnatishni taklif qiladi:
+
+```bash
+npx @akhatmirzo/cli add register
+```
+
+Qo'lda: paketlarni o'rnating va "Kod" tabidagi faylni loyihangizga nusxalang.
+
+<BlockInstall name="register" />

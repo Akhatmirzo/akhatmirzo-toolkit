@@ -1,0 +1,269 @@
+---
+title: Toast
+description: Short notifications with an imperative toast() API, promise tracking, an action button and stacking.
+---
+
+<ComponentPreview name="toast/types" />
+
+## Import
+
+```tsx
+import { toast, Toaster } from '@akhatmirzo/ui';
+```
+
+## When to use
+
+- **To report the result of an action** — "Saved", "Link copied", "Payment received". It doesn't
+  interrupt the user and goes away on its own.
+- **Undo** — after a delete, offer a "Restore" button through `action`. This is often friendlier
+  than `confirm()`, because you don't stop the user with a question.
+- **Progress of a longer task** — with `toast.promise()` or `toast.loading()` + `{ id }`, one
+  toast moves from "loading" to the result.
+- **A question that needs an answer** calls for [`confirm()`](./dialog.mdx), not a toast. A
+  field validation error belongs next to the field — in the `error` prop of `Field`.
+
+## Toaster setup
+
+`toast()` writes to a module-level store; `<Toaster />` renders it. Your app needs **exactly one**
+`<Toaster />` — without it, `toast()` doesn't throw, but nothing shows up.
+
+```tsx title="app/providers.tsx"
+'use client';
+
+import { Toaster } from '@akhatmirzo/ui';
+import type { ReactNode } from 'react';
+
+export function Providers({ children }: { children: ReactNode }) {
+  return (
+    <>
+      {children}
+      <Toaster position="bottom-right" />
+    </>
+  );
+}
+```
+
+After that, call `toast()` from anywhere — a component, an event handler, or even a plain
+function outside React (say, the error handler of your API client).
+
+## Types
+
+| Function          | Icon            | Default duration |
+| ----------------- | --------------- | ---------------- |
+| `toast()`         | none            | 4 s              |
+| `toast.success()` | green ✓         | 4 s              |
+| `toast.error()`   | red !           | 6 s              |
+| `toast.warning()` | yellow triangle | 4 s              |
+| `toast.info()`    | blue i          | 4 s              |
+| `toast.loading()` | spinner         | until updated    |
+
+Each function returns the toast `id`. `toast.dismiss(id)` closes one toast; `toast.dismiss()`
+closes them all.
+
+## Description and action
+
+`description` adds a second line. `action` adds a small button on the right: `{ label, onClick }`.
+Clicking it closes the toast; to keep it open, call `event.preventDefault()` inside `onClick`.
+
+<ComponentPreview name="toast/action" />
+
+```tsx
+toast('Product deleted', {
+  description: 'iPhone 15 Pro, 256 GB',
+  action: { label: 'Restore', onClick: () => restoreProduct(id) },
+});
+```
+
+## toast.promise()
+
+Tracks a promise: `loading` first, then `success` or `error` — all in a single toast. Pass
+functions for `success` and `error` to receive the result or the error. You can also pass a
+function that returns the promise. `toast.promise()` returns the original promise, so you can
+`await` it or attach `.catch()`.
+
+<ComponentPreview name="toast/promise" />
+
+```tsx
+const order = await toast.promise(api.saveOrder(data), {
+  loading: 'Saving...',
+  success: (o) => `Order #${o.id} saved`,
+  error: (e) => `Error: ${(e as Error).message}`,
+});
+```
+
+## Updating by id
+
+With `{ id }`, the toast with that id is updated (or created with that id if it doesn't exist).
+You can change its type, title and description; the timer starts over.
+
+<ComponentPreview name="toast/update" />
+
+## Stacking
+
+At most 3 toasts are visible at a time (`visibleToasts`); the rest wait in line with their timers
+paused. Visible toasts sit in a compact stack that fans out on hover or focus, and all timers
+pause meanwhile. Swipe a toast sideways to dismiss it.
+
+<ComponentPreview name="toast/stack" />
+
+## Props
+
+### toast(title, options?)
+
+`title` is a `ReactNode`. Every variant (`toast.success` ...) takes the same options except
+`type`.
+
+<PropsTable
+  rows={[
+    {
+      name: 'id',
+      type: 'string | number',
+      description: 'Updates the toast with this id, or creates one with it',
+    },
+    {
+      name: 'type',
+      type: "'default' | 'success' | 'error' | 'warning' | 'info' | 'loading'",
+      default: "'default'",
+      description: 'toast() only; the variants set it from their name',
+    },
+    { name: 'description', type: 'ReactNode', description: 'Second line' },
+    {
+      name: 'action',
+      type: '{ label: ReactNode; onClick?: (event) => void; altText?: string }',
+      description: "Button on the right. altText — for screen readers when label isn't text",
+    },
+    {
+      name: 'duration',
+      type: 'number',
+      default: '4000',
+      description: 'ms. error — 6000, loading — Infinity',
+    },
+    { name: 'icon', type: 'ReactNode', description: 'Replaces the status icon; null hides it' },
+    {
+      name: 'onDismiss',
+      type: '(id: ToastId) => void',
+      description: 'Called whenever the toast closes, for any reason',
+    },
+  ]}
+/>
+
+### toast.promise(promise, messages, options?)
+
+<PropsTable
+  rows={[
+    {
+      name: 'promise',
+      type: 'Promise<T> | (() => Promise<T>)',
+      required: true,
+      description: 'The promise to track, or a function that returns it',
+    },
+    { name: 'messages.loading', type: 'ReactNode', required: true, description: 'Pending text' },
+    {
+      name: 'messages.success',
+      type: 'ReactNode | ((data: T) => ReactNode)',
+      required: true,
+      description: 'Success text',
+    },
+    {
+      name: 'messages.error',
+      type: 'ReactNode | ((error: unknown) => ReactNode)',
+      required: true,
+      description: 'Error text',
+    },
+    {
+      name: 'options',
+      type: "Omit<ToastOptions, 'type' | 'duration'>",
+      description: 'description, action, icon ... (applied at every stage)',
+    },
+  ]}
+/>
+
+Returns the original `Promise<T>`.
+
+### Toaster
+
+<PropsTable
+  rows={[
+    {
+      name: 'position',
+      type: "'top-left' | 'top-center' | 'top-right' | 'bottom-left' | 'bottom-center' | 'bottom-right'",
+      default: "'bottom-right'",
+      description: 'On phones (< 640px), always at the bottom and full width',
+    },
+    {
+      name: 'duration',
+      type: 'number',
+      default: '4000',
+      description: 'Default duration, ms (error — 6000, loading — infinite)',
+    },
+    {
+      name: 'visibleToasts',
+      type: 'number',
+      default: '3',
+      description: 'How many toasts are visible at once',
+    },
+    {
+      name: 'gap',
+      type: 'number',
+      default: '8',
+      description: 'Gap between toasts when the stack is expanded, px',
+    },
+    {
+      name: 'closeButton',
+      type: 'boolean',
+      default: 'false',
+      description: 'A ✕ button on every toast',
+    },
+    {
+      name: 'hotkey',
+      type: 'string[]',
+      default: "['F8']",
+      description: 'Key that moves focus to the toast region',
+    },
+    {
+      name: 'labels',
+      type: '{ region?: string; toast?: string; close?: string }',
+      description: 'Screen reader texts (see below)',
+    },
+    { name: 'className', type: 'string', description: 'Class for the toast region (viewport)' },
+  ]}
+/>
+
+Default `labels` are Uzbek: `region` — `'Bildirishnomalar ({hotkey})'` (`{hotkey}` is replaced
+with the key name), `toast` — `'Bildirishnoma'` (the word announced before each toast), `close` —
+`'Yopish'`. For an English app:
+
+```tsx
+<Toaster labels={{ region: 'Notifications ({hotkey})', toast: 'Notification', close: 'Close' }} />
+```
+
+### Data attributes
+
+| Attribute       | On            | Value                                                            |
+| --------------- | ------------- | ---------------------------------------------------------------- |
+| `data-type`     | toast         | `default` · `success` · `error` · `warning` · `info` · `loading` |
+| `data-index`    | toast         | position in the stack (0 is the front)                           |
+| `data-front`    | toast         | present on the front toast                                       |
+| `data-expanded` | toast, region | present while the stack is expanded                              |
+| `data-position` | region        | the `position` value                                             |
+
+## Keyboard
+
+| Key               | Action                                     |
+| ----------------- | ------------------------------------------ |
+| `F8`              | Moves focus to the toast region (`hotkey`) |
+| `Tab`             | Moves between toasts and their buttons     |
+| `Esc`             | Closes the focused toast                   |
+| `Enter` / `Space` | Presses the action or ✕ button             |
+
+## Accessibility
+
+- **Announcements.** Toasts render with `role="status"`, so screen readers announce them without
+  interrupting. The `error` type uses `role="alert"` and is announced right away.
+- **Timers pause** while the pointer is over the toasts or focus is inside the region, so users
+  have time to read.
+- **Reachable by keyboard.** `F8` (or your `hotkey`) moves focus to the toast region, which is
+  labeled "Bildirishnomalar (F8)" by default.
+- **Action buttons.** If `label` isn't text (an icon, say), provide `altText` for screen readers.
+- **Queued toasts** are `inert`, so focus never lands on them.
+- **Reduced motion.** With `prefers-reduced-motion`, the slide becomes a fade.

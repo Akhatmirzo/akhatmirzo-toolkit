@@ -1,0 +1,171 @@
+---
+title: Dark mode
+description: "Qorong'i rejimni data-theme bilan yoqish, next-themes va mavzu almashtirgich."
+---
+
+Qorong'i rejim bitta atribut bilan yoqiladi:
+
+```html
+<html data-theme="dark"></html>
+```
+
+Shu atribut bo'lsa, barcha semantik tokenlar (`--ak-surface`, `--ak-text`, `--ak-primary-soft`
+...) dark qiymatlarga o'tadi va komponentlar qo'shimcha ishsiz qorong'i ko'rinishga keladi.
+Atribut bo'lmasa yoki `data-theme="light"` bo'lsa — light rejim. Tailwind'ning `dark:` varianti
+ham shu atributga bog'langan.
+
+<ComponentPreview name="theming/scoped" />
+
+<Callout title="Tizim sozlamasi avtomatik kuzatilmaydi">
+  `theme.css` `prefers-color-scheme` ga qaramaydi — qaysi rejim yoqilishini ilova hal qiladi.
+  Shunday qilib foydalanuvchi tanlovi, tizim sozlamasi va saqlangan qiymat o'rtasida ziddiyat
+  bo'lmaydi. Quyida ikkala usul ham ko'rsatilgan.
+</Callout>
+
+## next-themes bilan (Next.js)
+
+[next-themes](https://github.com/pacocoursey/next-themes) mavzuni saqlaydi, tizim sozlamasini
+kuzatadi va sahifa yuklanganda "oq chaqnash"ning oldini oladi. Unga atribut nomini ayting:
+
+<Install pkg="next-themes" />
+
+```tsx title="app/providers.tsx"
+'use client';
+
+import { ConfirmProvider, Toaster, TooltipProvider } from '@akhatmirzo/ui';
+import { ThemeProvider } from 'next-themes';
+import type { ReactNode } from 'react';
+
+export function Providers({ children }: { children: ReactNode }) {
+  return (
+    <ThemeProvider attribute="data-theme" defaultTheme="system" enableSystem>
+      <TooltipProvider>
+        <ConfirmProvider>
+          {children}
+          <Toaster />
+        </ConfirmProvider>
+      </TooltipProvider>
+    </ThemeProvider>
+  );
+}
+```
+
+next-themes `<html>` atributini sahifa chizilishidan oldin o'zgartiradi, shuning uchun
+`layout.tsx` da `suppressHydrationWarning` qo'ying:
+
+```tsx title="app/layout.tsx"
+<html lang="uz" suppressHydrationWarning>
+```
+
+Loyihada `class="dark"` ga tayanadigan boshqa kutubxona ham bo'lsa, ikkala atributni birga
+bering: `attribute={['class', 'data-theme']}`. Shu hujjatlar sayti ham aynan shunday ishlaydi.
+
+### Mavzu almashtirgich
+
+```tsx title="theme-toggle.tsx"
+'use client';
+
+import { IconButton } from '@akhatmirzo/ui';
+import { Moon, Sun } from 'lucide-react';
+import { useTheme } from 'next-themes';
+
+export function ThemeToggle() {
+  const { resolvedTheme, setTheme } = useTheme();
+  const dark = resolvedTheme === 'dark';
+
+  return (
+    <IconButton
+      variant="ghost"
+      aria-label={dark ? "Yorug' rejimga o'tish" : "Qorong'i rejimga o'tish"}
+      onClick={() => setTheme(dark ? 'light' : 'dark')}
+    >
+      {dark ? <Sun /> : <Moon />}
+    </IconButton>
+  );
+}
+```
+
+`resolvedTheme` server render'da `undefined` bo'ladi. Ikonka hydration'dan keyin almashsa,
+bu normal holat.
+
+## Kutubxonasiz (Vite va boshqalar)
+
+Mavzuni o'zingiz boshqarsangiz, ikki narsa kerak: sahifa chizilishidan **oldin** atributni
+qo'yadigan kichik skript va uni o'zgartiradigan hook.
+
+```html title="index.html"
+<head>
+  <script>
+    try {
+      // useLocalStorage qiymatni JSON qilib yozadi: "dark"
+      const saved = JSON.parse(localStorage.getItem('theme') || 'null');
+      const system = matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+      document.documentElement.dataset.theme = saved || system;
+    } catch {}
+  </script>
+</head>
+```
+
+```tsx title="use-theme.ts"
+import { useLocalStorage } from '@akhatmirzo/hooks';
+import { useEffect } from 'react';
+
+type Theme = 'light' | 'dark';
+
+export function useTheme() {
+  const [theme, setTheme] = useLocalStorage<Theme>('theme', () =>
+    document.documentElement.dataset.theme === 'dark' ? 'dark' : 'light',
+  );
+
+  useEffect(() => {
+    document.documentElement.dataset.theme = theme;
+  }, [theme]);
+
+  return [theme, setTheme] as const;
+}
+```
+
+<Callout type="warn" title="Skript nega kerak">
+  Atribut faqat React yuklangandan keyin qo'yilsa, foydalanuvchi bir lahzaga oq sahifani ko'radi.
+  `<head>` dagi skript bu chaqnashni yo'qotadi.
+</Callout>
+
+## Sahifaning bir qismida
+
+`data-theme` faqat `<html>` ga emas, istalgan elementga qo'yilishi mumkin — tokenlar shu element
+ichida almashadi. Yuqoridagi demo aynan shunday qurilgan: masalan, yorug' sahifada qorong'i
+footer yoki mavzularni yonma-yon solishtirish uchun.
+
+```tsx
+<footer data-theme="dark" className="bg-background text-text">
+  ...
+</footer>
+```
+
+<Callout type="warn" title="Overlay'lar portal orqali ochiladi">
+  `Dialog`, `Popover`, `DropdownMenu`, `Tooltip` va toast'lar `document.body` ga render bo'ladi,
+  shuning uchun ular blokning emas, `<html>` ning mavzusini oladi.
+</Callout>
+
+## Dark rejimda nima o'zgaradi
+
+- **Fonlar.** Sahifa — slate-900, karta va input — slate-800, popover va toast — bir pog'ona
+  ochroq (slate-750). Qorong'i rejimda "balandlik" soya bilan emas, ochroq fon bilan ko'rinadi.
+- **Soyalar.** `shadow-md` va undan kattalariga 1px halqa qo'shiladi.
+- **Primary tugma o'zgarmaydi** (indigo-600) — kontrast uchun. Hover, soft fonlar va havolalar
+  esa ochroq bo'ladi.
+- **Native elementlar.** `color-scheme: dark` o'rnatiladi — scrollbar, sana tanlagich va autofill
+  ham qorong'i rejimga o'tadi.
+
+## O'z stillaringizda
+
+Semantik tokenlar bilan yozsangiz, `dark:` deyarli kerak bo'lmaydi: `bg-surface text-text
+border-border` ikkala rejimda ham to'g'ri. `dark:` ni faqat haqiqatan boshqa qaror kerak bo'lgan
+joyda ishlating — masalan, rasmni qorong'i fonda xiraroq qilish uchun: `dark:opacity-80`.
+
+Tizim sozlamasini o'zingiz tekshirmoqchi bo'lsangiz —
+[`useMediaQuery`](./hooks.mdx#usemediaquery):
+
+```tsx
+const prefersDark = useMediaQuery('(prefers-color-scheme: dark)');
+```

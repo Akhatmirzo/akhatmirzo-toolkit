@@ -1,0 +1,46 @@
+---
+title: 'Ilova qolipi'
+description: "AppShell, Sidebar va Header bilan to'liq boshqaruv paneli qolipi: menyu, qidiruv, bildirishnomalar va profil."
+full: true
+---
+
+<BlockPreview name="app-shell-layout" height={640} resizable={false} />
+
+<Callout title="Telefon ko'rinishi">
+  `AppShell` telefon rejimiga brauzer oynasi kengligi (1024px) bo'yicha o'tadi, shuning uchun bu
+  blokda kenglik almashtirgich yo'q. Drawer'ni ko'rish uchun oynani toraytiring.
+</Callout>
+
+## Tarkibi
+
+- Sidebar guruhlari, nishonlar (`badge`) va pastda profil menyusi.
+- `Ctrl/⌘ + B` yoki tugma bilan sidebar yig'iladi; holat `localStorage` da saqlanadi.
+- 1024px dan tor oynada sidebar chapdan chiquvchi `Drawer` ga aylanadi.
+- Sahifa kontenti `@container` — o'z kengligiga qarab moslashadi.
+
+## Ishlatilgan komponentlar
+
+- [AppShell, Sidebar](../components/app-shell.mdx)
+- [Breadcrumb](../components/breadcrumb.mdx)
+- [Avatar](../components/avatar.mdx)
+- [DropdownMenu](../components/dropdown-menu.mdx)
+- [IconButton](../components/icon-button.mdx)
+- [Input](../components/input.mdx)
+- [Card](../components/card.mdx)
+- [Badge](../components/badge.mdx)
+- [Progress](../components/progress.mdx)
+- [Button](../components/button.mdx)
+- [`formatMoney`](../core/format.mdx)
+
+## O'rnatish
+
+CLI blok faylini loyihangizga (`components/blocks/app-shell-layout.tsx`) ko'chiradi va kerakli paketlarni
+o'rnatishni taklif qiladi:
+
+```bash
+npx @akhatmirzo/cli add app-shell-layout
+```
+
+Qo'lda: paketlarni o'rnating va "Kod" tabidagi faylni loyihangizga nusxalang.
+
+<BlockInstall name="app-shell-layout" />

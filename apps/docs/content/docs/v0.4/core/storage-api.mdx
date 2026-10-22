@@ -1,0 +1,269 @@
+---
+title: Storage va API
+description: "Muddatli (TTL) storage va xatolarni o'zbekcha qaytaruvchi yengil API klient."
+---
+
+Ikki kichik, lekin har loyihada kerak bo'ladigan narsa: `localStorage` ustidagi xavfsiz o'ram va
+`fetch` ustidagi API klient. Ikkalasi ham bog'liqliksiz va SSR'da ishlaydi.
+
+```ts
+import { createStorage, createApiClient, isApiError } from '@akhatmirzo/core';
+```
+
+## Storage
+
+<ComponentPreview name="core/storage" />
+
+### createStorage
+
+```ts
+function createStorage(options?: CreateStorageOptions): TypedStorage;
+```
+
+`localStorage` (yoki boshqa storage) ustidagi o'ram: qiymatlarni JSON qilib saqlaydi, muddat
+(`ttl`) qo'llab-quvvatlaydi va **hech qachon xato otmaydi**. Storage yo'q (SSR), taqiqlangan
+(maxfiy rejim) yoki to'lgan bo'lsa — jim ishlaydi: `set` `false` qaytaradi, `get` — `null`.
+
+```ts title="lib/storage.ts"
+import { createStorage } from '@akhatmirzo/core';
+
+export const storage = createStorage({ prefix: 'app:' });
+
+storage.set('token', 'abc', { ttl: 60 * 60 * 1000 }); // true — 1 soatdan keyin o'chadi
+storage.get<string>('token'); // 'abc'
+storage.get<string[]>('recent', []); // [] — kalit yo'q bo'lsa fallback
+storage.set('user', { id: 7, name: 'Sarvar' }); // obyekt ham saqlanadi
+storage.set('user', undefined); // o'chirish
+storage.remove('token');
+storage.clear(); // faqat "app:" bilan boshlanadigan kalitlar
+```
+
+<PropsTable
+  rows={[
+    {
+      name: 'prefix',
+      type: 'string',
+      description: "Har bir kalit oldiga qo'shiladi, masalan 'app:'",
+    },
+    {
+      name: 'storage',
+      type: 'StorageLike',
+      default: 'localStorage',
+      description: 'sessionStorage, createMemoryStorage() yoki shu interfeysdagi istalgan obyekt',
+    },
+  ]}
+/>
+
+`TypedStorage` metodlari:
+
+| Metod                       | Nima qiladi                                                                  |
+| --------------------------- | ---------------------------------------------------------------------------- |
+| `get<T>(key)`               | Qiymat yoki `null` (yo'q, muddati o'tgan yoki buzilgan JSON)                 |
+| `get<T>(key, fallback)`     | Qiymat yoki `fallback`                                                       |
+| `set(key, value, { ttl? })` | JSON qilib saqlaydi; `ttl` — millisekund. `undefined` — o'chirish. `boolean` |
+| `remove(key)`               | Kalitni o'chiradi                                                            |
+| `clear()`                   | Prefiksli kalitlarni o'chiradi (prefiks bo'lmasa — hammasini)                |
+
+Muddati o'tgan yozuv o'qilganda `null` qaytadi va storage'dan o'chiriladi.
+
+<Callout type="warn" title="useLocalStorage bilan bir kalitni ishlatmang">
+  `createStorage` qiymatni `{"v": ..., "e": ...}` o'ramida yozadi, `useLocalStorage`
+  ([hooks](../hooks.mdx#uselocalstorage)) esa oddiy JSON. Ikkalasi bir kalitni o'qisa, bir-birini
+  tushunmaydi.
+</Callout>
+
+### createMemoryStorage
+
+```ts
+function createMemoryStorage(): StorageLike;
+```
+
+Xotiradagi storage — testlar uchun yoki `localStorage` umuman bo'lmagan muhitda.
+
+```ts
+const storage = createStorage({ storage: createMemoryStorage() });
+```
+
+## API klient
+
+<ComponentPreview name="core/api-errors" />
+
+Tugmalarni bosing: har bir HTTP status va timeout bitta `ApiError` turiga, o'zbekcha xabar bilan
+aylanadi. Demo haqiqiy server o'rniga soxta `fetch` ishlatadi.
+
+### createApiClient
+
+```ts
+function createApiClient(options: ApiClientOptions): ApiClient;
+```
+
+`fetch` ustidagi yengil o'ram. U nima qiladi:
+
+- `baseUrl` + yo'l + `query` dan URL yasaydi (`undefined` va `null` qiymatlar tashlanadi);
+- `body` ni JSON qiladi va `Content-Type: application/json` qo'yadi (satr bo'lsa — o'zgarishsiz);
+- `getToken()` qiymat qaytarsa, `Authorization: Bearer <token>` qo'shadi;
+- javobni `Content-Type` ga qarab JSON yoki matn sifatida qaytaradi; 204, 205 yoki bo'sh javob →
+  `undefined`;
+- har qanday muvaffaqiyatsizlikni — HTTP xato, tarmoq, timeout, bekor qilish — **bitta**
+  `ApiError` turiga aylantiradi.
+
+```ts title="lib/api.ts"
+import { createApiClient } from '@akhatmirzo/core';
+import { storage } from './storage';
+
+export const api = createApiClient({
+  baseUrl: 'https://api.example.uz/v1',
+  getToken: () => storage.get<string>('token'),
+  timeout: 10_000,
+});
+```
+
+```ts
+interface Order {
+  id: number;
+  total: number;
+}
+
+const orders = await api.get<Order[]>('/orders', { query: { page: 2, status: ['new', 'paid'] } });
+// GET https://api.example.uz/v1/orders?page=2&status=new&status=paid
+
+const created = await api.post<Order>('/orders', { total: 1250000 });
+await api.patch(`/orders/${created.id}`, { total: 1300000 });
+await api.delete(`/orders/${created.id}`); // 204 → undefined
+```
+
+<PropsTable
+  rows={[
+    {
+      name: 'baseUrl',
+      type: 'string',
+      required: true,
+      description: "Masalan 'https://api.example.uz/v1' yoki '/api'",
+    },
+    {
+      name: 'getToken',
+      type: '() => string | null | undefined | Promise<string | null | undefined>',
+      description: "Har so'rovda chaqiriladi; qiymat bo'lsa — Bearer token",
+    },
+    {
+      name: 'timeout',
+      type: 'number',
+      default: '15000',
+      description: 'Millisekund; 0 — cheklovsiz',
+    },
+    {
+      name: 'headers',
+      type: 'Record<string, string>',
+      description: "Har so'rovga qo'shiladigan sarlavhalar",
+    },
+    {
+      name: 'fetch',
+      type: 'FetchLike',
+      default: 'globalThis.fetch',
+      description: "O'z fetch'ingiz (testlar, Node, proksi)",
+    },
+  ]}
+/>
+
+`ApiClient` metodlari: `get(path, options?)`, `delete(path, options?)`,
+`post(path, body?, options?)`, `put(path, body?, options?)`, `patch(path, body?, options?)` va
+umumiy `request(method, path, options?)`. Har bir so'rov uchun parametrlar:
+
+<PropsTable
+  rows={[
+    {
+      name: 'query',
+      type: 'Record<string, QueryValue | readonly QueryValue[]>',
+      description: 'undefined va null tashlanadi; massiv — takroriy kalit',
+    },
+    {
+      name: 'body',
+      type: 'unknown',
+      description: "Faqat request() da; post/put/patch'da — 2-argument",
+    },
+    { name: 'headers', type: 'Record<string, string>', description: "Shu so'rov sarlavhalari" },
+    { name: 'signal', type: 'AbortSignal', description: "So'rovni bekor qilish uchun" },
+    {
+      name: 'timeout',
+      type: 'number',
+      description: "Shu so'rov uchun timeout (ms); 0 — cheklovsiz",
+    },
+  ]}
+/>
+
+### Xatolarni ushlash
+
+```ts
+import { isApiError } from '@akhatmirzo/core';
+import { toast } from '@akhatmirzo/ui';
+
+try {
+  await api.post('/orders', form);
+} catch (error) {
+  if (!isApiError(error)) throw error;
+  if (error.code === 'HTTP' && error.status === 401) return logout();
+  toast.error(error.message); // "Serverda xatolik. Keyinroq urinib ko'ring."
+}
+```
+
+### ApiError
+
+```ts
+class ApiError extends Error {
+  name: string; // 'ApiError'
+  readonly status: number; // HTTP status; boshqa xatolarda 0
+  readonly code: 'HTTP' | 'NETWORK' | 'TIMEOUT' | 'ABORTED' | 'PARSE';
+  readonly data?: unknown; // server javobi (JSON yoki matn), bo'lsa
+}
+
+function isApiError(error: unknown): error is ApiError;
+```
+
+| `code`    | Qachon                                  | `message`                                   |
+| --------- | --------------------------------------- | ------------------------------------------- |
+| `HTTP`    | Server 4xx yoki 5xx qaytardi            | Server `message` maydoni yoki standart matn |
+| `NETWORK` | Ulanib bo'lmadi                         | "Ulanib bo'lmadi. Internetni tekshiring."   |
+| `TIMEOUT` | `timeout` dan oshdi                     | "So'rov vaqti tugadi."                      |
+| `ABORTED` | `signal` bilan bekor qilindi            | "So'rov bekor qilindi."                     |
+| `PARSE`   | Javob JSON deb belgilangan, lekin buzuq | "Server javobini o'qib bo'lmadi."           |
+
+HTTP xatoda server JSON'ida `message` satri bo'lsa, o'shani oladi:
+`{ "message": "Buyurtma topilmadi" }` → `error.message === 'Buyurtma topilmadi'`. Aks holda —
+`httpErrorMessage(status)`.
+
+### httpErrorMessage
+
+```ts
+function httpErrorMessage(status: number): string;
+```
+
+| Status | Xabar                                            |
+| ------ | ------------------------------------------------ |
+| 400    | So'rov noto'g'ri.                                |
+| 401    | Avtorizatsiyadan o'tilmagan. Qaytadan kiring.    |
+| 403    | Bu amal uchun ruxsat yo'q.                       |
+| 404    | Topilmadi.                                       |
+| 409    | Ziddiyat: ma'lumot allaqachon o'zgargan.         |
+| 422    | Ma'lumotlar noto'g'ri to'ldirilgan.              |
+| 429    | Juda ko'p so'rov. Birozdan so'ng urinib ko'ring. |
+| 5xx    | Serverda xatolik. Keyinroq urinib ko'ring.       |
+| boshqa | So'rov bajarilmadi (418).                        |
+
+`API_MESSAGES` — HTTP bo'lmagan xatolar matnlari (`NETWORK`, `TIMEOUT`, `ABORTED`, `PARSE`)
+obyekti.
+
+### buildUrl
+
+```ts
+function buildUrl(baseUrl: string, path: string, query?: QueryParams): string;
+```
+
+Klient ichida ishlatiladigan URL yasovchi — alohida ham kerak bo'lishi mumkin (masalan, yuklab
+olish havolasi uchun). To'liq URL berilsa, `baseUrl` e'tiborsiz qoladi.
+
+```ts
+buildUrl('/api/', '/users', { page: 2, q: undefined }); // '/api/users?page=2'
+buildUrl('/api', 'orders', { status: ['new', 'paid'] }); // '/api/orders?status=new&status=paid'
+buildUrl('/api', '/search?x=1', { page: 2 }); // '/api/search?x=1&page=2'
+buildUrl('/api', 'https://cdn.example.uz/x.json'); // 'https://cdn.example.uz/x.json'
+```

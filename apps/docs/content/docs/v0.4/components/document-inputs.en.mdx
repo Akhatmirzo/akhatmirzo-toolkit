@@ -1,0 +1,174 @@
+---
+title: Document inputs
+description: Ready-made fields for Uzbek document numbers — PINFL, passport, TIN, car plate and bank account.
+---
+
+<ComponentPreview name="document-inputs/overview" align="start" />
+
+## Import
+
+```tsx
+import {
+  BankAccountInput,
+  CarPlateInput,
+  InnInput,
+  PassportInput,
+  PinflInput,
+} from '@akhatmirzo/ui';
+```
+
+They all follow the [MaskedInput](./masked-input.mdx) rule: **the display is formatted, the
+value is clean** (no spaces). Validation uses the `isValidX` functions from `@akhatmirzo/core` —
+see [Identifiers](../core/identifiers.mdx).
+
+| Component          | Display                  | Value (`value`)          |
+| ------------------ | ------------------------ | ------------------------ |
+| `PinflInput`       | 31503 90123 4567         | `"31503901234567"`       |
+| `PassportInput`    | AA 1234567               | `"AA1234567"`            |
+| `InnInput`         | 123 456 789              | `"123456789"`            |
+| `CarPlateInput`    | 01 \| A 123 BC           | `"01A123BC"`             |
+| `BankAccountInput` | 2020 8000 9000 1234 5001 | `"20208000900012345001"` |
+
+## When to use
+
+- **Government, banking, insurance and leasing forms** — users don't type the spaces, and the
+  value reaches your server ready to use.
+- **Always add a label** — inside a [Field](./field.mdx). Next to "JShShIR", say where to find
+  it in `description` ("the 14-digit personal number in your passport").
+- **Explain errors in text** — the component only sets the `invalid` state; put the reason in
+  the `Field` `error` prop.
+- **Everything comes from `Input`:** `size`, `clearable`, `disabled`, `readOnly`, `name`.
+
+## Validation
+
+With `validate` (default `true`) a complete value that fails the check marks the field
+`invalid`. It doesn't turn red while you type. Two exceptions show the error right away: an
+`InnInput` value starting with `0`, and a `CarPlateInput` region code that isn't on the list.
+
+<ComponentPreview name="document-inputs/validation" align="start" />
+
+## PinflInput
+
+The PINFL (JShShIR) is 14 digits in `5-5-4` groups. When the 14th digit is typed, `onDetails`
+fires with `{ valid, gender, birthDate, complete }` — gender and birth date are read from the
+number itself. The check digit is not verified by default; turn it on with `checksum`.
+
+<ComponentPreview name="document-inputs/pinfl" align="start" />
+
+## PassportInput
+
+Passport or ID card: 2 Latin letters + 7 digits. Lowercase becomes uppercase; Cyrillic letters
+and extra characters are rejected. Phones open the keyboard in caps
+(`autoCapitalize="characters"`).
+
+## InnInput and BankAccountInput
+
+The TIN (STIR) is 9 digits (`000 000 000`); a bank account is 20 digits in groups of four. Both
+open a numeric keypad on phones.
+
+## CarPlateInput
+
+The personal (`01 A 123 BC`) or legal-entity (`01 123 ABC`) format is detected from the third
+character: a letter means personal, a digit means legal. The region code sits on the left behind
+a divider, with a flag mark and "UZ" on the right — like a real plate.
+
+<ComponentPreview name="document-inputs/car-plate" align="start" />
+
+`onDetails` fires on every change — the region is known after the first two digits, the type
+after the third character:
+
+```tsx
+<CarPlateInput
+  onDetails={({ region, type, valid }) => {
+    // region — an object from UZ_REGIONS or null; type — 'personal' | 'legal' | null
+  }}
+/>
+```
+
+You can get the same details outside the component: `getCarPlateDetails('01A123BC')`,
+`getPinflDetails('31503901234567')`.
+
+## Props
+
+Every component accepts the [Input](./input.mdx) props and `ref`. With `name`, a hidden
+`<input>` with the clean value is added to the form.
+
+### Common
+
+<PropsTable
+  rows={[
+    { name: 'value', type: 'string', description: 'Clean value, no spaces' },
+    { name: 'defaultValue', type: 'string' },
+    {
+      name: 'onValueChange',
+      type: '(value: string, details) => void',
+      description: 'details: { complete, valid } (+ component-specific fields)',
+    },
+    {
+      name: 'validate',
+      type: 'boolean',
+      default: 'true',
+      description: 'Mark a complete value invalid when it fails the check',
+    },
+  ]}
+/>
+
+### PinflInput
+
+<PropsTable
+  rows={[
+    {
+      name: 'onDetails',
+      type: '(details: PinflInputDetails) => void',
+      description: 'When 14 digits are in: { valid, gender, birthDate, complete }',
+    },
+    {
+      name: 'checksum',
+      type: 'boolean',
+      default: 'false',
+      description: 'Also verify the check digit',
+    },
+    { name: 'placeholder', type: 'string', default: "'00000 00000 0000'" },
+  ]}
+/>
+
+### CarPlateInput
+
+`prefix` and `leftIcon` are not accepted — the left side is reserved for the region code.
+
+<PropsTable
+  rows={[
+    {
+      name: 'onDetails',
+      type: '(details: CarPlateInputDetails) => void',
+      description: 'On every change: { region, type, complete, valid }',
+    },
+    { name: 'rightIcon', type: 'ReactNode', description: 'Defaults to the flag mark and "UZ"' },
+    { name: 'placeholder', type: 'string', default: "'01  A 123 BC'" },
+  ]}
+/>
+
+### Other placeholders
+
+| Component          | `placeholder`                |
+| ------------------ | ---------------------------- |
+| `PassportInput`    | `'AA 1234567'`               |
+| `InnInput`         | `'000 000 000'`              |
+| `BankAccountInput` | `'0000 0000 0000 0000 0000'` |
+
+### Data attributes
+
+| Attribute         | Component       | Value                         |
+| ----------------- | --------------- | ----------------------------- |
+| `data-plate-type` | `CarPlateInput` | `personal` · `legal`          |
+| `data-region`     | `CarPlateInput` | region `id` (`tashkent-city`) |
+
+## Accessibility
+
+- **Native `<input type="text">`** — screen readers read the formatted text.
+- **Mobile keyboards:** `PinflInput`, `InnInput`, `BankAccountInput` use `inputMode="numeric"`;
+  `PassportInput` and `CarPlateInput` use `autoCapitalize="characters"`.
+- **The error state** is exposed as `aria-invalid`. Explain the reason in the `Field` `error`
+  prop — color shouldn't be the only signal.
+- **Decorative parts** — the plate divider and the flag mark are `aria-hidden`; screen readers
+  only read the number.

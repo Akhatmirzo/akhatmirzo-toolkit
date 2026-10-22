@@ -1,0 +1,112 @@
+---
+title: Progress
+description: "Jarayon ko'rsatkichi — chiziq (Progress) va doira (ProgressCircle): aniq va noaniq holat, 4 rang, 3 o'lcham."
+---
+
+<ComponentPreview name="progress/basic" />
+
+## Import
+
+```tsx
+import { Progress, ProgressCircle } from '@akhatmirzo/ui';
+```
+
+## Qachon ishlatish
+
+- **Davomiyligi ma'lum jarayon uchun** — fayl yuklash, eksport, profilni to'ldirish darajasi.
+- **Qancha vaqt ketishi noma'lum bo'lsa** — `value={null}` (noaniq holat) bering.
+- **Qisqa kutish uchun** (1 soniyadan kam) — progress shart emas; tugma ichida
+  [`Spinner`](./spinner.mdx) yetarli.
+- **Doira** — kartochka, avatar yonida yoki joy tor bo'lganda; **chiziq** — ro'yxat va formalarda.
+- **Qiymatni matn bilan ham ko'rsating** (`showValue`) — foydalanuvchi aniq raqamni ko'rsin.
+
+## Noaniq holat
+
+`value` berilmasa yoki `null` bo'lsa — chiziqda bo'lak chapdan o'ngga yuradi, doira aylanadi.
+Harakatni kamaytirish yoqilgan bo'lsa (`prefers-reduced-motion`), faqat yumshoq miltillash qoladi.
+
+<ComponentPreview name="progress/indeterminate" align="start" />
+
+## Ranglar va o'lchamlar
+
+`color`: `primary` (standart), `success`, `warning`, `danger`. `size`: `sm` — 4px, `md` — 8px,
+`lg` — 12px chiziq.
+
+<ComponentPreview name="progress/colors-sizes" />
+
+## ProgressCircle
+
+Doira o'lchamlari: `sm` — 24px, `md` — 40px, `lg` — 64px. `showValue` qiymatni markazda
+ko'rsatadi (`sm` da joy yetmaydi, shuning uchun ko'rsatilmaydi). Doirada `label` ko'rinmaydi —
+ekran o'quvchi uchun nom bo'ladi.
+
+<ComponentPreview name="progress/circle" />
+
+## Jonli misol
+
+Qiymat o'zgarganda chiziq 300ms davomida silliq siljiydi. Tugagach rangni `success` ga
+almashtirish mumkin.
+
+<ComponentPreview name="progress/upload" align="start" />
+
+## Props
+
+`Progress` va `ProgressCircle` bir xil proplarni oladi va qolgan barcha `<div>` atributlarini
+ildizga uzatadi (`color` dan tashqari).
+
+<PropsTable
+  rows={[
+    {
+      name: 'value',
+      type: 'number | null',
+      default: 'null',
+      description: 'Joriy qiymat (0 dan max gacha chegaralanadi); null — noaniq holat',
+    },
+    { name: 'max', type: 'number', default: '100', description: 'Maksimal qiymat' },
+    {
+      name: 'color',
+      type: "'primary' | 'success' | 'warning' | 'danger'",
+      default: "'primary'",
+      description: "To'lgan qism rangi",
+    },
+    {
+      name: 'size',
+      type: "'sm' | 'md' | 'lg'",
+      default: "'md'",
+      description: 'Chiziq: 4 / 8 / 12px; doira: 24 / 40 / 64px',
+    },
+    {
+      name: 'label',
+      type: 'ReactNode',
+      description: "Chiziqda — ustida chapda; doirada — ko'rinmas nom (aria-label)",
+    },
+    {
+      name: 'showValue',
+      type: 'boolean',
+      default: 'false',
+      description: "Qiymat matni: chiziqda o'ngda, doirada markazda (sm doirada yo'q)",
+    },
+    {
+      name: 'formatValue',
+      type: '(value: number, max: number) => string',
+      default: '"64%"',
+      description: "Qiymat matni — ko'rinadigan va aria-valuetext uchun",
+    },
+  ]}
+/>
+
+### Data atributlari
+
+Ildiz elementda: `data-state` (`indeterminate` · `loading` · `complete`), `data-color`,
+`data-size`.
+
+## Accessibility
+
+- **`role="progressbar"`** — `aria-valuemin`, `aria-valuemax`, `aria-valuenow` va
+  `aria-valuetext` (`formatValue` natijasi) avtomatik qo'yiladi.
+- **Noaniq holatda** `aria-valuenow` va `aria-valuetext` qo'yilmaydi — ekran o'quvchi buni
+  "band" deb tushunadi.
+- **Nom majburiy:** `label` bering yoki `aria-label` / `aria-labelledby` ni o'zingiz qo'ying.
+  Chiziqda `label` `aria-labelledby` orqali ulanadi; doirada matnli `label` `aria-label` bo'ladi.
+- **Ko'rinadigan qiymat** `aria-hidden` — u allaqachon `aria-valuetext` da o'qiladi.
+- **Harakatni kamaytirish** yoqilganda siljish va aylanish o'chadi, faqat miltillash qoladi.

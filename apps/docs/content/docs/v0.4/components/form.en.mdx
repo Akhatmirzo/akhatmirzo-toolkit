@@ -1,0 +1,323 @@
+---
+title: Form
+description: 'Forms with react-hook-form: FormField wires label, error and value into any library component automatically.'
+---
+
+<ComponentPreview name="form/registration" align="start" />
+
+## Installation
+
+`@akhatmirzo/ui/form` is a separate entry point. The main `@akhatmirzo/ui` import never pulls
+in `react-hook-form`, so projects without forms ship no extra code. `react-hook-form` is an
+optional peer dependency that you install yourself (zod and the resolver are recommended for
+validation):
+
+<Install pkg="react-hook-form @hookform/resolvers zod" />
+
+## Import
+
+```tsx
+import { Form, FormField, FormSubmit, FormRootError, useFormField } from '@akhatmirzo/ui/form';
+```
+
+## When to use
+
+- **Any form with validation** — sign-up, profile, checkout. No hand-written labels, error
+  text, `aria-*` or focus handling.
+- **For Uzbek fields** pair it with the [`zUz`](../core/zod.mdx) schemas: phone, PINFL,
+  passport, money — ready-made checks with Uzbek error messages.
+- **For a tiny one- or two-field form** you don't need `react-hook-form` —
+  [`Field`](./field.mdx) plus `useState` is enough.
+- **Put one control inside each `FormField`.** Need several elements? Use `render` or separate
+  `FormField`s.
+
+## Full example
+
+`zodResolver` validates the schema and the `zUz` transforms hand **clean** values to
+`onSubmit`: phone becomes `"998901234567"`, money becomes `1250000` instead of `"1 250 000"`.
+The value in the form (what the user sees) stays as typed.
+
+```tsx title="register-form.tsx"
+'use client';
+
+import { zUz } from '@akhatmirzo/core/zod';
+import { Checkbox, Input, PhoneInput, PinflInput, RegionSelect } from '@akhatmirzo/ui';
+import { Form, FormField, FormRootError, FormSubmit } from '@akhatmirzo/ui/form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useForm } from 'react-hook-form';
+import { z } from 'zod';
+
+const schema = z.object({
+  fullName: z.string().trim().min(3, 'Enter your full name'),
+  phone: zUz.phone(),
+  pinfl: zUz.pinfl(),
+  region: zUz.region(),
+  terms: z.literal(true, { error: 'Please accept the terms' }),
+});
+
+export function RegisterForm() {
+  const form = useForm({
+    resolver: zodResolver(schema),
+    defaultValues: { fullName: '', phone: '', pinfl: '', region: '' },
+  });
+
+  async function save(data: z.output<typeof schema>) {
+    // data.phone === '998901234567'
+    const res = await fetch('/api/register', { method: 'POST', body: JSON.stringify(data) });
+    if (!res.ok) form.setError('root', { message: 'The server did not respond, try again' });
+  }
+
+  return (
+    <Form form={form} onSubmit={save} className="flex flex-col gap-4">
+      <FormField name="fullName" label="Full name" required>
+        <Input />
+      </FormField>
+      <FormField name="phone" label="Phone" description="We will send an SMS code">
+        <PhoneInput />
+      </FormField>
+      <FormField name="pinfl" label="PINFL">
+        <PinflInput />
+      </FormField>
+      <FormField name="region" label="Region">
+        <RegionSelect />
+      </FormField>
+      <FormField name="terms">
+        <Checkbox label="I accept the terms of use" />
+      </FormField>
+      <FormRootError />
+      <FormSubmit>Sign up</FormSubmit>
+    </Form>
+  );
+}
+```
+
+`Form` renders `<form noValidate>` plus `FormProvider`; `onSubmit` runs only after validation
+passes. `FormSubmit` switches to `loading` while submitting, and `FormRootError` shows
+`setError('root', ...)` (or `'root.server'`) in an `Alert`.
+
+## Compatibility table
+
+`FormField` looks at the child type and passes the matching props. Library components have a
+built-in table; `label`, `description`, `id`, `aria-describedby`, `aria-invalid`, `required`
+and `disabled` reach **all** of them through the `Field` context.
+
+| Component                                                                      | Props passed                                                   | Form value                                 |
+| ------------------------------------------------------------------------------ | -------------------------------------------------------------- | ------------------------------------------ |
+| `Input`, `Textarea`                                                            | `value`, `onChange(event)`, `name`                             | `string`                                   |
+| native `<input>`, `<textarea>`, `<select>`                                     | `value`, `onChange(event)`, `name`, `id`, `aria-*`, `disabled` | `string`                                   |
+| native `<input type="checkbox">`                                               | `checked`, `onChange(event)`, `name`                           | `boolean`                                  |
+| `Checkbox`, `Switch`                                                           | `checked`, `onCheckedChange`                                   | `boolean`                                  |
+| `RadioGroup`, `Select`, `RegionSelect`                                         | `value`, `onValueChange`, `name`                               | `string` (`UzRegionId`)                    |
+| `SegmentedControl`, `ColorPicker`, `OtpInput`                                  | `value`, `onValueChange`                                       | `string`                                   |
+| `MaskedInput`, `PhoneInput`, `CardInput`                                       | `value`, `onValueChange`                                       | `string` (digits only)                     |
+| `PinflInput`, `PassportInput`, `InnInput`, `BankAccountInput`, `CarPlateInput` | `value`, `onValueChange`                                       | `string` (no spaces)                       |
+| `MoneyInput`                                                                   | `value`, `onValueChange`                                       | `number \| null`                           |
+| `Slider`                                                                       | `value`, `onValueChange`                                       | `number[]`                                 |
+| `Rating`                                                                       | `value`, `onValueChange`                                       | `number`                                   |
+| `Combobox`                                                                     | `value`, `onValueChange`                                       | `string \| null` · `multiple` — `string[]` |
+| `TagInput`                                                                     | `value`, `onValueChange`                                       | `string[]`                                 |
+| `DatePicker`                                                                   | `value`, `onValueChange`                                       | `Date \| null`                             |
+| `DateRangePicker`                                                              | `value`, `onValueChange`                                       | `{ from, to } \| null`                     |
+| `FileUpload`                                                                   | `onFilesChange` (uncontrolled)                                 | `FileUploadItem[]`                         |
+| any other component                                                            | `value`, `onValueChange` (convention)                          | —                                          |
+
+Rules:
+
+- **Empty values.** When the form value is `undefined` / `null`, the component still gets an
+  empty value so it stays controlled: `''` for text, `false` for `Checkbox`, `[]` for
+  `TagInput`, `0` for `Rating`, `[min]` for `Slider`. That's why `reset()` clears every
+  component.
+- **Your own handlers still run.** `<Input onChange={log} />` — yours first, then the form's.
+- **`FileUpload`** owns its internal list: when the form value changes from outside (`reset`,
+  `setValue`) the component is recreated and the list is cleared.
+- **Focus.** A submit error or `form.setFocus(name)` focuses the field's main element (input,
+  Select trigger, slider thumb …). You don't need to pass a `ref`.
+
+Every row is covered by integration tests: the value flows in and out, the error shows in
+`Field`, focus moves to the invalid field and `reset()` works.
+
+## Mixed components
+
+`value` / `onValueChange` components (`SegmentedControl`, `MoneyInput`, `TagInput`) and the
+uncontrolled `FileUpload` in one form. The price is validated with `zUz.money({ min, max })`.
+
+<ComponentPreview name="form/listing" align="start" />
+
+## Fallback: `render`
+
+For an element that isn't in the table or has a different API, use `render` — you get
+`value`, `onValueChange` and `controlProps` (`id`, `aria-*`):
+
+<ComponentPreview name="form/render-fallback" align="start" />
+
+```tsx
+<FormField
+  name="city"
+  label="City"
+  render={({ value, onValueChange, controlProps }) => (
+    <select {...controlProps} value={value} onChange={(e) => onValueChange(e.target.value)}>
+      <option value="tsh">Tashkent</option>
+    </select>
+  )}
+/>
+```
+
+## Your own components
+
+**`useFormField()`** lets a component inside `FormField` connect itself. Give such a child
+`adapter="none"` so no props are injected:
+
+```tsx
+function Stepper() {
+  const { value, onValueChange, id, invalid } = useFormField<number>();
+  return (
+    <button type="button" id={id} aria-invalid={invalid} onClick={() => onValueChange(value + 1)}>
+      {value}
+    </button>
+  );
+}
+
+<FormField name="guests" label="Guests" adapter="none">
+  <Stepper />
+</FormField>;
+```
+
+**`createFormAdapter()`** handles a component with different prop names:
+
+```tsx
+import { createFormAdapter } from '@akhatmirzo/ui/form';
+
+const pickerAdapter = createFormAdapter({
+  valueProp: 'selected',
+  changeProp: 'onSelect',
+  empty: [],
+});
+
+<FormField name="ids" label="Products" adapter={pickerAdapter}>
+  <ProductPicker />
+</FormField>;
+```
+
+Built-in names: `adapter="native"` (`value` + `onChange(event)`), `"value"`, `"checked"`,
+`"none"`.
+
+## Props
+
+### Form
+
+All other `<form>` attributes are accepted too.
+
+<PropsTable
+  rows={[
+    {
+      name: 'form',
+      type: 'UseFormReturn<TFieldValues, TContext, TTransformedValues>',
+      required: true,
+      description: 'The result of useForm(...)',
+    },
+    {
+      name: 'onSubmit',
+      type: 'SubmitHandler<TTransformedValues>',
+      required: true,
+      description: 'Called with validated (resolver-transformed) values',
+    },
+    {
+      name: 'onInvalid',
+      type: 'SubmitErrorHandler<TFieldValues>',
+      description: 'Called with validation errors',
+    },
+  ]}
+/>
+
+### FormField
+
+Also accepts `label`, `description`, `required`, `disabled`, `orientation`, `className` and
+the other [`Field`](./field.mdx) props (except `error` — it comes from the form).
+
+<PropsTable
+  rows={[
+    { name: 'name', type: 'FieldPath<TFieldValues>', required: true, description: 'Field name' },
+    {
+      name: 'children',
+      type: 'ReactElement',
+      description: 'A single control — props are injected automatically',
+    },
+    {
+      name: 'render',
+      type: '(field: FormFieldRenderProps) => ReactNode',
+      description: 'Fallback: render the element yourself',
+    },
+    {
+      name: 'adapter',
+      type: "FormFieldAdapter | 'native' | 'nativeChecked' | 'value' | 'checked' | 'none'",
+      description: 'How the value is passed; automatic by default (compatibility table)',
+    },
+    {
+      name: 'control',
+      type: 'Control<TFieldValues>',
+      description: 'Defaults to the nearest <Form>',
+    },
+    { name: 'rules', type: 'RegisterOptions', description: 'react-hook-form rules' },
+    { name: 'defaultValue', type: 'FieldPathValue', description: 'Initial value of the field' },
+    { name: 'shouldUnregister', type: 'boolean', description: 'Drop the value when unmounted' },
+  ]}
+/>
+
+### FormSubmit
+
+[`Button`](./button.mdx) props; `type="submit"`, `loading` while submitting.
+
+<PropsTable rows={[{ name: 'variant', type: 'ButtonVariant', default: "'primary'" }]} />
+
+### FormRootError
+
+[`Alert`](./alert.mdx) props. Renders nothing when there is no error.
+
+<PropsTable
+  rows={[
+    {
+      name: 'color',
+      type: "'neutral' | 'primary' | 'success' | 'warning' | 'danger' | 'info'",
+      default: "'danger'",
+    },
+    {
+      name: 'children',
+      type: '(message: string) => ReactNode',
+      description: 'Custom content instead of the text',
+    },
+  ]}
+/>
+
+### useFormField / render argument
+
+<PropsTable
+  rows={[
+    { name: 'name', type: 'string' },
+    { name: 'value', type: 'TValue', description: 'Current form value' },
+    { name: 'onValueChange', type: '(value: TValue) => void' },
+    { name: 'onBlur', type: '() => void', description: 'Marks the field as touched' },
+    { name: 'invalid', type: 'boolean' },
+    { name: 'error', type: 'string | undefined', description: 'Error message' },
+    { name: 'id', type: 'string', description: 'The id the label points to' },
+    { name: 'disabled', type: 'boolean' },
+    {
+      name: 'controlProps',
+      type: "{ id; 'aria-describedby'?; 'aria-invalid'?; 'aria-required'? }",
+      description: 'render argument only — spread onto a native element',
+    },
+  ]}
+/>
+
+## Accessibility
+
+- **Label and error are linked.** Every field gets `<label htmlFor>`, `aria-describedby`
+  (description + error) and `aria-invalid` through `Field`; native elements and `render` get
+  the same attributes.
+- **Errors are announced.** The error text lives in an `aria-live="polite"` region, so screen
+  readers read it after submit. `FormRootError` uses `role="alert"`.
+- **Focus moves to the error.** On submit the first invalid field's main element is focused
+  (`shouldFocusError`), so keyboard users can fix it right away.
+- **Browser validation is off** (`noValidate`) — messages look the same everywhere and are in
+  Uzbek.
+- **Portalled components** (Select, Combobox, DateRangePicker) don't count as "left" when their popup opens,
+  so with `mode: 'onBlur'` the error doesn't appear too early.

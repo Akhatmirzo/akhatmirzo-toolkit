@@ -1,0 +1,110 @@
+---
+title: Breadcrumb
+description: A trail that shows where the user is in the site hierarchy — with collapsing, an overflow menu and Next.js Link support.
+---
+
+<ComponentPreview name="breadcrumb/basic" />
+
+## Import
+
+```tsx
+import { Breadcrumb } from '@akhatmirzo/ui';
+```
+
+## When to use
+
+- **Deep hierarchies** — catalog → category → product, settings → account → security. Users get
+  back to a higher level in one click.
+- **Place it above the page title**, before the content.
+- **Skip it on flat sites** — "Home → Current" alone adds little.
+- **Not for steps.** To show a sequential process, use [`Stepper`](./stepper.mdx).
+
+## Items
+
+`items` is a list of `{ label, href?, icon?, onClick? }`. The last item is the current page: it is
+not a link and gets `aria-current="page"`. An item with `onClick` but no `href` renders as a button.
+
+## Collapsing
+
+When there are more than `maxItems`: first + `…` + the last `maxItems - 2` (at least 1). Clicking
+`…` opens the hidden pages in a [`DropdownMenu`](./dropdown-menu.mdx).
+
+<ComponentPreview name="breadcrumb/collapse" />
+
+On phones (`< 640px`) the trail automatically collapses to `…` + parent + current. This is done with
+a CSS breakpoint, so there is no SSR hydration mismatch. Long labels are truncated (links at `20ch`,
+the current page at `32ch`).
+
+## Separator and size
+
+`separator` accepts any `ReactNode` (default — a `›` chevron). `size="sm"` uses `text-xs`.
+
+<ComponentPreview name="breadcrumb/separator" />
+
+## Next.js Link
+
+`renderLink` replaces `<a>` with your own link component. It is used inside the overflow menu too.
+
+```tsx
+import Link from 'next/link';
+import { Breadcrumb } from '@akhatmirzo/ui';
+
+<Breadcrumb
+  items={[
+    { label: 'Home', href: '/' },
+    { label: 'Products', href: '/products' },
+    { label: 'iPhone 17' },
+  ]}
+  renderLink={(props) => <Link {...props} />}
+/>;
+```
+
+## Props
+
+Other `<nav>` attributes are passed through.
+
+<PropsTable
+  rows={[
+    {
+      name: 'items',
+      type: '{ label: ReactNode; href?: string; icon?: ReactNode; onClick?: (event) => void }[]',
+      required: true,
+      description: 'Trail items; the last one is the current page',
+    },
+    { name: 'separator', type: 'ReactNode', description: 'Separator (default — `›` chevron)' },
+    {
+      name: 'maxItems',
+      type: 'number',
+      description: 'When exceeded: first + `…` + the last ones; hidden items go to a menu',
+    },
+    {
+      name: 'renderLink',
+      type: '(props: { href, className, children, onClick }) => ReactNode',
+      description: 'Custom link component such as Next `Link`',
+    },
+    { name: 'size', type: "'sm' | 'md'", default: "'md'", description: '`text-xs` / `text-sm`' },
+    {
+      name: 'labels',
+      type: '{ nav?: string; more?: string }',
+      description: 'Defaults: "Sahifa yo\'li", "Yashirilgan sahifalar"',
+    },
+  ]}
+/>
+
+### Data attributes
+
+| Attribute       | Where    | Value                                                              |
+| --------------- | -------- | ------------------------------------------------------------------ |
+| `data-size`     | `nav`    | `sm` · `md`                                                        |
+| `data-slot`     | parts    | `breadcrumb-item` · `breadcrumb-ellipsis` · `breadcrumb-separator` |
+| `data-viewport` | `…` item | `desktop` · `mobile`                                               |
+
+## Accessibility
+
+- **Structure.** `<nav aria-label="Sahifa yo'li">` wraps an ordered `<ol>` list.
+- **The current page** is not a link and is marked with `aria-current="page"`.
+- **Separators** are decorative — `aria-hidden`, screen readers skip them.
+- **The `…` button** has `aria-label="Yashirilgan sahifalar"` and `aria-haspopup="menu"`. `Enter` /
+  `Space` opens it, `↑ ↓` move through items, `Esc` closes it and returns focus to the button.
+- **The phone layout** hides items with CSS (`display: none`), so screen readers only read what is
+  visible.

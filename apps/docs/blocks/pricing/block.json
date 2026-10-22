@@ -1,0 +1,13 @@
+{
+  "name": "pricing",
+  "title": {
+    "uz": "Tariflar",
+    "en": "Pricing"
+  },
+  "description": {
+    "uz": "Uchta tarif kartochkasi, oylik/yillik almashtirgich va so'mdagi narxlar.",
+    "en": "Three pricing cards with a monthly/yearly switch and prices in so'm."
+  },
+  "dependencies": ["@akhatmirzo/core", "lucide-react"],
+  "category": "marketing"
+}

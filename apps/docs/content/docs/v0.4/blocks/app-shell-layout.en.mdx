@@ -1,0 +1,46 @@
+---
+title: 'App shell layout'
+description: 'A complete admin layout with AppShell, Sidebar and Header: navigation, search, notifications and profile.'
+full: true
+---
+
+<BlockPreview name="app-shell-layout" height={640} resizable={false} />
+
+<Callout title="Mobile view">
+  `AppShell` switches to mobile mode based on the browser window width (1024px), so this block has
+  no width switcher. Make the window narrower to see the drawer.
+</Callout>
+
+## What's inside
+
+- Sidebar groups, badges and a profile menu at the bottom.
+- `Ctrl/⌘ + B` or the toggle collapses the sidebar; the state persists in `localStorage`.
+- Below 1024px the sidebar becomes a `Drawer` from the left.
+- Page content is an `@container` and adapts to its own width.
+
+## Components used
+
+- [AppShell, Sidebar](../components/app-shell.mdx)
+- [Breadcrumb](../components/breadcrumb.mdx)
+- [Avatar](../components/avatar.mdx)
+- [DropdownMenu](../components/dropdown-menu.mdx)
+- [IconButton](../components/icon-button.mdx)
+- [Input](../components/input.mdx)
+- [Card](../components/card.mdx)
+- [Badge](../components/badge.mdx)
+- [Progress](../components/progress.mdx)
+- [Button](../components/button.mdx)
+- [`formatMoney`](../core/format.mdx)
+
+## Installation
+
+The CLI copies the block file into your project (`components/blocks/app-shell-layout.tsx`) and offers to
+install the packages it needs:
+
+```bash
+npx @akhatmirzo/cli add app-shell-layout
+```
+
+Manually: install the packages and copy the file from the "Code" tab into your project.
+
+<BlockInstall name="app-shell-layout" />

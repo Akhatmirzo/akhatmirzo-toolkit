@@ -1,0 +1,13 @@
+{
+  "name": "app-shell-layout",
+  "title": {
+    "uz": "Ilova qolipi",
+    "en": "App shell layout"
+  },
+  "description": {
+    "uz": "AppShell, Sidebar va Header bilan to'liq boshqaruv paneli qolipi.",
+    "en": "A complete admin layout with AppShell, Sidebar and Header."
+  },
+  "dependencies": ["@akhatmirzo/core", "lucide-react"],
+  "category": "layout"
+}

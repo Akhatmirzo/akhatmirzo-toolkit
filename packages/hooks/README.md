@@ -8,11 +8,15 @@
 
 **Har loyihada qayta yoziladigan React hooklar — bir marta, to'g'ri va testlar bilan.**
 
-Hujjatlar: **https://toolkit.akhatmirzo.uz/uz/docs/v0.3/hooks**
+Hujjatlar: **https://toolkit.akhatmirzo.uz/uz/docs/v0.4/hooks**
 
+- **27 ta hook** — holat va ma'lumotlar, DOM va hodisalar, vaqt va jarayon.
 - **Bog'liqliksiz** — faqat `react` (18+) peer bog'liqlik.
-- **SSR-xavfsiz** — serverda `window` yo'qligini hisobga oladi: `useMediaQuery` va
-  `useLocalStorage` server render'da standart qiymatni qaytaradi.
+- **SSR-xavfsiz** — render paytida `window` / `document` ga tegilmaydi: `useMediaQuery`,
+  `useLocalStorage`, `useOnline`, `useDocumentVisibility` server render'da aniq standart qiymatni
+  qaytaradi.
+- **Barqaror callback'lar va tozalash** — berilgan funksiya har renderda qayta obuna
+  bo'lmaydi; listener, taymer va observer'lar unmount'da tozalanadi.
 - **Race'dan himoyalangan** — `useAsync` eskirgan javoblarni va unmount'dan keyingi natijalarni
   e'tiborsiz qoldiradi.
 - **Tree-shaking** — ESM, `sideEffects: false`.
@@ -22,6 +26,8 @@ pnpm add @akhatmirzo/hooks
 ```
 
 ## Hooklar
+
+### Holat va ma'lumotlar
 
 | Hook                                                      | Qaytaradi / vazifasi                                                    |
 | --------------------------------------------------------- | ----------------------------------------------------------------------- |
@@ -37,6 +43,33 @@ pnpm add @akhatmirzo/hooks
 | `useAsync(fn, deps?, { immediate }?)`                     | `{ status, data, error, run }`                                           |
 | `usePagination({ total, pageSize, page, siblings? })`     | `{ pages, pageCount, page, hasPrev, hasNext, from, to }`                 |
 | `useHotkeys(keys, handler, options?)`                     | Klaviatura qisqa yo'llari; `mod` — macOS'da ⌘, boshqalarda Ctrl          |
+
+### DOM va hodisalar
+
+DOM bilan ishlaydigan hooklar ref ham, elementning o'zini ham qabul qiladi (`RefObject<T> | T | null`).
+
+| Hook | Qaytaradi / vazifasi |
+| --- | --- |
+| `useEventListener(target?, type, handler, options?)` | Tiplangan listener; `target` standart — `window`; `options.enabled` |
+| `useResizeObserver(target, { box?, enabled? }?)` | `{ width, height } \| null` — element o'lchami |
+| `useScrollLock(locked, { target? }?)` | Sahifa scroll'ini qulflaydi, layout sakramaydi; bir nechta qulf — hisoblagich |
+| `useFocusTrap(target, active, { initialFocus?, returnFocus? }?)` | `Tab` konteyner ichida aylanadi; yopilganda fokus qaytadi |
+| `useLongPress(callback, { delay?, moveThreshold?, onStart?, onCancel? }?)` | Uzoq bosish uchun pointer handler'lar — elementga yoyiladi |
+| `useDocumentVisibility()` | `'visible' \| 'hidden'` — tab ko'rinyaptimi |
+| `useIsClient()` | `boolean` — gidratatsiyadan keyin `true` |
+| `useOnline()` | `boolean` — internet bormi (`online` / `offline` hodisalari) |
+
+### Vaqt va jarayon
+
+| Hook | Qaytaradi / vazifasi |
+| --- | --- |
+| `useInterval(callback, delay)` | `setInterval`; `delay = null` — to'xtaydi |
+| `useTimeout(callback, delay)` | `{ reset, clear }` |
+| `useCountdown(seconds, { autoStart?, onEnd? }?)` | `{ remaining, isRunning, formatted, start, pause, reset, restart }` — `formatted` `"0:59"` |
+| `useIdle(ms, { events?, initialState? }?)` | `boolean` — foydalanuvchi `ms` davomida faol emas |
+| `useStep(count, { initial? }?)` | `{ step, next, prev, goTo, reset, isFirst, isLast, progress }` — `Stepper` bilan juft |
+| `useInfiniteScroll({ hasMore, loading, onLoadMore, rootMargin? })` | `{ sentinelRef }` — ro'yxat oxiriga yetganda yuklaydi |
+| `usePrevious(value)` | Oldingi renderdagi qiymat (`T \| undefined`) |
 
 Yordamchilar: `getPagination` (hook'siz sof funksiya), `matchHotkey(event, keys)`,
 `isApplePlatform()`.
@@ -88,8 +121,31 @@ export function CopyCode({ code }: { code: string }) {
 }
 ```
 
+### Kodni qayta yuborish
+
+```tsx
+import { useCountdown } from '@akhatmirzo/hooks';
+
+export function ResendCode({ onResend }: { onResend: () => void }) {
+  // Vaqt Date.now() farqi bilan hisoblanadi — fon tabda ham to'g'ri
+  const { formatted, isRunning, restart } = useCountdown(60);
+
+  return (
+    <button
+      disabled={isRunning}
+      onClick={() => {
+        onResend();
+        restart();
+      }}
+    >
+      {isRunning ? `Kodni qayta yuborish (${formatted})` : 'Kodni qayta yuborish'}
+    </button>
+  );
+}
+```
+
 Barcha hooklar, parametrlar va natijalar:
-[hujjatlarda](https://toolkit.akhatmirzo.uz/uz/docs/v0.3/hooks). Komponentlar kerak
+[hujjatlarda](https://toolkit.akhatmirzo.uz/uz/docs/v0.4/hooks). Komponentlar kerak
 bo'lsa — [`@akhatmirzo/ui`](https://www.npmjs.com/package/@akhatmirzo/ui).
 
 ## Litsenziya
@@ -100,14 +156,19 @@ bo'lsa — [`@akhatmirzo/ui`](https://www.npmjs.com/package/@akhatmirzo/ui).
 
 ## English
 
-Small, dependency-free React hooks (React 18+ peer only), SSR-safe and tree-shakeable:
-`useDebounce`, `useDebouncedCallback`, `useToggle`, `useControllableState`, `useLocalStorage`
-(synced across tabs), `useMediaQuery`, `useClickOutside`, `useCopyToClipboard`, `useIntersection`,
-`useAsync` (ignores stale responses), `usePagination` and `useHotkeys` (`mod` maps to ⌘ on macOS
-and Ctrl elsewhere).
+27 small, dependency-free React hooks (React 18+ peer only), SSR-safe and tree-shakeable:
+
+- **State and data:** `useDebounce`, `useDebouncedCallback`, `useToggle`, `useControllableState`,
+  `useLocalStorage` (synced across tabs), `useMediaQuery`, `useClickOutside`, `useCopyToClipboard`,
+  `useIntersection`, `useAsync` (ignores stale responses), `usePagination` and `useHotkeys` (`mod`
+  maps to ⌘ on macOS and Ctrl elsewhere).
+- **DOM and events:** `useEventListener`, `useResizeObserver`, `useScrollLock`, `useFocusTrap`,
+  `useLongPress`, `useDocumentVisibility`, `useIsClient`, `useOnline`.
+- **Time and flow:** `useInterval`, `useTimeout`, `useCountdown` (e.g. "resend code" timers),
+  `useIdle`, `useStep`, `useInfiniteScroll`, `usePrevious`.
 
 ```bash
 pnpm add @akhatmirzo/hooks
 ```
 
-Docs: https://toolkit.akhatmirzo.uz/en/docs/v0.3/hooks
+Docs: https://toolkit.akhatmirzo.uz/en/docs/v0.4/hooks

@@ -1,0 +1,194 @@
+---
+title: ColorPicker
+description: "Rang tanlash: to'yinganlik maydoni, hue va shaffoflik slayderlari, hex input, pipetka va tayyor ranglar."
+---
+
+<ComponentPreview name="color-picker/basic" align="start" />
+
+## Import
+
+```tsx
+import { ColorPicker } from '@akhatmirzo/ui';
+```
+
+## Qachon ishlatish
+
+- **Foydalanuvchi o'z rangini tanlaydi** — brend rangi, teg yoki kategoriya rangi, mavzu
+  sozlamalari.
+- **Ranglar soni cheklangan bo'lsa** — `swatches` bilan tayyor palitrani bering; erkin tanlash
+  baribir mavjud qoladi.
+- **Faqat bir nechta rangdan tanlash kerak bo'lsa** (5–6 ta) — `RadioGroup` yoki
+  [`SegmentedControl`](./segmented-control.mdx) bilan rangli namunalar soddaroq.
+
+## Tuzilishi
+
+Trigger — [`Input`](./input.mdx) ko'rinishidagi tugma: chapda rang namunasi, yonida hex matn.
+Bosilganda [`Popover`](./popover.mdx) ochiladi:
+
+1. **To'yinganlik maydoni** (2D) — gorizontal o'q to'yinganlik, vertikal — yorqinlik.
+2. **Hue slayderi** — rang tusi (0–360°), [`Slider`](./slider.mdx) komponenti.
+3. **Shaffoflik slayderi** — faqat `alpha` bilan.
+4. **Pipetka** — brauzerda [`EyeDropper` API](https://developer.mozilla.org/docs/Web/API/EyeDropper_API)
+   bo'lsa (hozircha Chromium) ekrandan rang oladi; bo'lmasa tugma ko'rinmaydi.
+5. **Hex input** — to'liq 6 (yoki 8) belgili hex darhol qo'llanadi; qisqa `#abc` — `Enter` yoki
+   fokus chiqqanda. Noto'g'ri matn xato holatida ko'rinadi va fokus chiqqanda oldingi rangga qaytadi.
+6. **Tayyor ranglar** (`swatches`).
+
+Qiymat doim kichik harfli `#rrggbb` ko'rinishida qaytadi (`onValueChange('#0ea5e9')`).
+Oq, qora yoki kulrang tanlanganda hue saqlanadi — slayder "sakramaydi".
+
+## Field bilan
+
+[`Field`](./field.mdx) ichida trigger nomi — label va joriy rang ("Brend rangi #0EA5E9"), izoh va
+xato `aria-describedby` ga ulanadi. `name` — forma uchun yashirin `<input>`.
+
+<ComponentPreview name="color-picker/with-field" align="start" />
+
+## Shaffoflik
+
+`alpha` — panelda shaffoflik slayderi chiqadi, qiymat `#rrggbbaa` bo'ladi (`#10b98180` — 50%).
+Rang namunalari ostida shaxmat foni ko'rinadi.
+
+<ComponentPreview name="color-picker/alpha" align="start" />
+
+## Tayyor ranglar
+
+Standart `swatches` — kutubxona palitrasidan 10 ta rang (`defaultColorSwatches` sifatida eksport
+qilinadi). O'z palitrangizni bering yoki `[]` bilan yashiring.
+
+<ComponentPreview name="color-picker/swatches" align="start" />
+
+## O'lchamlar va holatlar
+
+`size` — trigger balandligi Input bilan bir xil: `sm` 32px, `md` 40px (standart), `lg` 48px.
+`disabled` — ochilmaydi; `invalid` (yoki `Field error`) — qizil chegara.
+
+<ComponentPreview name="color-picker/sizes" align="start" />
+
+## Props
+
+Qolgan `<button>` atributlari va `ref` trigger'ga tushadi.
+
+<PropsTable
+  rows={[
+    { name: 'value', type: 'string', description: 'Rang `#rrggbb` (alpha bilan `#rrggbbaa`)' },
+    {
+      name: 'defaultValue',
+      type: 'string',
+      default: "'#4f46e5'",
+      description: "Boshlang'ich rang",
+    },
+    { name: 'onValueChange', type: '(value: string) => void', description: "Rang o'zgarganda" },
+    {
+      name: 'swatches',
+      type: 'string[]',
+      default: 'defaultColorSwatches',
+      description: 'Tayyor ranglar (10 ta)',
+    },
+    {
+      name: 'alpha',
+      type: 'boolean',
+      default: 'false',
+      description: 'Shaffoflik slayderi va `#rrggbbaa` qiymat',
+    },
+    {
+      name: 'eyeDropper',
+      type: 'boolean',
+      default: 'true',
+      description: "EyeDropper API bo'lsa pipetka tugmasi",
+    },
+    {
+      name: 'size',
+      type: "'sm' | 'md' | 'lg'",
+      default: "'md'",
+      description: 'Trigger balandligi 32 / 40 / 48px',
+    },
+    { name: 'disabled', type: 'boolean', description: "O'chirilgan holat" },
+    { name: 'invalid', type: 'boolean', description: 'Xato holati (Field ichida avtomatik)' },
+    { name: 'name', type: 'string', description: 'Forma uchun yashirin input' },
+    { name: 'open / defaultOpen', type: 'boolean', description: 'Panel holati' },
+    {
+      name: 'onOpenChange',
+      type: '(open: boolean) => void',
+      description: 'Panel ochilganda / yopilganda',
+    },
+    {
+      name: 'labels',
+      type: '{ trigger?; saturation?; saturationValue?; hue?; alpha?; hex?; eyeDropper?; swatches? }',
+      description: "Ichki matnlar (o'zbekcha standart) — quyidagi jadval",
+    },
+    { name: 'contentClassName', type: 'string', description: 'Panel klassi' },
+  ]}
+/>
+
+### labels
+
+<PropsTable
+  rows={[
+    {
+      name: 'trigger',
+      type: 'string',
+      default: "'Rang tanlash'",
+      description: "Trigger nomi (Field bo'lmasa)",
+    },
+    {
+      name: 'saturation',
+      type: 'string',
+      default: '"To\'yinganlik va yorqinlik"',
+      description: '2D maydon nomi',
+    },
+    {
+      name: 'saturationValue',
+      type: '(s: number, v: number) => string',
+      default: '"to\'yinganlik 80%, yorqinlik 60%"',
+      description: '2D maydonning aria-valuetext matni',
+    },
+    { name: 'hue', type: 'string', default: "'Rang tusi'", description: 'Hue slayderi' },
+    { name: 'alpha', type: 'string', default: "'Shaffoflik'", description: 'Shaffoflik slayderi' },
+    { name: 'hex', type: 'string', default: "'HEX'", description: 'Hex input' },
+    {
+      name: 'eyeDropper',
+      type: 'string',
+      default: "'Ekrandan rang olish'",
+      description: 'Pipetka tugmasi',
+    },
+    { name: 'swatches', type: 'string', default: "'Tayyor ranglar'", description: 'Swatch guruhi' },
+  ]}
+/>
+
+### Data atributlari
+
+| Atribut         | Qayerda | Qiymat                                                                                                    |
+| --------------- | ------- | --------------------------------------------------------------------------------------------------------- |
+| `data-state`    | trigger | `open` · `closed`                                                                                         |
+| `data-size`     | trigger | `sm` · `md` · `lg`                                                                                        |
+| `data-invalid`  | trigger | xato holatida mavjud                                                                                      |
+| `data-disabled` | trigger | o'chirilganda mavjud                                                                                      |
+| `data-state`    | swatch  | `on` · `off`                                                                                              |
+| `data-slot`     | qismlar | `color-picker` · `color-picker-content` · `color-picker-area` · `color-picker-hue` · `color-picker-alpha` |
+
+## Klaviatura
+
+| Tugma                 | Qayerda     | Harakat                               |
+| --------------------- | ----------- | ------------------------------------- |
+| `Enter` / `Space`     | trigger     | Panelni ochish                        |
+| `Esc`                 | panel       | Yopish, fokus trigger'ga qaytadi      |
+| `←` / `→`             | 2D maydon   | To'yinganlik ±1% (`Shift` bilan ±10%) |
+| `↑` / `↓`             | 2D maydon   | Yorqinlik ±1% (`Shift` bilan ±10%)    |
+| `PageUp` / `PageDown` | 2D maydon   | Yorqinlik ±10%                        |
+| `Home` / `End`        | 2D maydon   | To'yinganlik 0% / 100%                |
+| strelkalar            | hue / alpha | Slider klaviaturasi                   |
+| `Enter`               | hex input   | Kiritilgan rangni qo'llash            |
+
+## Accessibility
+
+- **Trigger** — oddiy `<button>`; `Field` ichida nomi label + joriy hex, aks holda
+  `"Rang tanlash, #4F46E5"` (`aria-label` yoki `labels.trigger` bilan o'zgartiriladi).
+- **2D maydon** — `role="slider"`, `aria-valuenow` (to'yinganlik) va ikkala o'qni aytadigan
+  `aria-valuetext`: "to'yinganlik 80%, yorqinlik 60%".
+- **Hue va shaffoflik** — `Slider` komponenti: `role="slider"`, `aria-valuetext` ("210°", "50%").
+- **Tayyor ranglar** — `role="group"` ichida tugmalar, har biri hex nomli va `aria-pressed`.
+- **Pipetka** — faqat API mavjud bo'lsa ko'rinadi (serverda va qo'llab-quvvatlamaydigan
+  brauzerlarda yashirin), `aria-label="Ekrandan rang olish"`.
+- **Rang yagona signal emas** — tanlangan swatch qo'shimcha halqa bilan ajratiladi, trigger hex
+  matnni ham ko'rsatadi.

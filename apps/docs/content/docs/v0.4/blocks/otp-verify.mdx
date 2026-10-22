@@ -1,0 +1,36 @@
+---
+title: 'SMS kodni tasdiqlash'
+description: '6 xonali SMS kodni tasdiqlash: OtpInput, useCountdown bilan qayta yuborish taymeri va urinishlar soni.'
+full: true
+---
+
+<BlockPreview name="otp-verify" />
+
+## Tarkibi
+
+- Kod to'liq kiritilganda (`onComplete`) avtomatik tekshiriladi; sinov kodi — `246810`.
+- Noto'g'ri kodda maydon `invalid` bo'ladi va qolgan urinishlar soni ko'rsatiladi.
+- "Qayta yuborish" tugmasi `useCountdown(59)` tugaguncha o'chiq.
+- Muvaffaqiyatli tasdiqdan keyin — yakuniy holat.
+
+## Ishlatilgan komponentlar
+
+- [Card](../components/card.mdx)
+- [Field](../components/field.mdx)
+- [OtpInput](../components/otp-input.mdx)
+- [Button](../components/button.mdx)
+- [toast](../components/toast.mdx)
+- [`useCountdown`](../hooks.mdx)
+
+## O'rnatish
+
+CLI blok faylini loyihangizga (`components/blocks/otp-verify.tsx`) ko'chiradi va kerakli paketlarni
+o'rnatishni taklif qiladi:
+
+```bash
+npx @akhatmirzo/cli add otp-verify
+```
+
+Qo'lda: paketlarni o'rnating va "Kod" tabidagi faylni loyihangizga nusxalang.
+
+<BlockInstall name="otp-verify" />

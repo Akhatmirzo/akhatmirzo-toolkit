@@ -1,0 +1,198 @@
+---
+title: Pagination
+description: "Ro'yxat va jadvallarni sahifalarga bo'lish: SEO uchun haqiqiy havolalar, Next.js Link va telefonda ixcham ko'rinish."
+---
+
+<ComponentPreview name="pagination/basic" />
+
+## Import
+
+```tsx
+import { Pagination, PaginationInfo } from '@akhatmirzo/ui';
+```
+
+## Qachon ishlatish
+
+- **Uzun ro'yxatlar va jadvallar** — buyurtmalar, blog maqolalari, qidiruv natijalari.
+  Foydalanuvchi kerakli sahifaga to'g'ridan-to'g'ri o'ta oladi.
+- **Sahifa URL'da bo'lishi kerak bo'lsa** (`/blog?page=3`) — `getHref` bering: tugmalar haqiqiy
+  `<a href>` bo'ladi, qidiruv tizimlari barcha sahifalarni topadi.
+- **Cheksiz lenta uchun emas.** Ijtimoiy tarmoq lentasi kabi oqimda "Yana yuklash" tugmasi yoki
+  avtomatik yuklash qulayroq.
+- **Kichik ro'yxatda kerak emas.** Hammasi bitta sahifaga sig'sa, sahifalashni ko'rsatmang.
+
+## Sahifalar hisobi
+
+Sahifalar ro'yxati `@akhatmirzo/hooks` dagi `getPagination` bilan hisoblanadi — DataTable bilan
+bir xil algoritm. Elementlar soni barqaror (`siblings * 2 + 5`), shuning uchun sahifa almashganda
+tugmalar "sakramaydi". `…` bosilmaydi.
+
+`total` + `pageSize` (standart `10`) yoki to'g'ridan-to'g'ri `pageCount` bering. Sahifalar 1 dan
+boshlanadi.
+
+## O'lchamlar
+
+`size` — `sm` (32px) yoki `md` (40px, standart) kvadrat tugmalar.
+
+<ComponentPreview name="pagination/sizes" />
+
+## Birinchi / oxirgi sahifa
+
+`showFirstLast` — ⏮ ⏭ tugmalari. `siblings` — joriy sahifa yonida nechta raqam ko'rinadi
+(standart `1`).
+
+<ComponentPreview name="pagination/first-last" />
+
+## Ixcham ko'rinish
+
+`compact="auto"` (standart) — 640px dan tor ekranda `‹ 3 / 24 ›` ko'rinishiga o'tadi.
+`compact` — har doim ixcham, `compact={false}` — har doim to'liq.
+
+<ComponentPreview name="pagination/compact" />
+
+<Callout title="Nega CSS bilan?" type="info">
+  `auto` rejimda ikkala ko'rinish ham render qilinadi va CSS breakpoint bilan bittasi yashiriladi
+  (`display: none` — ekran o'quvchi ham ko'rmaydi). JavaScript `matchMedia` ishlatilmagani uchun
+  SSR'da hydration farqi va sahifa yuklanganda "sakrash" bo'lmaydi.
+</Callout>
+
+## Havolalar (SEO)
+
+`getHref` berilsa, har bir sahifa — haqiqiy `<a href>`. Bosilganda brauzer odatdagidek o'tadi;
+`onPageChange` ham chaqiriladi. Chekkadagi "Oldingi" / "Keyingi" havola emas, o'chirilgan tugma
+bo'ladi.
+
+<ComponentPreview name="pagination/links" />
+
+### Next.js Link
+
+`renderLink` — o'z havola komponentingiz. Barcha prop'larni havolaga yoying; `page` — qaysi
+sahifaga olib borishi.
+
+```tsx title="app/blog/page.tsx"
+import Link from 'next/link';
+import { Pagination } from '@akhatmirzo/ui';
+
+export default async function BlogPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ page?: string }>;
+}) {
+  const page = Number((await searchParams).page ?? 1);
+  const { posts, total } = await getPosts(page);
+
+  return (
+    <>
+      <PostList posts={posts} />
+      <Pagination
+        page={page}
+        total={total}
+        pageSize={10}
+        getHref={(p) => `/blog?page=${p}`}
+        renderLink={({ page, ...props }) => <Link {...props} />}
+      />
+    </>
+  );
+}
+```
+
+## DataTable bilan
+
+DataTable'ning o'z sahifalashi bor (`pagination` prop). Sahifalashni jadvaldan tashqarida —
+masalan URL bilan boshqarish kerak bo'lsa, `pagination` ni bermang va `Pagination` +
+`PaginationInfo` ni pastga qo'ying.
+
+<ComponentPreview name="pagination/data-table" align="start" />
+
+## Props
+
+### Pagination
+
+Qolgan `<nav>` atributlari ham qabul qilinadi.
+
+<PropsTable
+  rows={[
+    { name: 'page', type: 'number', description: 'Joriy sahifa, 1 dan (boshqariladigan rejim)' },
+    { name: 'defaultPage', type: 'number', default: '1', description: "Boshlang'ich sahifa" },
+    { name: 'onPageChange', type: '(page: number) => void', description: 'Sahifa almashganda' },
+    { name: 'total', type: 'number', description: 'Jami yozuvlar soni' },
+    { name: 'pageSize', type: 'number', default: '10', description: 'Bir sahifadagi yozuvlar' },
+    {
+      name: 'pageCount',
+      type: 'number',
+      description: "Sahifalar soni to'g'ridan-to'g'ri (`total` / `pageSize` o'rniga)",
+    },
+    {
+      name: 'siblings',
+      type: 'number',
+      default: '1',
+      description: 'Joriy sahifaning har ikki tomonidagi raqamlar',
+    },
+    {
+      name: 'getHref',
+      type: '(page: number) => string',
+      description: "Berilsa — tugmalar haqiqiy `<a href>` bo'ladi",
+    },
+    {
+      name: 'renderLink',
+      type: '(props: PaginationLinkProps) => ReactNode',
+      description: 'Next `Link` kabi havola komponenti (`getHref` bilan)',
+    },
+    { name: 'size', type: "'sm' | 'md'", default: "'md'", description: 'Tugma: 32 / 40px' },
+    {
+      name: 'showFirstLast',
+      type: 'boolean',
+      default: 'false',
+      description: 'Birinchi / oxirgi sahifa tugmalari',
+    },
+    {
+      name: 'compact',
+      type: "boolean | 'auto'",
+      default: "'auto'",
+      description: "`‹ 3 / 24 ›` ko'rinishi; `auto` — 640px dan tor ekranda",
+    },
+    {
+      name: 'labels',
+      type: '{ nav, previous, next, first, last, page, ellipsis, compact }',
+      description:
+        'Ekran o\'quvchi matnlari. Standart: "Sahifalash", "Oldingi sahifa", "Keyingi sahifa", `(n) => "${n}-sahifa"` ...',
+    },
+  ]}
+/>
+
+### PaginationInfo
+
+Qolgan `<p>` atributlari ham qabul qilinadi.
+
+<PropsTable
+  rows={[
+    { name: 'page', type: 'number', required: true, description: 'Joriy sahifa (1 dan)' },
+    { name: 'pageSize', type: 'number', required: true, description: 'Bir sahifadagi yozuvlar' },
+    { name: 'total', type: 'number', required: true, description: 'Jami yozuvlar' },
+    {
+      name: 'labels',
+      type: '{ template?: (from, to, total) => ReactNode; empty?: ReactNode }',
+      description: 'Standart: "21–30 / 230 ta" va "Ma\'lumot yo\'q"',
+    },
+  ]}
+/>
+
+### Data atributlari
+
+| Atribut         | Qayerda           | Qiymat                         |
+| --------------- | ----------------- | ------------------------------ |
+| `data-size`     | `nav`, tugmalar   | `sm` · `md`                    |
+| `data-compact`  | `nav`             | `auto` yoki mavjud (`compact`) |
+| `data-active`   | sahifa tugmasi    | joriy sahifada mavjud          |
+| `data-disabled` | oldingi / keyingi | chekkada mavjud                |
+
+## Accessibility
+
+- **Tuzilish.** `<nav aria-label="Sahifalash">` ichida `<ul>` ro'yxat — ekran o'quvchi
+  navigatsiya hududi va elementlar sonini e'lon qiladi.
+- **Joriy sahifa** — `aria-current="page"`. Rang yagona signal emas: joriy tugma to'ldirilgan fonda.
+- **Nomlar.** Har bir tugmada `aria-label` (`"5-sahifa"`, `"Keyingi sahifa"`); ikonkalar
+  `aria-hidden`. `…` ekran o'quvchiga "Boshqa sahifalar" deb o'qiladi.
+- **Klaviatura.** Oddiy tugma yoki havolalar: `Tab` bilan yuriladi, `Enter` bilan bosiladi.
+  Chekkadagi o'chirilgan tugmalar `Tab` da o'tkazib yuboriladi.
+- **PaginationInfo** — `aria-live="polite"`: sahifa almashganda yangi oraliq e'lon qilinadi.

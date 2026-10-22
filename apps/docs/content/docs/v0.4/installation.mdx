@@ -1,0 +1,234 @@
+---
+title: "O'rnatish"
+description: "Paketlarni o'rnatish, CSS'ni ulash va birinchi komponent."
+---
+
+Kutubxona to'rtta mustaqil paketdan iborat. Komponentlar uchun `@akhatmirzo/ui` va
+`@akhatmirzo/tokens` yetarli — qolganlari kerak bo'lsa qo'shiladi.
+
+## Talablar
+
+- **React 18** yoki undan yangi (19 ham qo'llab-quvvatlanadi)
+- **Tailwind CSS v4** — komponentlar Tailwind klasslari bilan yozilgan, stillarni sizning
+  Tailwind build'ingiz yaratadi
+- ESM'ni tushunadigan bundler: Vite, Next.js, Rsbuild va boshqalar
+
+## O'rnatish
+
+<Steps>
+<Step>
+
+### Paketlarni qo'shing
+
+<Install pkg="@akhatmirzo/ui @akhatmirzo/tokens" />
+
+Shrift ixtiyoriy, lekin dizayn Manrope uchun moslangan:
+
+<Install pkg="@fontsource-variable/manrope" />
+
+</Step>
+<Step>
+
+### CSS'ni ulang
+
+Asosiy CSS faylingizda Tailwind'dan **keyin** tokenlarni ulang va Tailwind'ga komponentlar
+klasslarini skanerlashni ayting:
+
+```css title="app.css"
+@import 'tailwindcss';
+@import '@fontsource-variable/manrope';
+@import '@akhatmirzo/tokens/theme.css';
+
+/* Yo'l shu CSS faylga nisbatan yoziladi */
+@source '../node_modules/@akhatmirzo/ui/dist';
+```
+
+<Callout type="warn" title="@source'ni unutmang">
+  Tailwind v4 `node_modules` ichini o'zi skanerlamaydi. `@source` qatori bo'lmasa, komponentlar
+  ko'rinadi, lekin stillarsiz qoladi. Yo'lni CSS faylingiz joylashuviga qarab to'g'rilang — masalan,
+  `src/styles/app.css` uchun `'../../node_modules/@akhatmirzo/ui/dist'`.
+</Callout>
+
+</Step>
+<Step>
+
+### Provayderlarni qo'ying
+
+Ilova ildizida bir marta. `toast()`, `confirm()` va tooltiplar shularsiz ishlamaydi:
+
+```tsx title="App.tsx"
+import { ConfirmProvider, Toaster, TooltipProvider } from '@akhatmirzo/ui';
+
+export function App() {
+  return (
+    <TooltipProvider>
+      <ConfirmProvider>
+        <Routes />
+        <Toaster position="bottom-right" />
+      </ConfirmProvider>
+    </TooltipProvider>
+  );
+}
+```
+
+</Step>
+<Step>
+
+### Birinchi komponent
+
+```tsx
+import { Button, toast } from '@akhatmirzo/ui';
+
+export function SaveButton() {
+  return (
+    <Button variant="primary" onClick={() => toast.success('Saqlandi')}>
+      Saqlash
+    </Button>
+  );
+}
+```
+
+</Step>
+</Steps>
+
+## Vite
+
+Tailwind v4 Vite'ga rasmiy plagin orqali ulanadi:
+
+<Install pkg="tailwindcss @tailwindcss/vite" dev />
+
+```ts title="vite.config.ts"
+import tailwindcss from '@tailwindcss/vite';
+import react from '@vitejs/plugin-react';
+import { defineConfig } from 'vite';
+
+export default defineConfig({
+  plugins: [react(), tailwindcss()],
+});
+```
+
+CSS fayl odatda `src/` ichida turadi, shuning uchun `@source` bir pog'ona yuqoriga chiqadi:
+
+```css title="src/index.css"
+@import 'tailwindcss';
+@import '@fontsource-variable/manrope';
+@import '@akhatmirzo/tokens/theme.css';
+
+@source '../node_modules/@akhatmirzo/ui/dist';
+```
+
+Provayderlarni `src/main.tsx` da yoki `App` ildizida qo'ying — yuqoridagi 3-qadamdagidek.
+
+## Next.js (App Router)
+
+Komponentlar holat va brauzer API'laridan foydalanadi, shuning uchun ularni **client
+komponentlarda** ishlating — fayl boshida `'use client'` bo'lsin.
+
+Tailwind v4 Next.js'da PostCSS plagini orqali ishlaydi:
+
+<Install pkg="tailwindcss @tailwindcss/postcss" dev />
+
+```js title="postcss.config.mjs"
+export default {
+  plugins: { '@tailwindcss/postcss': {} },
+};
+```
+
+```css title="app/globals.css"
+@import 'tailwindcss';
+@import '@fontsource-variable/manrope';
+@import '@akhatmirzo/tokens/theme.css';
+
+@source '../node_modules/@akhatmirzo/ui/dist';
+```
+
+Provayderlarni alohida faylga chiqaring va `layout.tsx` da o'rab qo'ying:
+
+```tsx title="app/providers.tsx"
+'use client';
+
+import { ConfirmProvider, Toaster, TooltipProvider } from '@akhatmirzo/ui';
+import type { ReactNode } from 'react';
+
+export function Providers({ children }: { children: ReactNode }) {
+  return (
+    <TooltipProvider>
+      <ConfirmProvider>
+        {children}
+        <Toaster />
+      </ConfirmProvider>
+    </TooltipProvider>
+  );
+}
+```
+
+```tsx title="app/layout.tsx"
+import { Providers } from './providers';
+import './globals.css';
+
+export default function RootLayout({ children }: { children: React.ReactNode }) {
+  return (
+    <html lang="uz">
+      <body className="bg-background font-sans text-text antialiased">
+        <Providers>{children}</Providers>
+      </body>
+    </html>
+  );
+}
+```
+
+## Qo'shimcha paketlar
+
+Komponentlarsiz ham ishlatish mumkin — har biri mustaqil:
+
+<Install pkg="@akhatmirzo/core @akhatmirzo/hooks" />
+
+| Paket                | Nima beradi                                                                |
+| -------------------- | -------------------------------------------------------------------------- |
+| `@akhatmirzo/ui`     | React komponentlar (Tailwind v4 + Radix)                                   |
+| `@akhatmirzo/tokens` | Dizayn tokenlari: CSS o'zgaruvchilari va Tailwind `@theme`                 |
+| `@akhatmirzo/core`   | Formatlash, validatsiya, matn, storage va API — React'siz, bog'liqliksiz   |
+| `@akhatmirzo/hooks`  | React hooklar: `useDebounce`, `useHotkeys`, `useLocalStorage` va boshqalar |
+
+<Callout title="core va hooks alohida o'rnatilishi shart emas">
+  `@akhatmirzo/ui` ularni o'zi bog'liqlik sifatida oladi. Ularni o'z kodingizda to'g'ridan-to'g'ri
+  import qilsangiz, `package.json` ga ham qo'shib qo'ying.
+</Callout>
+
+## Muammolar
+
+<Accordions>
+  <Accordion title="Komponentlar ko'rinadi, lekin stillarsiz">
+    Tailwind `@akhatmirzo/ui` klasslarini ko'rmayapti. CSS faylingizda `@source` qatori borligini
+    va yo'l **shu CSS faylga nisbatan** to'g'ri yozilganini tekshiring. pnpm monorepo'da yo'l
+    ilovaning o'z `node_modules` papkasiga qarashi kerak (repo ildizidagisiga emas).
+  </Accordion>
+  <Accordion title="toast() yoki confirm() hech narsa ko'rsatmaydi">
+    `<Toaster />` va `<ConfirmProvider>` ilova ildizida bir marta render qilinishi kerak. Ular
+    bo'lmasa, funksiyalar xato bermaydi, lekin ekranda hech narsa chiqmaydi.
+  </Accordion>
+  <Accordion title="Next.js: useState faqat client komponentda ishlaydi">
+    Komponentni ishlatayotgan faylning birinchi qatoriga `'use client';` qo'shing. Server
+    komponentda faqat statik ko'rinishdagi elementlarni render qilish mumkin.
+  </Accordion>
+  <Accordion title="Dark mode yoqilmayapti">
+    Tokenlar `<html data-theme="dark">` atributiga qaraydi — `class="dark"` yetarli emas.
+    [Dark mode](./dark-mode.mdx) sahifasida next-themes bilan sozlash ko'rsatilgan.
+  </Accordion>
+</Accordions>
+
+## Keyingi qadamlar
+
+<Cards>
+  <Card
+    title="Mavzu va tokenlar"
+    href="./theming"
+    description="Brend rangi, radiuslar va soyalarni moslash"
+  />
+  <Card title="Dark mode" href="./dark-mode" description="data-theme bilan qorong'i rejim" />
+  <Card
+    title="Button"
+    href="./components/button"
+    description="Birinchi komponent bilan yaqinroq tanishing"
+  />
+</Cards>

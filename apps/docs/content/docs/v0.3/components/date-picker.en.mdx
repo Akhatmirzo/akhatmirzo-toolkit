@@ -3,7 +3,7 @@ title: DatePicker
 description: Pick a date or a date range — type it in or use the calendar, with ready-made presets.
 ---
 
-<ComponentPreview name="date-picker/basic" />
+<ComponentPreview name="archive/v0.3/date-picker/basic" />
 
 ## Import
 
@@ -38,7 +38,7 @@ Users can type straight into the field. The `__.__.____` mask adds the dots, and
 checked as soon as the last digit is in. A date that doesn't exist (`31.02.2026`) is `invalid`; a
 date outside your limits is `unavailable`. Read the error type with `onErrorChange`.
 
-<ComponentPreview name="date-picker/typing" />
+<ComponentPreview name="archive/v0.3/date-picker/typing" />
 
 <Callout title="One error message, not two">
   By default `DatePicker` shows its own error under the field. When the surrounding `Field` has an
@@ -55,7 +55,7 @@ Click the calendar caption ("Oktabr 2026") to jump to a month grid, then to a ye
 fastest way to reach a date decades away. Months and years outside `minDate` / `maxDate` are
 disabled.
 
-<ComponentPreview name="date-picker/birthday" />
+<ComponentPreview name="archive/v0.3/date-picker/birthday" />
 
 ## Presets
 
@@ -83,14 +83,14 @@ If a preset lands on a blocked day (say, a closed Sunday), the next allowed day 
 
 `sm`, `md`, `lg` — 32, 40 and 48px, the same heights as [Input](./input.mdx).
 
-<ComponentPreview name="date-picker/sizes" />
+<ComponentPreview name="archive/v0.3/date-picker/sizes" />
 
 ## States
 
 `disabled`, `readOnly`, an error and a custom `format`. A `readOnly` field never opens the
 calendar.
 
-<ComponentPreview name="date-picker/states" align="start" />
+<ComponentPreview name="archive/v0.3/date-picker/states" align="start" />
 
 ## DateRangePicker
 
@@ -98,7 +98,7 @@ The range is confirmed on the second click. After the first day, moving the poin
 range. Desktop shows two months, phones show one. With `presets`, the defaults are "Today", "Last 7
 days", "This month" and "Last month".
 
-<ComponentPreview name="date-picker/range" />
+<ComponentPreview name="archive/v0.3/date-picker/range" />
 
 `onValueChange` only fires with a complete range (both `from` and `to`) or with `null` when
 cleared — a half-picked range never leaks out.
@@ -108,7 +108,7 @@ cleared — a half-picked range never leaks out.
 In a `DateRangePreset`, `range` is either an object or a function that receives `today`. Pass
 `name` and the form gets two hidden fields: `${name}From` and `${name}To` (`yyyy-MM-dd`).
 
-<ComponentPreview name="date-picker/range-presets" />
+<ComponentPreview name="archive/v0.3/date-picker/range-presets" />
 
 <Callout title="Typing is DatePicker-only">
   The `DateRangePicker` trigger is a button, so there's no text to type. From the keyboard, press
@@ -120,9 +120,9 @@ In a `DateRangePreset`, `range` is either an object or a function that receives 
 Use the calendar without a popover, right on the page — a booking screen, for example. Set
 `mode="range"` to select a range.
 
-<ComponentPreview name="date-picker/calendar" />
+<ComponentPreview name="archive/v0.3/date-picker/calendar" />
 
-<ComponentPreview name="date-picker/calendar-range" />
+<ComponentPreview name="archive/v0.3/date-picker/calendar-range" />
 
 ## Props
 

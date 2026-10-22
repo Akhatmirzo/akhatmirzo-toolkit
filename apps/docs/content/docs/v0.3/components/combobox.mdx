@@ -3,7 +3,7 @@ title: Combobox
 description: "Qidiruvli tanlash: o'zbekcha harflarni tushunadigan qidiruv, bir nechta tanlov, yangi variant yaratish va server qidiruvi."
 ---
 
-<ComponentPreview name="combobox/basic" align="start" />
+<ComponentPreview name="archive/v0.3/combobox/basic" align="start" />
 
 ## Import
 
@@ -33,7 +33,7 @@ Qidiruv `@akhatmirzo/core` dagi `searchMatch` bilan ishlaydi va o'zbek yozuvinin
 - **So'z o'rtasidan ham:** `chirchiq` → "Oʻrta Chirchiq".
 - **Mos kelgan qism qalin** bilan ajratiladi — `description` matnida ham.
 
-<ComponentPreview name="combobox/uzbek-search" align="start" />
+<ComponentPreview name="archive/v0.3/combobox/uzbek-search" align="start" />
 
 <Callout title="O'z qidiruvingizda ham ishlating">
   Xuddi shu funksiyalar alohida eksport qilinadi: `searchMatch`, `normalizeUz`, `splitByRanges` —
@@ -47,7 +47,7 @@ Qidiruv `@akhatmirzo/core` dagi `searchMatch` bilan ishlaydi va o'zbek yozuvinin
 ko'rinishida turadi va ✕ bilan olib tashlanadi. Panel har tanlovdan keyin ochiq qoladi; qidiruv
 bo'sh bo'lganda `Backspace` oxirgi tanlovni o'chiradi.
 
-<ComponentPreview name="combobox/multiple" align="start" />
+<ComponentPreview name="archive/v0.3/combobox/multiple" align="start" />
 
 ## Yangi variant yaratish
 
@@ -56,7 +56,7 @@ ro'yxat oxirida "«matn» yaratish" elementi chiqadi. `onCreate` yangi variantni
 tanlanadi; hech narsa qaytarmasa — qiymat va nom sifatida matnning o'zi olinadi. Yangi variantni
 `options` ga o'zingiz qo'shasiz.
 
-<ComponentPreview name="combobox/creatable" align="start" />
+<ComponentPreview name="archive/v0.3/combobox/creatable" align="start" />
 
 ## Server qidiruvi
 
@@ -64,7 +64,7 @@ tanlanadi; hech narsa qaytarmasa — qiymat va nom sifatida matnning o'zi olinad
 yangi `options` ni berasiz. Javob kutilayotganda `loading` ro'yxat o'rnida spinner ko'rsatadi.
 Panel yopilganda `onSearch('')` chaqiriladi — boshlang'ich ro'yxatni qaytarish uchun qulay.
 
-<ComponentPreview name="combobox/server" align="start" />
+<ComponentPreview name="archive/v0.3/combobox/server" align="start" />
 
 <Callout title="Tanlangan qiymat yo'qolmaydi" type="info">
   Serverdan kelgan yangi ro'yxatda tanlangan variant bo'lmasa ham, Combobox uning nomini eslab
@@ -77,7 +77,7 @@ Panel yopilganda `onSearch('')` chaqiriladi — boshlang'ich ro'yxatni qaytarish
 matnida ham ishlaydi. Triggerdagi lupa ikonkasini `leftIcon={null}` bilan olib tashlaysiz yoki
 o'zingiznikiga almashtirasiz.
 
-<ComponentPreview name="combobox/details" align="start" />
+<ComponentPreview name="archive/v0.3/combobox/details" align="start" />
 
 ```ts
 interface ComboboxOption {
@@ -94,14 +94,14 @@ interface ComboboxOption {
 `Input` va `Select` bilan bir xil: 32, 40 va 48px. `multiple` da balandlik tanlovlar soniga
 qarab o'sadi.
 
-<ComponentPreview name="combobox/sizes" align="start" />
+<ComponentPreview name="archive/v0.3/combobox/sizes" align="start" />
 
 ## Holatlar
 
 `Field` ichida `disabled`, `error` va `required` o'zi ulanadi. `loading` panel ochilganda
 ro'yxat o'rnida spinner ko'rsatadi.
 
-<ComponentPreview name="combobox/states" align="start" />
+<ComponentPreview name="archive/v0.3/combobox/states" align="start" />
 
 ## Dialog ichida
 

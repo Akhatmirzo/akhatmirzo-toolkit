@@ -1,0 +1,221 @@
+---
+title: TagInput
+description: "Teglar, kalit so'zlar va email ro'yxatini kiritish: Enter yoki vergul bilan qo'shish, paste, takliflar, tekshiruv va joyida tahrirlash."
+---
+
+<ComponentPreview name="tag-input/basic" align="start" />
+
+## Import
+
+```tsx
+import { TagInput } from '@akhatmirzo/ui';
+```
+
+## Qachon ishlatish
+
+- **Erkin qiymatlar ro'yxati** — teglar, kalit so'zlar, ko'nikmalar, bir nechta email yoki telefon.
+- **Variantlar oldindan ma'lum bo'lsa** — `suggestions` bering: foydalanuvchi yozishni boshlaganda
+  ro'yxat chiqadi, lekin o'z qiymatini ham qo'sha oladi.
+- **Faqat ro'yxatdagi variantlardan tanlash kerak bo'lsa** — `Combobox` (`multiple`) to'g'riroq:
+  u yangi qiymat yaratishga yo'l qo'ymaydi.
+- **Bitta qiymat** uchun oddiy [`Input`](./input.mdx) ishlating.
+
+## Field bilan
+
+[`Field`](./field.mdx) ichida label ichki `<input>` ga ulanadi, izoh va xato `aria-describedby` ga
+tushadi. `value` + `onValueChange` — boshqariladigan rejim, `defaultValue` — boshqarilmaydigan.
+
+<ComponentPreview name="tag-input/with-field" align="start" />
+
+## Qo'shish va o'chirish
+
+- `Enter` yoki `,` — yozilgan matn tegga aylanadi (`delimiters` bilan o'zgartiriladi, masalan
+  `['Enter', ',', 'Tab']`). Bo'sh inputda `Enter` formani odatdagidek yuboradi.
+- Paste: `"a, b, c"` → 3 teg. Bir belgili ajratuvchilar va (`Enter` bo'lsa) yangi qatorlar bo'yicha
+  bo'linadi.
+- Takror teglar qo'shilmaydi — taqqoslash katta-kichik harfga qaramaydi (`allowDuplicates` bilan
+  ruxsat beriladi).
+- `transform` — matnni tegga aylantirish (standart — `trim`).
+- Teg ustiga ikki marta bosing (yoki fokusda `Enter` / `F2`) — joyida tahrirlanadi: `Enter` saqlaydi,
+  `Esc` bekor qiladi, matnni o'chirsangiz teg olib tashlanadi.
+
+## Takliflar
+
+`suggestions` berilsa, yozish paytida mos variantlar ro'yxati chiqadi. Qidiruv
+`normalizeUz` bilan ishlaydi: kirill va lotin, apostrof variantlari farq qilmaydi — «тош» deb
+yozsangiz «Toshkent» topiladi. Allaqachon qo'shilgan teglar ro'yxatda ko'rinmaydi. `↓` / `↑` bilan
+tanlang, `Enter` qo'shadi; hech narsa ajratilmagan bo'lsa `Enter` yozilgan matnning o'zini qo'shadi.
+
+`maxTags` — eng ko'p teglar soni. Chegaraga yetganda input yashiriladi va konteynerda `data-full`
+paydo bo'ladi.
+
+<ComponentPreview name="tag-input/suggestions" align="start" />
+
+## Tekshiruv
+
+`validate` har bir yangi teg uchun chaqiriladi: `true` — qabul, `false` — standart xato
+(`labels.invalid`), matn — o'sha xato. Rad etilgan teg qo'shilmaydi, matn inputda qoladi, xato
+input ostida ko'rinadi va ekran o'quvchiga o'qiladi; input `aria-invalid` bo'ladi. Keyingi
+o'zgarishda xato yo'qoladi.
+
+<ComponentPreview name="tag-input/validate" align="start" />
+
+<Callout type="info">
+  Tekshiruv xatosi `Field` ning `error` prop'idan alohida — u TagInput'ning o'zida ko'rsatiladi.
+  Forma darajasidagi xatolarni (masalan "Kamida bitta teg kerak") `Field error` orqali bering.
+</Callout>
+
+## O'lchamlar va holatlar
+
+`size` — `sm`, `md` (standart), `lg`: Input bilan bir xil minimal balandlik (32 / 40 / 48px),
+teglar ko'paysa konteyner o'sadi. `disabled` va `readOnly` holatlarida ✕ tugmalari yo'qoladi.
+
+<ComponentPreview name="tag-input/sizes" align="start" />
+
+## Forma
+
+`name` berilsa, har bir teg uchun shu nomli yashirin `<input>` yaratiladi:
+`new FormData(form).getAll('tags')` → `['React', 'Vue']`. PHP uslubidagi massiv kerak bo'lsa —
+`name="tags[]"`.
+
+## Props
+
+`className` ildiz konteynerga, `ref` va qolgan `<input>` atributlari (`placeholder`, `autoFocus`,
+`onBlur` ...) ichki input'ga tushadi.
+
+<PropsTable
+  rows={[
+    { name: 'value', type: 'string[]', description: 'Teglar (boshqariladigan rejim)' },
+    { name: 'defaultValue', type: 'string[]', default: '[]', description: "Boshlang'ich teglar" },
+    {
+      name: 'onValueChange',
+      type: '(value: string[]) => void',
+      description: "Ro'yxat o'zgarganda",
+    },
+    {
+      name: 'delimiters',
+      type: 'string[]',
+      default: "['Enter', ',']",
+      description: "Tegni yakunlovchi tugmalar va belgilar ('Tab' ham mumkin)",
+    },
+    { name: 'maxTags', type: 'number', description: "Eng ko'p teglar soni" },
+    {
+      name: 'allowDuplicates',
+      type: 'boolean',
+      default: 'false',
+      description: 'Takror teglar (katta-kichik harf farqsiz taqqoslanadi)',
+    },
+    {
+      name: 'validate',
+      type: '(tag: string) => boolean | string',
+      description: "false yoki matn — teg qo'shilmaydi, xato ko'rsatiladi",
+    },
+    {
+      name: 'transform',
+      type: '(raw: string) => string',
+      default: 'trim',
+      description: 'Kiritilgan matnni tegga aylantirish',
+    },
+    {
+      name: 'suggestions',
+      type: 'string[]',
+      description: 'Yozishda chiqadigan takliflar (kirill/lotin farqsiz)',
+    },
+    {
+      name: 'size',
+      type: "'sm' | 'md' | 'lg'",
+      default: "'md'",
+      description: 'Minimal balandlik 32 / 40 / 48px',
+    },
+    { name: 'disabled', type: 'boolean', description: "O'chirilgan holat" },
+    { name: 'readOnly', type: 'boolean', description: "Faqat o'qish: qo'shish va o'chirish yo'q" },
+    { name: 'invalid', type: 'boolean', description: 'Xato holati (Field ichida avtomatik)' },
+    { name: 'name', type: 'string', description: 'Har bir tegga shu nomli yashirin input' },
+    {
+      name: 'labels',
+      type: '{ remove?; suggestions?; added?; removed?; invalid?; duplicate? }',
+      description: "Ichki matnlar (o'zbekcha standart) — quyidagi jadval",
+    },
+    { name: 'inputClassName', type: 'string', description: 'Ichki `<input>` klassi' },
+  ]}
+/>
+
+### labels
+
+<PropsTable
+  rows={[
+    {
+      name: 'remove',
+      type: '(tag: string) => string',
+      default: '`${tag} ni olib tashlash`',
+      description: '✕ tugmasining nomi',
+    },
+    {
+      name: 'suggestions',
+      type: 'string',
+      default: "'Takliflar'",
+      description: "Takliflar ro'yxatining nomi",
+    },
+    {
+      name: 'added',
+      type: '(tag: string) => string',
+      default: "`${tag} qo'shildi`",
+      description: "Ekran o'quvchi uchun e'lon",
+    },
+    {
+      name: 'removed',
+      type: '(tag: string) => string',
+      default: '`${tag} olib tashlandi`',
+      description: "Ekran o'quvchi uchun e'lon",
+    },
+    {
+      name: 'invalid',
+      type: '(tag: string) => string',
+      default: '`«${tag}» qabul qilinmadi`',
+      description: '`validate` false qaytarganda',
+    },
+    {
+      name: 'duplicate',
+      type: '(tag: string) => string',
+      default: "`«${tag}» allaqachon qo'shilgan`",
+      description: 'Takror teg',
+    },
+  ]}
+/>
+
+### Data atributlari
+
+| Atribut         | Qayerda   | Qiymat                         |
+| --------------- | --------- | ------------------------------ |
+| `data-size`     | konteyner | `sm` · `md` · `lg`             |
+| `data-full`     | konteyner | `maxTags` ga yetganda mavjud   |
+| `data-invalid`  | konteyner | xato (yoki tekshiruv xatosi)   |
+| `data-disabled` | konteyner | o'chirilganda mavjud           |
+| `data-readonly` | konteyner | `readOnly` da mavjud           |
+| `data-slot`     | qismlar   | `tag-input` · `tag-input-root` |
+
+## Klaviatura
+
+| Tugma                          | Harakat                                           |
+| ------------------------------ | ------------------------------------------------- |
+| `Enter` / `,`                  | Yozilgan matnni teg qilish                        |
+| `Backspace` (bo'sh inputda)    | Oxirgi tegni tanlash; yana bosish — o'chirish     |
+| `←` (input boshida)            | Oxirgi tegga o'tish                               |
+| `←` / `→` (tegda)              | Teglar orasida yurish; oxirgisidan `→` — input'ga |
+| `Backspace` / `Delete` (tegda) | Tegni o'chirish                                   |
+| `Enter` / `F2` (tegda)         | Tegni tahrirlash                                  |
+| `Esc` (tegda)                  | Input'ga qaytish                                  |
+| `↓` / `↑`                      | Takliflar orasida yurish (`suggestions` bo'lsa)   |
+| `Esc`                          | Takliflar ro'yxatini yopish                       |
+
+## Accessibility
+
+- **Ro'yxat.** Teglar `<ul role="list">` ichida — ekran o'quvchi teglar sonini aytadi.
+- **E'lonlar.** Qo'shish va o'chirish `aria-live="polite"` ko'rinmas hududda e'lon qilinadi
+  ("React qo'shildi", "React olib tashlandi"); matnlar `labels.added` / `labels.removed`.
+- **Xato.** Tekshiruv xatosi ko'rinadigan matn, `aria-live` hududda; input'ga `aria-invalid` va
+  `aria-describedby` orqali ulanadi.
+- **Takliflar.** `suggestions` bo'lsa input `role="combobox"` (`aria-expanded`,
+  `aria-controls`, `aria-activedescendant`), ro'yxat — `role="listbox"`. Fokus doim input'da qoladi.
+- **✕ tugmalari** — `aria-label="React ni olib tashlash"`, bosish maydoni kamida 40px.
+- **Teglar** strelkalar bilan fokuslanadi (`tabIndex={-1}`); ✕ tugmalariga `Tab` bilan ham o'tish mumkin.

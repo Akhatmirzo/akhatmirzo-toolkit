@@ -3,7 +3,7 @@ title: FileUpload
 description: Upload files by drag and drop, file picker or Ctrl+V — with progress, cancel and retry for each file.
 ---
 
-<ComponentPreview name="file-upload/basic" />
+<ComponentPreview name="archive/v0.3/file-upload/basic" />
 
 ## Import
 
@@ -93,7 +93,7 @@ Without `multiple`, a new file replaces the old one. While dragging, an accepted
 `disabled` and `required` from `Field` are applied automatically. `hint` replaces the generated
 limits text.
 
-<ComponentPreview name="file-upload/states" align="start" />
+<ComponentPreview name="archive/v0.3/file-upload/states" align="start" />
 
 Files that break a rule still show up in the list with the reason ("Hajmi 5 MB dan katta"), but
 they aren't uploaded and don't count toward `maxFiles`. Files over the `maxFiles` limit aren't
@@ -103,7 +103,7 @@ added at all; a "Ko'pi bilan 5 ta fayl yuklash mumkin" notice appears instead.
 
 `variant="button"` swaps the dropzone for a "Fayl tanlash" button. The file list works the same.
 
-<ComponentPreview name="file-upload/button" align="start" />
+<ComponentPreview name="archive/v0.3/file-upload/button" align="start" />
 
 ## With a form
 
@@ -111,7 +111,7 @@ Without `upload`, files are only selected (`status: 'idle'`). Pass `name` and th
 hidden `<input type="file" name="...">` in sync — every file without an error is written to it
 and submitted with the form.
 
-<ComponentPreview name="file-upload/form" align="start" />
+<ComponentPreview name="archive/v0.3/file-upload/form" align="start" />
 
 ## Paste from the clipboard
 
@@ -119,7 +119,7 @@ By default (`paste={true}`), `Ctrl+V` adds a copied file or screenshot while foc
 component. `paste="global"` listens on the whole page (except inputs and textareas);
 `paste={false}` turns it off.
 
-<ComponentPreview name="file-upload/paste" />
+<ComponentPreview name="archive/v0.3/file-upload/paste" />
 
 ## Props
 

@@ -1,0 +1,13 @@
+{
+  "name": "login",
+  "title": {
+    "uz": "Kirish",
+    "en": "Login"
+  },
+  "description": {
+    "uz": "Telefon yoki email va parol bilan kirish: \"Esda qolsin\", Google tugmasi va xato holati.",
+    "en": "Sign in with phone or email and password: remember me, a Google button and an error state."
+  },
+  "dependencies": ["@akhatmirzo/core", "lucide-react"],
+  "category": "auth"
+}

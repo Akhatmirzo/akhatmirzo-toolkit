@@ -1,0 +1,184 @@
+---
+title: OtpInput
+description: "SMS orqali kelgan bir martalik kodni kiritish: katakchalar, joylash, avtoto'ldirish va qayta yuborish taymeri."
+---
+
+<ComponentPreview name="otp-input/verify" />
+
+## Import
+
+```tsx
+import { OtpInput, ResendTimer } from '@akhatmirzo/ui';
+```
+
+`ResendTimer` — `OtpInput.ResendTimer` sifatida ham mavjud, alohida import qilish shart emas.
+
+## Qachon ishlatish
+
+- **Telefon yoki email tasdiqlash, ikki bosqichli kirish** — SMS yoki ilovadan kelgan 4–8 xonali
+  kod uchun.
+- **Kod to'lishi bilan tekshiring:** `onComplete` oxirgi belgi kiritilganda chaqiriladi —
+  "Tasdiqlash" tugmasi shart emas.
+- **Xatoni matn bilan ayting:** `invalid` katakchalarni qizil qiladi va silkitadi, lekin sababini
+  [Field](./field.mdx) ning `error` prop'ida yozing ("Kod noto'g'ri").
+- **Qayta yuborishni taymer bilan bering** — `ResendTimer` foydalanuvchini SMS kelishini kutishga
+  undaydi va serverni ortiqcha so'rovlardan saqlaydi.
+- **Parol yoki PIN saqlash uchun emas** — belgilar ochiq ko'rinadi.
+
+## Tasdiqlash oqimi
+
+Yuqoridagi misolda to'g'ri kod — `123456`. Noto'g'ri kod kiritilsa, `invalid` yoqiladi:
+katakchalar qizil bo'ladi va guruh yengil silkinadi. Foydalanuvchi qayta yoza boshlaganda xatoni
+olib tashlang. Kod tasdiqlangach `disabled` qilib qo'yish mumkin.
+
+```tsx title="VerifyForm.tsx"
+import { Field, OtpInput } from '@akhatmirzo/ui';
+import { useState } from 'react';
+
+async function verifyCode(code: string) {
+  const res = await fetch('/api/verify', { method: 'POST', body: JSON.stringify({ code }) });
+  return res.ok;
+}
+
+export function VerifyForm() {
+  const [code, setCode] = useState('');
+  const [error, setError] = useState(false);
+
+  return (
+    <Field label="Tasdiqlash kodi" error={error ? "Kod noto'g'ri" : undefined}>
+      <OtpInput
+        value={code}
+        onValueChange={(v) => {
+          setCode(v);
+          setError(false);
+        }}
+        onComplete={async (v) => setError(!(await verifyCode(v)))}
+      />
+    </Field>
+  );
+}
+```
+
+<Callout title="Joylash va SMS'dan to'ldirish">
+  Butun kodni istalgan katakka joylash (`Ctrl+V`) mumkin — hamma katakcha to'ladi. Birinchi
+  katakchada `autocomplete="one-time-code"` bor: iOS va Android SMS'dagi kodni klaviatura ustida
+  taklif qiladi.
+</Callout>
+
+## Uzunlik, tur va guruhlash
+
+`length` — katakchalar soni (standart `6`). `type="alphanumeric"` harflarni ham qabul qiladi
+(standart — faqat raqam). `groupSize` katakchalarni guruhlarga ajratadi: `3` → `123 – 456`.
+
+<ComponentPreview name="otp-input/length" />
+
+## Holatlar
+
+`invalid` — qizil chegara va silkinish (`prefers-reduced-motion` yoqilgan bo'lsa silkinmaydi).
+`disabled` — katakchalar o'chirilgan.
+
+<ComponentPreview name="otp-input/states" />
+
+## ResendTimer
+
+"Kodni qayta yuborish (0:59)" — taymer tugaguncha bosilmaydi. `onResend` Promise qaytarsa, u
+tugaguncha ham bosib bo'lmaydi; keyin taymer qaytadan boshlanadi. Taymer komponent paydo bo'lishi
+bilan boshlanadi — kod allaqachon yuborilgan deb hisoblanadi.
+
+<ComponentPreview name="otp-input/resend" />
+
+## Props
+
+### OtpInput
+
+Qolgan `<div>` atributlarini (`className`, `aria-label`, `data-*` ...) va `ref` ni qabul qiladi
+(ildiz — katakchalar guruhi).
+
+<PropsTable
+  rows={[
+    { name: 'length', type: 'number', default: '6', description: 'Katakchalar soni' },
+    {
+      name: 'type',
+      type: "'numeric' | 'alphanumeric'",
+      default: "'numeric'",
+      description: 'Faqat raqam yoki harf va raqam',
+    },
+    { name: 'value', type: 'string', description: 'Kod (boshqariladigan)' },
+    { name: 'defaultValue', type: 'string' },
+    { name: 'onValueChange', type: '(value: string) => void' },
+    {
+      name: 'onComplete',
+      type: '(code: string) => void',
+      description: 'Oxirgi belgi kiritilganda',
+    },
+    {
+      name: 'invalid',
+      type: 'boolean',
+      description: "Xato: qizil + silkinish (Field ichida error bo'lsa avtomatik)",
+    },
+    { name: 'disabled', type: 'boolean' },
+    { name: 'groupSize', type: 'number', description: 'Guruhlash: 3 → 123 – 456' },
+    { name: 'name', type: 'string', description: 'Forma uchun yashirin maydon nomi' },
+    { name: 'autoFocus', type: 'boolean', description: 'Birinchi katakchaga fokus' },
+    {
+      name: 'labels',
+      type: 'OtpInputLabels',
+      description: '{ cell?: (index, length) => string; group?: string }',
+    },
+  ]}
+/>
+
+### ResendTimer
+
+Qolgan `<button>` atributlarini qabul qiladi.
+
+<PropsTable
+  rows={[
+    { name: 'seconds', type: 'number', default: '60', description: 'Kutish vaqti, soniya' },
+    {
+      name: 'onResend',
+      type: '() => unknown',
+      description: "Bosilganda; Promise qaytarsa — tugaguncha bosib bo'lmaydi",
+    },
+    {
+      name: 'labels',
+      type: '{ resend?: string }',
+      default: "{ resend: 'Kodni qayta yuborish' }",
+    },
+    { name: 'disabled', type: 'boolean', description: "Taymerdan qat'i nazar bosilmaydi" },
+  ]}
+/>
+
+### Data atributlari
+
+| Atribut         | Element       | Qiymat                       |
+| --------------- | ------------- | ---------------------------- |
+| `data-invalid`  | `OtpInput`    | xato bo'lganda mavjud        |
+| `data-disabled` | `OtpInput`    | `disabled` bo'lganda mavjud  |
+| `data-complete` | `OtpInput`    | barcha katakchalar to'lganda |
+| `data-state`    | `ResendTimer` | `waiting` · `ready`          |
+
+## Klaviatura
+
+| Tugma          | Harakat                                                        |
+| -------------- | -------------------------------------------------------------- |
+| Belgi          | Katakchani to'ldiradi, fokus keyingisiga o'tadi                |
+| `Backspace`    | Belgini o'chiradi; katakcha bo'sh bo'lsa — oldingisiga qaytadi |
+| `Delete`       | Joriy katakchadagi belgini o'chiradi                           |
+| `← →`          | Katakchalar bo'ylab yurish                                     |
+| `Home` / `End` | Birinchi / birinchi bo'sh katakcha                             |
+
+Bo'sh joydan keyingi katakchaga sakrab bo'lmaydi — fokus birinchi bo'sh katakchaga o'tadi.
+
+## Accessibility
+
+- **Guruh** — `role="group"`. `Field` ichida label orqali (`aria-labelledby`), tashqarisida
+  "Tasdiqlash kodi" nomi bilan (`labels.group`) o'qiladi.
+- **Har bir katakcha** — alohida `<input>` o'z nomi bilan: "1-raqam", "2-raqam" ... Boshqa tilda
+  `labels.cell` bilan o'zgartiring: `cell: (i, n) => 'Digit ' + (i + 1) + ' of ' + n`.
+- **`aria-invalid`, `aria-describedby`, `aria-required`** `Field` dan har bir katakchaga
+  uzatiladi — xato matni qaysi katakchada bo'lmasin o'qiladi.
+- **Mobil klaviatura:** `numeric` turida `inputMode="numeric"`.
+- **Harakat sezgirligi:** silkinish `prefers-reduced-motion: reduce` da o'chadi.
+- **ResendTimer** kutish paytida `aria-disabled` — fokusda qoladi, lekin bosilmaydi; taymer
+  matni tugma nomining bir qismi.

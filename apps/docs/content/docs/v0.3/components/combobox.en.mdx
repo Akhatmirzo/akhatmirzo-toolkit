@@ -3,7 +3,7 @@ title: Combobox
 description: A searchable select with Uzbek-aware search, multiple selection, creatable options and server search.
 ---
 
-<ComponentPreview name="combobox/basic" align="start" />
+<ComponentPreview name="archive/v0.3/combobox/basic" align="start" />
 
 ## Import
 
@@ -32,7 +32,7 @@ written Uzbek:
 - **Matches inside words:** `chirchiq` finds "Oʻrta Chirchiq".
 - **The matched part is bold** — in the `description` line as well.
 
-<ComponentPreview name="combobox/uzbek-search" align="start" />
+<ComponentPreview name="archive/v0.3/combobox/uzbek-search" align="start" />
 
 <Callout title="Use it in your own search">
   The same helpers are exported on their own: `searchMatch`, `normalizeUz` and `splitByRanges` — see
@@ -46,7 +46,7 @@ With `multiple`, `value` becomes an array (`string[]`). Selected options show up
 chips inside the trigger, each with its own ✕. The panel stays open after each pick; `Backspace`
 on an empty query removes the last selection.
 
-<ComponentPreview name="combobox/multiple" align="start" />
+<ComponentPreview name="archive/v0.3/combobox/multiple" align="start" />
 
 ## Creating options
 
@@ -55,7 +55,7 @@ doesn't exactly match an existing option. If `onCreate` returns an option, that 
 selected; if it returns nothing, the text itself is used as both value and label. Adding the new
 option to `options` is up to you.
 
-<ComponentPreview name="combobox/creatable" align="start" />
+<ComponentPreview name="archive/v0.3/combobox/creatable" align="start" />
 
 ## Server search
 
@@ -63,7 +63,7 @@ Passing `onSearch` turns off local filtering: you receive the query (debounced b
 provide fresh `options`. While you wait, `loading` shows a spinner in place of the list. When the
 panel closes, `onSearch('')` is called — a good moment to restore the initial list.
 
-<ComponentPreview name="combobox/server" align="start" />
+<ComponentPreview name="archive/v0.3/combobox/server" align="start" />
 
 <Callout title="The selection survives new results" type="info">
   Even if the selected option is missing from the latest server results, Combobox remembers its
@@ -76,7 +76,7 @@ panel closes, `onSearch('')` is called — a good moment to restore the initial 
 the description too. Remove the search icon in the trigger with `leftIcon={null}`, or pass your
 own.
 
-<ComponentPreview name="combobox/details" align="start" />
+<ComponentPreview name="archive/v0.3/combobox/details" align="start" />
 
 ```ts
 interface ComboboxOption {
@@ -93,14 +93,14 @@ interface ComboboxOption {
 The same as `Input` and `Select`: 32, 40 and 48px. With `multiple`, the height grows with the
 number of chips.
 
-<ComponentPreview name="combobox/sizes" align="start" />
+<ComponentPreview name="archive/v0.3/combobox/sizes" align="start" />
 
 ## States
 
 Inside a `Field`, `disabled`, `error` and `required` are wired up for you. `loading` shows a
 spinner instead of the list when the panel opens.
 
-<ComponentPreview name="combobox/states" align="start" />
+<ComponentPreview name="archive/v0.3/combobox/states" align="start" />
 
 ## Inside a dialog
 

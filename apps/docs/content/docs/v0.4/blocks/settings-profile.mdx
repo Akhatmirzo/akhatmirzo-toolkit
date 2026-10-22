@@ -1,0 +1,41 @@
+---
+title: 'Profil sozlamalari'
+description: 'Avatar yuklash, ism, email, telefon va hudud — @akhatmirzo/ui/form va zUz sxemalari bilan validatsiya.'
+full: true
+---
+
+<BlockPreview name="settings-profile" />
+
+## Tarkibi
+
+- `Form` + `FormField` — `react-hook-form` va `zodResolver`; xato matnlari o'zbekcha (`zUz`).
+- Avatar — `FormField render` zaxira yo'li bilan maxsus boshqaruv (fayl tanlash, ko'rish, o'chirish).
+- `zUz.phone()` qiymatni `998901234567` ko'rinishiga keltiradi, `zUz.region()` — hudud id'si.
+- Server xatosi — `FormRootError` (`band@misol.uz` emailida sinab ko'ring).
+
+## Ishlatilgan komponentlar
+
+- [Form, FormField](../components/form.mdx)
+- [Avatar](../components/avatar.mdx)
+- [Card](../components/card.mdx)
+- [Input](../components/input.mdx)
+- [PhoneInput](../components/masked-input.mdx)
+- [RegionSelect](../components/select.mdx)
+- [Textarea](../components/textarea.mdx)
+- [Switch](../components/switch.mdx)
+- [Button](../components/button.mdx)
+- [toast](../components/toast.mdx)
+- [`zUz`](../core/zod.mdx)
+
+## O'rnatish
+
+CLI blok faylini loyihangizga (`components/blocks/settings-profile.tsx`) ko'chiradi va kerakli paketlarni
+o'rnatishni taklif qiladi:
+
+```bash
+npx @akhatmirzo/cli add settings-profile
+```
+
+Qo'lda: paketlarni o'rnating va "Kod" tabidagi faylni loyihangizga nusxalang.
+
+<BlockInstall name="settings-profile" />

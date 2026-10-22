@@ -1,0 +1,37 @@
+---
+title: 'Dashboard stats'
+description: 'Four KPI cards with sparklines, a revenue and expenses AreaChart and a share-by-region list.'
+full: true
+---
+
+<BlockPreview name="dashboard-stats" />
+
+## What's inside
+
+- Period (7 days / 30 days / year) switches every metric and the chart together.
+- Change is a `Badge`: green for growth, red for decline; the `Sparkline` is decorative (`aria-hidden`).
+- Cards flow into 1, 2 or 4 columns depending on container width.
+- Charts rely on `recharts` via the separate `@akhatmirzo/ui/charts` entry point.
+
+## Components used
+
+- [Card](../components/card.mdx)
+- [Badge](../components/badge.mdx)
+- [Button](../components/button.mdx)
+- [Progress](../components/progress.mdx)
+- [SegmentedControl](../components/segmented-control.mdx)
+- [AreaChart, Sparkline](../components/charts.mdx)
+- [`formatNumber`](../core/format.mdx)
+
+## Installation
+
+The CLI copies the block file into your project (`components/blocks/dashboard-stats.tsx`) and offers to
+install the packages it needs:
+
+```bash
+npx @akhatmirzo/cli add dashboard-stats
+```
+
+Manually: install the packages and copy the file from the "Code" tab into your project.
+
+<BlockInstall name="dashboard-stats" />

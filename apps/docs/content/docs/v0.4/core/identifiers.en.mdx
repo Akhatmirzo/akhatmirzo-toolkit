@@ -1,0 +1,359 @@
+---
+title: Document identifiers
+description: 'PINFL, INN, passport, car plate, bank account, MFO and the regions of Uzbekistan.'
+---
+
+Validation, formatting and parsing for the numbers found in Uzbek documents: PINFL (JShShIR),
+INN (STIR), passport / ID card, car registration plate, bank account and MFO, plus the list of
+14 regions. None of them throw: `null`, `undefined` or bad input returns `false` / `null`. Spaces
+and dashes are always ignored, so you can pass whatever the user typed straight to `isValidX`.
+
+```ts
+import {
+  isValidPinfl,
+  parsePinfl,
+  formatPinfl,
+  isValidInn,
+  formatInn,
+  isValidPassport,
+  formatPassport,
+  isValidCarPlate,
+  parseCarPlate,
+  formatCarPlate,
+  isValidBankAccount,
+  formatBankAccount,
+  isValidMfo,
+  UZ_REGIONS,
+  regionByPlateCode,
+} from '@akhatmirzo/core';
+```
+
+<Callout title="Format checks only">
+  These functions catch typos — they can't tell whether a document exists or who it belongs to. Do
+  the checks that matter on the server, against an official source.
+</Callout>
+
+<ComponentPreview name="core/identifiers" />
+
+## PINFL (JShShIR)
+
+The personal identification number of an individual — 14 digits:
+
+| Digits | Meaning                                                                     |
+| ------ | --------------------------------------------------------------------------- |
+| 1      | Gender and century: 3 / 4 — 1900s, 5 / 6 — 2000s; odd — male, even — female |
+| 2–7    | Date of birth, `DDMMYY`                                                     |
+| 8–13   | District code and serial number                                             |
+| 14     | Check digit                                                                 |
+
+### parsePinfl
+
+```ts
+function parsePinfl(
+  input: string | number | null | undefined,
+  options?: PinflOptions, // { checksum?: boolean }
+): PinflInfo | null;
+
+interface PinflInfo {
+  gender: 'male' | 'female';
+  birthDate: Date; // local time, 00:00
+}
+```
+
+Extracts the gender and date of birth. The date must be real: 31 February, or 29 February in a
+non-leap year, returns `null`.
+
+```ts
+parsePinfl('31503901234567'); // { gender: 'male', birthDate: new Date(1990, 2, 15) }
+parsePinfl('6 010120 1234567'); // { gender: 'female', birthDate: new Date(2020, 0, 1) }
+parsePinfl('33102901234567'); // null — there is no 31 February
+parsePinfl('21503901234567'); // null — the first digit must be 3–6
+```
+
+### isValidPinfl
+
+```ts
+function isValidPinfl(input: string | number | null | undefined, options?: PinflOptions): boolean;
+```
+
+Shorthand for `parsePinfl(input, options) !== null`.
+
+```ts
+isValidPinfl('31503901234567'); // true
+isValidPinfl('315039012345'); // false — 12 digits
+isValidPinfl('31503901234562', { checksum: true }); // true
+isValidPinfl('31503901234567', { checksum: true }); // false — check digit doesn't match
+```
+
+<Callout type="warn" title="checksum is unverified">
+  `checksum: true` checks the last digit with 7-3-1 weights and mod 10. The algorithm comes from
+  public sources and hasn't been confirmed against real PINFL numbers yet, so it is off by default
+  (`false`). Test it on your own data before turning it on.
+</Callout>
+
+### formatPinfl
+
+```ts
+function formatPinfl(input: string | number | null | undefined): string;
+```
+
+Groups the digits as `00000 00000 0000` for display. Incomplete values are formatted as far as
+they go.
+
+```ts
+formatPinfl('31503901234567'); // '31503 90123 4567'
+formatPinfl('315039'); // '31503 9'
+```
+
+## INN (STIR)
+
+### isValidInn
+
+```ts
+function isValidInn(input: string | number | null | undefined): boolean;
+```
+
+Taxpayer identification number: 9 digits, not starting with `0`.
+
+```ts
+isValidInn('123456789'); // true
+isValidInn('123 456 789'); // true
+isValidInn('012345678'); // false — starts with 0
+isValidInn('12345678'); // false — 8 digits
+```
+
+### formatInn
+
+```ts
+function formatInn(input: string | number | null | undefined): string;
+```
+
+```ts
+formatInn('123456789'); // '123 456 789'
+formatInn('1234'); // '123 4'
+```
+
+## Passport and ID card
+
+### isValidPassport
+
+```ts
+function isValidPassport(input: string | null | undefined): boolean;
+```
+
+Series and number: 2 Latin letters + 7 digits (`AA1234567`). Lower case, spaces and dashes are
+accepted. Cyrillic letters (`АА`) fail: they look like Latin ones but are different characters.
+
+```ts
+isValidPassport('AA1234567'); // true
+isValidPassport('ad 1234567'); // true
+isValidPassport('АА1234567'); // false — Cyrillic letters
+isValidPassport('A1234567'); // false — one-letter series
+```
+
+### formatPassport
+
+```ts
+function formatPassport(input: string | null | undefined): string;
+```
+
+Upper-cases the letters and separates the series from the number with a space.
+
+```ts
+formatPassport('aa1234567'); // 'AA 1234567'
+formatPassport('ad 12'); // 'AD 12'
+```
+
+## Car plates
+
+There are two formats, both starting with the region code:
+
+| Type         | Format        | Example       |
+| ------------ | ------------- | ------------- |
+| Individual   | `00 A 000 AA` | `01 A 123 BC` |
+| Legal entity | `00 000 AAA`  | `01 123 ABC`  |
+
+### parseCarPlate
+
+```ts
+function parseCarPlate(input: string | null | undefined): CarPlateInfo | null;
+
+interface CarPlateInfo {
+  region: UzRegion; // from UZ_REGIONS
+  regionCode: string; // '01'
+  type: 'personal' | 'legal';
+}
+```
+
+Parses a plate: format, region and type. Letters must be Latin (lower case is fine) and the region
+code must be in `UZ_REGIONS`.
+
+```ts
+parseCarPlate('01 A 123 BC'); // { region: { id: 'tashkent-city', … }, regionCode: '01', type: 'personal' }
+parseCarPlate('30 123 abc')?.type; // 'legal'
+parseCarPlate('00 A 123 BC'); // null — code 00 belongs to no region
+```
+
+### isValidCarPlate
+
+```ts
+function isValidCarPlate(input: string | null | undefined): boolean;
+```
+
+```ts
+isValidCarPlate('01A123BC'); // true
+isValidCarPlate('01 1234 AB'); // false
+```
+
+### formatCarPlate
+
+```ts
+function formatCarPlate(input: string | null | undefined): string;
+```
+
+Adds the spaces and upper-cases the letters for display. The type is taken from the third
+character (a letter means individual, a digit means legal entity), so it works while the user
+types. The region code isn't checked.
+
+```ts
+formatCarPlate('01a123bc'); // '01 A 123 BC'
+formatCarPlate('01123abc'); // '01 123 ABC'
+formatCarPlate('01A1'); // '01 A 1'
+```
+
+## Bank details
+
+### isValidBankAccount
+
+```ts
+function isValidBankAccount(input: string | null | undefined): boolean;
+```
+
+An account number is exactly 20 digits.
+
+```ts
+isValidBankAccount('20208000900012345001'); // true
+isValidBankAccount('2020 8000 9000 1234 5001'); // true
+isValidBankAccount('2020800090001234500'); // false — 19 digits
+```
+
+### formatBankAccount
+
+```ts
+function formatBankAccount(input: string | null | undefined): string;
+```
+
+```ts
+formatBankAccount('20208000900012345001'); // '2020 8000 9000 1234 5001'
+```
+
+### isValidMfo
+
+```ts
+function isValidMfo(input: string | null | undefined): boolean;
+```
+
+The bank branch code (MFO) is exactly 5 digits. Leading zeros matter, so only strings are
+accepted.
+
+```ts
+isValidMfo('00014'); // true
+isValidMfo('1234'); // false
+```
+
+## Regions
+
+### UZ_REGIONS
+
+```ts
+const UZ_REGIONS: readonly UzRegion[];
+
+interface UzRegion {
+  id: UzRegionId; // 'tashkent-city', 'andijan', ...
+  name: string; // 'Andijon viloyati'
+  nameCyr: string; // 'Андижон вилояти'
+  center: string; // 'Andijon'
+  plateCodes: readonly string[]; // ['60', '61', …, '69']
+}
+```
+
+The 14 regions of Uzbekistan in official order: the Republic of Karakalpakstan, 12 provinces and
+Tashkent city. Names are in Uzbek and use the typographic `ʻ` (`Fargʻona viloyati`). `id` is a
+stable key — store it in your database instead of the name.
+
+| `id`             | Name                          | Centre    | Plate code |
+| ---------------- | ----------------------------- | --------- | ---------- |
+| `karakalpakstan` | Qoraqalpogʻiston Respublikasi | Nukus     | 95–99      |
+| `andijan`        | Andijon viloyati              | Andijon   | 60–69      |
+| `bukhara`        | Buxoro viloyati               | Buxoro    | 80–84      |
+| `jizzakh`        | Jizzax viloyati               | Jizzax    | 25–29      |
+| `kashkadarya`    | Qashqadaryo viloyati          | Qarshi    | 70–74      |
+| `navoi`          | Navoiy viloyati               | Navoiy    | 85–89      |
+| `namangan`       | Namangan viloyati             | Namangan  | 50–59      |
+| `samarkand`      | Samarqand viloyati            | Samarqand | 30–39      |
+| `surkhandarya`   | Surxondaryo viloyati          | Termiz    | 75–79      |
+| `syrdarya`       | Sirdaryo viloyati             | Guliston  | 20–24      |
+| `tashkent`       | Toshkent viloyati             | Nurafshon | 10–19      |
+| `fergana`        | Fargʻona viloyati             | Fargʻona  | 40–49      |
+| `khorezm`        | Xorazm viloyati               | Urganch   | 90–94      |
+| `tashkent-city`  | Toshkent shahri               | Toshkent  | 01–09      |
+
+```tsx title="region-select.tsx"
+import { UZ_REGIONS } from '@akhatmirzo/core';
+
+export function RegionOptions() {
+  return UZ_REGIONS.map((r) => (
+    <option key={r.id} value={r.id}>
+      {r.name}
+    </option>
+  ));
+}
+```
+
+### regionByPlateCode
+
+```ts
+function regionByPlateCode(code: string | number | null | undefined): UzRegion | null;
+```
+
+Finds a region by the code on a car plate. Numbers are padded with a leading `0`.
+
+```ts
+regionByPlateCode('01')?.id; // 'tashkent-city'
+regionByPlateCode(95)?.name; // 'Qoraqalpogʻiston Respublikasi'
+regionByPlateCode('02')?.id; // 'tashkent-city' (range 01–09)
+regionByPlateCode('00'); // null
+```
+
+## Types
+
+```ts
+interface PinflOptions {
+  checksum?: boolean; // default: false
+}
+interface PinflInfo {
+  gender: 'male' | 'female';
+  birthDate: Date;
+}
+type CarPlateType = 'personal' | 'legal';
+interface CarPlateInfo {
+  region: UzRegion;
+  regionCode: string;
+  type: CarPlateType;
+}
+type UzRegionId =
+  | 'karakalpakstan'
+  | 'andijan'
+  | 'bukhara'
+  | 'jizzakh'
+  | 'kashkadarya'
+  | 'navoi'
+  | 'namangan'
+  | 'samarkand'
+  | 'surkhandarya'
+  | 'syrdarya'
+  | 'tashkent'
+  | 'fergana'
+  | 'khorezm'
+  | 'tashkent-city';
+```

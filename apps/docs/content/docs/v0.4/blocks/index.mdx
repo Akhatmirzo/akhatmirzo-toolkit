@@ -1,0 +1,65 @@
+---
+title: Barcha bloklar
+description: "Nusxalab ishlatiladigan tayyor bo'limlar: kirish, tariflar, dashboard, jadval va to'liq ilova qolipi."
+full: true
+---
+
+Bloklar — kutubxona komponentlaridan yig'ilgan tayyor sahifa bo'limlari. Har biri **bitta mustaqil
+fayl**: o'z holati bilan, faqat `@akhatmirzo/*` paketlari va `lucide-react` ikonkalarini
+ishlatadi, matnlari o'zbekcha. Faylni loyihangizga ko'chiring va o'zingizga moslang — endi u
+sizniki.
+
+## Barcha bloklar
+
+<BlockGallery />
+
+## Qanday qo'shish
+
+<Steps>
+<Step>
+
+### Loyihani tayyorlang
+
+Paketlarni o'rnatadi va global CSS ga tokenlarni ulaydi (batafsil — [CLI](../cli.mdx)):
+
+```bash
+npx @akhatmirzo/cli init
+```
+
+</Step>
+<Step>
+
+### Blokni qo'shing
+
+```bash
+npx @akhatmirzo/cli add login pricing
+```
+
+Fayllar `components/blocks/` ga yoziladi. Yoki blok sahifasidagi "Kod" tabidan qo'lda nusxalang.
+
+</Step>
+<Step>
+
+### Sahifada ishlating
+
+```tsx title="app/login/page.tsx"
+import Login from '@/components/blocks/login';
+
+export default function Page() {
+  return <Login />;
+}
+```
+
+</Step>
+</Steps>
+
+## Moslashuvchanlik
+
+Bloklar viewport emas, **konteyner kengligiga** (`@container`) qarab moslashadi: sahifaning tor
+ustuniga qo'ysangiz ham telefon ko'rinishiga o'tadi. Ko'rinish ramkasidagi kompyuter / planshet /
+telefon tugmalari yoki o'ng pastki burchakdan tortish bilan tekshirib ko'ring.
+
+<Callout title="Toast xabarlari">
+  Ba'zi bloklar `toast()` chaqiradi — ilovangiz ildizida `<Toaster />` bo'lishi kerak
+  ([Toast](../components/toast.mdx)).
+</Callout>

@@ -33,3 +33,6 @@ Thumbs.db
 .source/
 next-env.d.ts
 .vercel
+
+# Docs: CLI registry (build paytida scripts/generate-registry.mjs yaratadi)
+apps/docs/public/r/

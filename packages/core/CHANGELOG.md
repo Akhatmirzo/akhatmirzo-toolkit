@@ -1,5 +1,11 @@
 # @akhatmirzo/core
 
+## 0.3.0
+
+### Minor Changes
+
+- Yangi kirish nuqtasi `@akhatmirzo/core/zod`: `zUz` — o'zbekcha ma'lumotlar uchun zod sxemalari (telefon, JShShIR, STIR, pasport, avtomobil raqami, karta, pul va boshqalar; zod — ixtiyoriy peer).
+
 ## 0.2.0
 
 ### Minor Changes

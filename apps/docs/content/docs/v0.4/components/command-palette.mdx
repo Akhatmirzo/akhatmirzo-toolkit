@@ -1,0 +1,273 @@
+---
+title: CommandPalette
+description: 'Ctrl+K bilan ochiladigan qidiruv va buyruqlar oynasi: fuzzy qidiruv, oxirgi ishlatilganlar, ichki sahifalar, server qidiruvi.'
+---
+
+<ComponentPreview name="command-palette/basic" />
+
+## Import
+
+```tsx
+import { CommandPalette } from '@akhatmirzo/ui';
+```
+
+## Qachon ishlatish
+
+- **Ko'p sahifali ilovada tez o'tish uchun** — admin panel, CRM, ichki tizimlar. Foydalanuvchi
+  menyuni titkilamaydi: `Ctrl+K`, ikki-uch harf, `Enter`.
+- **Tez-tez bajariladigan amallar uchun** — "Yangi buyurtma", "Eksport", "Mavzuni almashtirish".
+  `shortcut` bilan ilovadagi klaviatura yorliqlarini ham ko'rsatasiz.
+- **Ilovada bitta bo'lsin** — odatda layout'da, global `hotkey` bilan. Bir sahifada bir xil
+  `hotkey` li ikkita palitra birga ochiladi.
+- **Asosiy navigatsiya o'rnida emas** — u tajribali foydalanuvchi uchun tezlashtirgich; menyu va
+  havolalar baribir kerak.
+
+<Callout title="Bu saytda Ctrl+K band" type="warn">
+  Docs saytining o'z qidiruvi `Ctrl+K` da, shuning uchun yuqoridagi demoda `hotkey="mod+j"`. O'z
+  ilovangizda standart `mod+k` ni qoldiring — `mod` macOS'da `⌘`, boshqa tizimlarda `Ctrl`.
+</Callout>
+
+## Guruhlar va elementlar
+
+`groups` — sarlavhali guruhlar ro'yxati. Har bir element: `label`, ixtiyoriy `description`,
+`icon`, `shortcut`, `keywords` (sinonimlar) va `onSelect`. Tanlangandan keyin oyna yopiladi
+(`keepOpen: true` — ochiq qoladi).
+
+```tsx title="AppCommands.tsx"
+import { CommandPalette, type CommandPaletteGroup } from '@akhatmirzo/ui';
+import { Package, Plus } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+
+export function AppCommands() {
+  const router = useRouter();
+  const groups: CommandPaletteGroup[] = [
+    {
+      heading: 'Sahifalar',
+      items: [
+        {
+          label: 'Buyurtmalar',
+          icon: <Package />,
+          keywords: ['zakaz', 'savdo'],
+          onSelect: () => router.push('/orders'),
+        },
+      ],
+    },
+    {
+      heading: 'Amallar',
+      items: [
+        {
+          label: 'Yangi buyurtma',
+          icon: <Plus />,
+          shortcut: ['mod', 'N'],
+          onSelect: () => router.push('/orders/new'),
+        },
+      ],
+    },
+  ];
+
+  return <CommandPalette groups={groups} />;
+}
+```
+
+Qidiruv **fuzzy** — harflar ketma-ketligi bo'yicha: `ybu` → "Yangi buyurtma". O'zbekcha
+normallashtirish bor: `qo'sh`, `qoʻsh` va `қўш` bir xil topiladi. Natijalar moslik darajasi
+bo'yicha saralanadi, mos harflar ajratib ko'rsatiladi.
+
+## Oxirgi ishlatilganlar
+
+Bo'sh qidiruvda birinchi guruh — "Oxirgi ishlatilganlar" (standart: 3 ta, `localStorage` da
+`recentKey` kaliti bilan saqlanadi). Element `id` si bo'yicha eslab qolinadi — `id` bo'lmasa,
+`label`. Bir ilovada bir nechta palitra bo'lsa, har biriga alohida `recentKey` bering;
+`recent={false}` — o'chiq.
+
+## Ichki sahifalar va faqat qidiruvdagi guruh
+
+Elementga `page` bersangiz, tanlanganda yangi ro'yxat ochiladi — masalan "Mavzu" → Yorug' /
+Qorong'i. Qidiruv maydoni yonida "orqaga" tugmasi chiqadi; bo'sh qidiruvda `Backspace` ham orqaga
+qaytaradi. `searchOnly: true` guruh faqat qidiruvda ko'rinadi — uzun ro'yxatlar (mijozlar,
+mahsulotlar) uchun qulay: qidiring, masalan, `aziza`.
+
+<ComponentPreview name="command-palette/pages" />
+
+## Server qidiruvi
+
+`onSearch(query, { signal })` — serverdan qidirish. So'rov 300ms debounce bilan yuboriladi,
+natijalar alohida "Natijalar" guruhida (`labels.results`) chiqadi, kutish paytida spinner
+ko'rinadi. Yangi so'rov boshlanganda yoki oyna yopilganda oldingisi `signal` orqali bekor
+qilinadi. Mahalliy guruhlardagi qidiruv bir vaqtda ishlayveradi; ichki sahifalarda server qidiruvi
+chaqirilmaydi. Sinab ko'ring: `ak`, `nodira`.
+
+<ComponentPreview name="command-palette/server" />
+
+```tsx
+<CommandPalette
+  groups={groups}
+  onSearch={async (query, { signal }) => {
+    const res = await fetch(`/api/customers?q=${encodeURIComponent(query)}`, { signal });
+    const customers: { id: number; name: string; phone: string }[] = await res.json();
+    return customers.map((c) => ({
+      id: `customer-${c.id}`,
+      label: c.name,
+      description: c.phone,
+      onSelect: () => router.push(`/customers/${c.id}`),
+    }));
+  }}
+/>
+```
+
+Server natijalari "Oxirgi ishlatilganlar" ga yozilmaydi.
+
+## Ochish va boshqarish
+
+Uch yo'l bor, birgalikda ham ishlaydi:
+
+- **`hotkey`** — global klaviatura yorlig'i (standart `'mod+k'`; input ichida ham ishlaydi).
+  `hotkey={false}` — o'chiq.
+- **`children`** — ochuvchi element (Radix `Trigger asChild`), odatda tugma.
+- **`open` / `onOpenChange`** — boshqariladigan holat, masalan menyudagi "Qidiruv" bandidan ochish
+  uchun.
+
+Yopilganda fokus palitrani ochgan elementga qaytadi.
+
+## Props
+
+Qolgan atributlar (`className`, `aria-*`, `data-*` ...) dialog paneliga beriladi.
+
+<PropsTable
+  rows={[
+    {
+      name: 'groups',
+      type: 'CommandPaletteGroup[]',
+      required: true,
+      description: 'Guruhlar va elementlar',
+    },
+    {
+      name: 'hotkey',
+      type: 'string | false',
+      default: "'mod+k'",
+      description: "Ochish/yopish yorlig'i; false — o'chiq",
+    },
+    { name: 'open', type: 'boolean', description: 'Boshqariladigan holat' },
+    { name: 'defaultOpen', type: 'boolean', default: 'false' },
+    { name: 'onOpenChange', type: '(open: boolean) => void' },
+    {
+      name: 'placeholder',
+      type: 'string',
+      default: "'Qidirish yoki buyruq yozish...'",
+    },
+    {
+      name: 'onSearch',
+      type: '(query: string, context: CommandPaletteSearchContext) => Promise<CommandPaletteItem[]> | CommandPaletteItem[]',
+      description: 'Server qidiruvi (300ms debounce); context: { signal }',
+    },
+    {
+      name: 'recent',
+      type: 'boolean',
+      default: 'true',
+      description: '"Oxirgi ishlatilganlar" guruhi',
+    },
+    {
+      name: 'recentKey',
+      type: 'string',
+      default: "'ak:command-palette:recent'",
+      description: 'localStorage kaliti',
+    },
+    { name: 'recentLimit', type: 'number', default: '3' },
+    { name: 'labels', type: 'CommandPaletteLabels', description: 'Matnlar' },
+    { name: 'children', type: 'ReactElement', description: 'Ochuvchi element (asChild)' },
+    {
+      name: 'container',
+      type: 'HTMLElement | null',
+      description: 'Portal konteyneri (standart — document.body)',
+    },
+    { name: 'overlayClassName', type: 'string' },
+    { name: 'onOpenAutoFocus', type: '(event: Event) => void' },
+    { name: 'onCloseAutoFocus', type: '(event: Event) => void' },
+  ]}
+/>
+
+### CommandPaletteItem
+
+<PropsTable
+  rows={[
+    {
+      name: 'id',
+      type: 'string',
+      description: 'Barqaror kalit ("Oxirgi ishlatilganlar" uchun); standart — label',
+    },
+    { name: 'label', type: 'string', required: true },
+    { name: 'description', type: 'string', description: 'Ikkinchi qator (xira)' },
+    { name: 'icon', type: 'ReactNode' },
+    {
+      name: 'shortcut',
+      type: 'string[]',
+      description: "Ko'rsatiladigan yorliq, masalan ['mod', 'N']",
+    },
+    { name: 'keywords', type: 'string[]', description: "Qo'shimcha qidiruv so'zlari" },
+    { name: 'disabled', type: 'boolean' },
+    { name: 'onSelect', type: '() => void' },
+    {
+      name: 'page',
+      type: 'CommandPalettePage',
+      description: '{ title, placeholder?, groups } — ichki sahifa',
+    },
+    {
+      name: 'keepOpen',
+      type: 'boolean',
+      description: 'true — tanlangandan keyin oyna yopilmaydi',
+    },
+  ]}
+/>
+
+<Callout title="shortcut faqat ko'rsatadi">
+  `shortcut` elementning yonida yorliqni chizadi, lekin uni tinglamaydi. Yorliq palitra yopiq paytda
+  ham ishlashi uchun uni [useHotkeys](../hooks.mdx) bilan alohida ulang.
+</Callout>
+
+### CommandPaletteGroup
+
+<PropsTable
+  rows={[
+    { name: 'heading', type: 'string', required: true },
+    { name: 'items', type: 'CommandPaletteItem[]', required: true },
+    {
+      name: 'searchOnly',
+      type: 'boolean',
+      description: "Faqat qidiruvda ko'rinadi (bo'sh qidiruvda yashirin)",
+    },
+  ]}
+/>
+
+### Matnlar (`labels`)
+
+`title` (ekran o'quvchi uchun sarlavha), `search`, `list`, `recent`, `results`, `loading`, `empty`,
+`emptyDescription` (`(query) => ReactNode`), `back`, `navigate`, `select`, `close` — pastki yordam
+qatoridagi so'zlar.
+
+```tsx
+<CommandPalette
+  groups={groups}
+  labels={{ empty: 'Buyruq topilmadi', emptyDescription: (q) => `«${q}» — bunday buyruq yo'q` }}
+/>
+```
+
+## Klaviatura
+
+| Tugma                       | Harakat                                        |
+| --------------------------- | ---------------------------------------------- |
+| `Ctrl+K` / `⌘K`             | Ochish / yopish (`hotkey`)                     |
+| `↑ ↓`                       | Elementlar bo'ylab (oxiridan boshiga aylanadi) |
+| `Enter`                     | Tanlash                                        |
+| `Esc`                       | Yopish                                         |
+| `Backspace` (bo'sh qidiruv) | Ichki sahifadan orqaga                         |
+
+## Accessibility
+
+- **Modal dialog** (Radix): fokus ichida qamaladi, ochilganda qidiruv maydoniga o'tadi, yopilganda
+  ochgan elementga qaytadi. Dialog sarlavhasi ko'rinmaydi, lekin ekran o'quvchi uni o'qiydi
+  (`labels.title`, standart "Buyruqlar").
+- **Qidiruv va ro'yxat** — `cmdk` asosida: combobox + listbox, faol element
+  `aria-activedescendant` orqali e'lon qilinadi. Maydon `aria-label` i — `labels.search`.
+- **Ichki sahifadan orqaga** tugmasi sahifa nomi bilan nomlangan: "Orqaga: Mavzu".
+- **Ikonkalar** dekorativ; yordam qatoridagi `Kbd` lar faqat ko'rinish uchun.
+- **Animatsiya** `prefers-reduced-motion` da sodda paydo bo'lish bilan almashtiriladi.

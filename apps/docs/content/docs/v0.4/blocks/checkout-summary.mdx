@@ -1,0 +1,41 @@
+---
+title: 'Buyurtma xulosasi'
+description: "Savat ro'yxati, promokod, so'mdagi jami summa va buyurtma bosqichlari (Stepper)."
+full: true
+---
+
+<BlockPreview name="checkout-summary" />
+
+## Tarkibi
+
+- Miqdorni o'zgartirish va o'chirish; savat bo'shasa — `EmptyState`.
+- Promokod: `TOSHKENT10` yoki `YANGI15`; noto'g'ri kodda maydon ostida xato.
+- 1 000 000 so'mdan yetkazish bepul — jami summa darhol qayta hisoblanadi.
+- `Stepper` tor konteynerda ixcham, kengida to'liq ko'rinishda.
+
+## Ishlatilgan komponentlar
+
+- [Stepper](../components/stepper.mdx)
+- [Card](../components/card.mdx)
+- [Badge](../components/badge.mdx)
+- [IconButton](../components/icon-button.mdx)
+- [Field](../components/field.mdx)
+- [Input](../components/input.mdx)
+- [Divider](../components/divider.mdx)
+- [EmptyState](../components/empty-state.mdx)
+- [Button](../components/button.mdx)
+- [toast](../components/toast.mdx)
+- [`formatMoney`](../core/format.mdx)
+
+## O'rnatish
+
+CLI blok faylini loyihangizga (`components/blocks/checkout-summary.tsx`) ko'chiradi va kerakli paketlarni
+o'rnatishni taklif qiladi:
+
+```bash
+npx @akhatmirzo/cli add checkout-summary
+```
+
+Qo'lda: paketlarni o'rnating va "Kod" tabidagi faylni loyihangizga nusxalang.
+
+<BlockInstall name="checkout-summary" />

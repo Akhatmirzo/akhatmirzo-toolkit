@@ -1,0 +1,247 @@
+---
+title: Select
+description: Pick one value from a list without search — with groups, icons and form support.
+---
+
+<ComponentPreview name="select/basic" align="start" />
+
+## Import
+
+```tsx
+import { Select } from '@akhatmirzo/ui';
+```
+
+## When to use
+
+- **One choice out of roughly 5–15 options** — a region, a payment method, a status. With three
+  options or fewer, a [`RadioGroup`](./radio-group.mdx) works better: everything is visible at
+  once.
+- **Need search? Use [`Combobox`](./combobox.mdx).** `Select` has no search on purpose; long
+  lists like cities or products belong in a Combobox.
+- **Several values** also call for `Combobox` with `multiple` — `Select` returns a single value.
+- **Always give it a name:** put it inside a [`Field`](./field.mdx) or pass `aria-label`.
+- **Not for commands.** Actions like "Edit" or "Delete" go in a
+  [`DropdownMenu`](./dropdown-menu.mdx).
+
+## Groups and separators
+
+`Select.Group` puts options under a heading, and `Select.Separator` draws a line between groups.
+The selected option gets a ✓ mark.
+
+<ComponentPreview name="select/groups" />
+
+```tsx
+<Select defaultValue="fer">
+  <Select.Item value="tsh">Toshkent</Select.Item>
+  <Select.Group label="Vodiy">
+    <Select.Item value="and">Andijon</Select.Item>
+    <Select.Item value="fer">Farg'ona</Select.Item>
+  </Select.Group>
+  <Select.Separator />
+  <Select.Group label="Janub">
+    <Select.Item value="qash">Qashqadaryo</Select.Item>
+  </Select.Group>
+</Select>
+```
+
+## Sizes
+
+Three sizes — 32, 40 and 48px, the same heights as `Input` and `Button`, so they line up in a
+row. The panel is as wide as the trigger; long lists scroll after 320px.
+
+<ComponentPreview name="select/sizes" />
+
+## States
+
+Inside a `Field`, `disabled`, `error` and `required` are wired up for you — no need to repeat
+them on `Select`. Without a `Field`, pass `invalid` and `disabled` directly. To disable a single
+option, set `disabled` on `Select.Item`; keyboard navigation skips it.
+
+<ComponentPreview name="select/states" />
+
+## Options with icons
+
+The `icon` prop on `Select.Item` reserves a 16px slot before the label. Handy for short markers
+such as status colors.
+
+<ComponentPreview name="select/icons" />
+
+## In a form
+
+When you pass `name`, `Select` renders a hidden native `<select>`, so the value is submitted with
+`FormData`. Validate the empty case yourself and show the message through the `error` prop of
+`Field`.
+
+<ComponentPreview name="select/form" align="start" />
+
+## Inside a dialog
+
+`Select` works inside a [`Dialog`](./dialog.mdx) or a [`Drawer`](./drawer.mdx) out of the box:
+the panel detects the modal layer and raises its z-index, so the list opens above the dialog.
+There is nothing to configure — see the "Select and Combobox inside a dialog" section on the
+Dialog page for a working example.
+
+## RegionSelect
+
+A ready-made `Select` for the regions of Uzbekistan: the Republic of Karakalpakstan, 12 regions
+and Tashkent city (`UZ_REGIONS` from `@akhatmirzo/core`). The value is the region `id`
+(`'samarkand'`); names follow the current script — the `script` prop or
+[ScriptProvider](./script.mdx).
+
+<ComponentPreview name="select/region" align="start" />
+
+```tsx
+import { RegionSelect } from '@akhatmirzo/ui';
+
+<RegionSelect value={region} onValueChange={(id, region) => setRegion(id)} />;
+```
+
+It accepts every `Select` prop (`size`, `invalid`, `name`, `placeholder` …).
+
+<PropsTable
+  rows={[
+    { name: 'value', type: 'UzRegionId', description: "Region id: 'tashkent-city', 'samarkand' …" },
+    { name: 'defaultValue', type: 'UzRegionId' },
+    {
+      name: 'onValueChange',
+      type: '(id: UzRegionId, region: UzRegion) => void',
+      description: 'The second argument is the full UZ_REGIONS object',
+    },
+    {
+      name: 'script',
+      type: "'latin' | 'cyrillic'",
+      description: "Script for names; defaults to the ScriptProvider script or 'latin'",
+    },
+    {
+      name: 'includeCity',
+      type: 'boolean',
+      default: 'true',
+      description: 'Include Tashkent city in the list',
+    },
+    { name: 'placeholder', type: 'ReactNode', default: "'Hududni tanlang'" },
+  ]}
+/>
+
+## Props
+
+### Select
+
+`className` goes to the trigger and `contentClassName` to the dropdown panel. Any other
+`<button>` attributes (`id`, `aria-*`, `data-*`, `onBlur` ...) and `ref` are passed to the
+trigger as well.
+
+<PropsTable
+  rows={[
+    { name: 'value', type: 'string', description: 'Selected value (controlled)' },
+    { name: 'defaultValue', type: 'string', description: 'Initial value (uncontrolled)' },
+    {
+      name: 'onValueChange',
+      type: '(value: string) => void',
+      description: 'Called when the user picks an option',
+    },
+    { name: 'open', type: 'boolean', description: 'Whether the panel is open (controlled)' },
+    { name: 'defaultOpen', type: 'boolean', description: 'Open on first render' },
+    {
+      name: 'onOpenChange',
+      type: '(open: boolean) => void',
+      description: 'Called when the panel opens or closes',
+    },
+    {
+      name: 'placeholder',
+      type: 'ReactNode',
+      default: "'Tanlang'",
+      description: 'Shown while nothing is selected',
+    },
+    {
+      name: 'size',
+      type: "'sm' | 'md' | 'lg'",
+      default: "'md'",
+      description: 'Height: 32 / 40 / 48px',
+    },
+    {
+      name: 'invalid',
+      type: 'boolean',
+      description: 'Error state. Set automatically when Field has an error',
+    },
+    { name: 'disabled', type: 'boolean', description: 'Disables the whole Select' },
+    { name: 'required', type: 'boolean', description: 'Required field (aria-required)' },
+    { name: 'name', type: 'string', description: 'Name of the hidden native select for forms' },
+    { name: 'autoComplete', type: 'string', description: 'Passed to the hidden native select' },
+    { name: 'dir', type: "'ltr' | 'rtl'", description: 'Text direction' },
+    { name: 'contentClassName', type: 'string', description: 'Class for the dropdown panel' },
+    {
+      name: 'container',
+      type: 'HTMLElement | null',
+      description: 'Portal container (defaults to document.body)',
+    },
+    {
+      name: 'children',
+      type: 'ReactNode',
+      required: true,
+      description: 'Select.Item, Select.Group and Select.Separator',
+    },
+  ]}
+/>
+
+### Select.Item
+
+<PropsTable
+  rows={[
+    { name: 'value', type: 'string', required: true, description: 'Option value' },
+    { name: 'icon', type: 'ReactNode', description: 'Leading icon (16px)' },
+    { name: 'disabled', type: 'boolean', description: 'Disables the option' },
+    {
+      name: 'textValue',
+      type: 'string',
+      description: "Text for typeahead when children aren't plain text",
+    },
+  ]}
+/>
+
+### Select.Group
+
+<PropsTable
+  rows={[
+    { name: 'label', type: 'ReactNode', description: 'Group heading' },
+    { name: 'children', type: 'ReactNode', description: 'The Select.Item elements in the group' },
+  ]}
+/>
+
+`Select.Separator` is a divider line between groups; it only takes `className`.
+
+### Data attributes
+
+| Attribute          | On      | Value                                   |
+| ------------------ | ------- | --------------------------------------- |
+| `data-size`        | trigger | `sm` · `md` · `lg`                      |
+| `data-state`       | trigger | `open` · `closed`                       |
+| `data-placeholder` | trigger | present while nothing is selected       |
+| `data-invalid`     | trigger | present in the error state              |
+| `data-disabled`    | trigger | present when disabled                   |
+| `data-state`       | option  | `checked` · `unchecked`                 |
+| `data-highlighted` | option  | present under the keyboard or the mouse |
+
+## Keyboard
+
+| Key                           | Action                                             |
+| ----------------------------- | -------------------------------------------------- |
+| `Enter` / `Space` / `↓` / `↑` | Opens the panel when the trigger is focused        |
+| `↓` / `↑`                     | Moves between options (disabled ones are skipped)  |
+| `Home` / `End`                | First / last option                                |
+| A letter                      | Jumps to the next option starting with that letter |
+| `Enter` / `Space`             | Selects and closes                                 |
+| `Esc`                         | Closes without changing the value, focus returns   |
+
+## Accessibility
+
+- **Roles.** The trigger is `role="combobox"` with `aria-expanded`, the panel is a `listbox`,
+  and each option is an `option` with `aria-selected`. It is built on Radix Select.
+- **Field wiring.** Inside a `Field`, the label, `description` and `error` are linked to the
+  trigger through `aria-labelledby` / `aria-describedby`. Errors set `aria-invalid="true"`;
+  `required` sets `aria-required="true"`.
+- **Focus.** When the panel opens, focus moves to the selected option; on close it returns to
+  the trigger.
+- **Never leave it unnamed.** Without a `Field`, add an `aria-label` (for example
+  `aria-label="Currency"`).
+- **Decorations.** The chevron, the ✓ mark and `icon` are `aria-hidden`, so screen readers only
+  read the option text.

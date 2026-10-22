@@ -1,0 +1,207 @@
+---
+title: Validatsiya
+description: Telefon, email, karta raqami va parol kuchliligini tekshirish.
+---
+
+Formalar uchun tekshiruv funksiyalari: O'zbekiston telefon raqami, email, Uzcard / Humo / Visa /
+Mastercard kartalari va parol kuchliligi. Hech biri xato otmaydi — `null` yoki noto'g'ri kirishda
+`false` (yoki bo'sh natija) qaytaradi, shuning uchun ularni to'g'ridan-to'g'ri `onChange` ichida
+chaqirish mumkin.
+
+```ts
+import {
+  parsePhone,
+  isValidPhone,
+  isValidEmail,
+  isValidCardNumber,
+  detectCardBrand,
+  luhnCheck,
+  passwordStrength,
+} from '@akhatmirzo/core';
+```
+
+## Telefon va email
+
+<ComponentPreview name="core/phone-validate" />
+
+### parsePhone
+
+```ts
+function parsePhone(input: string | number | null | undefined): ParsedPhone;
+
+interface ParsedPhone {
+  digits: string; // +998 siz raqamlar; to'g'ri raqamda aynan 9 ta
+  operator: UzOperatorCode | null; // '90', '33' ... yoki null
+  valid: boolean; // 9 raqam va ma'lum operator kodi
+}
+```
+
+Raqamni tahlil qiladi: bo'shliq, chiziqcha va qavslar tashlanadi, `+998` olib tashlanadi. Serverga
+`digits` ni yuboring — u har doim bir xil ko'rinishda bo'ladi.
+
+```ts
+parsePhone('+998 90 123-45-67'); // { digits: '901234567', operator: '90', valid: true }
+parsePhone('998901234567'); // { digits: '901234567', operator: '90', valid: true }
+parsePhone('(90) 123'); // { digits: '90123', operator: '90', valid: false }
+parsePhone('121234567'); // { digits: '121234567', operator: null, valid: false }
+```
+
+`998` prefiksi `formatPhone` dagidek faqat `+` bilan yoki 9 tadan ko'p raqamda olib tashlanadi.
+
+### isValidPhone
+
+```ts
+function isValidPhone(input: string | number | null | undefined): boolean;
+```
+
+`parsePhone(input).valid` ning qisqa shakli.
+
+```ts
+isValidPhone('901234567'); // true
+isValidPhone('+998 33 123 45 67'); // true
+isValidPhone('90123'); // false — to'liq emas
+isValidPhone('121234567'); // false — bunday operator yo'q
+```
+
+### UZ_OPERATOR_CODES
+
+```ts
+const UZ_OPERATOR_CODES: readonly [
+  '33',
+  '50',
+  '55',
+  '77',
+  '88',
+  '90',
+  '91',
+  '93',
+  '94',
+  '95',
+  '97',
+  '98',
+  '99',
+];
+type UzOperatorCode = (typeof UZ_OPERATOR_CODES)[number];
+```
+
+`+998` dan keyingi ikki raqam — mobil operator kodlari. `parsePhone` shu ro'yxat bo'yicha
+tekshiradi.
+
+### isValidEmail
+
+```ts
+function isValidEmail(input: string | null | undefined): boolean;
+```
+
+Amaliy tekshiruv: `nom@domen.zona`, bitta `@`, bo'shliqsiz, zona kamida 2 belgi. Chetdagi
+bo'shliqlar e'tiborsiz qoldiriladi. RFC'ning barcha nozik holatlarini emas, odamlar haqiqatan
+yozadigan xatolarni ushlaydi.
+
+```ts
+isValidEmail('sarvar@mail.uz'); // true
+isValidEmail(' sarvar@mail.uz '); // true
+isValidEmail('sarvar@mail'); // false — zona yo'q
+isValidEmail('sar var@mail.uz'); // false — bo'shliq
+isValidEmail('a@b.c'); // false — zona 1 belgi
+```
+
+## Bank kartasi
+
+<ComponentPreview name="core/card-validate" />
+
+### detectCardBrand
+
+```ts
+function detectCardBrand(input: string | null | undefined): CardBrand | null;
+// CardBrand = 'uzcard' | 'humo' | 'visa' | 'mastercard'
+```
+
+Kartaning brendini birinchi raqamlar bo'yicha aniqlaydi — raqam to'liq bo'lmasa ham, shuning
+uchun logotipni yozish paytida ko'rsatish mumkin.
+
+| Brend        | Boshlanishi              |
+| ------------ | ------------------------ |
+| `uzcard`     | `8600`                   |
+| `humo`       | `9860`                   |
+| `visa`       | `4`                      |
+| `mastercard` | `51`–`55`, `2221`–`2720` |
+
+```ts
+detectCardBrand('8600 12'); // 'uzcard'
+detectCardBrand('9860'); // 'humo'
+detectCardBrand('4111'); // 'visa'
+detectCardBrand('2221'); // 'mastercard'
+detectCardBrand('86'); // null — hali aniq emas
+```
+
+### isValidCardNumber
+
+```ts
+function isValidCardNumber(input: string | null | undefined): boolean;
+```
+
+Karta raqami to'g'rimi: aynan 16 raqam (bo'shliq va chiziqcha mumkin) va Luhn nazorat yig'indisi
+mos keladi. Bu faqat yozishdagi xatoni ushlaydi — karta mavjudligini yoki faolligini tekshirmaydi.
+
+```ts
+isValidCardNumber('4111 1111 1111 1111'); // true
+isValidCardNumber('4111-1111-1111-1111'); // true
+isValidCardNumber('4111 1111 1111 1112'); // false — Luhn xato
+isValidCardNumber('411111111111'); // false — 12 raqam
+```
+
+### luhnCheck
+
+```ts
+function luhnCheck(digits: string): boolean;
+```
+
+Faqat Luhn algoritmi. Kirish **faqat raqamlardan** iborat bo'lishi kerak — bo'shliqli satr uchun
+`isValidCardNumber` ni ishlating.
+
+```ts
+luhnCheck('4111111111111111'); // true
+luhnCheck('4111 1111 1111 1111'); // false — bo'shliq bor
+```
+
+## Parol
+
+<ComponentPreview name="core/password" />
+
+### passwordStrength
+
+```ts
+function passwordStrength(pw: string | null | undefined): PasswordStrength;
+
+interface PasswordStrength {
+  score: 0 | 1 | 2 | 3 | 4;
+  label: 'Juda zaif' | 'Zaif' | "O'rtacha" | 'Yaxshi' | 'Kuchli';
+  checks: { length: boolean; lower: boolean; upper: boolean; digit: boolean; symbol: boolean };
+}
+```
+
+Parolni baholaydi. Ball qanday hisoblanadi:
+
+- belgilar turlari soni (kichik harf, katta harf, raqam, belgi) **minus 1**;
+- 12 va undan uzun parolga **+1**, 16 va undan uzunga yana **+1**;
+- 8 belgidan qisqa parol **1 dan** oshmaydi; natija 0–4 oralig'ida.
+
+Kirill harflari ham harf sifatida hisoblanadi. `checks.length` — kamida 8 belgi, `symbol` —
+harf, raqam yoki bo'shliq bo'lmagan belgi.
+
+```ts
+passwordStrength('abc').label; // 'Juda zaif'
+passwordStrength('parol123').label; // 'Zaif'
+passwordStrength('Parol123').label; // "O'rtacha"
+passwordStrength('Parol123!').label; // 'Yaxshi'
+passwordStrength('Parol123!Uzb').label; // 'Kuchli'
+
+passwordStrength('Parol123').checks;
+// { length: true, lower: true, upper: true, digit: true, symbol: false }
+```
+
+<Callout title="Bu — maslahat, qoida emas">
+  `passwordStrength` foydalanuvchiga yordam berish uchun: indikator va "nimani qo'shish kerak"
+  ro'yxati. Minimal talabni (masalan, `score >= 2`) o'zingiz belgilang va uni serverda ham
+  tekshiring.
+</Callout>

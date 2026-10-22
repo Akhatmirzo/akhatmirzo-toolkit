@@ -1,0 +1,330 @@
+---
+title: Form
+description: 'react-hook-form bilan formalar: FormField label, xato va qiymatni har qanday kutubxona komponentiga avtomatik ulaydi.'
+---
+
+<ComponentPreview name="form/registration" align="start" />
+
+## O'rnatish
+
+`@akhatmirzo/ui/form` — alohida kirish nuqtasi. Asosiy `@akhatmirzo/ui` importi
+`react-hook-form` ni tortmaydi, shuning uchun formasiz loyihalarga ortiqcha kod tushmaydi.
+`react-hook-form` — ixtiyoriy peer-bog'liqlik, uni o'zingiz o'rnatasiz (zod va resolver —
+validatsiya uchun, tavsiya etiladi):
+
+<Install pkg="react-hook-form @hookform/resolvers zod" />
+
+## Import
+
+```tsx
+import { Form, FormField, FormSubmit, FormRootError, useFormField } from '@akhatmirzo/ui/form';
+```
+
+## Qachon ishlatish
+
+- **Validatsiyali har qanday forma** — ro'yxatdan o'tish, profil, buyurtma. Label, izoh, xato
+  matni, `aria-*` va fokus qo'lda yozilmaydi.
+- **O'zbekcha maydonlar uchun** [`zUz`](../core/zod.mdx) sxemalari bilan birga ishlating:
+  telefon, JShShIR, pasport, summa — tayyor tekshiruv va o'zbekcha xato matnlari.
+- **Bitta-ikkita maydonli oddiy forma** uchun `react-hook-form` shart emas — [`Field`](./field.mdx)
+  va `useState` yetarli.
+- **Har bir `FormField` ichida bitta boshqaruv elementi** bo'lsin. Bir nechta element kerak
+  bo'lsa — `render` yoki alohida `FormField` lar.
+
+## To'liq misol
+
+`zodResolver` sxemani tekshiradi, `zUz` transformlari esa `onSubmit` ga **tozalangan** qiymat
+beradi: telefon `"998901234567"`, summa `"1 250 000"` emas `1250000`. Formadagi qiymat
+(foydalanuvchi ko'radigani) o'zgarmaydi.
+
+```tsx title="register-form.tsx"
+'use client';
+
+import { zUz } from '@akhatmirzo/core/zod';
+import { Checkbox, Input, PhoneInput, PinflInput, RegionSelect } from '@akhatmirzo/ui';
+import { Form, FormField, FormRootError, FormSubmit } from '@akhatmirzo/ui/form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useForm } from 'react-hook-form';
+import { z } from 'zod';
+
+const schema = z.object({
+  fullName: z.string().trim().min(3, "To'liq ismingizni kiriting"),
+  phone: zUz.phone(),
+  pinfl: zUz.pinfl(),
+  region: zUz.region(),
+  terms: z.literal(true, { error: 'Shartlarga rozilik bering' }),
+});
+
+export function RegisterForm() {
+  const form = useForm({
+    resolver: zodResolver(schema),
+    defaultValues: { fullName: '', phone: '', pinfl: '', region: '' },
+  });
+
+  async function save(data: z.output<typeof schema>) {
+    // data.phone === '998901234567'
+    const res = await fetch('/api/register', { method: 'POST', body: JSON.stringify(data) });
+    if (!res.ok) form.setError('root', { message: "Server javob bermadi, qayta urinib ko'ring" });
+  }
+
+  return (
+    <Form form={form} onSubmit={save} className="flex flex-col gap-4">
+      <FormField name="fullName" label="To'liq ism" required>
+        <Input />
+      </FormField>
+      <FormField name="phone" label="Telefon" description="SMS kod yuboriladi">
+        <PhoneInput />
+      </FormField>
+      <FormField name="pinfl" label="JShShIR">
+        <PinflInput />
+      </FormField>
+      <FormField name="region" label="Hudud">
+        <RegionSelect />
+      </FormField>
+      <FormField name="terms">
+        <Checkbox label="Foydalanish shartlariga roziman" />
+      </FormField>
+      <FormRootError />
+      <FormSubmit>Ro'yxatdan o'tish</FormSubmit>
+    </Form>
+  );
+}
+```
+
+`Form` — `<form noValidate>` + `FormProvider`; `onSubmit` faqat validatsiyadan o'tganda
+chaqiriladi. `FormSubmit` yuborish davomida `loading` holatiga o'tadi, `FormRootError` esa
+`setError('root', ...)` (yoki `'root.server'`) xatosini `Alert` bilan ko'rsatadi.
+
+## Moslik jadvali
+
+`FormField` bolaning turini aniqlaydi va unga mos prop'larni uzatadi. Kutubxona komponentlari
+uchun tayyor jadval bor; `label`, `description`, `id`, `aria-describedby`, `aria-invalid`,
+`required` va `disabled` esa `Field` konteksti orqali **hammasiga** avtomatik yetadi.
+
+| Komponent                                                                      | Uzatiladigan prop'lar                                          | Forma qiymati                              |
+| ------------------------------------------------------------------------------ | -------------------------------------------------------------- | ------------------------------------------ |
+| `Input`, `Textarea`                                                            | `value`, `onChange(event)`, `name`                             | `string`                                   |
+| native `<input>`, `<textarea>`, `<select>`                                     | `value`, `onChange(event)`, `name`, `id`, `aria-*`, `disabled` | `string`                                   |
+| native `<input type="checkbox">`                                               | `checked`, `onChange(event)`, `name`                           | `boolean`                                  |
+| `Checkbox`, `Switch`                                                           | `checked`, `onCheckedChange`                                   | `boolean`                                  |
+| `RadioGroup`, `Select`, `RegionSelect`                                         | `value`, `onValueChange`, `name`                               | `string` (`UzRegionId`)                    |
+| `SegmentedControl`, `ColorPicker`, `OtpInput`                                  | `value`, `onValueChange`                                       | `string`                                   |
+| `MaskedInput`, `PhoneInput`, `CardInput`                                       | `value`, `onValueChange`                                       | `string` (toza raqamlar)                   |
+| `PinflInput`, `PassportInput`, `InnInput`, `BankAccountInput`, `CarPlateInput` | `value`, `onValueChange`                                       | `string` (bo'shliqsiz)                     |
+| `MoneyInput`                                                                   | `value`, `onValueChange`                                       | `number \| null`                           |
+| `Slider`                                                                       | `value`, `onValueChange`                                       | `number[]`                                 |
+| `Rating`                                                                       | `value`, `onValueChange`                                       | `number`                                   |
+| `Combobox`                                                                     | `value`, `onValueChange`                                       | `string \| null` · `multiple` — `string[]` |
+| `TagInput`                                                                     | `value`, `onValueChange`                                       | `string[]`                                 |
+| `DatePicker`                                                                   | `value`, `onValueChange`                                       | `Date \| null`                             |
+| `DateRangePicker`                                                              | `value`, `onValueChange`                                       | `{ from, to } \| null`                     |
+| `FileUpload`                                                                   | `onFilesChange` (boshqarilmaydi)                               | `FileUploadItem[]`                         |
+| boshqa komponentlar                                                            | `value`, `onValueChange` (konvensiya)                          | —                                          |
+
+Qoidalar:
+
+- **Bo'sh qiymat.** Forma qiymati `undefined` / `null` bo'lsa, komponent boshqariladigan holatda
+  qolishi uchun bo'sh qiymat beriladi: matnlarga `''`, `Checkbox` ga `false`, `TagInput` ga `[]`,
+  `Rating` ga `0`, `Slider` ga `[min]`. Shu tufayli `reset()` har bir komponentni tozalaydi.
+- **O'z handler'ingiz ham ishlaydi.** `<Input onChange={log} />` — avval sizniki, keyin
+  formaniki chaqiriladi.
+- **`FileUpload`** ichki holatini o'zi boshqaradi: forma qiymati tashqaridan o'zgarsa
+  (`reset`, `setValue`) komponent qayta yaratiladi va ro'yxat tozalanadi.
+- **Fokus.** Submit'dagi xato yoki `form.setFocus(name)` maydonning asosiy elementini fokuslaydi
+  (input, Select tugmasi, slider dastagi ...). Bolaga `ref` uzatish shart emas.
+
+Barcha qatorlar integratsiya testlari bilan tekshirilgan: qiymat kiradi va chiqadi, xato
+`Field` da chiqadi, fokus xatoli maydonga o'tadi, `reset()` ishlaydi.
+
+## Ko'p komponentli forma
+
+`value` / `onValueChange` komponentlari (`SegmentedControl`, `MoneyInput`, `TagInput`) va
+boshqarilmaydigan `FileUpload` bitta formada. Narx `zUz.money({ min, max })` bilan tekshiriladi.
+
+<ComponentPreview name="form/listing" align="start" />
+
+## Zaxira yo'li: `render`
+
+Jadvalda yo'q yoki boshqa API'li element uchun `render` ni ishlating — `value`,
+`onValueChange` va `controlProps` (`id`, `aria-*`) qo'lingizda:
+
+<ComponentPreview name="form/render-fallback" align="start" />
+
+```tsx
+<FormField
+  name="city"
+  label="Shahar"
+  render={({ value, onValueChange, controlProps }) => (
+    <select {...controlProps} value={value} onChange={(e) => onValueChange(e.target.value)}>
+      <option value="tsh">Toshkent</option>
+    </select>
+  )}
+/>
+```
+
+## O'z komponentingiz
+
+**`useFormField()`** — `FormField` ichidagi komponent maydonga o'zi ulanadi. Bunday bolaga
+`adapter="none"` bering, shunda unga prop'lar uzatilmaydi:
+
+```tsx
+function Stepper() {
+  const { value, onValueChange, id, invalid } = useFormField<number>();
+  return (
+    <button type="button" id={id} aria-invalid={invalid} onClick={() => onValueChange(value + 1)}>
+      {value}
+    </button>
+  );
+}
+
+<FormField name="guests" label="Mehmonlar" adapter="none">
+  <Stepper />
+</FormField>;
+```
+
+**`createFormAdapter()`** — prop nomlari boshqacha bo'lgan komponent uchun:
+
+```tsx
+import { createFormAdapter } from '@akhatmirzo/ui/form';
+
+const pickerAdapter = createFormAdapter({
+  valueProp: 'selected',
+  changeProp: 'onSelect',
+  empty: [],
+});
+
+<FormField name="ids" label="Mahsulotlar" adapter={pickerAdapter}>
+  <ProductPicker />
+</FormField>;
+```
+
+Tayyor nomlar: `adapter="native"` (`value` + `onChange(event)`), `"value"`, `"checked"`,
+`"none"`.
+
+## Props
+
+### Form
+
+Qolgan barcha `<form>` atributlari ham qabul qilinadi.
+
+<PropsTable
+  rows={[
+    {
+      name: 'form',
+      type: 'UseFormReturn<TFieldValues, TContext, TTransformedValues>',
+      required: true,
+      description: 'useForm(...) natijasi',
+    },
+    {
+      name: 'onSubmit',
+      type: 'SubmitHandler<TTransformedValues>',
+      required: true,
+      description: "Validatsiyadan o'tgan (resolver o'zgartirgan) qiymatlar bilan",
+    },
+    {
+      name: 'onInvalid',
+      type: 'SubmitErrorHandler<TFieldValues>',
+      description: 'Validatsiya xatolari bilan',
+    },
+  ]}
+/>
+
+### FormField
+
+`label`, `description`, `required`, `disabled`, `orientation`, `className` va boshqa
+[`Field`](./field.mdx) prop'lari ham qabul qilinadi (`error` dan tashqari — u formadan olinadi).
+
+<PropsTable
+  rows={[
+    { name: 'name', type: 'FieldPath<TFieldValues>', required: true, description: 'Maydon nomi' },
+    {
+      name: 'children',
+      type: 'ReactElement',
+      description: "Bitta boshqaruv elementi — prop'lar avtomatik uzatiladi",
+    },
+    {
+      name: 'render',
+      type: '(field: FormFieldRenderProps) => ReactNode',
+      description: "Zaxira yo'l: elementni o'zingiz chizasiz",
+    },
+    {
+      name: 'adapter',
+      type: "FormFieldAdapter | 'native' | 'nativeChecked' | 'value' | 'checked' | 'none'",
+      description: 'Qiymat qanday uzatilishi; standart — avtomatik (moslik jadvali)',
+    },
+    {
+      name: 'control',
+      type: 'Control<TFieldValues>',
+      description: 'Berilmasa — eng yaqin <Form> dan',
+    },
+    { name: 'rules', type: 'RegisterOptions', description: 'react-hook-form qoidalari' },
+    {
+      name: 'defaultValue',
+      type: 'FieldPathValue',
+      description: "Maydonning boshlang'ich qiymati",
+    },
+    {
+      name: 'shouldUnregister',
+      type: 'boolean',
+      description: "O'chirilganda qiymat ham olib tashlanadi",
+    },
+  ]}
+/>
+
+### FormSubmit
+
+[`Button`](./button.mdx) prop'lari; `type="submit"`, yuborilayotganda `loading`.
+
+<PropsTable rows={[{ name: 'variant', type: 'ButtonVariant', default: "'primary'" }]} />
+
+### FormRootError
+
+[`Alert`](./alert.mdx) prop'lari. Xato bo'lmasa hech narsa chizilmaydi.
+
+<PropsTable
+  rows={[
+    {
+      name: 'color',
+      type: "'neutral' | 'primary' | 'success' | 'warning' | 'danger' | 'info'",
+      default: "'danger'",
+    },
+    {
+      name: 'children',
+      type: '(message: string) => ReactNode',
+      description: "Matn o'rniga o'z ko'rinishingiz",
+    },
+  ]}
+/>
+
+### useFormField / render argumenti
+
+<PropsTable
+  rows={[
+    { name: 'name', type: 'string' },
+    { name: 'value', type: 'TValue', description: 'Formadagi joriy qiymat' },
+    { name: 'onValueChange', type: '(value: TValue) => void' },
+    { name: 'onBlur', type: '() => void', description: 'Maydon "tegilgan" deb belgilanadi' },
+    { name: 'invalid', type: 'boolean' },
+    { name: 'error', type: 'string | undefined', description: 'Xato matni' },
+    { name: 'id', type: 'string', description: 'Label ulangan id' },
+    { name: 'disabled', type: 'boolean' },
+    {
+      name: 'controlProps',
+      type: "{ id; 'aria-describedby'?; 'aria-invalid'?; 'aria-required'? }",
+      description: 'Faqat render argumentida — native elementga yoyiladi',
+    },
+  ]}
+/>
+
+## Accessibility
+
+- **Label va xato bog'langan.** Har bir maydon `Field` orqali `<label htmlFor>`,
+  `aria-describedby` (izoh + xato) va `aria-invalid` oladi; native elementlar va `render` ham
+  shu atributlarni oladi.
+- **Xato e'lon qilinadi.** Xato matni `aria-live="polite"` hududida — submit'dan keyin ekran
+  o'quvchi o'qiydi. `FormRootError` — `role="alert"`.
+- **Fokus xatoga o'tadi.** Submit'da birinchi xatoli maydonning asosiy elementi fokuslanadi
+  (`shouldFocusError`), klaviatura foydalanuvchisi darhol tuzatishni boshlaydi.
+- **Brauzer validatsiyasi o'chirilgan** (`noValidate`) — xabarlar bir xil ko'rinishda, o'zbekcha.
+- **Portal'li komponentlar** (Select, Combobox, DateRangePicker) ochilganda maydon "tark etilgan" hisoblanmaydi
+  — `mode: 'onBlur'` da xato muddatidan oldin chiqmaydi.

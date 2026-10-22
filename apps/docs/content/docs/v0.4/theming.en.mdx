@@ -1,0 +1,223 @@
+---
+title: Theming and tokens
+description: Colors, typography, radii, shadows, motion and how to change the brand color.
+---
+
+The whole design lives in one file — `@akhatmirzo/tokens/theme.css`. It holds CSS variables
+(`--ak-*`) and an `@theme` block that turns them into Tailwind utilities. Components never use
+raw colors like `indigo-600` — only **semantic** tokens such as `bg-primary` and
+`text-text-muted`. That is why dark mode and the brand color change in one place.
+
+```css title="app.css"
+@import 'tailwindcss';
+@import '@akhatmirzo/tokens/theme.css';
+```
+
+Tokens come in two layers:
+
+1. **Base scales** — `--ak-indigo-600`, `--ak-slate-200` and so on. They exist to build the
+   semantic tokens. Don't use them directly in components or app code.
+2. **Semantic tokens** — `--ak-surface`, `--ak-text-muted`, `--ak-primary` and so on. Each one
+   points to a different base value in light and dark mode, and shows up in Tailwind as
+   `bg-surface`, `text-text-muted`, `bg-primary`.
+
+## Color palette
+
+The accent is indigo and the neutral is slate. Status colors are emerald (success), amber
+(warning), rose (danger) and sky (info). The values below are read straight from `theme.css`.
+
+<ComponentPreview name="theming/palette" align="start" />
+
+## Semantic tokens
+
+Pick from this list when you write code. Switch the site theme — the swatches and values follow
+dark mode.
+
+<ComponentPreview name="theming/semantic" align="start" />
+
+| Token                     | Tailwind                       | Light            | Dark             | Used for                 |
+| ------------------------- | ------------------------------ | ---------------- | ---------------- | ------------------------ |
+| `background`              | `bg-background`                | slate-50         | slate-900        | Page background          |
+| `surface`                 | `bg-surface`                   | white            | slate-800        | Cards, inputs, modals    |
+| `surface-muted`           | `bg-surface-muted`             | slate-100        | slate-700        | Hover, secondary fill    |
+| `surface-raised`          | `bg-surface-raised`            | white            | slate-750        | Popovers, toasts, menus  |
+| `border`                  | `border-border`                | slate-200        | slate-700        | Default border           |
+| `border-strong`           | `border-border-strong`         | slate-300        | slate-600        | Hover border             |
+| `text`                    | `text-text`                    | slate-900        | slate-100        | Body text                |
+| `text-subtle`             | `text-text-subtle`             | slate-700        | slate-300        | Ghost buttons, icons     |
+| `text-muted`              | `text-text-muted`              | slate-500        | slate-400        | Secondary text           |
+| `text-faint`              | `text-text-faint`              | slate-400        | slate-500        | Placeholders             |
+| `primary`                 | `bg-primary`                   | indigo-600       | indigo-600       | Primary button           |
+| `primary-hover`           | `bg-primary-hover`             | indigo-700       | indigo-500       | Primary button hover     |
+| `primary-foreground`      | `text-primary-foreground`      | white            | white            | Text on primary          |
+| `primary-soft`            | `bg-primary-soft`              | indigo-50        | indigo-950       | Soft buttons, badges     |
+| `primary-soft-hover`      | `bg-primary-soft-hover`        | indigo-100       | indigo-900       | Soft button hover        |
+| `primary-soft-foreground` | `text-primary-soft-foreground` | indigo-700       | indigo-300       | Text on soft             |
+| `link`                    | `text-link`                    | indigo-600       | indigo-300       | Links                    |
+| `ring`                    | `outline-ring`                 | indigo-500 / 40% | indigo-400 / 50% | Focus ring               |
+| `overlay`                 | `bg-overlay`                   | slate-900 / 40%  | slate-950 / 60%  | Backdrop behind modals   |
+| `danger`                  | `bg-danger`                    | rose-600         | rose-500         | Destructive button       |
+| `danger-hover`            | `bg-danger-hover`              | rose-700         | rose-600         | Destructive button hover |
+| `danger-ring`             | `outline-danger-ring`          | rose-500 / 25%   | rose-500 / 35%   | Focus in error state     |
+
+<Callout title="Primary stays the same in dark mode">
+  The primary button is indigo-600 in both modes. Indigo-500 with white text falls short of WCAG AA
+  contrast, so in dark mode only the hover state gets lighter.
+</Callout>
+
+### Status colors
+
+Each status has two sets: **soft** for badge and message backgrounds, **solid** for dots and
+fully filled badges.
+
+<ComponentPreview name="theming/status" />
+
+| Status    | Soft                                           | Solid                                |
+| --------- | ---------------------------------------------- | ------------------------------------ |
+| `success` | `bg-success-soft text-success-soft-foreground` | `bg-success text-success-foreground` |
+| `warning` | `bg-warning-soft text-warning-soft-foreground` | `bg-warning text-warning-foreground` |
+| `danger`  | `bg-danger-soft text-danger-soft-foreground`   | `bg-danger text-danger-foreground`   |
+| `info`    | `bg-info-soft text-info-soft-foreground`       | `bg-info text-info-foreground`       |
+
+## Typography
+
+The main typeface is **Manrope** (Latin and Cyrillic); code uses **JetBrains Mono**. `theme.css`
+only names the fonts (`font-sans`, `font-mono`) — it doesn't load them. Add them yourself:
+
+<Install pkg="@fontsource-variable/manrope @fontsource-variable/jetbrains-mono" />
+
+```css title="app.css"
+@import '@fontsource-variable/manrope';
+@import '@fontsource-variable/jetbrains-mono';
+```
+
+Without the fonts, the system font (`ui-sans-serif, system-ui`) takes over. The size scale ships
+with line heights and letter spacing:
+
+<ComponentPreview name="theming/typography" align="start" />
+
+Font weight isn't tied to size — each component sets its own `font-medium` or `font-semibold`.
+As a rule of thumb: buttons and labels 500, headings 600, large headings 700. Add `tabular-nums`
+to tables and prices so the digits line up.
+
+## Radii and shadows
+
+Buttons and inputs use `rounded-lg` (12px), cards and popovers `rounded-xl` (16px), modals and
+drawers `rounded-2xl` (20px). Shadows are tinted slate-900 instead of black, which keeps them soft.
+In dark mode, `shadow-md` and up add a 1px ring, because a shadow alone barely shows on a dark
+background.
+
+<ComponentPreview name="theming/radius-shadow" />
+
+## Motion
+
+Motion carries information, not decoration: it shows where an element came from and where it
+went. Entrances are slower and use `ease-out`; exits are faster and use `ease-in`.
+
+<ComponentPreview name="theming/motion" />
+
+| Duration            | Value | Used for                          |
+| ------------------- | ----- | --------------------------------- |
+| `duration-fast`     | 100ms | Hover, press, closing a dropdown  |
+| `duration-base`     | 150ms | Opening a dropdown, tooltips      |
+| `duration-moderate` | 200ms | Opening a modal, accordions, tabs |
+| `duration-slow`     | 300ms | Drawers, toast entrance           |
+
+Easings: `ease-out` (the default), `ease-in`, `ease-in-out` and `ease-spring` (use sparingly —
+toasts, switches). There are ready keyframes for overlays too: `animate-dialog-in/out`,
+`animate-popover-in/out`, `animate-tooltip-in/out`, `animate-slide-in-right` (plus `left`, `top`,
+`bottom`), `animate-toast-in/out`, `animate-accordion-down/up`, as well as `animate-spinner` and
+`animate-shimmer`.
+
+<Callout type="info" title="prefers-reduced-motion">
+  When the user turns on "reduce motion" in their OS, the popover slide is switched off. Use the
+  `motion-reduce:` variant in your own animations.
+</Callout>
+
+## Layers (z-index)
+
+These aren't mapped to Tailwind utilities — use the CSS variable: `z-(--ak-z-modal)`.
+
+| Variable          | Value | Who uses it                                 |
+| ----------------- | ----- | ------------------------------------------- |
+| `--ak-z-dropdown` | 1000  | Dropdown, Select, Combobox, Popover         |
+| `--ak-z-overlay`  | 1100  | Dialog, Drawer and Command Palette backdrop |
+| `--ak-z-modal`    | 1110  | Dialog, Drawer and Command Palette panel    |
+| `--ak-z-toast`    | 1200  | Toast                                       |
+| `--ak-z-tooltip`  | 1300  | Tooltip                                     |
+
+## Changing the brand color
+
+The brand color is the `--ak-primary*` group. Redefine it **after** `theme.css` — the components
+don't need to change. In the example below the brand color changes inside a single block.
+
+<ComponentPreview name="theming/brand" />
+
+To change it across the app, write the light and dark values separately. Any color from the
+base scales works, and so do your own hex values:
+
+```css title="app.css"
+@import 'tailwindcss';
+@import '@akhatmirzo/tokens/theme.css';
+
+:root,
+[data-theme='light'] {
+  --ak-primary: var(--ak-emerald-600);
+  --ak-primary-hover: var(--ak-emerald-700);
+  --ak-primary-soft: var(--ak-emerald-50);
+  --ak-primary-soft-hover: var(--ak-emerald-100);
+  --ak-primary-soft-foreground: var(--ak-emerald-700);
+  --ak-ring: rgb(16 185 129 / 0.4);
+  --ak-link: var(--ak-emerald-700);
+}
+
+[data-theme='dark'] {
+  --ak-primary: var(--ak-emerald-600);
+  --ak-primary-hover: var(--ak-emerald-500);
+  --ak-primary-soft: var(--ak-emerald-950);
+  --ak-primary-soft-hover: var(--ak-emerald-950);
+  --ak-primary-soft-foreground: var(--ak-emerald-300);
+  --ak-ring: rgb(52 211 153 / 0.5);
+  --ak-link: var(--ak-emerald-300);
+}
+```
+
+<Callout type="warn" title="Write the dark block as well">
+  A `:root` value on `<html>` also wins in dark mode: both selectors have the same specificity and
+  your file comes later. But tokens that differ between modes (`soft`, `ring`, `link`) and nested
+  `data-theme="dark"` blocks need a complete `[data-theme='dark']` block.
+</Callout>
+
+Text on primary is white (`--ak-primary-foreground`). If you pick a light color such as amber,
+check the contrast and change `--ak-primary-foreground` too if needed.
+
+## Tailwind utilities
+
+Besides colors, radii and shadows, `theme.css` adds a few ready utilities:
+
+| Utility                       | What it does                                                                           |
+| ----------------------------- | -------------------------------------------------------------------------------------- |
+| `focus-ring`                  | A 2px ring on keyboard focus only (`:focus-visible`)                                   |
+| `focus-ring-within`           | For input containers: border and ring when something inside has focus; danger on error |
+| `duration-fast` … `slow`      | Duration tokens (pair with `transition-*`)                                             |
+| `ease-out`, `ease-spring` ... | Easing tokens                                                                          |
+| `dark:`                       | Works inside `data-theme="dark"` (not `class="dark"`)                                  |
+
+```tsx title="In your own component"
+<button className="focus-ring rounded-lg bg-primary-soft px-4 py-2 text-sm font-medium text-primary-soft-foreground transition-colors duration-base hover:bg-primary-soft-hover">
+  Filter
+</button>
+```
+
+Outside Tailwind (your own CSS, inline styles, a chart library) colors, shadows, durations,
+easings and layers are available as CSS variables:
+
+```css
+.chart-tooltip {
+  background: var(--ak-surface-raised);
+  color: var(--ak-text);
+  box-shadow: var(--ak-shadow-lg);
+  transition: opacity var(--ak-duration-base) var(--ak-ease-out);
+  z-index: var(--ak-z-tooltip);
+}
+```

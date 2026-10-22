@@ -1,0 +1,183 @@
+---
+title: ScriptProvider
+description: Show content in the script the user picks — Latin or Cyrillic Uzbek, remembered across visits.
+---
+
+<ComponentPreview name="script/overview" align="start" />
+
+## Import
+
+```tsx
+import { ScriptProvider, ScriptToggle, Translit, useScript } from '@akhatmirzo/ui';
+```
+
+You store text in one script (usually Latin) and each user reads it in the script they prefer.
+Conversion uses `toScript` from `@akhatmirzo/core`. It detects the source script on its own, so
+text stored in Cyrillic converts to Latin just as well.
+
+| Part             | What it does                                                      |
+| ---------------- | ----------------------------------------------------------------- |
+| `ScriptProvider` | Holds the current script (optionally in `localStorage`)           |
+| `ScriptToggle`   | A "Lotin \| Кирилл" switch built on `SegmentedControl`            |
+| `Translit`       | Renders text in the current script and sets the `lang` attribute  |
+| `useScript`      | `{ script, setScript, t }` for your own components and attributes |
+
+## When to use
+
+- **Uzbek-language apps** — some users prefer reading Cyrillic. You don't have to write the
+  content twice.
+- **Headings, buttons and short copy** — use `Translit` or `t()`. Don't convert user input
+  (names, addresses); keep it as typed.
+- **Attributes** (`placeholder`, `aria-label`, `title`) — use `useScript().t`, because
+  `Translit` renders an element.
+- **Not for other languages** — this is transliteration between the two Uzbek scripts, not
+  translation.
+
+## ScriptToggle
+
+Inside a provider it drives the provider's state. The default labels are "Lotin", "Кирилл" and
+the group name (`aria-label`) "Alifbo"; change them with `labels`. [SegmentedControl](./segmented-control.mdx)
+props (`size`, `fullWidth`, `disabled` …) work too.
+
+<ComponentPreview name="script/persist" align="start" />
+
+It also works without a provider as a plain controlled component with `value` and
+`onValueChange`.
+
+## useScript
+
+`t(text)` converts text to the current script. Outside a provider `script` is `'latin'` and `t`
+returns the text unchanged, so your component never breaks without one.
+
+<ComponentPreview name="script/use-script" align="start" />
+
+```tsx
+const { script, setScript, t } = useScript();
+
+t('Salom'); // "Салом" when Cyrillic is selected
+setScript('cyrillic');
+```
+
+## Persistence and SSR
+
+With `storageKey`, the choice is saved in `localStorage` under that key and synced across tabs.
+The server render and the first client render always use `defaultScript`; the stored value is
+read after hydration. That means no hydration mismatch in Next.js. If `localStorage` is blocked
+(private mode), the choice lives only for the current session.
+
+```tsx title="app/layout.tsx"
+<ScriptProvider defaultScript="latin" storageKey="script">
+  {children}
+</ScriptProvider>
+```
+
+Controlled mode: `script` + `onScriptChange` (for example, to store the choice in a user
+profile).
+
+## With other components
+
+Inside a provider, [`RegionSelect`](./select.mdx#regionselect) shows region names and
+[`MoneyInput showWords`](./masked-input.mdx#amount-in-words) spells amounts in the current script.
+
+## Props
+
+### ScriptProvider
+
+<PropsTable
+  rows={[
+    { name: 'script', type: "'latin' | 'cyrillic'", description: 'Current script (controlled)' },
+    {
+      name: 'defaultScript',
+      type: "'latin' | 'cyrillic'",
+      default: "'latin'",
+      description: 'Initial script; used for SSR and the first render',
+    },
+    {
+      name: 'onScriptChange',
+      type: '(script: UzScript) => void',
+      description: 'Called when the script changes',
+    },
+    {
+      name: 'storageKey',
+      type: 'string',
+      description: 'Remember the choice in localStorage under this key',
+    },
+    { name: 'children', type: 'ReactNode' },
+  ]}
+/>
+
+### ScriptToggle
+
+Accepts [SegmentedControl](./segmented-control.mdx) props except `value`, `defaultValue`,
+`onValueChange` and `children`.
+
+<PropsTable
+  rows={[
+    {
+      name: 'value',
+      type: "'latin' | 'cyrillic'",
+      description: "Controlled value; defaults to the provider's script",
+    },
+    {
+      name: 'defaultValue',
+      type: "'latin' | 'cyrillic'",
+      default: "'latin'",
+      description: 'Used when there is neither a provider nor a value',
+    },
+    {
+      name: 'onValueChange',
+      type: '(script: UzScript) => void',
+      description: 'Called on change (the provider updates too)',
+    },
+    {
+      name: 'labels',
+      type: '{ latin?: string; cyrillic?: string; group?: string }',
+      default: '{ latin: "Lotin", cyrillic: "Кирилл", group: "Alifbo" }',
+    },
+    { name: 'size', type: "'sm' | 'md' | 'lg'", default: "'md'" },
+  ]}
+/>
+
+### Translit
+
+Other HTML attributes are passed to the element.
+
+<PropsTable
+  rows={[
+    {
+      name: 'children',
+      type: 'string',
+      required: true,
+      description: 'Text to convert (Latin or Cyrillic)',
+    },
+    { name: 'as', type: 'ElementType', default: "'span'", description: 'Element to render' },
+    {
+      name: 'lang',
+      type: 'string',
+      description: 'Defaults to uz-Latn or uz-Cyrl based on the current script',
+    },
+  ]}
+/>
+
+### useScript
+
+<PropsTable
+  rows={[
+    { name: 'script', type: "'latin' | 'cyrillic'", description: 'Current script' },
+    { name: 'setScript', type: '(script: UzScript) => void', description: 'Switch the script' },
+    {
+      name: 't',
+      type: '(text: string) => string',
+      description: 'Convert text to the current script',
+    },
+  ]}
+/>
+
+## Accessibility
+
+- **`lang` attribute.** `Translit` sets `lang="uz-Latn"` or `lang="uz-Cyrl"` on its element, so
+  screen readers pick the right pronunciation and search engines see the script. Without a
+  provider, `lang` is detected from the text itself. `<html lang>` is left alone.
+- **ScriptToggle** is a `radiogroup` (`aria-label` "Alifbo") navigated with ←→. The "Кирилл"
+  option carries `lang="uz-Cyrl"`, so it is read correctly in a Latin interface.
+- **Focus is kept.** Switching scripts only changes text; elements are not re-created.

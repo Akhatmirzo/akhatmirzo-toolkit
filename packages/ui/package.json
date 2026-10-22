@@ -1,6 +1,6 @@
 {
   "name": "@akhatmirzo/ui",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "description": "Accessible React UI components built on Tailwind CSS v4 and Radix UI: forms, overlays, DataTable, DatePicker, dark mode and Uzbek-ready inputs (phone, card, so'm).",
   "keywords": [
     "react",
@@ -31,7 +31,7 @@
     "name": "Akhatmirzo Umarov",
     "url": "https://akhatmirzo.uz"
   },
-  "homepage": "https://toolkit.akhatmirzo.uz/uz/docs/v0.1/introduction",
+  "homepage": "https://toolkit.akhatmirzo.uz/uz/docs/v0.4/introduction",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/Akhatmirzo/akhatmirzo-toolkit.git",
@@ -54,6 +54,16 @@
       "source": "./src/index.ts",
       "types": "./dist/index.d.ts",
       "import": "./dist/index.js"
+    },
+    "./charts": {
+      "source": "./src/charts/index.ts",
+      "types": "./dist/charts/index.d.ts",
+      "import": "./dist/charts/index.js"
+    },
+    "./form": {
+      "source": "./src/form/index.ts",
+      "types": "./dist/form/index.d.ts",
+      "import": "./dist/form/index.js"
     }
   },
   "types": "./dist/index.d.ts",
@@ -64,14 +74,18 @@
   "peerDependencies": {
     "@akhatmirzo/tokens": "workspace:^",
     "react": ">=18",
-    "react-dom": ">=18"
+    "react-dom": ">=18",
+    "recharts": "^3.0.0",
+    "react-hook-form": "^7.50.0"
   },
   "dependencies": {
     "@akhatmirzo/core": "workspace:^",
     "@akhatmirzo/hooks": "workspace:^",
     "@radix-ui/react-accordion": "^1.3.1",
+    "@radix-ui/react-context-menu": "^2.4.1",
     "@radix-ui/react-dialog": "^1.3.1",
     "@radix-ui/react-dropdown-menu": "^2.2.1",
+    "@radix-ui/react-hover-card": "^1.2.1",
     "@radix-ui/react-popover": "^1.3.1",
     "@radix-ui/react-radio-group": "^1.5.1",
     "@radix-ui/react-select": "^2.4.1",
@@ -91,10 +105,14 @@
   },
   "devDependencies": {
     "@akhatmirzo/tokens": "workspace:^",
+    "@hookform/resolvers": "^6.0.0",
     "@types/react": "^19.3.0",
     "@types/react-dom": "^19.3.0",
     "react": "^19.3.1",
-    "react-dom": "^19.3.1"
+    "react-dom": "^19.3.1",
+    "react-hook-form": "^7.90.0",
+    "recharts": "^3.10.1",
+    "zod": "^4.6.7"
   },
   "publishConfig": {
     "access": "public",
@@ -102,7 +120,23 @@
       ".": {
         "types": "./dist/index.d.ts",
         "import": "./dist/index.js"
+      },
+      "./charts": {
+        "types": "./dist/charts/index.d.ts",
+        "import": "./dist/charts/index.js"
+      },
+      "./form": {
+        "types": "./dist/form/index.d.ts",
+        "import": "./dist/form/index.js"
       }
+    }
+  },
+  "peerDependenciesMeta": {
+    "recharts": {
+      "optional": true
+    },
+    "react-hook-form": {
+      "optional": true
     }
   }
 }

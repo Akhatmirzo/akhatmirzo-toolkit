@@ -1,0 +1,230 @@
+---
+title: Installation
+description: Install the packages, wire up the CSS and render your first component.
+---
+
+The toolkit ships as four independent packages. For components you only need `@akhatmirzo/ui`
+and `@akhatmirzo/tokens` — add the others when you need them.
+
+## Requirements
+
+- **React 18** or newer (React 19 is supported)
+- **Tailwind CSS v4** — components are styled with Tailwind classes, and your own Tailwind build
+  generates the CSS
+- An ESM-aware bundler: Vite, Next.js, Rsbuild and so on
+
+## Install
+
+<Steps>
+<Step>
+
+### Add the packages
+
+<Install pkg="@akhatmirzo/ui @akhatmirzo/tokens" />
+
+The font is optional, but the design is tuned for Manrope:
+
+<Install pkg="@fontsource-variable/manrope" />
+
+</Step>
+<Step>
+
+### Wire up the CSS
+
+In your main stylesheet, import the tokens **after** Tailwind and tell Tailwind to scan the
+component classes:
+
+```css title="app.css"
+@import 'tailwindcss';
+@import '@fontsource-variable/manrope';
+@import '@akhatmirzo/tokens/theme.css';
+
+/* The path is relative to this CSS file */
+@source '../node_modules/@akhatmirzo/ui/dist';
+```
+
+<Callout type="warn" title="Don't forget @source">
+  Tailwind v4 does not scan `node_modules` on its own. Without the `@source` line the components
+  render, but unstyled. Adjust the path to where your CSS file lives — for `src/styles/app.css` it
+  would be `'../../node_modules/@akhatmirzo/ui/dist'`.
+</Callout>
+
+</Step>
+<Step>
+
+### Add the providers
+
+Once, at the root of your app. `toast()`, `confirm()` and tooltips depend on them:
+
+```tsx title="App.tsx"
+import { ConfirmProvider, Toaster, TooltipProvider } from '@akhatmirzo/ui';
+
+export function App() {
+  return (
+    <TooltipProvider>
+      <ConfirmProvider>
+        <Routes />
+        <Toaster position="bottom-right" />
+      </ConfirmProvider>
+    </TooltipProvider>
+  );
+}
+```
+
+</Step>
+<Step>
+
+### Render your first component
+
+```tsx
+import { Button, toast } from '@akhatmirzo/ui';
+
+export function SaveButton() {
+  return (
+    <Button variant="primary" onClick={() => toast.success('Saved')}>
+      Save
+    </Button>
+  );
+}
+```
+
+</Step>
+</Steps>
+
+## Vite
+
+Tailwind v4 plugs into Vite through its official plugin:
+
+<Install pkg="tailwindcss @tailwindcss/vite" dev />
+
+```ts title="vite.config.ts"
+import tailwindcss from '@tailwindcss/vite';
+import react from '@vitejs/plugin-react';
+import { defineConfig } from 'vite';
+
+export default defineConfig({
+  plugins: [react(), tailwindcss()],
+});
+```
+
+The stylesheet usually lives in `src/`, so `@source` goes one level up:
+
+```css title="src/index.css"
+@import 'tailwindcss';
+@import '@fontsource-variable/manrope';
+@import '@akhatmirzo/tokens/theme.css';
+
+@source '../node_modules/@akhatmirzo/ui/dist';
+```
+
+Add the providers in `src/main.tsx` or at the root of `App`, as in step 3 above.
+
+## Next.js (App Router)
+
+The components use state and browser APIs, so render them from **client components** — put
+`'use client'` at the top of the file.
+
+In Next.js, Tailwind v4 runs as a PostCSS plugin:
+
+<Install pkg="tailwindcss @tailwindcss/postcss" dev />
+
+```js title="postcss.config.mjs"
+export default {
+  plugins: { '@tailwindcss/postcss': {} },
+};
+```
+
+```css title="app/globals.css"
+@import 'tailwindcss';
+@import '@fontsource-variable/manrope';
+@import '@akhatmirzo/tokens/theme.css';
+
+@source '../node_modules/@akhatmirzo/ui/dist';
+```
+
+Move the providers into their own file and wrap them around your `layout.tsx`:
+
+```tsx title="app/providers.tsx"
+'use client';
+
+import { ConfirmProvider, Toaster, TooltipProvider } from '@akhatmirzo/ui';
+import type { ReactNode } from 'react';
+
+export function Providers({ children }: { children: ReactNode }) {
+  return (
+    <TooltipProvider>
+      <ConfirmProvider>
+        {children}
+        <Toaster />
+      </ConfirmProvider>
+    </TooltipProvider>
+  );
+}
+```
+
+```tsx title="app/layout.tsx"
+import { Providers } from './providers';
+import './globals.css';
+
+export default function RootLayout({ children }: { children: React.ReactNode }) {
+  return (
+    <html lang="en">
+      <body className="bg-background font-sans text-text antialiased">
+        <Providers>{children}</Providers>
+      </body>
+    </html>
+  );
+}
+```
+
+## Optional packages
+
+They work without the components, too — each one stands on its own:
+
+<Install pkg="@akhatmirzo/core @akhatmirzo/hooks" />
+
+| Package              | What you get                                                                |
+| -------------------- | --------------------------------------------------------------------------- |
+| `@akhatmirzo/ui`     | React components (Tailwind v4 + Radix)                                      |
+| `@akhatmirzo/tokens` | Design tokens: CSS variables and a Tailwind `@theme`                        |
+| `@akhatmirzo/core`   | Formatting, validation, text, storage and API — no React, zero dependencies |
+| `@akhatmirzo/hooks`  | React hooks: `useDebounce`, `useHotkeys`, `useLocalStorage` and more        |
+
+<Callout title="You don't have to install core and hooks yourself">
+  `@akhatmirzo/ui` already depends on them. If you import them directly in your own code, add them
+  to your `package.json` as well.
+</Callout>
+
+## Troubleshooting
+
+<Accordions>
+  <Accordion title="Components render, but without styles">
+    Tailwind can't see the `@akhatmirzo/ui` classes. Check that your stylesheet has the `@source`
+    line and that the path is correct **relative to that CSS file**. In a pnpm monorepo, point it
+    at the app's own `node_modules` folder, not the one at the repository root.
+  </Accordion>
+  <Accordion title="toast() or confirm() shows nothing">
+    Render `<Toaster />` and `<ConfirmProvider>` once at the root of your app. Without them the
+    functions don't throw — nothing just appears on screen.
+  </Accordion>
+  <Accordion title="Next.js: useState only works in Client Components">
+    Add `'use client';` as the first line of the file that uses the component. Server Components
+    can only render static markup.
+  </Accordion>
+  <Accordion title="Dark mode doesn't turn on">
+    The tokens follow the `<html data-theme="dark">` attribute — `class="dark"` alone isn't
+    enough. The [Dark mode](./dark-mode.mdx) page shows how to set it up with next-themes.
+  </Accordion>
+</Accordions>
+
+## Next steps
+
+<Cards>
+  <Card
+    title="Theming and tokens"
+    href="./theming"
+    description="Tune the brand color, radii and shadows"
+  />
+  <Card title="Dark mode" href="./dark-mode" description="Dark mode with data-theme" />
+  <Card title="Button" href="./components/button" description="Get to know your first component" />
+</Cards>

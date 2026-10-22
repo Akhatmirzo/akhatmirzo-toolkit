@@ -1,0 +1,331 @@
+---
+title: Dialog
+description: A modal window for forms and confirmations — a bottom sheet on phones, plus an imperative confirm().
+---
+
+<ComponentPreview name="dialog/basic" />
+
+## Import
+
+```tsx
+import { Dialog, ConfirmDialog, ConfirmProvider, confirm } from '@akhatmirzo/ui';
+```
+
+## When to use
+
+- **To focus the user on one task** — a short form, editing details, an important warning. The
+  rest of the page is blocked until the dialog closes.
+- **To confirm a destructive action** — `confirm()` or `ConfirmDialog`. One line of code gives
+  you a `true` / `false` answer.
+- **Long forms or filters** fit better in a side panel — a [`Drawer`](./drawer.mdx) keeps the
+  page in view.
+- **Small, non-blocking content** (a filter, a color picker) doesn't need a modal — use a
+  [`Popover`](./popover.mdx).
+- **Result messages** ("Saved") don't need a window at all — [`toast()`](./toast.mdx) is enough.
+
+## Anatomy
+
+`Dialog` owns the state (`open`, `defaultOpen`, `onOpenChange`). The other parts:
+
+| Part             | What it does                                                      |
+| ---------------- | ----------------------------------------------------------------- |
+| `Dialog.Trigger` | Opens the dialog. Pass your own `Button` with `asChild`           |
+| `Dialog.Content` | The window: backdrop, title, description, ✕ button and focus trap |
+| `Dialog.Footer`  | The button row — right-aligned with an 8px gap                    |
+| `Dialog.Close`   | Closes the dialog when clicked (use with `asChild`)               |
+
+```tsx
+<Dialog open={open} onOpenChange={setOpen}>
+  <Dialog.Trigger asChild>
+    <Button>Open</Button>
+  </Dialog.Trigger>
+  <Dialog.Content title="Edit profile" description="Changes are saved right away.">
+    {/* form */}
+    <Dialog.Footer>
+      <Dialog.Close asChild>
+        <Button>Cancel</Button>
+      </Dialog.Close>
+      <Button variant="primary">Save</Button>
+    </Dialog.Footer>
+  </Dialog.Content>
+</Dialog>
+```
+
+`title` is required: screen readers announce the dialog by it. If it shouldn't be visible, add
+`hideTitle` — don't remove it.
+
+## Sizes
+
+`size` sets the width: `sm` — 400px, `md` — 520px (default), `lg` — 640px, `xl` — 800px, `full`
+— the whole screen. The dialog is never taller than the viewport minus 32px; long content
+scrolls inside it.
+
+<ComponentPreview name="dialog/sizes" />
+
+## Options
+
+- `dismissible={false}` — clicking outside doesn't close the dialog (`Esc` still does).
+- `closeButton={false}` — removes the ✕ button in the top-right corner.
+- `hideTitle` — hides the title visually; screen readers still read it.
+- `mobileSheet={false}` — keeps the dialog centered on phones too. By default, screens narrower
+  than 640px get a bottom sheet instead.
+
+<ComponentPreview name="dialog/options" />
+
+## While submitting
+
+To keep a submitting form from being closed by accident, turn off `dismissible` and ignore close
+requests in `onOpenChange` — then neither an outside click nor `Esc` closes it.
+
+<ComponentPreview name="dialog/async-submit" />
+
+## Confirmation: confirm()
+
+`confirm()` is an imperative API: it opens a dialog and returns a `Promise<boolean>`. "Confirm"
+resolves to `true`; "Cancel", `Esc` or an outside click resolve to `false`.
+
+<ComponentPreview name="dialog/confirm" />
+
+```tsx
+const ok = await confirm({
+  title: 'Delete this order?',
+  description: "This can't be undone.",
+  confirmText: 'Delete',
+  variant: 'danger',
+});
+if (ok) await deleteOrder(id);
+```
+
+- `variant: 'danger'` — the confirm button turns red and **initial focus goes to "Cancel"**, so
+  an accidental `Enter` doesn't delete anything.
+- If `onConfirm` returns a Promise, the button switches to `loading` and the dialog stays open
+  until it settles (`Esc` and outside clicks are blocked too). If the Promise rejects, the
+  dialog stays open so the user can retry or cancel.
+
+<Callout title="ConfirmProvider is required" type="warn">
+  `confirm()` needs a single `<ConfirmProvider />` somewhere in your app. Without it, `confirm()`
+  rejects with an error saying the provider wasn't found.
+</Callout>
+
+```tsx title="app/providers.tsx"
+'use client';
+
+import { ConfirmProvider } from '@akhatmirzo/ui';
+import type { ReactNode } from 'react';
+
+export function Providers({ children }: { children: ReactNode }) {
+  return <ConfirmProvider>{children}</ConfirmProvider>;
+}
+```
+
+`ConfirmProvider` can wrap your app or sit next to it on its own. Its `labels` prop sets the
+default button texts for every `confirm()` call: `labels={{ confirm: 'Confirm', cancel: 'Cancel' }}`
+— handy for an English interface, since the built-in texts are Uzbek.
+
+## ConfirmDialog — the declarative version
+
+When the confirmation should live in JSX (for example, with a specific trigger), use
+`ConfirmDialog`. It takes the same options as `confirm()`, plus `trigger` and `onCancel`.
+
+<ComponentPreview name="dialog/confirm-dialog" />
+
+## Select and Combobox inside a dialog
+
+[`Select`](./select.mdx), [`Combobox`](./combobox.mdx), [`DropdownMenu`](./dropdown-menu.mdx)
+and [`Popover`](./popover.mdx) inside `Dialog.Content` detect the modal layer on their own: their
+panels open above the dialog and the focus trap doesn't get in the way. No `z-index` or
+`container` tweaks needed. The same goes for a [`Drawer`](./drawer.mdx).
+
+<ComponentPreview name="dialog/with-select" />
+
+## Props
+
+### Dialog
+
+Accepts the props of the Radix Dialog `Root`.
+
+<PropsTable
+  rows={[
+    { name: 'open', type: 'boolean', description: 'Whether it is open (controlled)' },
+    { name: 'defaultOpen', type: 'boolean', description: 'Open on first render' },
+    {
+      name: 'onOpenChange',
+      type: '(open: boolean) => void',
+      description: 'Called when it opens or closes',
+    },
+    {
+      name: 'modal',
+      type: 'boolean',
+      default: 'true',
+      description: 'Blocks the rest of the page',
+    },
+  ]}
+/>
+
+### Dialog.Content
+
+Other `<div>` attributes, `ref` and Radix events (`onEscapeKeyDown`, `onOpenAutoFocus`,
+`onInteractOutside` ...) are passed to the panel.
+
+<PropsTable
+  rows={[
+    {
+      name: 'title',
+      type: 'ReactNode',
+      required: true,
+      description: 'The title — also used by screen readers',
+    },
+    { name: 'description', type: 'ReactNode', description: 'Text under the title' },
+    {
+      name: 'size',
+      type: "'sm' | 'md' | 'lg' | 'xl' | 'full'",
+      default: "'md'",
+      description: '400 / 520 / 640 / 800px / full screen',
+    },
+    {
+      name: 'hideTitle',
+      type: 'boolean',
+      default: 'false',
+      description: 'Hides the title visually (still read aloud)',
+    },
+    {
+      name: 'closeButton',
+      type: 'boolean',
+      default: 'true',
+      description: '✕ button in the top-right corner',
+    },
+    {
+      name: 'dismissible',
+      type: 'boolean',
+      default: 'true',
+      description: "false — outside clicks don't close it (Esc still does)",
+    },
+    {
+      name: 'mobileSheet',
+      type: 'boolean',
+      default: 'true',
+      description: 'Bottom sheet on screens narrower than 640px',
+    },
+    { name: 'overlayClassName', type: 'string', description: 'Class for the backdrop' },
+    {
+      name: 'container',
+      type: 'HTMLElement | null',
+      description: 'Portal container (defaults to document.body)',
+    },
+    {
+      name: 'labels',
+      type: '{ close?: string }',
+      default: "{ close: 'Yopish' }",
+      description: 'Accessible name of the ✕ button',
+    },
+  ]}
+/>
+
+### Dialog.Trigger, Dialog.Close
+
+Both accept `asChild` — pass your own element, usually a `Button`. `Dialog.Footer` is a plain
+`<div>` and takes any div attributes.
+
+### confirm() and ConfirmDialog
+
+`confirm(options): Promise<boolean>`. `ConfirmDialog` takes the same options as props.
+
+<PropsTable
+  rows={[
+    { name: 'title', type: 'ReactNode', required: true, description: 'The question' },
+    { name: 'description', type: 'ReactNode', description: 'A short explanation' },
+    {
+      name: 'confirmText',
+      type: 'ReactNode',
+      default: "'Tasdiqlash'",
+      description: 'Confirm button label',
+    },
+    {
+      name: 'cancelText',
+      type: 'ReactNode',
+      default: "'Bekor qilish'",
+      description: 'Cancel button label',
+    },
+    {
+      name: 'variant',
+      type: "'default' | 'danger'",
+      default: "'default'",
+      description: 'danger — red button, focus starts on Cancel',
+    },
+    {
+      name: 'onConfirm',
+      type: '() => unknown',
+      description: 'If it returns a Promise — loading until it settles; stays open on error',
+    },
+  ]}
+/>
+
+`ConfirmDialog` only:
+
+<PropsTable
+  rows={[
+    { name: 'trigger', type: 'ReactNode', description: 'The element that opens it' },
+    { name: 'open', type: 'boolean', description: 'Controlled mode' },
+    { name: 'defaultOpen', type: 'boolean', default: 'false', description: 'Open on first render' },
+    {
+      name: 'onOpenChange',
+      type: '(open: boolean) => void',
+      description: 'Called when it opens or closes',
+    },
+    {
+      name: 'onCancel',
+      type: '() => void',
+      description: 'Called on cancel (button, Esc or outside click)',
+    },
+    {
+      name: 'labels',
+      type: '{ confirm?: string; cancel?: string }',
+      description: 'Default button labels',
+    },
+  ]}
+/>
+
+### ConfirmProvider
+
+<PropsTable
+  rows={[
+    {
+      name: 'labels',
+      type: '{ confirm?: string; cancel?: string }',
+      description: 'Default labels for every confirm() dialog',
+    },
+    { name: 'children', type: 'ReactNode', description: 'Optional: it can wrap your app' },
+  ]}
+/>
+
+### Data attributes
+
+| Attribute    | On    | Value                                |
+| ------------ | ----- | ------------------------------------ |
+| `data-state` | panel | `open` · `closed`                    |
+| `data-size`  | panel | `sm` · `md` · `lg` · `xl` · `full`   |
+| `data-sheet` | panel | present when shown as a bottom sheet |
+
+To choose the initial focus yourself, put a `data-autofocus` attribute on the element.
+
+## Keyboard
+
+| Key           | Action                                                 |
+| ------------- | ------------------------------------------------------ |
+| `Tab`         | Next element inside the dialog (focus never leaves it) |
+| `Shift + Tab` | Previous element                                       |
+| `Esc`         | Closes the dialog; focus returns to where it came from |
+
+## Accessibility
+
+- **Role and name.** The panel is `role="dialog"` (`role="alertdialog"` for `confirm()` and
+  `ConfirmDialog`), with `aria-labelledby` pointing to the title and `aria-describedby` to the
+  description. Without a description, `aria-describedby` is left out entirely.
+- **Focus trap.** While open, focus cycles inside the dialog; the rest of the page is hidden from
+  screen readers and can't scroll.
+- **Initial focus:** `[data-autofocus]` → the first field (`input`, `textarea`, `select`) → the
+  first button (other than ✕) → the panel itself.
+- **Returning focus.** On close, focus goes back to `Dialog.Trigger`. Without a trigger
+  (controlled mode or `confirm()`), it returns to whatever was focused before the dialog opened.
+- **The ✕ button** is named "Yopish" by default — change it with `labels.close`.
+- **Reduced motion.** With `prefers-reduced-motion`, the slide animation becomes a plain fade.

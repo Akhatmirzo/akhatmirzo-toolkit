@@ -1,0 +1,264 @@
+---
+title: MaskedInput
+description: Fields that format as you type — phone, money, card number and your own masks.
+---
+
+<ComponentPreview name="masked-input/overview" align="start" />
+
+## Import
+
+```tsx
+import { CardInput, MaskedInput, MoneyInput, PhoneInput } from '@akhatmirzo/ui';
+```
+
+All four share one rule: **the value is clean, the display is formatted.** The screen shows
+"(90) 123-45-67", while `onValueChange` gets `"901234567"`. You never have to strip separators
+before saving, validating or sending the value to a server.
+
+| Component     | Display                     | Value (`value`)      |
+| ------------- | --------------------------- | -------------------- |
+| `PhoneInput`  | `+998` (90) 123-45-67       | `"901234567"`        |
+| `MoneyInput`  | 1 250 000 so'm              | `1250000` (`number`) |
+| `CardInput`   | 8600 1234 1234 1234 UZCARD  | `"8600123412341234"` |
+| `MaskedInput` | AB 1234567 (`"AA 9999999"`) | `"AB1234567"`        |
+
+## When to use
+
+- **For data with a fixed format** — phone numbers, cards, passports, licence plates. Users don't
+  type the separators, so there's less room for mistakes.
+- **For amounts of money** — `MoneyInput`. Thousands separators make big numbers readable, and the
+  value is already a `number`.
+- **Not for free text** — names, addresses and comments stay in a plain [Input](./input.mdx). A
+  mask only gets in the way when the length varies.
+- **Always add a label** — use a [Field](./field.mdx). The placeholder ("(90) 123-45-67") is just
+  a hint, not a label.
+- **Everything else comes from `Input`:** `size`, `invalid`, `clearable`, `leftIcon`, `disabled`
+  and `readOnly` work exactly as in [Input](./input.mdx).
+
+## The caret stays put
+
+Formatting never makes the caret jump: delete or insert a digit in the middle and it stays where
+you are. `Backspace` skips the fixed characters (`-`, spaces, dots) and deletes the digit before
+them; `Delete` does the same going forward.
+
+## PhoneInput
+
+An Uzbek phone number: `+998` is a fixed prefix that can't be deleted, so users type 9 digits.
+Pasting "+998 90 123 45 67" also lands correctly. The operator code is checked (33, 50, 55, 77, 88,
+90, 91, 93, 94, 95, 97, 98, 99); an unknown code marks the field `invalid` automatically.
+
+<ComponentPreview name="masked-input/phone" align="start" />
+
+The second argument of `onValueChange` holds the details: `{ valid, operator, complete }`. Get the
+same data outside the component with `getPhoneDetails(value)` — handy for form validation.
+
+```tsx
+import { getPhoneDetails } from '@akhatmirzo/ui';
+
+getPhoneDetails('901234567'); // { valid: true, operator: '90', complete: true }
+getPhoneDetails('121234567'); // { valid: false, operator: null, complete: true }
+```
+
+## MoneyInput
+
+Spaces as the thousands separator, currency on the right ("so'm" by default). The value is
+`number | null`. Phones show a numeric keypad (with a decimal point when `decimals` is set).
+
+<ComponentPreview name="masked-input/money" align="start" />
+
+- `decimals` — number of decimal places (default `0`). A typed comma becomes a dot.
+- `max` — values above it can't be typed (the keystroke is rejected).
+- `min` — smaller values snap up to `min` when the field loses focus.
+- `currency={null}` hides the currency; pass `currency="$"` or any `ReactNode` to change it.
+
+## Amount in words
+
+`showWords` spells the amount under the field: "Bir million ikki yuz ellik ming soʻm". It helps
+users double-check numbers in contracts, invoices and payment forms. The text comes from
+`moneyToWords` in `@akhatmirzo/core` and updates as you type.
+
+<ComponentPreview name="masked-input/money-words" align="start" />
+
+- `showWords={{ script: 'cyrillic' }}` — in Cyrillic. Without `script`, the
+  [ScriptProvider](./script.mdx) script is used (Latin when there is no provider).
+- `showWords={{ formal: true }}` — formal style: "bir yuz", "bir ming".
+- Inside a [Field](./field.mdx), the words appear under the field, after the `description`, and
+  are added to `aria-describedby`. The text sits in an `aria-live="polite"` region, so screen
+  readers announce the new amount.
+
+## CardInput
+
+A bank card: groups of four, with a brand mark on the right — **UZCARD** (8600), **HUMO** (9860),
+**VISA** (4) and Mastercard (51–55, 2221–2720). Once all 16 digits are in, the Luhn check runs; if
+it fails, the field becomes `invalid`.
+
+<ComponentPreview name="masked-input/card" align="start" />
+
+The brand mark isn't an official logo — it's a neutral text badge built from semantic tokens, so it
+reads well in dark mode too. Need the real logo? Draw it with `renderBrand`:
+
+```tsx
+import { CardInput } from '@akhatmirzo/ui';
+
+<CardInput renderBrand={(brand) => <img src={`/cards/${brand}.svg`} alt="" className="h-5" />} />;
+```
+
+`getCardDetails(value)` returns `{ brand, complete, valid }`; the `CardBrandMark` component is
+exported as well (`<CardBrandMark brand="humo" />`).
+
+## Custom masks
+
+`MaskedInput` is the general-purpose mask. `9` is a digit, `A` a letter, `*` any character except
+whitespace. Every other character is fixed — the user never types it. `uppercase` capitalises
+letters as they're typed.
+
+<ComponentPreview name="masked-input/custom-mask" align="start" />
+
+`onValueChange(value, { formatted, complete })` — `complete` tells you every slot is filled. The
+root element carries a `data-mask` attribute.
+
+## In forms
+
+Pass `name` and a hidden `<input>` with the **clean** value is added to the form — `FormData` gets
+`"901234567"` or `"1250000"`, not the formatted text.
+
+```tsx
+<form action="/api/order">
+  <PhoneInput name="phone" required />
+  <MoneyInput name="amount" />
+</form>
+```
+
+## Props
+
+Every component accepts the [Input](./input.mdx) props (`size`, `invalid`, `clearable`,
+`leftIcon`, `disabled`, `readOnly`, `name`, `aria-*` ...) and `ref`. `type` and `value` /
+`defaultValue` are their own.
+
+### MaskedInput
+
+<PropsTable
+  rows={[
+    {
+      name: 'mask',
+      type: 'string',
+      required: true,
+      description: '9 — digit, A — letter, * — any; everything else is fixed',
+    },
+    {
+      name: 'value',
+      type: 'string',
+      description: 'Clean value without fixed characters: "AB1234567"',
+    },
+    { name: 'defaultValue', type: 'string' },
+    {
+      name: 'onValueChange',
+      type: '(value: string, details: MaskedInputDetails) => void',
+      description: 'details: { formatted, complete }',
+    },
+    {
+      name: 'uppercase',
+      type: 'boolean',
+      default: 'false',
+      description: 'Convert letters to upper case',
+    },
+  ]}
+/>
+
+### PhoneInput
+
+`prefix` isn't accepted — it's always `+998`.
+
+<PropsTable
+  rows={[
+    { name: 'value', type: 'string', description: '9 digits without +998: "901234567"' },
+    { name: 'defaultValue', type: 'string' },
+    {
+      name: 'onValueChange',
+      type: '(value: string, details: PhoneInputDetails) => void',
+      description: 'details: { valid, operator, complete }',
+    },
+    {
+      name: 'validateOperator',
+      type: 'boolean',
+      default: 'true',
+      description: 'Mark the field invalid when the operator code is unknown',
+    },
+    { name: 'placeholder', type: 'string', default: "'(90) 123-45-67'" },
+  ]}
+/>
+
+### MoneyInput
+
+<PropsTable
+  rows={[
+    { name: 'value', type: 'number | null' },
+    { name: 'defaultValue', type: 'number | null' },
+    { name: 'onValueChange', type: '(value: number | null) => void' },
+    {
+      name: 'currency',
+      type: 'ReactNode',
+      default: '"so\'m"',
+      description: 'Currency on the right; null hides it',
+    },
+    { name: 'decimals', type: 'number', default: '0', description: 'Decimal places' },
+    { name: 'min', type: 'number', description: 'Smaller values snap to min on blur' },
+    { name: 'max', type: 'number', description: "Larger values can't be typed" },
+    {
+      name: 'showWords',
+      type: "boolean | { formal?: boolean; script?: 'latin' | 'cyrillic' }",
+      default: 'false',
+      description: 'Spell the amount in words under the field',
+    },
+    { name: 'placeholder', type: 'string', default: "'0'" },
+  ]}
+/>
+
+### CardInput
+
+<PropsTable
+  rows={[
+    { name: 'value', type: 'string', description: '16 digits: "8600123412341234"' },
+    { name: 'defaultValue', type: 'string' },
+    {
+      name: 'onValueChange',
+      type: '(value: string, details: CardInputDetails) => void',
+      description: 'details: { brand, complete, valid }',
+    },
+    {
+      name: 'validateLuhn',
+      type: 'boolean',
+      default: 'true',
+      description: 'Mark the field invalid when a complete number fails Luhn',
+    },
+    {
+      name: 'renderBrand',
+      type: '(brand: CardBrand) => ReactNode',
+      description: 'Render the brand mark yourself',
+    },
+    { name: 'leftIcon', type: 'ReactNode', description: 'Defaults to a card icon' },
+    { name: 'placeholder', type: 'string', default: "'0000 0000 0000 0000'" },
+  ]}
+/>
+
+`CardBrand` is `'uzcard' | 'humo' | 'visa' | 'mastercard'` (from `@akhatmirzo/core`).
+
+### Data attributes
+
+| Attribute    | Component     | Value                                     |
+| ------------ | ------------- | ----------------------------------------- |
+| `data-mask`  | `MaskedInput` | the `mask` string                         |
+| `data-brand` | `CardInput`   | `uzcard` · `humo` · `visa` · `mastercard` |
+
+## Accessibility
+
+- **A native `<input type="text">`** — screen readers read the formatted text, and editing works
+  as usual.
+- **The right mobile keyboard:** `PhoneInput` uses `inputMode="tel"`, `CardInput` and
+  `MoneyInput` use `numeric` (`decimal` when `decimals` is set).
+- **Autofill:** `PhoneInput` sets `autoComplete="tel-national"`, `CardInput` sets
+  `autoComplete="cc-number"`. `MaskedInput` turns autofill and spellcheck off.
+- **Invalid state** from `validateOperator` and `validateLuhn` is exposed as `aria-invalid`. Explain
+  the problem in text through the `Field` `error` prop — color alone isn't enough.
+- **The currency and the card brand** are decorative (`aria-hidden`). If the currency matters, put
+  it in the label ("Amount, so'm").

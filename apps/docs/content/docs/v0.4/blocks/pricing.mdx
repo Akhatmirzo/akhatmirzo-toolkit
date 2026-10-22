@@ -1,0 +1,34 @@
+---
+title: 'Tariflar'
+description: "Uchta tarif kartochkasi, oylik/yillik almashtirgich va so'mdagi narxlar."
+full: true
+---
+
+<BlockPreview name="pricing" />
+
+## Tarkibi
+
+- Oylik/yillik — `SegmentedControl`; yillikda 20% chegirma va tejalgan summa ko'rsatiladi.
+- Narxlar `formatMoney` bilan: "279 000 so'm / oy".
+- Ommabop tarif ajratib ko'rsatilgan; torda kartochkalar ustma-ust turadi.
+
+## Ishlatilgan komponentlar
+
+- [Badge](../components/badge.mdx)
+- [Button](../components/button.mdx)
+- [Card](../components/card.mdx)
+- [SegmentedControl](../components/segmented-control.mdx)
+- [`formatMoney`](../core/format.mdx)
+
+## O'rnatish
+
+CLI blok faylini loyihangizga (`components/blocks/pricing.tsx`) ko'chiradi va kerakli paketlarni
+o'rnatishni taklif qiladi:
+
+```bash
+npx @akhatmirzo/cli add pricing
+```
+
+Qo'lda: paketlarni o'rnating va "Kod" tabidagi faylni loyihangizga nusxalang.
+
+<BlockInstall name="pricing" />

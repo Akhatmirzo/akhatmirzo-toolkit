@@ -3,7 +3,7 @@ title: OtpInput
 description: Enter a one-time code from an SMS — separate cells, paste, autofill and a resend timer.
 ---
 
-<ComponentPreview name="otp-input/verify" />
+<ComponentPreview name="archive/v0.3/otp-input/verify" />
 
 ## Import
 
@@ -70,14 +70,14 @@ export function VerifyForm() {
 `length` sets the number of cells (default `6`). `type="alphanumeric"` accepts letters as well
 (the default is digits only). `groupSize` splits the cells into groups: `3` → `123 – 456`.
 
-<ComponentPreview name="otp-input/length" />
+<ComponentPreview name="archive/v0.3/otp-input/length" />
 
 ## States
 
 `invalid` adds a red border and a shake (no shake when `prefers-reduced-motion` is on). `disabled`
 turns the cells off.
 
-<ComponentPreview name="otp-input/states" />
+<ComponentPreview name="archive/v0.3/otp-input/states" />
 
 ## ResendTimer
 
@@ -86,7 +86,7 @@ turns the cells off.
 starts over. The countdown starts as soon as the component mounts, assuming the code has just been
 sent.
 
-<ComponentPreview name="otp-input/resend" />
+<ComponentPreview name="archive/v0.3/otp-input/resend" />
 
 ## Props
 

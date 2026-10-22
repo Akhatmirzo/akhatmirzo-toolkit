@@ -1,0 +1,194 @@
+---
+title: ColorPicker
+description: 'Pick a color: a saturation area, hue and alpha sliders, a hex input, an eyedropper and preset swatches.'
+---
+
+<ComponentPreview name="color-picker/basic" align="start" />
+
+## Import
+
+```tsx
+import { ColorPicker } from '@akhatmirzo/ui';
+```
+
+## When to use
+
+- **Users choose their own color** — a brand color, a tag or category color, theme settings.
+- **When the palette is limited**, pass a preset palette via `swatches`; free picking stays
+  available.
+- **When users pick from only a handful of colors** (5–6), a `RadioGroup` or a
+  [`SegmentedControl`](./segmented-control.mdx) with color samples is simpler.
+
+## Anatomy
+
+The trigger is a button styled like an [`Input`](./input.mdx): a color sample on the left and the
+hex text next to it. Clicking it opens a [`Popover`](./popover.mdx):
+
+1. **Saturation area** (2D) — the horizontal axis is saturation, the vertical axis is brightness.
+2. **Hue slider** — the hue (0–360°), built with the [`Slider`](./slider.mdx) component.
+3. **Alpha slider** — only with `alpha`.
+4. **Eyedropper** — picks a color from the screen when the browser supports the
+   [`EyeDropper` API](https://developer.mozilla.org/docs/Web/API/EyeDropper_API) (Chromium for
+   now); otherwise the button is hidden.
+5. **Hex input** — a full 6 (or 8) digit hex applies right away; a short `#abc` applies on `Enter`
+   or blur. Invalid text shows the error state and reverts to the previous color on blur.
+6. **Preset swatches** (`swatches`).
+
+The value always comes back as lowercase `#rrggbb` (`onValueChange('#0ea5e9')`). Picking white,
+black or gray keeps the hue, so the slider doesn't jump.
+
+## With Field
+
+Inside a [`Field`](./field.mdx) the trigger is named by the label plus the current color ("Brend
+rangi #0EA5E9"), and the description and error go into `aria-describedby`. `name` adds a hidden
+`<input>` for forms.
+
+<ComponentPreview name="color-picker/with-field" align="start" />
+
+## Alpha
+
+With `alpha` the panel shows an alpha slider and the value becomes `#rrggbbaa` (`#10b98180` — 50%).
+Color samples sit on a checkerboard.
+
+<ComponentPreview name="color-picker/alpha" align="start" />
+
+## Swatches
+
+The default `swatches` are 10 colors from the library palette (exported as `defaultColorSwatches`).
+Pass your own palette, or `[]` to hide them.
+
+<ComponentPreview name="color-picker/swatches" align="start" />
+
+## Sizes and states
+
+`size` matches the Input height: `sm` 32px, `md` 40px (default), `lg` 48px. `disabled` doesn't
+open; `invalid` (or `Field error`) shows a red border.
+
+<ComponentPreview name="color-picker/sizes" align="start" />
+
+## Props
+
+Other `<button>` attributes and `ref` go to the trigger.
+
+<PropsTable
+  rows={[
+    { name: 'value', type: 'string', description: 'Color `#rrggbb` (`#rrggbbaa` with alpha)' },
+    { name: 'defaultValue', type: 'string', default: "'#4f46e5'", description: 'Initial color' },
+    {
+      name: 'onValueChange',
+      type: '(value: string) => void',
+      description: 'Called when the color changes',
+    },
+    {
+      name: 'swatches',
+      type: 'string[]',
+      default: 'defaultColorSwatches',
+      description: 'Preset colors (10)',
+    },
+    {
+      name: 'alpha',
+      type: 'boolean',
+      default: 'false',
+      description: 'Alpha slider and an `#rrggbbaa` value',
+    },
+    {
+      name: 'eyeDropper',
+      type: 'boolean',
+      default: 'true',
+      description: 'Eyedropper button when the EyeDropper API exists',
+    },
+    {
+      name: 'size',
+      type: "'sm' | 'md' | 'lg'",
+      default: "'md'",
+      description: 'Trigger height 32 / 40 / 48px',
+    },
+    { name: 'disabled', type: 'boolean', description: 'Disabled state' },
+    { name: 'invalid', type: 'boolean', description: 'Error state (automatic inside Field)' },
+    { name: 'name', type: 'string', description: 'Hidden input for forms' },
+    { name: 'open / defaultOpen', type: 'boolean', description: 'Panel state' },
+    {
+      name: 'onOpenChange',
+      type: '(open: boolean) => void',
+      description: 'Called when the panel opens or closes',
+    },
+    {
+      name: 'labels',
+      type: '{ trigger?; saturation?; saturationValue?; hue?; alpha?; hex?; eyeDropper?; swatches? }',
+      description: 'Built-in texts (Uzbek by default) — see the table below',
+    },
+    { name: 'contentClassName', type: 'string', description: 'Panel class' },
+  ]}
+/>
+
+### labels
+
+<PropsTable
+  rows={[
+    {
+      name: 'trigger',
+      type: 'string',
+      default: "'Rang tanlash'",
+      description: 'Trigger name (without Field)',
+    },
+    {
+      name: 'saturation',
+      type: 'string',
+      default: '"To\'yinganlik va yorqinlik"',
+      description: 'Name of the 2D area',
+    },
+    {
+      name: 'saturationValue',
+      type: '(s: number, v: number) => string',
+      default: '"to\'yinganlik 80%, yorqinlik 60%"',
+      description: 'aria-valuetext of the 2D area',
+    },
+    { name: 'hue', type: 'string', default: "'Rang tusi'", description: 'Hue slider' },
+    { name: 'alpha', type: 'string', default: "'Shaffoflik'", description: 'Alpha slider' },
+    { name: 'hex', type: 'string', default: "'HEX'", description: 'Hex input' },
+    {
+      name: 'eyeDropper',
+      type: 'string',
+      default: "'Ekrandan rang olish'",
+      description: 'Eyedropper button',
+    },
+    { name: 'swatches', type: 'string', default: "'Tayyor ranglar'", description: 'Swatch group' },
+  ]}
+/>
+
+### Data attributes
+
+| Attribute       | Where   | Value                                                                                                     |
+| --------------- | ------- | --------------------------------------------------------------------------------------------------------- |
+| `data-state`    | trigger | `open` · `closed`                                                                                         |
+| `data-size`     | trigger | `sm` · `md` · `lg`                                                                                        |
+| `data-invalid`  | trigger | present in the error state                                                                                |
+| `data-disabled` | trigger | present when disabled                                                                                     |
+| `data-state`    | swatch  | `on` · `off`                                                                                              |
+| `data-slot`     | parts   | `color-picker` · `color-picker-content` · `color-picker-area` · `color-picker-hue` · `color-picker-alpha` |
+
+## Keyboard
+
+| Key                   | Where       | Action                              |
+| --------------------- | ----------- | ----------------------------------- |
+| `Enter` / `Space`     | trigger     | Open the panel                      |
+| `Esc`                 | panel       | Close; focus returns to the trigger |
+| `←` / `→`             | 2D area     | Saturation ±1% (±10% with `Shift`)  |
+| `↑` / `↓`             | 2D area     | Brightness ±1% (±10% with `Shift`)  |
+| `PageUp` / `PageDown` | 2D area     | Brightness ±10%                     |
+| `Home` / `End`        | 2D area     | Saturation 0% / 100%                |
+| arrows                | hue / alpha | Slider keyboard                     |
+| `Enter`               | hex input   | Apply the typed color               |
+
+## Accessibility
+
+- **Trigger** — a plain `<button>`; inside a `Field` it's named by the label plus the current hex,
+  otherwise `"Rang tanlash, #4F46E5"` (change with `aria-label` or `labels.trigger`).
+- **2D area** — `role="slider"` with `aria-valuenow` (saturation) and an `aria-valuetext` that
+  covers both axes: "to'yinganlik 80%, yorqinlik 60%".
+- **Hue and alpha** — the `Slider` component: `role="slider"` with `aria-valuetext` ("210°", "50%").
+- **Swatches** — buttons inside a `role="group"`, each named by its hex and using `aria-pressed`.
+- **Eyedropper** — shown only when the API exists (hidden on the server and in unsupported
+  browsers), `aria-label="Ekrandan rang olish"`.
+- **Color isn't the only signal** — the selected swatch gets an extra ring, and the trigger also
+  shows the hex text.

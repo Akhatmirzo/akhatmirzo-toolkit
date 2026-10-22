@@ -1,0 +1,173 @@
+---
+title: Field
+description: Wraps a form control with a label, hint and error message, and wires up ARIA automatically.
+---
+
+<ComponentPreview name="field/basic" />
+
+## Import
+
+```tsx
+import { Field } from '@akhatmirzo/ui';
+```
+
+## When to use
+
+- **Around every form control** — `Input`, `Textarea`, `Select`, `Checkbox`, `RadioGroup`,
+  `Switch` and the rest. No more hand-written `id`, `htmlFor`, `aria-describedby`, `aria-invalid`
+  or `aria-required`.
+- **Pass errors to `error`**, not to a separate `<p>` — that way the control turns red and screen
+  readers announce the message.
+- **Keep `description` short** — a format, a limit, or why the field is needed. Move longer text
+  into the page.
+- **One `Field`, one control.** Don't put two inputs under a single label.
+
+## Validation
+
+When `error` is not empty, the field switches to its error state: the control gets
+`aria-invalid`, its border turns red and the message appears below with an icon. Errors live in
+an `aria-live` region, so screen readers announce them as they appear. Try submitting the form
+empty.
+
+<ComponentPreview name="field/validation" />
+
+## Horizontal layout
+
+`orientation="horizontal"` puts the label on the left (160px) and the control on the right.
+Useful for settings pages and wide forms.
+
+<ComponentPreview name="field/horizontal" />
+
+## Disabled
+
+`disabled` on `Field` disables the control inside it too and dims the label.
+
+<ComponentPreview name="field/disabled" />
+
+## Your own control (`useFieldControl`)
+
+Every form component in the library connects to `Field` through the `useFieldControl` hook. You
+can connect your own control (a native `<select>`, a third-party widget) the same way: spread
+`controlProps` onto the element and the rest is automatic.
+
+<ComponentPreview name="field/custom-control" />
+
+`useFieldControl` also works outside a `Field` — it then generates its own `id`.
+
+## Props
+
+`Field` accepts every other `<div>` attribute.
+
+<PropsTable
+  rows={[
+    {
+      name: 'children',
+      type: 'ReactNode',
+      required: true,
+      description: 'The control (Input, Select, Checkbox ...)',
+    },
+    {
+      name: 'label',
+      type: 'ReactNode',
+      description: 'Field name, linked to the control with <label htmlFor>',
+    },
+    {
+      name: 'description',
+      type: 'ReactNode',
+      description: 'Hint text under the label (aria-describedby)',
+    },
+    {
+      name: 'error',
+      type: 'ReactNode',
+      description: 'When set, the control becomes invalid and the message shows with an icon',
+    },
+    {
+      name: 'required',
+      type: 'boolean',
+      default: 'false',
+      description: 'Adds * to the label and aria-required to the control',
+    },
+    {
+      name: 'disabled',
+      type: 'boolean',
+      default: 'false',
+      description: 'Disables the control inside as well',
+    },
+    {
+      name: 'orientation',
+      type: "'vertical' | 'horizontal'",
+      default: "'vertical'",
+      description: 'Label above or to the left',
+    },
+  ]}
+/>
+
+### useFieldControl
+
+```ts
+function useFieldControl(options?: FieldControlOptions): FieldControlResult;
+```
+
+`options` are the control's own values; they're merged with the ones coming from `Field`
+(`invalid`, `required` and `disabled` are combined with a logical OR).
+
+<PropsTable
+  rows={[
+    { name: 'id', type: 'string', description: 'Own id — when set, the label points to it' },
+    { name: 'invalid', type: 'boolean', description: 'Error state' },
+    { name: 'required', type: 'boolean', description: 'Required field' },
+    { name: 'disabled', type: 'boolean', description: 'Disabled' },
+    {
+      name: 'aria-describedby',
+      type: 'string',
+      description: "Extra description ids, appended to the Field's own",
+    },
+    {
+      name: 'aria-invalid',
+      type: "boolean | 'true' | 'false' | 'grammar' | 'spelling'",
+      description: "true or 'true' works like invalid",
+    },
+  ]}
+/>
+
+Return value:
+
+<PropsTable
+  rows={[
+    { name: 'id', type: 'string', description: 'The id to put on the control' },
+    {
+      name: 'labelId',
+      type: 'string | undefined',
+      description: "The Field label's id — for aria-labelledby where htmlFor doesn't work",
+    },
+    { name: 'invalid', type: 'boolean', description: 'Resolved error state' },
+    { name: 'required', type: 'boolean', description: 'Resolved required state' },
+    { name: 'disabled', type: 'boolean', description: 'Resolved disabled state' },
+    {
+      name: 'controlProps',
+      type: "{ id; 'aria-describedby'?; 'aria-invalid'?: true; 'aria-required'?: true }",
+      description: 'Attributes to spread directly onto the control',
+    },
+  ]}
+/>
+
+### Data attributes
+
+| Attribute          | Value                     |
+| ------------------ | ------------------------- |
+| `data-slot`        | `field`                   |
+| `data-orientation` | `vertical` · `horizontal` |
+| `data-invalid`     | Present when `error` set  |
+| `data-disabled`    | Present when `disabled`   |
+
+## Accessibility
+
+- **Linked label.** `<label htmlFor>` points to the control's `id`; if you give the control your
+  own `id`, the label follows it.
+- **Hint and error** are read through `aria-describedby` — when the control gets focus, screen
+  readers announce them after the label.
+- **Error announcements.** The message sits in an `aria-live="polite"` region that is always in
+  the DOM, so even the first error gets announced.
+- **Required fields.** The `*` is `aria-hidden`; the control gets `aria-required` instead.
+- **`<div>`-based controls like `RadioGroup`** can't use `htmlFor`, so they get
+  `aria-labelledby` from `labelId` automatically.

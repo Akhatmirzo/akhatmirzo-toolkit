@@ -10,6 +10,8 @@ export * from './components/spinner';
 export * from './components/field';
 export * from './components/input';
 export * from './components/textarea';
+export * from './components/tag-input';
+export * from './components/color-picker';
 
 // Tanlov
 export * from './components/checkbox';
@@ -17,6 +19,7 @@ export * from './components/radio-group';
 export * from './components/switch';
 export * from './components/slider';
 export * from './components/segmented-control';
+export * from './components/rating';
 
 // Ko'rsatish
 export * from './components/badge';
@@ -34,6 +37,8 @@ export * from './components/drawer';
 export * from './components/popover';
 export * from './components/tooltip';
 export * from './components/toast';
+export * from './components/context-menu';
+export * from './components/hover-card';
 
 // Menyu va tanlash (2-daraja)
 export * from './components/dropdown-menu';
@@ -60,3 +65,6 @@ export * from './components/command-palette';
 
 // O'zbekcha (alifbo)
 export * from './components/script';
+
+// Layout (2-guruh)
+export * from './components/app-shell';

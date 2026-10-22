@@ -1,0 +1,284 @@
+---
+title: Combobox
+description: "Qidiruvli tanlash: o'zbekcha harflarni tushunadigan qidiruv, bir nechta tanlov, yangi variant yaratish va server qidiruvi."
+---
+
+<ComponentPreview name="combobox/basic" align="start" />
+
+## Import
+
+```tsx
+import { Combobox, type ComboboxOption } from '@akhatmirzo/ui';
+```
+
+## Qachon ishlatish
+
+- **Ro'yxat uzun bo'lsa** — shaharlar, tumanlar, mijozlar, mahsulotlar. 10–15 tadan ko'p variantni
+  ko'z bilan qidirish qiyin, yozib topish tezroq.
+- **Bir nechta qiymat kerak bo'lsa** — `multiple`: teglar, filiallar, mas'ul xodimlar.
+- **Ro'yxatda yo'q qiymat ham bo'lishi mumkin bo'lsa** — `creatable` (yangi teg, yangi toifa).
+- **Ma'lumot serverda bo'lsa** — `onSearch` va `loading` bilan har bir so'rovni serverga
+  yuborasiz.
+- **Variantlar kam va qidiruv kerak bo'lmasa** — oddiy [`Select`](./select.mdx) yetarli.
+
+## O'zbekcha qidiruv
+
+Qidiruv `@akhatmirzo/core` dagi `searchMatch` bilan ishlaydi va o'zbek yozuvining odatiy
+"chalkashliklarini" kechiradi:
+
+- **Apostrof turlari bir xil:** `gʻ`, `g'`, `g‘`, `g’` — barchasi bitta harf. Foydalanuvchi
+  apostrofni umuman yozmasa ham topiladi: `ulugbek` → "Mirzo Ulug'bek".
+- **Kirill ↔ lotin:** `Чилонзор` yozilsa "Chilonzor" topiladi, `Тошкент` — "Toshkent".
+- **Registr farqi yo'q:** `TOSHKENT`, `toshkent` — bir xil.
+- **So'z o'rtasidan ham:** `chirchiq` → "Oʻrta Chirchiq".
+- **Mos kelgan qism qalin** bilan ajratiladi — `description` matnida ham.
+
+<ComponentPreview name="combobox/uzbek-search" align="start" />
+
+<Callout title="O'z qidiruvingizda ham ishlating">
+  Xuddi shu funksiyalar alohida eksport qilinadi: `searchMatch`, `normalizeUz`, `splitByRanges` —
+  [core/text](../core/text.mdx) sahifasiga qarang. Server qidiruvida ham so'rovni `normalizeUz`
+  bilan normallashtirish foydali.
+</Callout>
+
+## Bir nechta tanlov
+
+`multiple` bilan `value` massiv bo'ladi (`string[]`). Tanlanganlar trigger ichida `Badge`
+ko'rinishida turadi va ✕ bilan olib tashlanadi. Panel har tanlovdan keyin ochiq qoladi; qidiruv
+bo'sh bo'lganda `Backspace` oxirgi tanlovni o'chiradi.
+
+<ComponentPreview name="combobox/multiple" align="start" />
+
+## Yangi variant yaratish
+
+`creatable` yoqilsa va qidiruv matni mavjud variantlarning birortasiga to'liq mos kelmasa,
+ro'yxat oxirida "«matn» yaratish" elementi chiqadi. `onCreate` yangi variantni qaytarsa, aynan u
+tanlanadi; hech narsa qaytarmasa — qiymat va nom sifatida matnning o'zi olinadi. Yangi variantni
+`options` ga o'zingiz qo'shasiz.
+
+<ComponentPreview name="combobox/creatable" align="start" />
+
+## Server qidiruvi
+
+`onSearch` berilsa, mahalliy filtr o'chadi: so'rov 300ms debounce bilan sizga keladi, siz esa
+yangi `options` ni berasiz. Javob kutilayotganda `loading` ro'yxat o'rnida spinner ko'rsatadi.
+Panel yopilganda `onSearch('')` chaqiriladi — boshlang'ich ro'yxatni qaytarish uchun qulay.
+
+<ComponentPreview name="combobox/server" align="start" />
+
+<Callout title="Tanlangan qiymat yo'qolmaydi" type="info">
+  Serverdan kelgan yangi ro'yxatda tanlangan variant bo'lmasa ham, Combobox uning nomini eslab
+  qoladi va triggerda to'g'ri ko'rsatadi.
+</Callout>
+
+## Izoh va ikonkalar
+
+`ComboboxOption` da `description` (ikkinchi qator), `icon` va `disabled` bor. Qidiruv izoh
+matnida ham ishlaydi. Triggerdagi lupa ikonkasini `leftIcon={null}` bilan olib tashlaysiz yoki
+o'zingiznikiga almashtirasiz.
+
+<ComponentPreview name="combobox/details" align="start" />
+
+```ts
+interface ComboboxOption {
+  value: string;
+  label: string;
+  description?: string;
+  icon?: ReactNode;
+  disabled?: boolean;
+}
+```
+
+## O'lchamlar
+
+`Input` va `Select` bilan bir xil: 32, 40 va 48px. `multiple` da balandlik tanlovlar soniga
+qarab o'sadi.
+
+<ComponentPreview name="combobox/sizes" align="start" />
+
+## Holatlar
+
+`Field` ichida `disabled`, `error` va `required` o'zi ulanadi. `loading` panel ochilganda
+ro'yxat o'rnida spinner ko'rsatadi.
+
+<ComponentPreview name="combobox/states" align="start" />
+
+## Dialog ichida
+
+[`Dialog`](./dialog.mdx) yoki [`Drawer`](./drawer.mdx) ichida Combobox paneli modal qatlamiga
+o'tadi va oyna ustida ochiladi — hech narsa sozlash shart emas.
+
+## Props
+
+### Combobox
+
+Qolgan `<button>` atributlari (`id`, `aria-label`, `aria-*`, `data-*`, `onBlur` ...) va `ref`
+triggerga uzatiladi.
+
+<PropsTable
+  rows={[
+    {
+      name: 'options',
+      type: 'ComboboxOption[]',
+      required: true,
+      description: "Variantlar ro'yxati",
+    },
+    {
+      name: 'multiple',
+      type: 'boolean',
+      default: 'false',
+      description: 'Bir nechta tanlov: value — string[]',
+    },
+    {
+      name: 'value',
+      type: 'string | null  ·  string[]',
+      description: 'Tanlangan qiymat (multiple da massiv)',
+    },
+    {
+      name: 'defaultValue',
+      type: 'string | null  ·  string[]',
+      description: "Boshlang'ich qiymat",
+    },
+    {
+      name: 'onValueChange',
+      type: '(value: string | null) => void  ·  (value: string[]) => void',
+      description: "Qiymat o'zgarganda. Tozalanganda — null (yoki [])",
+    },
+    {
+      name: 'placeholder',
+      type: 'string',
+      default: "'Tanlang'",
+      description: "Qiymat yo'q paytdagi matn",
+    },
+    {
+      name: 'searchPlaceholder',
+      type: 'string',
+      default: "'Qidirish...'",
+      description: 'Qidiruv maydonidagi matn',
+    },
+    {
+      name: 'emptyText',
+      type: 'ReactNode',
+      default: "'Hech narsa topilmadi'",
+      description: "Natija bo'lmaganda",
+    },
+    {
+      name: 'onSearch',
+      type: '(query: string) => void',
+      description: "Server qidiruvi: 300ms debounce, mahalliy filtr o'chadi",
+    },
+    {
+      name: 'loading',
+      type: 'boolean',
+      default: 'false',
+      description: "Ro'yxat o'rnida spinner",
+    },
+    {
+      name: 'creatable',
+      type: 'boolean',
+      default: 'false',
+      description: '"«matn» yaratish" elementi',
+    },
+    {
+      name: 'onCreate',
+      type: '(text: string) => ComboboxOption | void',
+      description: 'Yaratilganda. Qaytarilgan variant tanlanadi',
+    },
+    {
+      name: 'clearable',
+      type: 'boolean',
+      default: 'false',
+      description: "Qiymat bo'lsa ✕ (tozalash) tugmasi",
+    },
+    {
+      name: 'leftIcon',
+      type: 'ReactNode',
+      default: 'lupa ikonkasi',
+      description: 'Trigger chapidagi ikonka; null — ikonkasiz',
+    },
+    {
+      name: 'size',
+      type: "'sm' | 'md' | 'lg'",
+      default: "'md'",
+      description: 'Balandlik: 32 / 40 / 48px',
+    },
+    { name: 'invalid', type: 'boolean', description: 'Xato holati (Field ichida — avtomatik)' },
+    { name: 'disabled', type: 'boolean', description: "Combobox'ni o'chiradi" },
+    { name: 'required', type: 'boolean', description: 'Majburiy maydon (aria-required)' },
+    {
+      name: 'name',
+      type: 'string',
+      description: 'Forma uchun: har bir tanlov yashirin <input> sifatida yuboriladi',
+    },
+    { name: 'open', type: 'boolean', description: 'Panel ochiqmi (boshqariladigan rejim)' },
+    { name: 'defaultOpen', type: 'boolean', default: 'false', description: 'Boshida ochiq' },
+    { name: 'onOpenChange', type: '(open: boolean) => void', description: 'Ochilib-yopilganda' },
+    { name: 'labels', type: 'ComboboxLabels', description: "Ekran o'quvchi matnlari (pastda)" },
+    { name: 'contentClassName', type: 'string', description: 'Panel klassi' },
+  ]}
+/>
+
+### ComboboxLabels
+
+Inglizcha yoki boshqa tildagi interfeys uchun matnlarni almashtiring.
+
+<PropsTable
+  rows={[
+    { name: 'search', type: 'string', default: "'Qidirish'", description: 'Qidiruv maydoni nomi' },
+    { name: 'list', type: 'string', default: "'Variantlar'", description: "Ro'yxat nomi" },
+    { name: 'loading', type: 'string', default: "'Yuklanmoqda'", description: 'Spinner matni' },
+    { name: 'clear', type: 'string', default: "'Tozalash'", description: '✕ tugmasi nomi' },
+    {
+      name: 'remove',
+      type: '(label: string) => string',
+      default: '`Olib tashlash: ${label}`',
+      description: "Badge'dagi ✕ nomi",
+    },
+    {
+      name: 'create',
+      type: '(text: string) => ReactNode',
+      default: '`«${text}» yaratish`',
+      description: 'Yaratish elementi matni',
+    },
+  ]}
+/>
+
+### Data atributlari
+
+| Atribut            | Qayerda   | Qiymat                      |
+| ------------------ | --------- | --------------------------- |
+| `data-size`        | konteyner | `sm` · `md` · `lg`          |
+| `data-state`       | konteyner | `open` · `closed`           |
+| `data-invalid`     | konteyner | xato holatida mavjud        |
+| `data-disabled`    | konteyner | o'chirilganda mavjud        |
+| `data-placeholder` | trigger   | qiymat tanlanmaganda mavjud |
+| `data-checked`     | variant   | tanlangan variantda mavjud  |
+
+## Klaviatura
+
+| Tugma                         | Harakat                                                              |
+| ----------------------------- | -------------------------------------------------------------------- |
+| `Enter` / `Space` / `↓` / `↑` | Trigger fokusda — panelni ochadi                                     |
+| Harf yoki raqam               | Yopiq triggerda — panelni ochadi va qidiruvni shu belgidan boshlaydi |
+| Yozish                        | Ochiq panelda — qidiruv                                              |
+| `↓` / `↑`                     | Variantlar bo'ylab yurish (aylanma)                                  |
+| `Home` / `End`                | Birinchi / oxirgi variant                                            |
+| `Enter`                       | Tanlash. Bitta tanlovda panel yopiladi, `multiple` da ochiq qoladi   |
+| `Esc`                         | Avval qidiruvni tozalaydi, ikkinchi marta — panelni yopadi           |
+| `Backspace`                   | `multiple`: qidiruv bo'sh bo'lsa — oxirgi tanlovni o'chiradi         |
+| `Tab`                         | Panelni yopadi va fokusni keyingi elementga o'tkazadi                |
+
+## Accessibility
+
+- **Rollar.** Trigger — `role="combobox"`, `aria-haspopup="listbox"`, ochiq bo'lganda
+  `aria-controls` ro'yxatga ishora qiladi. Ro'yxat `listbox`, `multiple` da
+  `aria-multiselectable="true"`; har bir variantda `aria-checked`.
+- **Nom.** `Field` ichida label va tanlangan qiymat birga o'qiladi ("Shahar, Toshkent").
+  `multiple` da tanlanganlar ro'yxati ekran o'quvchi uchun yashirin matn sifatida qo'shiladi.
+- **Field bilan bog'lanish.** `description` va `error` — `aria-describedby`, xatoda
+  `aria-invalid="true"`, `required` da `aria-required="true"`.
+- **Badge'dagi ✕** har bir tanlov uchun alohida nom oladi ("Olib tashlash: Toshkent") —
+  `labels.remove` bilan o'zgartiriladi.
+- **Fokus.** Panel ochilganda fokus qidiruv maydoniga o'tadi, yopilganda triggerga qaytadi
+  (`Tab` bilan yopilsa — keyingi elementga).
+- **Ikonkalar** (`leftIcon`, variant `icon`) `aria-hidden`.

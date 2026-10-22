@@ -28,7 +28,7 @@ import {
   ChartTooltip,
   cursorProps,
   gridProps,
-} from '@/components/examples/shared/chart';
+} from '@akhatmirzo/ui/charts';
 import { useBank } from './bank-store';
 import { categories, type CategoryId, type Transaction } from './data';
 import { CategoryIcon, EmptyState, formatDateTime, Money, PageHeader } from './ui';

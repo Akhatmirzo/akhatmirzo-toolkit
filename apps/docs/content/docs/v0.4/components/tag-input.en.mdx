@@ -1,0 +1,222 @@
+---
+title: TagInput
+description: 'Enter a list of tags, keywords or emails: add with Enter or a comma, paste, suggestions, validation and inline editing.'
+---
+
+<ComponentPreview name="tag-input/basic" align="start" />
+
+## Import
+
+```tsx
+import { TagInput } from '@akhatmirzo/ui';
+```
+
+## When to use
+
+- **A list of free-form values** — tags, keywords, skills, several emails or phone numbers.
+- **When likely values are known** — pass `suggestions`: a list appears while typing, but users can
+  still add their own value.
+- **When users must pick only from a list** — use `Combobox` with `multiple`; it doesn't let users
+  create new values.
+- **For a single value**, use a plain [`Input`](./input.mdx).
+
+## With Field
+
+Inside a [`Field`](./field.mdx) the label points at the inner `<input>`, and the description and
+error go into `aria-describedby`. `value` + `onValueChange` is the controlled mode, `defaultValue`
+the uncontrolled one.
+
+<ComponentPreview name="tag-input/with-field" align="start" />
+
+## Adding and removing
+
+- `Enter` or `,` turns the typed text into a tag (change this with `delimiters`, e.g.
+  `['Enter', ',', 'Tab']`). On an empty input `Enter` submits the form as usual.
+- Paste: `"a, b, c"` → 3 tags. Text is split on single-character delimiters and, when `Enter` is a
+  delimiter, on new lines.
+- Duplicates are rejected — the comparison ignores case (allow them with `allowDuplicates`).
+- `transform` turns raw text into a tag (default — `trim`).
+- Double-click a tag (or press `Enter` / `F2` while it's focused) to edit it in place: `Enter` saves,
+  `Esc` cancels, clearing the text removes the tag.
+
+## Suggestions
+
+With `suggestions`, matching options show up while typing. Matching uses `normalizeUz`: Cyrillic and
+Latin script and apostrophe variants are treated the same — typing «тош» finds «Toshkent». Tags that
+are already added are hidden. Move with `↓` / `↑`, `Enter` adds; when nothing is highlighted,
+`Enter` adds the typed text itself.
+
+`maxTags` caps the number of tags. Once the limit is reached the input hides and the container gets
+`data-full`.
+
+<ComponentPreview name="tag-input/suggestions" align="start" />
+
+## Validation
+
+`validate` runs for every new tag: `true` accepts it, `false` shows the default error
+(`labels.invalid`), a string shows that string. A rejected tag isn't added, the text stays in the
+input, the error appears below it and is announced to screen readers, and the input gets
+`aria-invalid`. The error clears on the next change.
+
+<ComponentPreview name="tag-input/validate" align="start" />
+
+<Callout type="info">
+  The validation error is separate from the `Field` `error` prop — TagInput renders it itself. Pass
+  form-level errors (e.g. "At least one tag is required") through `Field error`.
+</Callout>
+
+## Sizes and states
+
+`size` — `sm`, `md` (default), `lg`: the same minimum height as Input (32 / 40 / 48px); the
+container grows as tags wrap. In `disabled` and `readOnly` states the ✕ buttons are hidden.
+
+<ComponentPreview name="tag-input/sizes" align="start" />
+
+## Forms
+
+With `name`, every tag gets a hidden `<input>` with that name:
+`new FormData(form).getAll('tags')` → `['React', 'Vue']`. For PHP-style arrays use
+`name="tags[]"`.
+
+## Props
+
+`className` goes to the root container; `ref` and other `<input>` attributes (`placeholder`,
+`autoFocus`, `onBlur` ...) go to the inner input.
+
+<PropsTable
+  rows={[
+    { name: 'value', type: 'string[]', description: 'Tags (controlled)' },
+    { name: 'defaultValue', type: 'string[]', default: '[]', description: 'Initial tags' },
+    {
+      name: 'onValueChange',
+      type: '(value: string[]) => void',
+      description: 'Called when the list changes',
+    },
+    {
+      name: 'delimiters',
+      type: 'string[]',
+      default: "['Enter', ',']",
+      description: "Keys and characters that finish a tag ('Tab' is allowed too)",
+    },
+    { name: 'maxTags', type: 'number', description: 'Maximum number of tags' },
+    {
+      name: 'allowDuplicates',
+      type: 'boolean',
+      default: 'false',
+      description: 'Allow duplicate tags (compared case-insensitively)',
+    },
+    {
+      name: 'validate',
+      type: '(tag: string) => boolean | string',
+      description: 'false or a message — the tag is rejected and the error is shown',
+    },
+    {
+      name: 'transform',
+      type: '(raw: string) => string',
+      default: 'trim',
+      description: 'Turns raw text into a tag',
+    },
+    {
+      name: 'suggestions',
+      type: 'string[]',
+      description: 'Suggestions shown while typing (script-insensitive)',
+    },
+    {
+      name: 'size',
+      type: "'sm' | 'md' | 'lg'",
+      default: "'md'",
+      description: 'Minimum height 32 / 40 / 48px',
+    },
+    { name: 'disabled', type: 'boolean', description: 'Disabled state' },
+    { name: 'readOnly', type: 'boolean', description: 'Read-only: no adding or removing' },
+    { name: 'invalid', type: 'boolean', description: 'Error state (automatic inside Field)' },
+    { name: 'name', type: 'string', description: 'A hidden input with this name for every tag' },
+    {
+      name: 'labels',
+      type: '{ remove?; suggestions?; added?; removed?; invalid?; duplicate? }',
+      description: 'Built-in texts (Uzbek by default) — see the table below',
+    },
+    { name: 'inputClassName', type: 'string', description: 'Class for the inner `<input>`' },
+  ]}
+/>
+
+### labels
+
+<PropsTable
+  rows={[
+    {
+      name: 'remove',
+      type: '(tag: string) => string',
+      default: '`${tag} ni olib tashlash`',
+      description: 'Name of the ✕ button',
+    },
+    {
+      name: 'suggestions',
+      type: 'string',
+      default: "'Takliflar'",
+      description: 'Name of the suggestion list',
+    },
+    {
+      name: 'added',
+      type: '(tag: string) => string',
+      default: "`${tag} qo'shildi`",
+      description: 'Screen reader announcement',
+    },
+    {
+      name: 'removed',
+      type: '(tag: string) => string',
+      default: '`${tag} olib tashlandi`',
+      description: 'Screen reader announcement',
+    },
+    {
+      name: 'invalid',
+      type: '(tag: string) => string',
+      default: '`«${tag}» qabul qilinmadi`',
+      description: 'When `validate` returns false',
+    },
+    {
+      name: 'duplicate',
+      type: '(tag: string) => string',
+      default: "`«${tag}» allaqachon qo'shilgan`",
+      description: 'Duplicate tag',
+    },
+  ]}
+/>
+
+### Data attributes
+
+| Attribute       | Where     | Value                          |
+| --------------- | --------- | ------------------------------ |
+| `data-size`     | container | `sm` · `md` · `lg`             |
+| `data-full`     | container | present when `maxTags` is hit  |
+| `data-invalid`  | container | error (or validation error)    |
+| `data-disabled` | container | present when disabled          |
+| `data-readonly` | container | present when `readOnly`        |
+| `data-slot`     | parts     | `tag-input` · `tag-input-root` |
+
+## Keyboard
+
+| Key                               | Action                                                  |
+| --------------------------------- | ------------------------------------------------------- |
+| `Enter` / `,`                     | Turn the typed text into a tag                          |
+| `Backspace` (empty input)         | Select the last tag; press again to remove it           |
+| `←` (at input start)              | Move to the last tag                                    |
+| `←` / `→` (on a tag)              | Move between tags; `→` on the last one returns to input |
+| `Backspace` / `Delete` (on a tag) | Remove the tag                                          |
+| `Enter` / `F2` (on a tag)         | Edit the tag                                            |
+| `Esc` (on a tag)                  | Back to the input                                       |
+| `↓` / `↑`                         | Move through suggestions (with `suggestions`)           |
+| `Esc`                             | Close the suggestion list                               |
+
+## Accessibility
+
+- **List.** Tags live in a `<ul role="list">` — screen readers announce how many there are.
+- **Announcements.** Adding and removing are announced in a hidden `aria-live="polite"` region
+  ("React qo'shildi", "React olib tashlandi"); customize with `labels.added` / `labels.removed`.
+- **Errors.** The validation error is visible text in a live region, linked to the input via
+  `aria-invalid` and `aria-describedby`.
+- **Suggestions.** With `suggestions` the input is a `role="combobox"` (`aria-expanded`,
+  `aria-controls`, `aria-activedescendant`) and the list is a `role="listbox"`. Focus always stays
+  in the input.
+- **✕ buttons** have `aria-label="React ni olib tashlash"` and a hit area of at least 40px.
+- **Tags** are focused with the arrow keys (`tabIndex={-1}`); the ✕ buttons are also reachable with `Tab`.

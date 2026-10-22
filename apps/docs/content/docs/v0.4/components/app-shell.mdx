@@ -1,0 +1,282 @@
+---
+title: AppShell
+description: "Admin panel va dashboard qolipi: yig'iladigan Sidebar, yopishqoq header, telefonda Drawer va skip link."
+---
+
+<ComponentPreview name="app-shell/basic" align="start" />
+
+## Import
+
+```tsx
+import { AppShell, Sidebar, useAppShell } from '@akhatmirzo/ui';
+```
+
+## Qachon ishlatish
+
+- **Admin panel, CRM, dashboard** — chapda doimiy menyu, o'ngda sahifa kontenti.
+- **Ko'p bo'limli ilova**, foydalanuvchi bo'limlar orasida tez-tez o'tadi.
+- **Marketing sahifa, blog** uchun emas — u yerda yuqori navigatsiya qulayroq.
+- Qolip butun ekranni egallaydi; uni ilova `layout` ida **bir marta** qo'ying.
+
+## Tuzilishi
+
+| Qism                     | Vazifasi                                                                 |
+| ------------------------ | ------------------------------------------------------------------------ |
+| `AppShell`               | Holat (yig'ilgan/to'liq), saqlash, `mod+B` yorlig'i, skip link           |
+| `Sidebar`                | Desktop'da chapdagi panel (256px ↔ 64px), `< 1024px` da chapdan `Drawer` |
+| `Sidebar.Header`         | Logotip, ilova nomi                                                      |
+| `Sidebar.Content`        | `<nav aria-label="Asosiy menyu">`, aylantiriladi                         |
+| `Sidebar.Group`          | Sarlavha + elementlar ro'yxati; `collapsible` bo'lishi mumkin            |
+| `Sidebar.Item`           | Havola (`href`), tugma (`onClick`) yoki `renderLink` orqali Next `Link`  |
+| `Sidebar.Footer`         | Pastki qism: foydalanuvchi menyusi                                       |
+| `AppShell.Main`          | `<main>` — skip link shu yerga olib keladi                               |
+| `AppShell.Header`        | Yopishqoq (`sticky top-0`), 56px, pastki chegara                         |
+| `AppShell.SidebarToggle` | Sidebar tugmasi: desktop'da yig'adi, telefonda Drawer'ni ochadi          |
+
+```tsx
+// app/(admin)/layout.tsx
+<AppShell sidebarStorageKey="sidebar">
+  <Sidebar>
+    <Sidebar.Header>
+      <Logo />
+    </Sidebar.Header>
+    <Sidebar.Content>
+      <Sidebar.Group label="Asosiy">
+        <Sidebar.Item icon={<Home />} href="/" active={pathname === '/'}>
+          Bosh sahifa
+        </Sidebar.Item>
+        <Sidebar.Item icon={<Box />} href="/orders" badge={12}>
+          Buyurtmalar
+        </Sidebar.Item>
+      </Sidebar.Group>
+    </Sidebar.Content>
+    <Sidebar.Footer>
+      <UserMenu />
+    </Sidebar.Footer>
+  </Sidebar>
+  <AppShell.Main>
+    <AppShell.Header>
+      <AppShell.SidebarToggle />
+      <Breadcrumb items={…} />
+    </AppShell.Header>
+    {children}
+  </AppShell.Main>
+</AppShell>
+```
+
+## Yig'ilgan holat
+
+Desktop'da (`≥ 1024px`) sidebar 64px'lik ikonkalar qatoriga yig'iladi: element nomlari
+yashiriladi, har birida `Tooltip` va `aria-label` paydo bo'ladi, hisoblagich nuqtaga aylanadi.
+Yig'ish — `AppShell.SidebarToggle` yoki `Ctrl/⌘ + B`. Animatsiya `grid-template-columns` orqali,
+`prefers-reduced-motion` da sakrab o'tadi.
+
+`collapsible` guruh sarlavhasi bosilganda yig'iladi (Accordion uslubida); yig'ilgan panelda
+guruhlar doim ochiq, sarlavha o'rnida ajratuvchi chiziq.
+
+<ComponentPreview name="app-shell/collapsed" align="start" />
+
+## Holatni saqlash
+
+`sidebarStorageKey` berilsa, holat `localStorage` ga yoziladi va keyingi tashrifda tiklanadi.
+SSR-xavfsiz: serverda va birinchi renderda `defaultSidebarOpen` chiziladi, saqlangan qiymat
+mount'dan keyin o'qiladi (hydration xatosi bo'lmaydi). Storage taqiqlangan bo'lsa ham holat
+ishlayveradi.
+
+## Telefon va planshet
+
+`< 1024px` da sidebar o'rniga chapdan chiqadigan [`Drawer`](./drawer.mdx) ishlatiladi:
+`AppShell.SidebarToggle` uni ochadi, `Sidebar.Item` bosilganda (sahifa o'tishi) o'zi yopiladi.
+Desktop/mobil almashuvi CSS breakpoint orqali — server va brauzer bir xil HTML chizadi.
+
+## Next.js Link bilan
+
+`renderLink` — o'z havola komponentingizni ishlatish uchun. Unga `href`, `className`,
+`aria-current`, `onClick` va ichki kontent beriladi — hammasini yoying.
+
+```tsx
+'use client';
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
+
+function NavItem({ href, icon, children }) {
+  const pathname = usePathname();
+  return (
+    <Sidebar.Item
+      href={href}
+      icon={icon}
+      active={pathname.startsWith(href)}
+      renderLink={(props) => <Link {...props} />}
+    >
+      {children}
+    </Sidebar.Item>
+  );
+}
+```
+
+## useAppShell
+
+`AppShell` ichidagi istalgan komponent holatni o'qishi va o'zgartirishi mumkin:
+`{ sidebarOpen, setSidebarOpen, toggleSidebar, mobileOpen, setMobileOpen, collapsed }`.
+
+<ComponentPreview name="app-shell/use-app-shell" align="start" />
+
+<Callout title="Hujjatdagi namunalar">
+  Bu sahifadagi namunalar cheklangan ramka ichida: `className="[--ak-app-shell-height:480px]"` qolip
+  balandligini belgilaydi (standart — `100dvh`). Haqiqiy ilovada uni bermang.
+</Callout>
+
+## Props
+
+### AppShell
+
+`<div>` atributlari va `ref` ham qabul qilinadi.
+
+<PropsTable
+  rows={[
+    {
+      name: 'sidebarOpen',
+      type: 'boolean',
+      description: "Desktop sidebar to'liq ochiqmi (boshqariladigan rejim)",
+    },
+    {
+      name: 'defaultSidebarOpen',
+      type: 'boolean',
+      default: 'true',
+      description: "Boshlang'ich holat",
+    },
+    {
+      name: 'onSidebarOpenChange',
+      type: '(open: boolean) => void',
+      description: "Yig'ilganda / yoyilganda",
+    },
+    {
+      name: 'sidebarStorageKey',
+      type: 'string',
+      description: 'localStorage kaliti — holat saqlanadi (SSR-xavfsiz)',
+    },
+    {
+      name: 'shortcut',
+      type: 'string | false',
+      default: "'mod+b'",
+      description: "Yig'ish yorlig'i (useHotkeys formati); false — o'chirilgan",
+    },
+    {
+      name: 'labels',
+      type: '{ skipToContent?: string }',
+      default: '{ skipToContent: "Asosiy kontentga o\'tish" }',
+      description: 'Skip link matni',
+    },
+  ]}
+/>
+
+### Sidebar
+
+`<aside>` atributlari (desktop panel) va `ref` ham qabul qilinadi.
+
+<PropsTable
+  rows={[
+    {
+      name: 'width',
+      type: 'number | string',
+      default: '256',
+      description: "To'liq kenglik; yig'ilganda — 64px",
+    },
+    {
+      name: 'labels',
+      type: '{ nav?: string; drawerTitle?: string }',
+      default: '{ nav: "Asosiy menyu", drawerTitle: "Menyu" }',
+      description: "<nav> nomi va mobil Drawer sarlavhasi (ekran o'quvchi uchun)",
+    },
+  ]}
+/>
+
+### Sidebar.Item
+
+<PropsTable
+  rows={[
+    {
+      name: 'icon',
+      type: 'ReactNode',
+      description: "Chapdagi ikonka (18px); yig'ilganda faqat shu",
+    },
+    { name: 'href', type: 'string', description: 'Havola manzili; berilmasa — <button>' },
+    {
+      name: 'onClick',
+      type: '(event: MouseEvent) => void',
+      description: 'Bosilganda (mobil Drawer baribir yopiladi)',
+    },
+    {
+      name: 'active',
+      type: 'boolean',
+      default: 'false',
+      description: 'Joriy sahifa — aria-current="page" va ajratilgan fon',
+    },
+    { name: 'badge', type: 'ReactNode', description: "Hisoblagich (12) yoki o'z elementingiz" },
+    { name: 'disabled', type: 'boolean', default: 'false', description: "O'chirilgan" },
+    {
+      name: 'label',
+      type: 'string',
+      description: "Yig'ilgandagi Tooltip va aria-label (standart — children matni)",
+    },
+    {
+      name: 'renderLink',
+      type: '(props: SidebarItemLinkProps) => ReactElement',
+      description: "O'z havola komponentingiz: (p) => <Link {...p} />",
+    },
+  ]}
+/>
+
+### Sidebar.Group
+
+<PropsTable
+  rows={[
+    { name: 'label', type: 'ReactNode', description: 'Guruh sarlavhasi' },
+    {
+      name: 'collapsible',
+      type: 'boolean',
+      default: 'false',
+      description: "Sarlavha bosilganda yig'iladi",
+    },
+    {
+      name: 'defaultOpen',
+      type: 'boolean',
+      default: 'true',
+      description: 'collapsible guruh boshida ochiqmi',
+    },
+  ]}
+/>
+
+### AppShell.SidebarToggle
+
+`IconButton` prop'lari; `aria-label` standart — `"Yon menyu"`, `variant` — `ghost`. `children`
+berilsa, ichki ikonka o'rniga chiziladi.
+
+### Data atributlari
+
+| Atribut              | Qayerda        | Qiymat                   |
+| -------------------- | -------------- | ------------------------ |
+| `data-sidebar-state` | `AppShell`     | `expanded` · `collapsed` |
+| `data-collapsed`     | `Sidebar`      | yig'ilganda mavjud       |
+| `data-active`        | `Sidebar.Item` | faol bo'lsa mavjud       |
+| `data-disabled`      | `Sidebar.Item` | o'chirilganda mavjud     |
+
+## Klaviatura
+
+| Tugma            | Harakat                                             |
+| ---------------- | --------------------------------------------------- |
+| `Tab` (birinchi) | "Asosiy kontentga o'tish" havolasi chiqadi          |
+| `Ctrl/⌘ + B`     | Desktop'da yig'ish/yoyish, telefonda menyuni ochish |
+| `Esc`            | Mobil menyuni yopadi                                |
+
+## Accessibility
+
+- **Skip link.** `AppShell` sahifa boshiga "Asosiy kontentga o'tish" havolasini qo'yadi — u
+  faqat klaviatura fokusida ko'rinadi va `AppShell.Main` ga olib o'tadi.
+- **Navigatsiya.** Menyu `<nav aria-label="Asosiy menyu">` ichida, faol element
+  `aria-current="page"` oladi; guruhlar `role="group"` va sarlavha bilan bog'langan.
+- **Yig'ilgan holat.** Matn yashirinsa ham har element nomini saqlaydi: `aria-label` va
+  `Tooltip`. Hisoblagich ekran o'quvchi uchun matn sifatida qoladi.
+- **Toggle.** `AppShell.SidebarToggle` `aria-expanded` va `aria-controls` oladi (desktop'da —
+  panel, telefonda — Drawer).
+- **Mobil menyu** — `Drawer`: fokus ichida qoladi, `Esc` yopadi, fokus tugmaga qaytadi.

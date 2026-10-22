@@ -1,0 +1,123 @@
+---
+title: CLI
+description: "@akhatmirzo/cli — kutubxonani loyihaga ulash va tayyor bloklarni kodingizga ko'chirish."
+---
+
+`@akhatmirzo/cli` ikki ishni avtomatlashtiradi: kutubxonani loyihaga ulaydi (`init`) va tayyor
+bloklarni — kirish formasi, narxlar, dashboard — to'g'ridan-to'g'ri kodingizga ko'chiradi (`add`).
+Bloklar paket ichida emas, **sizning faylingizda** bo'ladi: xohlaganingizcha o'zgartiring.
+
+O'rnatish shart emas — `npx` (yoki `pnpm dlx`, `yarn dlx`, `bunx`) orqali ishga tushiring:
+
+```bash
+npx @akhatmirzo/cli init              # paketlar + CSS sozlamasi
+npx @akhatmirzo/cli list              # mavjud bloklar
+npx @akhatmirzo/cli add login pricing # bloklarni loyihaga ko'chirish
+```
+
+Talablar: **Node.js 18.17+**. CLI'ning o'zi hech qanday bog'liqliksiz — faqat Node'ning ichki
+modullari.
+
+## init
+
+Loyiha papkasida (`package.json` yonida) ishga tushiring:
+
+```bash
+npx @akhatmirzo/cli init
+```
+
+Nima qiladi:
+
+1. **Tailwind CSS v4** borligini tekshiradi (`package.json`dagi `tailwindcss`). Yo'q yoki v3 bo'lsa —
+   ogohlantiradi, lekin to'xtamaydi.
+2. **Paket menejerini aniqlaydi** — lockfile bo'yicha (`pnpm-lock.yaml`, `package-lock.json`,
+   `yarn.lock`, `bun.lockb`/`bun.lock`; monorepoda yuqori papkalar ham qaraladi). Lockfile bo'lmasa —
+   CLI qaysi menejer orqali chaqirilgan bo'lsa o'sha, aks holda `npm`.
+3. `@akhatmirzo/ui` va `@akhatmirzo/tokens` ni **o'rnatadi** (allaqachon bo'lsa — o'tkazib yuboradi).
+4. **Global CSS faylni topadi**: `app/globals.css`, `src/app/globals.css`, `src/index.css`,
+   `src/styles/globals.css`, `styles/globals.css` va boshqalar. Topilmasa — so'raydi (yoki `--css`).
+5. CSS'ga ikki qator qo'shadi — Tailwind importidan keyin tokenlar va importlardan keyin `@source`:
+
+```css title="src/app/globals.css"
+@import 'tailwindcss';
+@import '@akhatmirzo/tokens/theme.css'; /* qo'shildi */
+@source '../../node_modules/@akhatmirzo/ui/dist'; /* qo'shildi */
+```
+
+`@source` yo'li CSS fayldan `node_modules` gacha **nisbiy** hisoblanadi. Qatorlar allaqachon bo'lsa
+qayta qo'shilmaydi — `init` ni bir necha marta ishga tushirish xavfsiz.
+
+Shundan so'ng ilova ildiziga provayderlarni qo'ying — [O'rnatish](./installation.mdx) sahifasiga
+qarang.
+
+## add
+
+```bash
+npx @akhatmirzo/cli add login
+npx @akhatmirzo/cli add login pricing --dir src/components/blocks
+```
+
+- Har bir blok registry'dan yuklanadi va `--dir` papkasiga (standart: `components/blocks`) yoziladi.
+- Avval **hamma bloklar** yuklanib tekshiriladi — biror xato bo'lsa, hech narsa yozilmaydi.
+- Fayl allaqachon bor bo'lsa — so'raydi. `--overwrite` — savolsiz ustidan yozadi. `--yes` mavjud
+  fayllarni **o'zgartirmaydi** (o'tkazib yuboradi): kodingiz tasodifan yo'qolmasin.
+- Blokka qo'shimcha paketlar kerak bo'lsa (`react-hook-form`, `zod`, `recharts` ...) va ular
+  `package.json`da bo'lmasa — o'rnatishni taklif qiladi.
+
+## list
+
+```bash
+npx @akhatmirzo/cli list
+```
+
+Bloklarni kategoriya bo'yicha nomi va tavsifi bilan chiqaradi. Bloklarni ko'rish —
+**Bloklar** bo'limida.
+
+## Parametrlar
+
+| Parametr                        | Tavsif                                                              |
+| ------------------------------- | ------------------------------------------------------------------- |
+| `--cwd <papka>`                 | Loyiha papkasi (standart: joriy papka)                              |
+| `-y`, `--yes`                   | Savollarga "ha" (paket o'rnatish); mavjud fayllar baribir saqlanadi |
+| `-o`, `--overwrite`             | `add`: mavjud fayllar ustidan yozish                                |
+| `--no-install`                  | Paketlarni o'rnatmaslik — faqat o'rnatish buyrug'ini ko'rsatadi     |
+| `-d`, `--dir <papka>`           | `add`: bloklar papkasi (standart: `components/blocks`)              |
+| `--css <fayl>`                  | `init`: global CSS fayl (standart: avtomatik topiladi)              |
+| `-r`, `--registry <url\|papka>` | Registry manzili (standart: `https://toolkit.akhatmirzo.uz/r`)      |
+| `-h`, `--help`                  | Yordam                                                              |
+| `-v`, `--version`               | Versiya                                                             |
+
+CI kabi interaktiv bo'lmagan muhitda savol berilmaydi: `init` uchun `--yes` majburiy, `add` esa
+yangi fayllarni yozadi, mavjudlarini o'tkazib yuboradi va paketlarni o'rnatmaydi (o'rnatish buyrug'ini
+ko'rsatadi). Ranglar faqat terminalda va `NO_COLOR` o'rnatilmagan bo'lsa chiqadi.
+
+## Registry va oflayn ishlash
+
+Registry — oddiy JSON fayllar: `<registry>/index.json` (ro'yxat) va `<registry>/<nom>.json`:
+
+```json title="login.json"
+{
+  "name": "login",
+  "title": { "uz": "Kirish", "en": "Login" },
+  "description": { "uz": "...", "en": "..." },
+  "category": "auth",
+  "dependencies": ["react-hook-form", "zod"],
+  "files": [{ "path": "login.tsx", "content": "..." }]
+}
+```
+
+`--registry` (yoki `AKHATMIRZO_REGISTRY` muhit o'zgaruvchisi) bilan boshqa manzil bering — o'z
+serveringiz, `file://` URL yoki oddiy lokal papka:
+
+```bash
+npx @akhatmirzo/cli add login --registry ./registry
+npx @akhatmirzo/cli list --registry https://example.com/r
+```
+
+<Callout type="info" title="Xavfsizlik">
+  CLI fayllarni faqat loyiha papkasi ichiga yozadi. Registry'dagi fayl yo'llari qat'iy tekshiriladi:
+  absolyut yo'llar, `..` segmentlari, nuqta bilan boshlangan nomlar va natijasi `--dir` dan
+  tashqariga chiqadigan har qanday yo'l rad etiladi; symlink orqali tashqariga yozish ham
+  bloklanadi. Paket nomlari ham tekshiriladi va o'rnatishdan oldin sizdan so'raladi. Begona registry
+  ishlatsangiz, yozilgan kodni ko'rib chiqing — u loyihangizning bir qismiga aylanadi.
+</Callout>

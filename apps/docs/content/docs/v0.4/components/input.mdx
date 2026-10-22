@@ -1,0 +1,149 @@
+---
+title: Input
+description: "Bir qatorli matn maydoni: ikonkalar, prefix/suffix, tozalash tugmasi va parolni ko'rsatish."
+---
+
+<ComponentPreview name="input/basic" />
+
+## Import
+
+```tsx
+import { Input } from '@akhatmirzo/ui';
+```
+
+## Qachon ishlatish
+
+- **Qisqa, bir qatorli qiymatlar uchun** — ism, email, qidiruv, summa. Ko'p qatorli matnga
+  [`Textarea`](./textarea.mdx).
+- **Doim [`Field`](./field.mdx) ichida** ishlating — label, izoh va xato o'zi ulanadi. Label'siz
+  (masalan, qidiruv) maydonga `aria-label` bering.
+- **Telefon, karta raqami, sana** kabi qat'iy formatlar uchun
+  [`MaskedInput`](./masked-input.mdx) qulayroq.
+- **`placeholder` label o'rnini bosmaydi** — u yozish boshlanishi bilan yo'qoladi. Misol
+  qiymat uchun ishlating: "90 123 45 67".
+
+## O'lchamlar
+
+32, 40 (standart) va 48px — `Button` bilan bir xil, shuning uchun bir qatorda tekis turadi.
+
+<ComponentPreview name="input/sizes" />
+
+## Ikonkalar, prefix va suffix
+
+`leftIcon` / `rightIcon` — bezak ikonkalari (`aria-hidden`). `prefix` / `suffix` — maydon
+ichidagi doimiy matn, ajratuvchi chiziq bilan: mamlakat kodi, valyuta, domen.
+
+<ComponentPreview name="input/addons" />
+
+## Tozalash (`clearable`)
+
+`clearable` bo'lsa va maydonda qiymat bo'lsa, ✕ tugmasi chiqadi. `Esc` ham tozalaydi. Tozalash
+oddiy `input` hodisasi orqali o'tadi — boshqariladigan rejimda `onChange` ham chaqiriladi,
+qo'shimcha ravishda `onClear`.
+
+<ComponentPreview name="input/clearable" />
+
+## Parol
+
+`type="password"` bo'lsa, o'ng tomonda parolni ko'rsatish/yashirish tugmasi avtomatik chiqadi.
+
+<ComponentPreview name="input/password" />
+
+## Holatlar
+
+Xato (`invalid`), o'chirilgan (`disabled`) va faqat o'qish uchun (`readOnly`). `Field` ichida
+`error` berilsa, `invalid` avtomatik yoqiladi.
+
+<ComponentPreview name="input/states" />
+
+## Field bilan
+
+<ComponentPreview name="input/with-field" />
+
+## Props
+
+`Input` qolgan barcha `<input>` atributlarini (`type`, `name`, `placeholder`, `inputMode`,
+`autoComplete`, `onChange` ...) qabul qiladi; `ref` ichki `<input>` ga tushadi. `className` —
+tashqi konteynerga, ichki elementga esa `inputClassName`.
+
+<PropsTable
+  rows={[
+    {
+      name: 'size',
+      type: "'sm' | 'md' | 'lg'",
+      default: "'md'",
+      description: 'Balandlik: 32 / 40 / 48px',
+    },
+    {
+      name: 'invalid',
+      type: 'boolean',
+      description: "Xato holati (Field ichida error bo'lsa avtomatik)",
+    },
+    { name: 'leftIcon', type: 'ReactNode', description: 'Chap tomondagi ikonka' },
+    { name: 'rightIcon', type: 'ReactNode', description: "O'ng tomondagi ikonka" },
+    {
+      name: 'prefix',
+      type: 'ReactNode',
+      description: 'Chapdagi matn ajratuvchi chiziq bilan (masalan, "+998")',
+    },
+    {
+      name: 'suffix',
+      type: 'ReactNode',
+      description: 'O\'ngdagi matn ajratuvchi chiziq bilan (masalan, "so\'m")',
+    },
+    {
+      name: 'clearable',
+      type: 'boolean',
+      default: 'false',
+      description: "Qiymat bo'lsa ✕ tugmasi; Esc ham tozalaydi",
+    },
+    { name: 'onClear', type: '() => void', description: 'Tozalangandan keyin chaqiriladi' },
+    {
+      name: 'labels',
+      type: '{ clear?: string; showPassword?: string; hidePassword?: string }',
+      default:
+        "{ clear: 'Tozalash', showPassword: \"Parolni ko'rsatish\", hidePassword: 'Parolni yashirish' }",
+      description: 'Ichki tugmalarning aria-label matnlari',
+    },
+    {
+      name: 'inputClassName',
+      type: 'string',
+      description: 'Ichki <input> klassi',
+    },
+    {
+      name: 'type',
+      type: 'string',
+      default: "'text'",
+      description: "'password' — ko'rsatish/yashirish tugmasi bilan",
+    },
+    {
+      name: 'readOnly',
+      type: 'boolean',
+      default: 'false',
+      description: "Faqat o'qish uchun; fon xiralashadi, tozalash tugmasi chiqmaydi",
+    },
+  ]}
+/>
+
+### Data atributlari
+
+Atributlar tashqi konteynerda (`data-slot="input"`):
+
+| Atribut         | Qiymat                      |
+| --------------- | --------------------------- |
+| `data-size`     | `sm` · `md` · `lg`          |
+| `data-invalid`  | Xato holatida mavjud        |
+| `data-disabled` | `disabled` bo'lganda mavjud |
+| `data-readonly` | `readOnly` bo'lganda mavjud |
+
+## Accessibility
+
+- **Native `<input>`** — brauzerning avtoto'ldirish, tekshiruv va klaviatura xatti-harakati
+  saqlanadi.
+- **Field bilan** `id`, `aria-describedby`, `aria-invalid` va `aria-required` avtomatik ulanadi.
+- **Fokus halqasi** konteynerda (`:focus-within`) — ikonka va prefix ham halqa ichida qoladi.
+- **`Esc`** qiymatni tozalaydi (faqat `clearable` va maydon bo'sh bo'lmasa). Bo'sh maydonda
+  hodisa yuqoriga o'tadi — masalan, `Dialog` yopiladi.
+- **Tozalash tugmasi** `Tab` tartibida yo'q (`tabIndex={-1}`) — klaviaturada uning o'rnini `Esc`
+  bosadi. Parol tugmasi esa fokuslanadi va `aria-label` i holatga qarab almashadi.
+- **Ikonkalar** `aria-hidden` — ma'noli bo'lsa, uni label yoki `aria-label` da yozing.

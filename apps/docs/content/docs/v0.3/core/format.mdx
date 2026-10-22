@@ -30,7 +30,7 @@ import {
 
 ## Son va pul
 
-<ComponentPreview name="core/money" />
+<ComponentPreview name="archive/v0.3/core/money" />
 
 ### formatNumber
 
@@ -123,7 +123,7 @@ formatFileSize(-1); // ''
 Ikkala funksiya ham **bosqichma-bosqich** formatlaydi — to'liq bo'lmagan raqamni ham. Shuning
 uchun ularni yozish paytida, `onChange` ichida chaqirish mumkin:
 
-<ComponentPreview name="core/phone-card" />
+<ComponentPreview name="archive/v0.3/core/phone-card" />
 
 ### formatPhone
 
@@ -165,7 +165,7 @@ Raqam to'g'riligini tekshirish uchun — [`isValidCardNumber`](./validate.mdx#is
 
 ## Sana va vaqt
 
-<ComponentPreview name="core/date" />
+<ComponentPreview name="archive/v0.3/core/date" />
 
 ### formatDate
 
@@ -229,7 +229,7 @@ Nisbiy vaqt: o'tmish uchun "… oldin", kelajak uchun "…dan keyin". Bir daqiqa
 sanaladi: 19-oktabr 23:00 21-oktabr ertalab 08:00 dan qaraganda (33 soat) "2 kun oldin" bo'ladi.
 `now` — taqqoslash nuqtasi, standart `new Date()`.
 
-<ComponentPreview name="core/time-ago" />
+<ComponentPreview name="archive/v0.3/core/time-ago" />
 
 ```ts
 const now = new Date(2026, 9, 21, 12, 0);
@@ -271,7 +271,7 @@ Qisqa oy nomlarida Iyun va Iyul `Iyn` / `Iyl` — bir-biridan farqlanishi uchun.
 
 Hisob-faktura, shartnoma va cheklar uchun — son va summani o'zbekcha so'z bilan yozish.
 
-<ComponentPreview name="core/number-words" />
+<ComponentPreview name="archive/v0.3/core/number-words" />
 
 <Callout title="Alifbo va apostrof">
   Matn qaytaradigan barcha yangi funksiyalar `script: 'latin' | 'cyrillic'` opsiyasini oladi
@@ -397,7 +397,7 @@ ordinalWords(2, { script: 'cyrillic' }); // 'иккинчи'
 O'zbek imlosi bo'yicha: oy nomlari kichik harf bilan, kun va yil defis bilan — `22-oktabr`,
 `2026-yil`. Mavjud `formatDate` va `MONTHS_UZ` o'zgarmaydi (bosh harfli nomlar saqlanadi).
 
-<ComponentPreview name="core/date-uz" />
+<ComponentPreview name="archive/v0.3/core/date-uz" />
 
 ### formatDateUz
 

@@ -1,0 +1,34 @@
+---
+title: 'Pricing'
+description: "Three pricing cards with a monthly/yearly switch and prices in so'm."
+full: true
+---
+
+<BlockPreview name="pricing" />
+
+## What's inside
+
+- Monthly/yearly — a `SegmentedControl`; yearly applies a 20% discount and shows the savings.
+- Prices use `formatMoney`: "279 000 so'm / oy".
+- The popular plan is highlighted; cards stack in narrow containers.
+
+## Components used
+
+- [Badge](../components/badge.mdx)
+- [Button](../components/button.mdx)
+- [Card](../components/card.mdx)
+- [SegmentedControl](../components/segmented-control.mdx)
+- [`formatMoney`](../core/format.mdx)
+
+## Installation
+
+The CLI copies the block file into your project (`components/blocks/pricing.tsx`) and offers to
+install the packages it needs:
+
+```bash
+npx @akhatmirzo/cli add pricing
+```
+
+Manually: install the packages and copy the file from the "Code" tab into your project.
+
+<BlockInstall name="pricing" />

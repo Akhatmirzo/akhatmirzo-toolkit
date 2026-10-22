@@ -1,0 +1,41 @@
+---
+title: 'Profile settings'
+description: 'Avatar upload, name, email, phone and region — validated with @akhatmirzo/ui/form and zUz schemas.'
+full: true
+---
+
+<BlockPreview name="settings-profile" />
+
+## What's inside
+
+- `Form` + `FormField` on `react-hook-form` with `zodResolver`; messages are in Uzbek (`zUz`).
+- The avatar uses the `FormField render` escape hatch for a custom control (pick, preview, remove).
+- `zUz.phone()` normalizes the value to `998901234567`, `zUz.region()` returns a region id.
+- Server errors go to `FormRootError` (try the email `band@misol.uz`).
+
+## Components used
+
+- [Form, FormField](../components/form.mdx)
+- [Avatar](../components/avatar.mdx)
+- [Card](../components/card.mdx)
+- [Input](../components/input.mdx)
+- [PhoneInput](../components/masked-input.mdx)
+- [RegionSelect](../components/select.mdx)
+- [Textarea](../components/textarea.mdx)
+- [Switch](../components/switch.mdx)
+- [Button](../components/button.mdx)
+- [toast](../components/toast.mdx)
+- [`zUz`](../core/zod.mdx)
+
+## Installation
+
+The CLI copies the block file into your project (`components/blocks/settings-profile.tsx`) and offers to
+install the packages it needs:
+
+```bash
+npx @akhatmirzo/cli add settings-profile
+```
+
+Manually: install the packages and copy the file from the "Code" tab into your project.
+
+<BlockInstall name="settings-profile" />

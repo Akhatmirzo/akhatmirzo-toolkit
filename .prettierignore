@@ -11,3 +11,9 @@ next-env.d.ts
 
 # Docs: avtomatik yaratilgan demo registry
 apps/docs/components/demos/registry.generated.ts
+
+# Docs: avtomatik yaratilgan blok registry
+apps/docs/components/blocks/registry.generated.ts
+
+# Docs: avtomatik yaratilgan CLI registry
+apps/docs/public/r

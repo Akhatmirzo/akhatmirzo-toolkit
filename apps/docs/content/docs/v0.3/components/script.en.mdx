@@ -3,7 +3,7 @@ title: ScriptProvider
 description: Show content in the script the user picks — Latin or Cyrillic Uzbek, remembered across visits.
 ---
 
-<ComponentPreview name="script/overview" align="start" />
+<ComponentPreview name="archive/v0.3/script/overview" align="start" />
 
 ## Import
 
@@ -39,7 +39,7 @@ Inside a provider it drives the provider's state. The default labels are "Lotin"
 the group name (`aria-label`) "Alifbo"; change them with `labels`. [SegmentedControl](./segmented-control.mdx)
 props (`size`, `fullWidth`, `disabled` …) work too.
 
-<ComponentPreview name="script/persist" align="start" />
+<ComponentPreview name="archive/v0.3/script/persist" align="start" />
 
 It also works without a provider as a plain controlled component with `value` and
 `onValueChange`.
@@ -49,7 +49,7 @@ It also works without a provider as a plain controlled component with `value` an
 `t(text)` converts text to the current script. Outside a provider `script` is `'latin'` and `t`
 returns the text unchanged, so your component never breaks without one.
 
-<ComponentPreview name="script/use-script" align="start" />
+<ComponentPreview name="archive/v0.3/script/use-script" align="start" />
 
 ```tsx
 const { script, setScript, t } = useScript();

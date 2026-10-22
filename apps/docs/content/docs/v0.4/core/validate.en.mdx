@@ -1,0 +1,206 @@
+---
+title: Validation
+description: Check phone numbers, emails, card numbers and password strength.
+---
+
+Validators for forms: Uzbek phone numbers, emails, Uzcard / Humo / Visa / Mastercard cards and
+password strength. None of them throw — `null` or bad input returns `false` (or an empty result),
+so you can call them straight from `onChange`.
+
+```ts
+import {
+  parsePhone,
+  isValidPhone,
+  isValidEmail,
+  isValidCardNumber,
+  detectCardBrand,
+  luhnCheck,
+  passwordStrength,
+} from '@akhatmirzo/core';
+```
+
+## Phone and email
+
+<ComponentPreview name="core/phone-validate" />
+
+### parsePhone
+
+```ts
+function parsePhone(input: string | number | null | undefined): ParsedPhone;
+
+interface ParsedPhone {
+  digits: string; // digits without +998; exactly 9 for a valid number
+  operator: UzOperatorCode | null; // '90', '33' ... or null
+  valid: boolean; // 9 digits and a known operator code
+}
+```
+
+Parses a number: spaces, dashes and parentheses are dropped and `+998` is removed. Send `digits`
+to your server — it always has the same shape.
+
+```ts
+parsePhone('+998 90 123-45-67'); // { digits: '901234567', operator: '90', valid: true }
+parsePhone('998901234567'); // { digits: '901234567', operator: '90', valid: true }
+parsePhone('(90) 123'); // { digits: '90123', operator: '90', valid: false }
+parsePhone('121234567'); // { digits: '121234567', operator: null, valid: false }
+```
+
+As in `formatPhone`, the `998` prefix is only removed when it comes with a `+` or when there are
+more than 9 digits.
+
+### isValidPhone
+
+```ts
+function isValidPhone(input: string | number | null | undefined): boolean;
+```
+
+Shorthand for `parsePhone(input).valid`.
+
+```ts
+isValidPhone('901234567'); // true
+isValidPhone('+998 33 123 45 67'); // true
+isValidPhone('90123'); // false — incomplete
+isValidPhone('121234567'); // false — no such operator
+```
+
+### UZ_OPERATOR_CODES
+
+```ts
+const UZ_OPERATOR_CODES: readonly [
+  '33',
+  '50',
+  '55',
+  '77',
+  '88',
+  '90',
+  '91',
+  '93',
+  '94',
+  '95',
+  '97',
+  '98',
+  '99',
+];
+type UzOperatorCode = (typeof UZ_OPERATOR_CODES)[number];
+```
+
+Mobile operator codes — the two digits after `+998`. `parsePhone` validates against this list.
+
+### isValidEmail
+
+```ts
+function isValidEmail(input: string | null | undefined): boolean;
+```
+
+A practical check: `name@domain.tld`, one `@`, no spaces, a TLD of at least 2 characters.
+Surrounding spaces are ignored. It doesn't chase every corner of the RFC — it catches the
+mistakes people actually make.
+
+```ts
+isValidEmail('sarvar@mail.uz'); // true
+isValidEmail(' sarvar@mail.uz '); // true
+isValidEmail('sarvar@mail'); // false — no TLD
+isValidEmail('sar var@mail.uz'); // false — contains a space
+isValidEmail('a@b.c'); // false — one-letter TLD
+```
+
+## Bank cards
+
+<ComponentPreview name="core/card-validate" />
+
+### detectCardBrand
+
+```ts
+function detectCardBrand(input: string | null | undefined): CardBrand | null;
+// CardBrand = 'uzcard' | 'humo' | 'visa' | 'mastercard'
+```
+
+Detects the card brand from the first digits — even for an incomplete number, so you can show
+the logo while the user types.
+
+| Brand        | Starts with              |
+| ------------ | ------------------------ |
+| `uzcard`     | `8600`                   |
+| `humo`       | `9860`                   |
+| `visa`       | `4`                      |
+| `mastercard` | `51`–`55`, `2221`–`2720` |
+
+```ts
+detectCardBrand('8600 12'); // 'uzcard'
+detectCardBrand('9860'); // 'humo'
+detectCardBrand('4111'); // 'visa'
+detectCardBrand('2221'); // 'mastercard'
+detectCardBrand('86'); // null — not clear yet
+```
+
+### isValidCardNumber
+
+```ts
+function isValidCardNumber(input: string | null | undefined): boolean;
+```
+
+Checks a card number: exactly 16 digits (spaces and dashes allowed) and a passing Luhn checksum.
+It only catches typos — it can't tell whether the card exists or is active.
+
+```ts
+isValidCardNumber('4111 1111 1111 1111'); // true
+isValidCardNumber('4111-1111-1111-1111'); // true
+isValidCardNumber('4111 1111 1111 1112'); // false — Luhn fails
+isValidCardNumber('411111111111'); // false — 12 digits
+```
+
+### luhnCheck
+
+```ts
+function luhnCheck(digits: string): boolean;
+```
+
+The bare Luhn algorithm. The input must be **digits only** — for strings with spaces, use
+`isValidCardNumber`.
+
+```ts
+luhnCheck('4111111111111111'); // true
+luhnCheck('4111 1111 1111 1111'); // false — contains spaces
+```
+
+## Passwords
+
+<ComponentPreview name="core/password" />
+
+### passwordStrength
+
+```ts
+function passwordStrength(pw: string | null | undefined): PasswordStrength;
+
+interface PasswordStrength {
+  score: 0 | 1 | 2 | 3 | 4;
+  label: 'Juda zaif' | 'Zaif' | "O'rtacha" | 'Yaxshi' | 'Kuchli';
+  checks: { length: boolean; lower: boolean; upper: boolean; digit: boolean; symbol: boolean };
+}
+```
+
+Rates a password. The score works like this:
+
+- the number of character kinds used (lowercase, uppercase, digit, symbol) **minus 1**;
+- **+1** at 12 characters or more, and another **+1** at 16 or more;
+- a password shorter than 8 characters never goes above **1**; the result stays within 0–4.
+
+Cyrillic letters count as letters. `checks.length` means at least 8 characters; `symbol` is any
+character that isn't a letter, digit or space. The `label` is in Uzbek, ready to show in the UI:
+"Very weak", "Weak", "Fair", "Good", "Strong".
+
+```ts
+passwordStrength('abc').label; // 'Juda zaif'
+passwordStrength('parol123').label; // 'Zaif'
+passwordStrength('Parol123').label; // "O'rtacha"
+passwordStrength('Parol123!').label; // 'Yaxshi'
+passwordStrength('Parol123!Uzb').label; // 'Kuchli'
+
+passwordStrength('Parol123').checks;
+// { length: true, lower: true, upper: true, digit: true, symbol: false }
+```
+
+<Callout title="Guidance, not a rule">
+  `passwordStrength` is there to help the user: a meter and a "what to add" list. Set the minimum
+  yourself (for example `score >= 2`) and enforce it on the server too.
+</Callout>

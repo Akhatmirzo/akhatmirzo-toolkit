@@ -1,15 +1,7 @@
 import { useFloatingLayer } from '../../lib/modal-layer';
 import { useControllableState } from '@akhatmirzo/hooks';
 import * as RadixMenu from '@radix-ui/react-dropdown-menu';
-import {
-  Children,
-  cloneElement,
-  isValidElement,
-  useSyncExternalStore,
-  type ComponentProps,
-  type ReactElement,
-  type ReactNode,
-} from 'react';
+import type { ComponentProps, ReactNode } from 'react';
 import { cn } from '../../lib/cn';
 import {
   floatingPanel,
@@ -19,53 +11,17 @@ import {
   listSeparator,
 } from '../../lib/overlay-styles';
 import { buttonVariants } from '../button';
-import { isApplePlatform, Kbd } from '../kbd/kbd';
-
-/* Ichki ikonkalar */
-
-function CheckIcon() {
-  return (
-    <svg
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth={2.5}
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      aria-hidden="true"
-    >
-      <path d="M20 6 9 17l-5-5" />
-    </svg>
-  );
-}
-
-function ChevronRightIcon() {
-  return (
-    <svg
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth={2}
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      aria-hidden="true"
-    >
-      <path d="m9 18 6-6-6-6" />
-    </svg>
-  );
-}
-
-const subscribe = () => () => {};
-
-/** `["mod", "E"]` → `aria-keyshortcuts="Control+E"` (macOS'da `Meta+E`) */
-function useKeyShortcuts(keys?: string[]) {
-  const apple = useSyncExternalStore(subscribe, isApplePlatform, () => false);
-  if (!keys?.length) return undefined;
-  return keys.map((k) => (k.toLowerCase() === 'mod' ? (apple ? 'Meta' : 'Control') : k)).join('+');
-}
-
-const iconSlot =
-  'flex size-4 shrink-0 items-center justify-center text-text-muted group-data-highlighted:text-current';
+import {
+  MenuCheckIcon,
+  MenuChevronRightIcon,
+  menuIconSlot,
+  menuIndicatorSlot,
+  MenuRadioDot,
+  MenuShortcut,
+  menuSubTriggerOpen,
+  renderMenuItemBody,
+  useKeyShortcuts,
+} from '../menu/menu-parts';
 
 /* Root */
 
@@ -152,30 +108,7 @@ export function DropdownMenuItem({
   const danger = variant === 'danger';
   const keyShortcuts = useKeyShortcuts(shortcut);
 
-  const decorate = (content: ReactNode) => (
-    <>
-      {icon != null && (
-        <span aria-hidden="true" className={cn(iconSlot, danger && 'text-current')}>
-          {icon}
-        </span>
-      )}
-      <span className="min-w-0 flex-1 truncate">{content}</span>
-      {shortcut && shortcut.length > 0 && (
-        <Kbd keys={shortcut} aria-hidden="true" className="ml-auto" />
-      )}
-    </>
-  );
-
-  // asChild: bolaning (masalan <a>) ichiga ikonka va yorliq qo'shiladi
-  let body: ReactNode;
-  if (asChild) {
-    const child = Children.only(children) as ReactElement<{ children?: ReactNode }>;
-    body = isValidElement(child)
-      ? cloneElement(child, undefined, decorate(child.props.children))
-      : child;
-  } else {
-    body = decorate(children);
-  }
+  const body = renderMenuItemBody({ icon, shortcut, danger, asChild, children });
 
   return (
     <RadixMenu.Item
@@ -213,15 +146,13 @@ export function DropdownMenuCheckboxItem({
       className={cn('group', listItem, className)}
       {...props}
     >
-      <span className="flex size-4 shrink-0 items-center justify-center text-primary group-data-highlighted:text-current">
+      <span className={menuIndicatorSlot}>
         <RadixMenu.ItemIndicator className="flex">
-          <CheckIcon />
+          <MenuCheckIcon />
         </RadixMenu.ItemIndicator>
       </span>
       <span className="min-w-0 flex-1 truncate">{children}</span>
-      {shortcut && shortcut.length > 0 && (
-        <Kbd keys={shortcut} aria-hidden="true" className="ml-auto" />
-      )}
+      <MenuShortcut keys={shortcut} />
     </RadixMenu.CheckboxItem>
   );
 }
@@ -272,15 +203,13 @@ export function DropdownMenuRadioItem({
       className={cn('group', listItem, className)}
       {...props}
     >
-      <span className="flex size-4 shrink-0 items-center justify-center text-primary group-data-highlighted:text-current">
+      <span className={menuIndicatorSlot}>
         <RadixMenu.ItemIndicator className="flex">
-          <span className="size-2 rounded-full bg-current" />
+          <MenuRadioDot />
         </RadixMenu.ItemIndicator>
       </span>
       <span className="min-w-0 flex-1 truncate">{children}</span>
-      {shortcut && shortcut.length > 0 && (
-        <Kbd keys={shortcut} aria-hidden="true" className="ml-auto" />
-      )}
+      <MenuShortcut keys={shortcut} />
     </RadixMenu.RadioItem>
   );
 }
@@ -338,22 +267,17 @@ export function DropdownMenuSubTrigger({
   return (
     <RadixMenu.SubTrigger
       data-slot="dropdown-menu-sub-trigger"
-      className={cn(
-        'group',
-        listItem,
-        'data-[state=open]:bg-primary-soft data-[state=open]:text-primary-soft-foreground',
-        className,
-      )}
+      className={cn('group', listItem, menuSubTriggerOpen, className)}
       {...props}
     >
       {icon != null && (
-        <span aria-hidden="true" className={iconSlot}>
+        <span aria-hidden="true" className={menuIconSlot}>
           {icon}
         </span>
       )}
       <span className="min-w-0 flex-1 truncate">{children}</span>
-      <span aria-hidden="true" className={cn(iconSlot, '-mr-1 ml-auto')}>
-        <ChevronRightIcon />
+      <span aria-hidden="true" className={cn(menuIconSlot, '-mr-1 ml-auto')}>
+        <MenuChevronRightIcon />
       </span>
     </RadixMenu.SubTrigger>
   );

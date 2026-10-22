@@ -1,0 +1,48 @@
+{
+  "name": "@akhatmirzo/cli",
+  "version": "0.1.0",
+  "description": "CLI for @akhatmirzo/ui: set up the library in your project and copy ready-made blocks (login, pricing, dashboard) into your code.",
+  "keywords": [
+    "cli",
+    "react",
+    "ui",
+    "components",
+    "blocks",
+    "tailwind",
+    "akhatmirzo"
+  ],
+  "license": "MIT",
+  "author": {
+    "name": "Akhatmirzo Umarov",
+    "url": "https://akhatmirzo.uz"
+  },
+  "homepage": "https://toolkit.akhatmirzo.uz/uz/docs/v0.4/cli",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Akhatmirzo/akhatmirzo-toolkit.git",
+    "directory": "packages/cli"
+  },
+  "bugs": {
+    "url": "https://github.com/Akhatmirzo/akhatmirzo-toolkit/issues"
+  },
+  "type": "module",
+  "bin": {
+    "akhatmirzo": "./dist/index.js"
+  },
+  "files": [
+    "dist"
+  ],
+  "engines": {
+    "node": ">=18.17"
+  },
+  "scripts": {
+    "build": "tsup",
+    "typecheck": "tsc -p tsconfig.json"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "devDependencies": {
+    "@types/node": "^22"
+  }
+}

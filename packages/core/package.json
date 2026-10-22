@@ -1,6 +1,6 @@
 {
   "name": "@akhatmirzo/core",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "Dependency-free TypeScript utilities: formatting (phone, money, dates), validation (phone, card, email), Latin-Cyrillic transliteration, storage and API helpers for Uzbek apps.",
   "keywords": [
     "typescript",
@@ -27,7 +27,7 @@
     "name": "Akhatmirzo Umarov",
     "url": "https://akhatmirzo.uz"
   },
-  "homepage": "https://toolkit.akhatmirzo.uz/uz/docs/v0.1/core/text",
+  "homepage": "https://toolkit.akhatmirzo.uz/uz/docs/v0.4/core/text",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/Akhatmirzo/akhatmirzo-toolkit.git",
@@ -46,6 +46,11 @@
       "source": "./src/index.ts",
       "types": "./dist/index.d.ts",
       "import": "./dist/index.js"
+    },
+    "./zod": {
+      "source": "./src/zod/index.ts",
+      "types": "./dist/zod/index.d.ts",
+      "import": "./dist/zod/index.js"
     }
   },
   "types": "./dist/index.d.ts",
@@ -59,7 +64,22 @@
       ".": {
         "types": "./dist/index.d.ts",
         "import": "./dist/index.js"
+      },
+      "./zod": {
+        "types": "./dist/zod/index.d.ts",
+        "import": "./dist/zod/index.js"
       }
+    }
+  },
+  "devDependencies": {
+    "zod": "^4.6.7"
+  },
+  "peerDependencies": {
+    "zod": "^4.0.0"
+  },
+  "peerDependenciesMeta": {
+    "zod": {
+      "optional": true
     }
   }
 }

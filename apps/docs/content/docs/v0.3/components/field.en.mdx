@@ -3,7 +3,7 @@ title: Field
 description: Wraps a form control with a label, hint and error message, and wires up ARIA automatically.
 ---
 
-<ComponentPreview name="field/basic" />
+<ComponentPreview name="archive/v0.3/field/basic" />
 
 ## Import
 
@@ -29,20 +29,20 @@ When `error` is not empty, the field switches to its error state: the control ge
 an `aria-live` region, so screen readers announce them as they appear. Try submitting the form
 empty.
 
-<ComponentPreview name="field/validation" />
+<ComponentPreview name="archive/v0.3/field/validation" />
 
 ## Horizontal layout
 
 `orientation="horizontal"` puts the label on the left (160px) and the control on the right.
 Useful for settings pages and wide forms.
 
-<ComponentPreview name="field/horizontal" />
+<ComponentPreview name="archive/v0.3/field/horizontal" />
 
 ## Disabled
 
 `disabled` on `Field` disables the control inside it too and dims the label.
 
-<ComponentPreview name="field/disabled" />
+<ComponentPreview name="archive/v0.3/field/disabled" />
 
 ## Your own control (`useFieldControl`)
 
@@ -50,7 +50,7 @@ Every form component in the library connects to `Field` through the `useFieldCon
 can connect your own control (a native `<select>`, a third-party widget) the same way: spread
 `controlProps` onto the element and the rest is automatic.
 
-<ComponentPreview name="field/custom-control" />
+<ComponentPreview name="archive/v0.3/field/custom-control" />
 
 `useFieldControl` also works outside a `Field` — it then generates its own `id`.
 

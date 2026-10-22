@@ -1,0 +1,138 @@
+---
+title: Rating
+description: 'Star rating with keyboard support, half values, hover preview and a read-only mode for reviews.'
+---
+
+<ComponentPreview name="rating/basic" />
+
+## Import
+
+```tsx
+import { Rating } from '@akhatmirzo/ui';
+```
+
+## When to use
+
+- **Rating a product, service or courier** — users give feedback in a single click.
+- **Showing an average score in a review list** — use `readOnly` (fractions are drawn exactly:
+  4.3 → 4 full stars and 0.3 of the next).
+- **When you need an exact number or a wide scale** (0–100), a [`Slider`](./slider.mdx) works better.
+- **For options with distinct meanings** ("Bad / OK / Good"), use a
+  [`SegmentedControl`](./segmented-control.mdx) or a [`RadioGroup`](./radio-group.mdx).
+
+## Half values
+
+With `allowHalf` the left half of each star gives `x.5` and the right half gives `x`; the arrow keys
+move in 0.5 steps. Half stars are drawn with `clip-path`.
+
+<ComponentPreview name="rating/half" />
+
+## Read-only
+
+`readOnly` isn't interactive: the element is read as a single image with `role="img"` and
+`aria-label="4.5 / 5"`. The value isn't rounded — `3.7` is drawn as exactly 3.7 stars.
+
+<ComponentPreview name="rating/read-only" align="start" />
+
+## Color, icon and size
+
+- `color` — the filled star color: `warning` (default), `primary`, `danger`. Empty stars use the
+  `text-muted` color.
+- `icon` — any icon instead of the built-in star (an SVG painted with `currentColor`).
+- `size` — `sm` 16px, `md` 20px (default), `lg` 28px.
+- `max` — the number of stars (default 5).
+
+<ComponentPreview name="rating/custom" align="start" />
+
+## Clearing and Field
+
+With `allowClear` (default `true`), clicking the selected star again resets the value to `0`. For a
+required rating set `allowClear={false}`. Inside a [`Field`](./field.mdx) the label names the
+group and the description goes into `aria-describedby`.
+
+<ComponentPreview name="rating/with-field" align="start" />
+
+## Props
+
+Other `<div>` attributes and `ref` go to the root element.
+
+<PropsTable
+  rows={[
+    { name: 'value', type: 'number', description: 'Value (controlled)' },
+    { name: 'defaultValue', type: 'number', default: '0', description: 'Initial value' },
+    {
+      name: 'onValueChange',
+      type: '(value: number) => void',
+      description: 'Called when the value changes',
+    },
+    { name: 'max', type: 'number', default: '5', description: 'Number of stars' },
+    { name: 'allowHalf', type: 'boolean', default: 'false', description: '0.5 steps' },
+    {
+      name: 'allowClear',
+      type: 'boolean',
+      default: 'true',
+      description: 'Clicking the selected value again resets it to 0',
+    },
+    {
+      name: 'readOnly',
+      type: 'boolean',
+      default: 'false',
+      description: 'Display only: role="img" + aria-label',
+    },
+    { name: 'disabled', type: 'boolean', description: 'Disabled state (not focusable)' },
+    {
+      name: 'size',
+      type: "'sm' | 'md' | 'lg'",
+      default: "'md'",
+      description: 'Star size 16 / 20 / 28px',
+    },
+    {
+      name: 'icon',
+      type: 'ReactNode',
+      default: 'star SVG',
+      description: 'Icon instead of the star',
+    },
+    {
+      name: 'color',
+      type: "'warning' | 'primary' | 'danger'",
+      default: "'warning'",
+      description: 'Filled star color',
+    },
+    {
+      name: 'labels',
+      type: '{ value?: (value: number, max: number) => string; group?: string }',
+      default: "'${v} / ${max}', 'Baho'",
+      description: 'Radio and read-only name; group name (without Field or aria-label)',
+    },
+  ]}
+/>
+
+### Data attributes
+
+| Attribute       | Where | Value                            |
+| --------------- | ----- | -------------------------------- |
+| `data-size`     | root  | `sm` · `md` · `lg`               |
+| `data-hover`    | root  | present while hovering the stars |
+| `data-readonly` | root  | present in `readOnly`            |
+| `data-disabled` | root  | present when disabled            |
+| `data-state`    | radio | `checked` · `unchecked`          |
+| `data-state`    | star  | `full` · `partial` · `empty`     |
+
+## Keyboard
+
+| Key               | Action                                       |
+| ----------------- | -------------------------------------------- |
+| `Tab`             | Enter the group (on the selected star)       |
+| `→` `↑` / `←` `↓` | Increase / decrease by one step (and select) |
+| `Home` / `End`    | Lowest (1 or 0.5) / highest value            |
+| `Space` / `Enter` | Select the focused star (again — clear)      |
+
+## Accessibility
+
+- **Interactive** — `role="radiogroup"`, each value is a `role="radio"` (`aria-checked`,
+  `aria-label="3 / 5"`); with `allowHalf` each star holds two radios. Roving tabindex: one `Tab`
+  stop for the whole group.
+- **Name.** The `Field` label via `aria-labelledby`, otherwise `aria-label` or `labels.group`
+  ("Baho").
+- **readOnly** — `role="img"` with `aria-label` (`labels.value`); the stars are `aria-hidden`.
+- **Disabled** — `aria-disabled`; the radios aren't focusable.

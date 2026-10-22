@@ -1,0 +1,13 @@
+{
+  "name": "checkout-summary",
+  "title": {
+    "uz": "Buyurtma xulosasi",
+    "en": "Checkout summary"
+  },
+  "description": {
+    "uz": "Savat ro'yxati, promokod, so'mdagi jami summa va Stepper bilan buyurtma bosqichlari.",
+    "en": "Cart list, promo code, total in so'm and checkout steps with a Stepper."
+  },
+  "dependencies": ["@akhatmirzo/core", "lucide-react"],
+  "category": "commerce"
+}

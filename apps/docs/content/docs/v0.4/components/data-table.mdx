@@ -1,0 +1,575 @@
+---
+title: DataTable
+description: "Ma'lumotlar jadvali: saralash, o'zbekcha qidiruv, filtrlar, tanlash, sahifalash, server rejimi va virtual scroll."
+---
+
+<ComponentPreview name="data-table/basic" align="start" />
+
+## Import
+
+```tsx
+import { DataTable, type DataTableColumn } from '@akhatmirzo/ui';
+```
+
+`DataTable` [TanStack Table](https://tanstack.com/table) ustida qurilgan, lekin sizdan uning
+API'sini bilish talab qilinmaydi: ma'lumot (`data`) va ustunlar ro'yxati (`columns`) yetarli —
+saralash, qidiruv, filtr, sahifalash va holatlar (yuklanish, bo'sh, xato) tayyor.
+
+## Qachon ishlatish
+
+- **Bir xil tuzilishdagi ko'p yozuv uchun** — buyurtmalar, mijozlar, to'lovlar, xodimlar.
+  Foydalanuvchi solishtiradi, saralaydi, qidiradi.
+- **Kichik ro'yxat uchun** (5–10 qator, saralash kerak emas) oddiy `<table>` yoki
+  [Card](./card.mdx)lar yetarli.
+- **Ma'lumot ko'p bo'lsa** (minglab qator) — ikki yo'l: serverda sahifalash (`manual`) yoki
+  hammasi brauzerda bo'lsa — `virtual`.
+- **Qatordan boshqa sahifaga o'tish kerak bo'lsa** — `onRowClick`; bir nechta amal bo'lsa —
+  `rowActions` (odatda [DropdownMenu](./dropdown-menu.mdx)).
+- **Sonli ustunlarga `numeric` bering** — o'ngga tekislanadi va raqamlar bir xil kenglikda
+  (`tabular-nums`) chiziladi, summalarni ko'z bilan solishtirish oson.
+
+## Ustunlar
+
+Har bir ustun — `DataTableColumn<T>` obyekti. Eng kami — `key` va `header`; qiymat `row[key]` dan
+olinadi va matn sifatida chiziladi. Qolgan hamma narsa ixtiyoriy:
+
+```tsx title="columns.tsx"
+import { formatDate, formatMoney } from '@akhatmirzo/core';
+import { Badge, type DataTableColumn } from '@akhatmirzo/ui';
+
+export interface Order {
+  id: number;
+  customer: { name: string; phone: string };
+  date: Date;
+  status: 'paid' | 'pending';
+  total: number;
+}
+
+export const columns: DataTableColumn<Order>[] = [
+  { key: 'id', header: '№', width: 88, sortable: true, hideable: false },
+  {
+    key: 'customer',
+    header: 'Mijoz',
+    accessor: (o) => o.customer.name, // saralash, filtr va qidiruv shu qiymat bo'yicha
+    sortable: true,
+  },
+  {
+    key: 'phone',
+    header: 'Telefon',
+    accessor: (o) => o.customer.phone,
+    hidden: true, // "Ustunlar" menyusidan yoqiladi
+  },
+  {
+    key: 'date',
+    header: 'Sana',
+    sortable: true,
+    filter: 'date',
+    searchable: false,
+    cell: (o) => formatDate(o.date, 'dd.MM.yyyy, HH:mm'),
+  },
+  {
+    key: 'status',
+    header: 'Holat',
+    filter: 'multiselect',
+    filterOptions: [
+      { value: 'paid', label: "To'langan" },
+      { value: 'pending', label: 'Kutilmoqda' },
+    ],
+    searchValue: (o) => (o.status === 'paid' ? "To'langan" : 'Kutilmoqda'),
+    cell: (o) =>
+      o.status === 'paid' ? <Badge color="success">To'langan</Badge> : <Badge>Kutilmoqda</Badge>,
+  },
+  {
+    key: 'total',
+    header: 'Summa',
+    numeric: true,
+    sortable: true,
+    filter: 'range',
+    cell: (o) => formatMoney(o.total),
+  },
+];
+```
+
+<PropsTable
+  rows={[
+    {
+      name: 'key',
+      type: 'string',
+      required: true,
+      description: "Ustun id'si; accessor bo'lmasa — row[key] qiymati",
+    },
+    { name: 'header', type: 'ReactNode', required: true, description: 'Sarlavha' },
+    {
+      name: 'accessor',
+      type: '(row: T) => unknown',
+      description: 'Saralash, filtr va qidiruv uchun qiymat (standart — row[key])',
+    },
+    {
+      name: 'cell',
+      type: '(row: T) => ReactNode',
+      description: "Katak ko'rinishi (standart — qiymat matni; sana — dd.MM.yyyy)",
+    },
+    { name: 'width', type: 'number | string', description: 'Kenglik: px yoki CSS qiymat' },
+    {
+      name: 'align',
+      type: "'left' | 'center' | 'right'",
+      description: "Tekislash (standart — left, numeric bo'lsa right)",
+    },
+    { name: 'numeric', type: 'boolean', description: "O'ngga tekislanadi, tabular-nums" },
+    { name: 'sortable', type: 'boolean', description: 'Sarlavha bosilsa saralanadi' },
+    {
+      name: 'filter',
+      type: "'select' | 'multiselect' | 'range' | 'date'",
+      description: 'Filtr turi ("Filtrlar" oynasida)',
+    },
+    {
+      name: 'filterOptions',
+      type: 'DataTableFilterOption[]',
+      description:
+        "select / multiselect variantlari { value, label } (standart — ma'lumotdagi noyob qiymatlar)",
+    },
+    {
+      name: 'filterLabel',
+      type: 'string',
+      description: "Filtr va badge'dagi nom (standart — header matni yoki key)",
+    },
+    {
+      name: 'searchable',
+      type: 'boolean',
+      default: 'true',
+      description: 'Umumiy qidiruvda qatnashadimi',
+    },
+    {
+      name: 'searchValue',
+      type: '(row: T) => string',
+      description: "Qidiruv uchun matn (masalan, holat kodi o'rniga uning nomi)",
+    },
+    {
+      name: 'hideable',
+      type: 'boolean',
+      default: 'true',
+      description: '"Ustunlar" menyusida yashirish mumkinmi',
+    },
+    { name: 'hidden', type: 'boolean', description: "Boshlang'ich holatda yashirin" },
+    { name: 'className', type: 'string', description: 'Katak (td) klassi' },
+  ]}
+/>
+
+<Callout title="Qiymat va ko'rinishni ajrating">
+  `cell` faqat ko'rinish uchun. Saralash, filtr va qidiruv **qiymat** bilan ishlaydi (`accessor`
+  yoki `row[key]`). Shuning uchun summani `number`, sanani `Date` holida saqlang va `cell` da
+  formatlang — saralash to'g'ri bo'ladi, qidiruvda ham "1042" va "1 042" ikkalasi topiladi.
+</Callout>
+
+## Saralash
+
+`sortable` ustun sarlavhasini bosing: o'sish → kamayish → o'chiq. `Shift` bilan bosilsa, ustun
+avvalgisiga **qo'shiladi** (bir nechta ustun bo'yicha saralash), sarlavhada tartib raqami
+ko'rinadi. Saralash qiymat turini taniydi: son, sana, mantiqiy qiymat va matn (o'zbek alifbosi
+bo'yicha, `"10" > "9"`); bo'sh qiymatlar oxirida turadi.
+
+Boshlang'ich saralash — `initialState`:
+
+```tsx
+<DataTable
+  data={orders}
+  columns={columns}
+  initialState={{ sorting: [{ id: 'date', desc: true }] }}
+/>
+```
+
+## Qidiruv
+
+`searchable` jadval ustiga qidiruv maydonini qo'shadi. Qidiruv 300ms kechikish (debounce) bilan
+ishlaydi va o'zbek yozuviga moslashgan: kirill va lotin farqsiz (`жасур` → "Jasur"), `oʻ`, `o'`
+va `o‘` bir xil. Qidiruv barcha ustunlarda (`searchable: false` dan tashqari) ishlaydi; ko'rinishi
+boshqa bo'lgan ustunlar uchun `searchValue` bering.
+
+## Filtrlar
+
+Ustunga `filter` bersangiz, asboblar panelida "Filtrlar" tugmasi paydo bo'ladi. Faol filtrlar
+jadval ustida badge sifatida ko'rinadi va ✕ bilan o'chiriladi. Hech narsa topilmasa —
+"Filtrlarni tozalash" tugmasi.
+
+| Tur           | Boshqaruv                       | Qiymat (`DataTableFilterValue`)              |
+| ------------- | ------------------------------- | -------------------------------------------- |
+| `select`      | Radio: bitta qiymat             | `string`                                     |
+| `multiselect` | Checkbox'lar: bir nechta qiymat | `string[]`                                   |
+| `range`       | Ikki son: "dan" — "gacha"       | `{ min?: number; max?: number }`             |
+| `date`        | Ikki sana: boshlanish — tugash  | `{ from?: Date \| null; to?: Date \| null }` |
+
+`select` va `multiselect` variantlari `filterOptions` dan, bo'lmasa ma'lumotdagi noyob
+qiymatlardan olinadi — har birining yonida nechta qator borligi ko'rsatiladi. `date` oralig'ida
+chegaralar kiradi (tugash kuni ham). Quyidagi demoda boshlang'ich filtr `initialState` orqali
+berilgan.
+
+<ComponentPreview name="data-table/filters" align="start" />
+
+## Tanlash va ommaviy amallar
+
+`selectable` — chapda Checkbox. Sarlavhadagi Checkbox joriy sahifani tanlaydi (qisman tanlanganda
+— indeterminate). Qator tanlansa, asboblar paneli **ommaviy amallar paneli**ga aylanadi: "2 ta
+tanlandi", `bulkActions` dagi tugmalar va "Bekor qilish". `Shift` bilan Checkbox bosilsa, oraliq
+tanlanadi.
+
+<ComponentPreview name="data-table/selection" align="start" />
+
+```tsx
+<DataTable
+  data={products}
+  columns={columns}
+  selectable
+  getRowId={(p) => p.sku} // standart — row.id, bo'lmasa tartib raqami
+  onSelectionChange={(ids) => setSelectedIds(ids)}
+  bulkActions={(rows, clearSelection) => (
+    <Button
+      size="sm"
+      onClick={() => {
+        toast(`${rows.length} ta mahsulot arxivlandi`);
+        clearSelection();
+      }}
+    >
+      Arxivlash
+    </Button>
+  )}
+/>
+```
+
+Tanlash boshqariladigan bo'lishi ham mumkin: `selectedIds` + `onSelectionChange`. `rowActions` —
+qator oxiridagi amallar (bosilganda `onRowClick` ishlamaydi).
+
+## Sahifalash
+
+`pagination={{ pageSize: 10 }}` — pastda "1–10 / 248", sahifa raqamlari va sahifa hajmi tanlovi
+(standart variantlar: 10, 25, 50, 100; o'zgartirish — `pageSizeOptions`). Saralash, qidiruv yoki
+filtr o'zgarganda birinchi sahifaga qaytiladi; o'chirishdan keyin sahifa bo'shab qolsa — oxirgi
+mavjud sahifaga. `pagination` bo'lmasa, barcha qatorlar birdaniga chiziladi — ko'p ma'lumot uchun
+`virtual` ni ishlating (u pastda jami qatorlar sonini ko'rsatadi).
+
+## Holatlar
+
+| Holat                | Ko'rinish                                                           |
+| -------------------- | ------------------------------------------------------------------- |
+| Birinchi yuklanish   | `loading` + bo'sh `data` — Skeleton qatorlar                        |
+| Qayta yuklanish      | `loading` + eski `data` — 60% shaffof va yuqorida ingichka progress |
+| Ma'lumot yo'q        | `empty` — ikonka, sarlavha, izoh, amal tugmasi                      |
+| Hech narsa topilmadi | Qidiruv/filtr natijasi bo'sh — "Filtrlarni tozalash"                |
+| Xato                 | `error` (matn yoki `true`) + `onRetry` — "Qayta urinish" tugmasi    |
+
+Qayta yuklanishda jadval "sakramaydi" — eski ma'lumot joyida qoladi. Tugmalarni bosib ko'ring:
+
+<ComponentPreview name="data-table/states" align="start" />
+
+## Server rejimi
+
+Ma'lumot serverda saralansa, filtrlansa va sahifalansa — `manual` bering. Jadval ma'lumotga
+tegmaydi: saralash, qidiruv, filtr va sahifa holatini `onStateChange` orqali beradi, siz shu holat
+bilan serverga so'rov yuborasiz. Jami yozuvlar soni — `rowCount` (sahifalash uchun).
+
+<ComponentPreview name="data-table/server" align="start" />
+
+`onStateChange` ga keladigan holat (`DataTableState`):
+
+```ts
+interface DataTableState {
+  sorting: { id: string; desc: boolean }[]; // id — ustun key'i
+  search: string; // 300ms debounce'dan keyingi qiymat
+  filters: Record<string, DataTableFilterValue>; // ustun key'i → filtr qiymati
+  pagination: { pageIndex: number; pageSize: number }; // pageIndex 0 dan
+}
+```
+
+Haqiqiy loyihada holatni URL parametrlariga aylantirib, `fetch` qilasiz:
+
+```tsx title="OrdersTable.tsx"
+import { DataTable, type DataTableState } from '@akhatmirzo/ui';
+import { useEffect, useState } from 'react';
+import { columns, type Order } from './columns';
+
+export function OrdersTable() {
+  const [state, setState] = useState<DataTableState>({
+    sorting: [],
+    search: '',
+    filters: {},
+    pagination: { pageIndex: 0, pageSize: 25 },
+  });
+  const [page, setPage] = useState<{ rows: Order[]; total: number }>({ rows: [], total: 0 });
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string>();
+
+  useEffect(() => {
+    const controller = new AbortController();
+    const params = new URLSearchParams({
+      page: String(state.pagination.pageIndex + 1),
+      size: String(state.pagination.pageSize),
+      q: state.search,
+      sort: state.sorting.map((s) => (s.desc ? '-' : '') + s.id).join(','),
+      filters: JSON.stringify(state.filters),
+    });
+    setLoading(true);
+    fetch(`/api/orders?${params}`, { signal: controller.signal })
+      .then((res) => res.json())
+      .then((data: { rows: Order[]; total: number }) => {
+        setPage(data);
+        setError(undefined);
+        setLoading(false);
+      })
+      .catch((err: Error) => {
+        if (err.name === 'AbortError') return;
+        setError('Server javob bermadi');
+        setLoading(false);
+      });
+    return () => controller.abort();
+  }, [state]);
+
+  return (
+    <DataTable
+      label="Buyurtmalar"
+      data={page.rows}
+      rowCount={page.total}
+      columns={columns}
+      manual
+      searchable
+      pagination={{ pageSize: 25 }}
+      loading={loading}
+      error={error}
+      onRetry={() => setState({ ...state })}
+      onStateChange={setState}
+    />
+  );
+}
+```
+
+<Callout title="Server rejimida filtr variantlari" type="warn">
+  `manual` da jadval faqat joriy sahifani ko'radi, shuning uchun `select` / `multiselect` filtrlari
+  uchun `filterOptions` ni albatta bering — aks holda variantlar faqat ko'rinib turgan qatorlardan
+  yig'iladi. Variantlar yonidagi qatorlar soni bu rejimda ko'rsatilmaydi.
+</Callout>
+
+## Virtual scroll — 10 000 qator
+
+Hamma ma'lumot brauzerda bo'lsa-yu, sahifalash kerak bo'lmasa — `virtual`. DOM'da faqat
+ko'rinadigan qatorlar (va bir oz zaxira, `virtual={{ overscan: 10 }}`) chiziladi, saralash,
+qidiruv va filtr esa butun ma'lumot bo'yicha ishlaydi. Balandlik — `maxHeight` (standart 480px),
+sarlavha yopishqoq. `virtual` bilan `pagination` e'tiborsiz qoldiriladi.
+
+<ComponentPreview name="data-table/virtual" align="start" />
+
+Ro'yxat jadval bo'lmasa, xuddi shu texnika — [VirtualList](./virtual-list.mdx).
+
+## Zichlik, yopishqoq ustun va ustunlarni yashirish
+
+- `density="compact"` — 40px qatorlar (standart `comfortable` — 52px).
+- `stickyFirstColumn` — gorizontal scroll'da birinchi ustun (va tanlash Checkbox'i) joyida qoladi.
+  Tor ekranda demoni yon tomonga suring.
+- "Ustunlar" menyusi (`columnToggle`, standart yoqiq) ustunlarni ko'rsatadi/yashiradi;
+  `hideable: false` ustun ro'yxatda chiqmaydi, `hidden: true` — boshida yashirin.
+- `maxHeight` berilsa, sarlavha jadval ichida yopishqoq bo'ladi.
+
+<ComponentPreview name="data-table/density" align="start" />
+
+## Telefonda kartalar
+
+Standart holatda tor ekranda jadval gorizontal scroll bo'ladi. `mobileView="cards"` — 640px dan
+tor ekranda har bir qator karta ko'rinishida (sarlavha: qiymat). Brauzer oynasini toraytirib
+ko'ring.
+
+<ComponentPreview name="data-table/cards" align="start" />
+
+## Props
+
+Qolgan `<div>` atributlarini qabul qiladi (ildizga). `className` — ildizga, `tableClassName` —
+`<table>` ga.
+
+### Ma'lumot
+
+<PropsTable
+  rows={[
+    { name: 'data', type: 'readonly T[]', required: true, description: 'Qatorlar' },
+    {
+      name: 'columns',
+      type: 'readonly DataTableColumn<T>[]',
+      required: true,
+      description: 'Ustunlar (yuqoridagi jadval)',
+    },
+    {
+      name: 'getRowId',
+      type: '(row: T, index: number) => string',
+      description: "Qator id'si (tanlash uchun). Standart — row.id, bo'lmasa tartib raqami",
+    },
+    { name: 'label', type: 'string', description: "Jadval nomi (ekran o'quvchi uchun)" },
+  ]}
+/>
+
+### Imkoniyatlar
+
+<PropsTable
+  rows={[
+    {
+      name: 'searchable',
+      type: 'boolean',
+      default: 'false',
+      description: "Umumiy qidiruv (300ms, o'zbekcha normallashtirish)",
+    },
+    { name: 'selectable', type: 'boolean', default: 'false', description: 'Checkbox ustuni' },
+    { name: 'selectedIds', type: 'string[]', description: 'Tanlangan qatorlar (boshqariladigan)' },
+    { name: 'defaultSelectedIds', type: 'string[]' },
+    { name: 'onSelectionChange', type: '(ids: string[], rows: T[]) => void' },
+    {
+      name: 'bulkActions',
+      type: '(rows: T[], clearSelection: () => void) => ReactNode',
+      description: 'Ommaviy amallar paneli',
+    },
+    {
+      name: 'pagination',
+      type: 'false | { pageSize?: number; pageSizeOptions?: number[] }',
+      description: "Sahifalash; berilmasa — o'chiq",
+    },
+    {
+      name: 'virtual',
+      type: 'boolean | { overscan?: number }',
+      default: 'false',
+      description: "Virtual scroll (sahifalash o'rniga)",
+    },
+    {
+      name: 'maxHeight',
+      type: 'number | string',
+      description: "Jadval qismi balandligi; virtual da standart 480. Sarlavha yopishqoq bo'ladi",
+    },
+    {
+      name: 'columnToggle',
+      type: 'boolean',
+      default: 'true',
+      description: '"Ustunlar" menyusi',
+    },
+    {
+      name: 'initialState',
+      type: 'Partial<DataTableState>',
+      description: "Boshlang'ich saralash, qidiruv, filtr, sahifa",
+    },
+    {
+      name: 'onRowClick',
+      type: '(row: T) => void',
+      description: 'Qator bosilganda (yoki Enter)',
+    },
+    { name: 'rowActions', type: '(row: T) => ReactNode', description: 'Qator oxiridagi amallar' },
+    {
+      name: 'toolbar',
+      type: 'ReactNode',
+      description: 'Asboblar panelidagi qo\'shimcha elementlar (masalan "Qo\'shish")',
+    },
+  ]}
+/>
+
+### Server rejimi
+
+<PropsTable
+  rows={[
+    {
+      name: 'manual',
+      type: 'boolean',
+      default: 'false',
+      description: "Saralash/filtr/sahifa ma'lumotga qo'llanmaydi",
+    },
+    { name: 'rowCount', type: 'number', description: 'manual da jami yozuvlar soni' },
+    {
+      name: 'onStateChange',
+      type: '(state: DataTableState) => void',
+      description: "Holat o'zgarganda (har qanday rejimda)",
+    },
+  ]}
+/>
+
+### Holatlar va ko'rinish
+
+<PropsTable
+  rows={[
+    {
+      name: 'loading',
+      type: 'boolean',
+      default: 'false',
+      description: "Ma'lumot yo'q — Skeleton; bor — shaffof + progress",
+    },
+    { name: 'error', type: 'ReactNode', description: 'Xato matni yoki true' },
+    { name: 'onRetry', type: '() => void', description: '"Qayta urinish" tugmasi' },
+    {
+      name: 'empty',
+      type: 'DataTableEmptyState',
+      description: "Bo'sh holat: { icon, title, description, action } (hammasi ReactNode)",
+    },
+    {
+      name: 'density',
+      type: "'comfortable' | 'compact'",
+      default: "'comfortable'",
+      description: 'Qator balandligi: 52 / 40px',
+    },
+    { name: 'stickyFirstColumn', type: 'boolean', default: 'false' },
+    {
+      name: 'mobileView',
+      type: "'table' | 'cards'",
+      default: "'table'",
+      description: "Telefonda (< 640px) ko'rinish",
+    },
+    { name: 'labels', type: 'DataTableLabels', description: 'Barcha matnlar' },
+    { name: 'tableClassName', type: 'string', description: '<table> klassi' },
+  ]}
+/>
+
+### Matnlar (`labels`)
+
+Barcha matnlar o'zbekcha standartga ega; faqat kerakli kalitlarni almashtirasiz. Son bilan
+bog'liqlari — funksiya:
+
+```tsx
+<DataTable
+  labels={{
+    search: "Mijoz, № yoki viloyat bo'yicha",
+    selected: (n) => `${n} ta buyurtma tanlandi`,
+    range: (from, to, total) => `${from}–${to}, jami ${total}`,
+  }}
+/>
+```
+
+Kalitlar: `search`, `searchAria`, `filters`, `columns`, `selectAll`, `selectRow`, `selected`,
+`clearSelection`, `emptyTitle`, `emptyDescription`, `noResultsTitle`, `noResultsDescription`,
+`clearFilters`, `errorTitle`, `retry`, `range`, `total`, `noRows`, `pageSize`, `prevPage`,
+`nextPage`, `page`, `pagination`, `rowActions`, `loading`, `all`, `min`, `max`, `from`, `to`,
+`removeFilter`.
+
+### Data atributlari
+
+| Atribut         | Element          | Qiymat                   |
+| --------------- | ---------------- | ------------------------ |
+| `data-row-id`   | `tr`             | qator id'si              |
+| `data-selected` | `tr`             | tanlangan qatorda mavjud |
+| `data-sorted`   | saralash tugmasi | `asc` · `desc`           |
+
+`data-slot`: `data-table`, `data-table-toolbar`, `data-table-bulk`, `data-table-scroll`,
+`data-table-footer`, `data-table-state`.
+
+## Klaviatura
+
+| Tugma                | Harakat                                                  |
+| -------------------- | -------------------------------------------------------- |
+| `Tab`                | Qidiruv, filtrlar, sarlavha tugmalari, qatorlar, amallar |
+| `Enter` (sarlavhada) | Saralash: o'sish → kamayish → o'chiq                     |
+| `Enter` (qatorda)    | `onRowClick`                                             |
+| `Space` (qatorda)    | Qatorni tanlash (`selectable`)                           |
+
+Qatorlar faqat `onRowClick` yoki `selectable` bo'lganda fokuslanadi.
+
+## Accessibility
+
+- **Haqiqiy `<table>`** — `<th scope="col">`, jadval nomi `label` orqali (`aria-label`).
+- **Saralash** holati sarlavhada `aria-sort` (`ascending` / `descending` / `none`) bilan;
+  saralanadigan sarlavha — `<button>`.
+- **Yuklanish** — jadvalda `aria-busy`, qayta yuklanishdagi chiziq — `role="progressbar"`.
+- **Holat xabarlari** (bo'sh, topilmadi) — `role="status"`, xato — `role="alert"`.
+- **Tanlash:** har bir Checkbox'da `"Qatorni tanlash: <id>"`, sarlavhada "Hammasini tanlash";
+  "N ta tanlandi" `aria-live` bilan e'lon qilinadi.
+- **Sahifalash** — `<nav aria-label="Sahifalash">`, joriy sahifa `aria-current="page"`,
+  "1–10 / 248" `aria-live` hududida.
+- **Filtrlar:** har bir guruh nomlangan, faol filtr badge'ining ✕ tugmasi "Holat filtrini olib
+  tashlash" kabi nomga ega.
+- **Virtual rejim** — `aria-rowcount` va har qatorda `aria-rowindex`: ekran o'quvchi umumiy
+  qatorlar sonini biladi.

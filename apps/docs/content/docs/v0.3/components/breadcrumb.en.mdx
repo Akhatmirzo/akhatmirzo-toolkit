@@ -3,7 +3,7 @@ title: Breadcrumb
 description: A trail that shows where the user is in the site hierarchy — with collapsing, an overflow menu and Next.js Link support.
 ---
 
-<ComponentPreview name="breadcrumb/basic" />
+<ComponentPreview name="archive/v0.3/breadcrumb/basic" />
 
 ## Import
 
@@ -29,7 +29,7 @@ not a link and gets `aria-current="page"`. An item with `onClick` but no `href` 
 When there are more than `maxItems`: first + `…` + the last `maxItems - 2` (at least 1). Clicking
 `…` opens the hidden pages in a [`DropdownMenu`](./dropdown-menu.mdx).
 
-<ComponentPreview name="breadcrumb/collapse" />
+<ComponentPreview name="archive/v0.3/breadcrumb/collapse" />
 
 On phones (`< 640px`) the trail automatically collapses to `…` + parent + current. This is done with
 a CSS breakpoint, so there is no SSR hydration mismatch. Long labels are truncated (links at `20ch`,
@@ -39,7 +39,7 @@ the current page at `32ch`).
 
 `separator` accepts any `ReactNode` (default — a `›` chevron). `size="sm"` uses `text-xs`.
 
-<ComponentPreview name="breadcrumb/separator" />
+<ComponentPreview name="archive/v0.3/breadcrumb/separator" />
 
 ## Next.js Link
 

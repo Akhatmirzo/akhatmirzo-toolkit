@@ -3,7 +3,7 @@
 import { formatMoney } from '@akhatmirzo/core';
 import { Card, Skeleton } from '@akhatmirzo/ui';
 import { Cell, Pie, PieChart, ResponsiveContainer, Tooltip } from 'recharts';
-import { ChartTooltip, chartColors } from '../../shared/chart';
+import { ChartTooltip, chartColors } from '@akhatmirzo/ui/charts';
 import { formatCompact } from './analytics';
 
 interface Slice {

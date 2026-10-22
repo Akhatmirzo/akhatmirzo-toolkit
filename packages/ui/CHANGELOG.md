@@ -1,5 +1,19 @@
 # @akhatmirzo/ui
 
+## 0.4.0
+
+### Minor Changes
+
+- Yangi kirish nuqtasi `@akhatmirzo/ui/form`: `Form`, `FormField`, `FormSubmit`, `FormRootError`, `useFormField` (react-hook-form — ixtiyoriy peer).
+- Yangi komponentlar: TagInput, Rating, ColorPicker, ContextMenu, HoverCard, AppShell + Sidebar; grafiklar uchun alohida kirish nuqtasi `@akhatmirzo/ui/charts` (AreaChart, BarChart, LineChart, DonutChart, Sparkline va primitivlar; `recharts` — ixtiyoriy peer).
+
+### Patch Changes
+
+- Updated dependencies
+- Updated dependencies
+  - @akhatmirzo/core@0.3.0
+  - @akhatmirzo/hooks@0.2.0
+
 ## 0.3.0
 
 ### Minor Changes

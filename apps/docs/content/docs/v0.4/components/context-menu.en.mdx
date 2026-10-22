@@ -1,0 +1,188 @@
+---
+title: ContextMenu
+description: An actions menu opened with a right click (or a long press) — same API and look as DropdownMenu.
+---
+
+<ComponentPreview name="context-menu/basic" />
+
+## Import
+
+```tsx
+import { ContextMenu } from '@akhatmirzo/ui';
+```
+
+## When to use
+
+- **Quick actions on a file, card or table row** — desktop users expect the right click.
+- **Only as an extra path.** Not everyone discovers right-click menus, and on phones they open with
+  a long press. Make important actions available elsewhere too — a button or a
+  [`DropdownMenu`](./dropdown-menu.mdx).
+- **Need a menu that opens on a button click?** Use [`DropdownMenu`](./dropdown-menu.mdx). Both
+  share the same parts, so you can write the actions once and use them in both places.
+
+## Anatomy
+
+Parts, props and styles match [`DropdownMenu`](./dropdown-menu.mdx) (the styles come from a shared
+module). The difference: `Trigger` is not a button but the **area** you right-click, and the panel
+opens at the pointer.
+
+| Part                                            | What it does                                            |
+| ----------------------------------------------- | ------------------------------------------------------- |
+| `ContextMenu`                                   | State: `onOpenChange`, `modal`, `dir`                   |
+| `ContextMenu.Trigger`                           | The area (an unstyled `<span>`; usually with `asChild`) |
+| `ContextMenu.Content`                           | The panel: portal, opens at the pointer, looping nav    |
+| `ContextMenu.Item`                              | An action: `icon`, `shortcut`, `variant`, `onSelect`    |
+| `ContextMenu.CheckboxItem`                      | A toggleable item (✓)                                   |
+| `ContextMenu.RadioGroup` / `RadioItem`          | One choice out of several (●)                           |
+| `ContextMenu.Label` / `Group` / `Separator`     | Heading, group and divider                              |
+| `ContextMenu.Sub` / `SubTrigger` / `SubContent` | A submenu                                               |
+
+```tsx
+<ContextMenu>
+  <ContextMenu.Trigger asChild>
+    <Card>…file…</Card>
+  </ContextMenu.Trigger>
+  <ContextMenu.Content>
+    <ContextMenu.Item icon={<Pencil />} shortcut={['mod', 'E']}>
+      Edit
+    </ContextMenu.Item>
+    <ContextMenu.Separator />
+    <ContextMenu.Item variant="danger">Delete</ContextMenu.Item>
+  </ContextMenu.Content>
+</ContextMenu>
+```
+
+## Checkable items
+
+`CheckboxItem` (`checked` / `onCheckedChange`) and `RadioGroup` (`value` / `onValueChange`, or
+`defaultValue`) work well for view settings.
+
+<ComponentPreview name="context-menu/checkbox-radio" />
+
+## Table row: two ways in
+
+Right-click a row for the ContextMenu, or use the "⋯" button for a DropdownMenu with the same
+actions. Since the part names match, the actions live in a single component. The submenu opens with
+`→` or on hover.
+
+<ComponentPreview name="context-menu/table-row" />
+
+<Callout title="On phones">
+  On touch screens the menu opens with a long press. That gesture is hidden, so offer the actions
+  through a visible button as well.
+</Callout>
+
+## Props
+
+### ContextMenu
+
+The Radix ContextMenu `Root` props: `onOpenChange`, `modal` (defaults to `true`) and `dir`. The
+menu opens only from a user gesture.
+
+### ContextMenu.Trigger
+
+<PropsTable
+  rows={[
+    {
+      name: 'asChild',
+      type: 'boolean',
+      default: 'false',
+      description: 'Uses the child (a card, a row) as the area',
+    },
+    { name: 'disabled', type: 'boolean', description: 'true — the menu does not open' },
+  ]}
+/>
+
+### ContextMenu.Content
+
+Also accepts the rest of the Radix `ContextMenu.Content` props (`alignOffset`, `onCloseAutoFocus`,
+`onEscapeKeyDown` ...), `<div>` attributes and `ref`.
+
+<PropsTable
+  rows={[
+    {
+      name: 'collisionPadding',
+      type: 'number',
+      default: '8',
+      description: 'Minimum distance from the screen edge, px',
+    },
+    {
+      name: 'loop',
+      type: 'boolean',
+      default: 'true',
+      description: '↑ ↓ wrap around from the last item to the first',
+    },
+    {
+      name: 'container',
+      type: 'HTMLElement | null',
+      description: 'Portal container (defaults to document.body)',
+    },
+  ]}
+/>
+
+### ContextMenu.Item
+
+<PropsTable
+  rows={[
+    { name: 'icon', type: 'ReactNode', description: 'Leading icon (16px)' },
+    {
+      name: 'shortcut',
+      type: 'string[]',
+      description: "A Kbd label on the right, e.g. ['mod', 'E']",
+    },
+    {
+      name: 'variant',
+      type: "'default' | 'danger'",
+      default: "'default'",
+      description: 'danger — red text and highlight',
+    },
+    {
+      name: 'onSelect',
+      type: '(event: Event) => void',
+      description: 'Called on select. preventDefault() keeps the menu open',
+    },
+    { name: 'disabled', type: 'boolean', description: 'Disables the item' },
+    {
+      name: 'asChild',
+      type: 'boolean',
+      default: 'false',
+      description: 'Renders the child (e.g. an <a>) as the item',
+    },
+  ]}
+/>
+
+The props of `CheckboxItem`, `RadioGroup`, `RadioItem`, `Sub`, `SubTrigger` and `SubContent` are
+the same as in [`DropdownMenu`](./dropdown-menu.mdx).
+
+### Data attributes
+
+| Attribute          | Where              | Value                         |
+| ------------------ | ------------------ | ----------------------------- |
+| `data-state`       | trigger, panel     | `open` · `closed`             |
+| `data-variant`     | item               | `default` · `danger`          |
+| `data-highlighted` | item               | under the keyboard or pointer |
+| `data-disabled`    | item, trigger      | present when disabled         |
+| `data-state`       | Checkbox/RadioItem | `checked` · `unchecked`       |
+
+## Keyboard
+
+| Key               | Action                                       |
+| ----------------- | -------------------------------------------- |
+| `Shift` + `F10`   | Opens the menu on the focused area (browser) |
+| `↓` / `↑`         | Move between items (wraps around)            |
+| `Home` / `End`    | First / last item                            |
+| Letter            | Jump to the item starting with that letter   |
+| `→` / `←`         | Open / close a submenu                       |
+| `Enter` / `Space` | Select and close                             |
+| `Esc`             | Close                                        |
+
+## Accessibility
+
+- **Roles.** The panel is `role="menu"`, items are `menuitem`, `menuitemcheckbox`,
+  `menuitemradio`. Built on Radix ContextMenu.
+- **Hard to discover.** A right-click menu is invisible to screen reader and keyboard users — always
+  provide important actions another way too.
+- **Shortcuts.** With `shortcut`, the item gets `aria-keyshortcuts`; the visible `Kbd` is hidden
+  from screen readers. The label does not listen for the key — wire it up with
+  [`useHotkeys`](../hooks.mdx).
+- **Icons** are `aria-hidden`.

@@ -29,7 +29,7 @@ import {
 
 Matnni yozing yoki pastdagi namunalardan birini tanlang:
 
-<ComponentPreview name="core/translit" />
+<ComponentPreview name="archive/v0.3/core/translit" />
 
 ### cyrToLat
 
@@ -110,7 +110,7 @@ normalizeUz("O'zbekiston"); // 'ozbekiston'
 
 ## Alifbo va apostroflar
 
-<ComponentPreview name="core/script" />
+<ComponentPreview name="archive/v0.3/core/script" />
 
 ### detectScript
 
@@ -208,7 +208,7 @@ Qism satr qidiruvi: registr, apostrof varianti va yozuv (kirill/lotin) farqi his
 kirillcha matnda lotincha so'rovni ham to'g'ri ajratib ko'rsatish mumkin. Bo'sh so'rov hamma
 narsaga mos keladi. `Combobox` qidiruvi va `DataTable` filtri shu funksiyada ishlaydi.
 
-<ComponentPreview name="core/search" />
+<ComponentPreview name="archive/v0.3/core/search" />
 
 ```ts
 searchMatch('Toshkent', 'тош'); // { match: true, ranges: [[0, 4]] }
@@ -233,7 +233,7 @@ bo'lishi mumkin. So'z boshidagi va ketma-ket mosliklar yuqoriroq ball oladi. Mos
 `null`. Normallashtirish `searchMatch` bilan bir xil, so'rovdagi bo'shliqlar e'tiborga olinmaydi.
 `CommandPalette` shu bilan ishlaydi.
 
-<ComponentPreview name="core/fuzzy" />
+<ComponentPreview name="archive/v0.3/core/fuzzy" />
 
 ```ts
 fuzzyMatch('Yangi buyurtma', 'ybu'); // { score: 23, ranges: [[0, 1], [6, 8]] }
@@ -276,7 +276,7 @@ export function Highlight({ text, query }: { text: string; query: string }) {
 
 ## Matn yordamchilari
 
-<ComponentPreview name="core/truncate" />
+<ComponentPreview name="archive/v0.3/core/truncate" />
 
 ### slugify
 

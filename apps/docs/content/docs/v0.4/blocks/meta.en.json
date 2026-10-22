@@ -1,0 +1,15 @@
+{
+  "title": "Blocks",
+  "pages": [
+    "index",
+    "login",
+    "register",
+    "otp-verify",
+    "pricing",
+    "dashboard-stats",
+    "settings-profile",
+    "data-table-page",
+    "checkout-summary",
+    "app-shell-layout"
+  ]
+}

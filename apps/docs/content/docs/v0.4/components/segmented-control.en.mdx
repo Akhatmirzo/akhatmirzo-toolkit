@@ -1,0 +1,141 @@
+---
+title: SegmentedControl
+description: Pick one of a few options — a sliding indicator, icons and the same sizes as Button.
+---
+
+<ComponentPreview name="segmented-control/basic" />
+
+## Import
+
+```tsx
+import { SegmentedControl } from '@akhatmirzo/ui';
+```
+
+## When to use
+
+- **View modes** — "Grid / List / Map". The choice applies immediately.
+- **Filters or periods** — "Day / Week / Month", "All / Paid / Unpaid".
+- **Keep it to 2–5 short options.** For more or longer ones use a [`Select`](./select.mdx) or a
+  [`RadioGroup`](./radio-group.mdx).
+- **Not for on/off** — a two-state setting is a [`Switch`](./switch.mdx).
+
+## How it differs from Tabs
+
+They can look the same, but they do different jobs:
+
+|              | `Tabs`                                | `SegmentedControl`                        |
+| ------------ | ------------------------------------- | ----------------------------------------- |
+| What it does | Switches content **panels**           | Picks a **value** (filter, mode, period)  |
+| Semantics    | `tablist` / `tab` / `tabpanel`        | `radiogroup` / `radio`                    |
+| Result       | A different section of the page shows | The same content is refiltered or redrawn |
+| Forms        | No                                    | Submits a value with `name`               |
+
+Rule of thumb: if the choice reveals **different content**, use [`Tabs`](./tabs.mdx); if **the same
+content** changes how it looks or what it shows, use `SegmentedControl`.
+
+## Sizes
+
+`size` — `sm` (32px), `md` (40px, default), `lg` (48px). The heights match [`Button`](./button.mdx)
+and `Input`, so they line up in one row.
+
+<ComponentPreview name="segmented-control/sizes" align="start" />
+
+## Icons
+
+`icon` adds an icon before the text. Icon-only items **require** an `aria-label` — TypeScript
+enforces it.
+
+<ComponentPreview name="segmented-control/icons" />
+
+## Full width
+
+`fullWidth` fills the container and splits it evenly between items. Handy in mobile forms.
+
+<ComponentPreview name="segmented-control/full-width" align="start" />
+
+## Controlled
+
+`value` + `onValueChange` — you keep the selection. Clicking the selected item again doesn't clear
+it: one value is always selected.
+
+<ComponentPreview name="segmented-control/controlled" align="start" />
+
+## Disabled
+
+Pass `disabled` to the whole group or to a single `SegmentedControl.Item`. Disabled items can't be
+clicked and the keyboard skips them.
+
+<ComponentPreview name="segmented-control/disabled" align="start" />
+
+## Props
+
+### SegmentedControl
+
+Other `<div>` attributes and Radix `RadioGroup` props (`name`, `required`, `loop`, `dir`) are passed
+through; `ref` points to the root element.
+
+<PropsTable
+  rows={[
+    { name: 'value', type: 'string', description: 'Selected value (controlled mode)' },
+    { name: 'defaultValue', type: 'string', description: 'Initial value' },
+    {
+      name: 'onValueChange',
+      type: '(value: string) => void',
+      description: 'When the selection changes',
+    },
+    {
+      name: 'size',
+      type: "'sm' | 'md' | 'lg'",
+      default: "'md'",
+      description: 'Height: 32 / 40 / 48px',
+    },
+    {
+      name: 'fullWidth',
+      type: 'boolean',
+      default: 'false',
+      description: 'Fills the width, items share it evenly',
+    },
+    { name: 'disabled', type: 'boolean', description: 'Disables the whole group' },
+    { name: 'name', type: 'string', description: 'For forms (hidden radio input)' },
+    { name: 'aria-label', type: 'string', description: 'Group name (e.g. Period or View)' },
+  ]}
+/>
+
+### SegmentedControl.Item
+
+<PropsTable
+  rows={[
+    { name: 'value', type: 'string', required: true, description: 'Item value' },
+    { name: 'icon', type: 'ReactNode', description: 'Icon before the text' },
+    { name: 'disabled', type: 'boolean', description: 'Disables the item' },
+    { name: 'aria-label', type: 'string', description: 'Required for icon-only items' },
+  ]}
+/>
+
+### Data attributes
+
+| Attribute         | Where      | Value                         |
+| ----------------- | ---------- | ----------------------------- |
+| `data-size`       | root       | `sm` · `md` · `lg`            |
+| `data-full-width` | root       | present with `fullWidth`      |
+| `data-disabled`   | root, item | present when disabled         |
+| `data-state`      | item       | `checked` · `unchecked`       |
+| `data-slot`       | indicator  | `segmented-control-indicator` |
+
+## Keyboard
+
+| Key               | Action                                                   |
+| ----------------- | -------------------------------------------------------- |
+| `Tab`             | Enter the group (on the selected item) and leave it      |
+| `←` `↑` / `→` `↓` | Previous / next item — selected as soon as it gets focus |
+
+## Accessibility
+
+- **Roles.** The root is `role="radiogroup"`, each item `role="radio"` (`aria-checked`). Built on
+  Radix RadioGroup: single selection with roving focus — the group is one `Tab` stop.
+- **Name.** Give the group an `aria-label` ("Period"). Inside a [`Field`](./field.mdx) the label
+  names the group and the description is linked through `aria-describedby`.
+- **Icon-only items** need an `aria-label` (checked by TypeScript).
+- **The indicator** is decorative — `aria-hidden`. It measures the selected item and slides over
+  200ms; it re-measures when sizes change (window width, font loading). With
+  `prefers-reduced-motion` it jumps without animating.

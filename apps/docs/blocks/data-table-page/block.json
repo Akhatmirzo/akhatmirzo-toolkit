@@ -1,0 +1,13 @@
+{
+  "name": "data-table-page",
+  "title": {
+    "uz": "Jadval sahifasi",
+    "en": "Data table page"
+  },
+  "description": {
+    "uz": "Sarlavha, qidiruv va filtrlar, DataTable, Pagination va bo'sh natija holati.",
+    "en": "Page header, search and filters, DataTable, Pagination and an empty result state."
+  },
+  "dependencies": ["@akhatmirzo/core", "lucide-react"],
+  "category": "data"
+}

@@ -1,0 +1,179 @@
+---
+title: Zod schemas
+description: 'zUz — ready-made zod (v4) schemas for phone, PINFL, passport, card, money and region, with Uzbek error messages.'
+---
+
+`@akhatmirzo/core/zod` provides ready-made [zod](https://zod.dev) (v4) schemas for forms. Each
+one builds on the `isValidX` / `parseX` functions from `@akhatmirzo/core` (the validation logic
+lives in one place), error messages are in Uzbek, and the output is a **clean value** ready for
+your API: phone `"998901234567"`, money `1250000`.
+
+<Install pkg="zod" />
+
+`zod` is an optional peer dependency: the main `@akhatmirzo/core` import never pulls it in.
+
+```ts
+import { zUz } from '@akhatmirzo/core/zod';
+import { z } from 'zod';
+
+const schema = z.object({
+  phone: zUz.phone(),
+  pinfl: zUz.pinfl(),
+  amount: zUz.money({ min: 1000 }),
+});
+
+schema.parse({ phone: '+998 90 123-45-67', pinfl: '31503 90123 4567', amount: '1 250 000' });
+// { phone: '998901234567', pinfl: '31503901234567', amount: 1250000 }
+```
+
+<ComponentPreview name="core/zod" />
+
+With [`Form`](../components/form.mdx): `useForm({ resolver: zodResolver(schema) })` —
+`FormField` shows the error message and `onSubmit` receives the cleaned values.
+
+## Common rules
+
+- **Empty values** (`''`, `null`, `undefined`) produce the `required` error, bad values produce
+  `invalid`. Spaces and dashes are ignored.
+- **Override messages** with the `messages` option (pass only the keys you need):
+
+```ts
+zUz.phone({ messages: { invalid: 'Mobile numbers only' } });
+zUz.money({ min: 1000, messages: { min: (min) => `At least ${min} so'm` } });
+```
+
+- **Optional fields.** An empty form field is `''`, not `undefined`, so use
+  `.or(z.literal(''))` instead of `.optional()`: `zUz.inn().or(z.literal(''))`.
+- **Input and output types differ:** `z.input<typeof schema>` is the form value (`number |
+string | null` for `money`), `z.output<typeof schema>` is what `onSubmit` gets (`number`).
+
+## Schemas
+
+| Schema                       | Check                                   | Output                   | Default message (`required` / `invalid`)                         |
+| ---------------------------- | --------------------------------------- | ------------------------ | ---------------------------------------------------------------- |
+| `zUz.phone()`                | `parsePhone(v).valid`                   | `'998901234567'`         | Telefon raqamini kiriting / Telefon raqami noto'g'ri             |
+| `zUz.pinfl({ checksum })`    | `isValidPinfl(v, { checksum })`         | `'31503901234567'`       | JShShIRni kiriting / JShShIR noto'g'ri                           |
+| `zUz.inn()`                  | `isValidInn`                            | `'123456789'`            | STIRni kiriting / STIR noto'g'ri                                 |
+| `zUz.passport()`             | `isValidPassport`                       | `'AA1234567'`            | Pasport seriya va raqamini kiriting / … noto'g'ri                |
+| `zUz.carPlate()`             | `isValidCarPlate`                       | `'01A123BC'`             | Avtomobil raqamini kiriting / Avtomobil raqami noto'g'ri         |
+| `zUz.bankAccount()`          | `isValidBankAccount` (20 digits)        | `'20208000900012345001'` | Hisob raqamini kiriting / … 20 ta raqamdan iborat bo'lishi kerak |
+| `zUz.mfo()`                  | `isValidMfo` (5 digits)                 | `'00014'`                | MFOni kiriting / MFO 5 ta raqamdan iborat bo'lishi kerak         |
+| `zUz.card()`                 | `isValidCardNumber` (16 digits + Luhn)  | `'4111111111111111'`     | Karta raqamini kiriting / Karta raqami noto'g'ri                 |
+| `zUz.email()`                | `isValidEmail`                          | trimmed                  | Email manzilini kiriting / Email manzili noto'g'ri               |
+| `zUz.password({ minScore })` | `passwordStrength(v).score >= minScore` | unchanged                | Parolni kiriting / Parol juda oddiy — …                          |
+| `zUz.money({ min, max })`    | number or `"1 250 000"` text            | `number`                 | Summani kiriting / Summa noto'g'ri                               |
+| `zUz.region()`               | an `id` from `UZ_REGIONS`               | `UzRegionId`             | Hududni tanlang / Hudud noto'g'ri                                |
+
+### zUz.phone
+
+```ts
+function phone(options?: { messages?: Partial<{ required: string; invalid: string }> }): ZodType;
+```
+
+An Uzbek mobile number: 9 digits with a known operator code. Accepts `+998`, spaces, brackets
+and dashes. Works with [`PhoneInput`](../components/masked-input.mdx).
+
+```ts
+zUz.phone().parse('+998 90 123-45-67'); // '998901234567'
+zUz.phone().parse('901234567'); // '998901234567'
+zUz.phone().safeParse('+998 12 123 45 67').success; // false — unknown operator
+```
+
+### zUz.pinfl
+
+```ts
+function pinfl(options?: { checksum?: boolean; messages?: Partial<ZUzMessages> }): ZodType;
+```
+
+PINFL: 14 digits, the first is 3–6, digits 2–7 are a real date. `checksum: true` also checks
+the control digit (the algorithm is unverified, see [identifiers](./identifiers.mdx)).
+
+```ts
+zUz.pinfl().parse('31503 90123 4567'); // '31503901234567'
+zUz.pinfl().safeParse('33102901234567').success; // false — there is no Feb 31
+```
+
+### zUz.inn · zUz.passport · zUz.carPlate · zUz.bankAccount · zUz.mfo
+
+```ts
+zUz.inn().parse('123 456 789'); // '123456789'
+zUz.passport().parse('aa 123-45-67'); // 'AA1234567'
+zUz.carPlate().parse('01 a 123 bc'); // '01A123BC'
+zUz.carPlate().parse('30 123 abc'); // '30123ABC'
+zUz.bankAccount().parse('2020 8000 9000 1234 5001'); // '20208000900012345001'
+zUz.mfo().parse('00014'); // '00014' — leading zeros are kept
+```
+
+The output is upper-cased with spaces and dashes removed — the same shape the document inputs
+emit from `onValueChange`.
+
+### zUz.card
+
+A card number: exactly 16 digits and a valid Luhn checksum. The output is digits only.
+
+```ts
+zUz.card().parse('4111 1111 1111 1111'); // '4111111111111111'
+zUz.card().safeParse('4111 1111 1111 1112').success; // false — Luhn
+```
+
+### zUz.email
+
+```ts
+zUz.email().parse(' sarvar@mail.uz '); // 'sarvar@mail.uz'
+```
+
+### zUz.password
+
+```ts
+function password(options?: {
+  minScore?: 0 | 1 | 2 | 3 | 4; // default 2 — "O'rtacha"
+  messages?: Partial<{ required: string; weak: string }>;
+}): ZodType;
+```
+
+Fails with `weak` when the [`passwordStrength`](./validate.mdx) score is below `minScore`. The
+value is not changed.
+
+```ts
+zUz.password().safeParse('parol').success; // false
+zUz.password({ minScore: 3 }).parse('Parol123!'); // 'Parol123!'
+```
+
+### zUz.money
+
+```ts
+function money(options?: {
+  min?: number;
+  max?: number;
+  messages?: Partial<{
+    required: string;
+    invalid: string;
+    min: string | ((min: number) => string);
+    max: string | ((max: number) => string);
+  }>;
+}): ZodType<number, number | string | null | undefined>;
+```
+
+Accepts a number or text: spaces (including non-breaking ones) and a trailing `so'm` / `UZS` are
+stripped. The decimal separator is a comma or a dot; when both appear, the last one is the decimal
+separator and the others group thousands (`'1,250,000.50'`, `'1.250.000,50'`). An empty value
+fails with the `required` message. Works directly with the `number | null` value of
+[`MoneyInput`](../components/masked-input.mdx).
+
+```ts
+zUz.money().parse('1 250 000'); // 1250000
+zUz.money().parse("1 250 000 so'm"); // 1250000
+zUz.money().parse('1250,5'); // 1250.5
+zUz.money().parse('1,250,000.50'); // 1250000.5
+zUz.money({ min: 1000 }).safeParse(500).error?.issues[0]?.message; // "Eng kam summa — 1 000 so'm"
+```
+
+### zUz.region
+
+A region `id` from `UZ_REGIONS`. Input is a `string` (an empty form value `''` too), output is
+`UzRegionId`. Works with [`RegionSelect`](../components/select.mdx).
+
+```ts
+zUz.region().parse('samarkand'); // 'samarkand'
+zUz.region().safeParse('').error?.issues[0]?.message; // 'Hududni tanlang'
+```

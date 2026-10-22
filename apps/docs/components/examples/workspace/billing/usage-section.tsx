@@ -16,7 +16,7 @@ import {
   chartColors,
   cursorProps,
   gridProps,
-} from '@/components/examples/shared/chart';
+} from '@akhatmirzo/ui/charts';
 import { plans, storageHistory, usage } from '../data';
 import { useWorkspace } from '../store';
 import { SettingsSection, UsageBar } from '../ui';

@@ -1,0 +1,186 @@
+---
+title: VirtualList
+description: "Katta ro'yxatlar uchun: 10 000+ qator qotmasdan, chunki faqat ko'rinadigan qatorlar chiziladi."
+---
+
+<ComponentPreview name="virtual-list/basic" align="start" />
+
+## Import
+
+```tsx
+import { VirtualList, type VirtualListHandle } from '@akhatmirzo/ui';
+```
+
+Yuqoridagi ro'yxatda 10 000 ta yozuv, lekin DOM'da bir vaqtda faqat 20 ga yaqin qator bor:
+ko'rinib turganlar va ikki tomonda bir oz zaxira (`overscan`). Scroll paytida qatorlar qayta
+ishlatiladi ([TanStack Virtual](https://tanstack.com/virtual) asosida).
+
+## Qachon ishlatish
+
+- **Yuzlab va minglab elementli ro'yxatlar** — jurnal (log), xabarlar, bildirishnomalar, katalog.
+  100 tagacha element bo'lsa, oddiy ro'yxat yetarli va soddaroq.
+- **Cheksiz yuklash (infinite scroll)** — `onEndReached` va `loadingMore` bilan, sahifalash
+  tugmalarisiz.
+- **Jadval kerak bo'lsa** — ustunlar, saralash, filtr bilan — [DataTable](./data-table.mdx) ning
+  `virtual` rejimini ishlating.
+- **Balandlikni aniq bering:** `height` majburiy — virtual ro'yxat o'z scroll konteyneriga ega
+  bo'lishi kerak.
+- **Har bir qatorga barqaror kalit bering** (`getItemKey`) — ro'yxat o'zgarganda (qo'shish,
+  o'chirish) qatorlar adashmaydi.
+
+## Qatorga o'tish
+
+`ref` — DOM element emas, boshqaruv obyekti (`VirtualListHandle`): `scrollToIndex`,
+`scrollToOffset`, `measure` va scroll konteyneri — `element`. Yuqoridagi demoda raqam yozib,
+`Enter` bosing.
+
+```tsx
+const ref = useRef<VirtualListHandle>(null);
+
+ref.current?.scrollToIndex(4999, { align: 'start' }); // 5000-qator tepada
+ref.current?.scrollToOffset(0); // boshiga
+ref.current?.element?.focus(); // DOM element
+```
+
+## Har xil balandlik
+
+Qatorlar balandligi har xil bo'lsa (xabarlar, izohlar) — `dynamic` bering: har bir qator
+chizilgach haqiqiy o'lchami olinadi. `estimateSize` bu holda faqat boshlang'ich taxmin; u haqiqiy
+o'rtachaga qanchalik yaqin bo'lsa, scroll paneli shunchalik silliq.
+
+<ComponentPreview name="virtual-list/dynamic" align="start" />
+
+<Callout title="Balandlik qatorning o'zida bo'lsin">
+  `dynamic` siz qatorga `estimateSize` balandligi beriladi — qator ichidagi element ham shu
+  balandlikda bo'lsin (`h-12` = 48px). `gap` qatorlar orasidagi masofani beradi; `margin` ishlatmang
+  — u o'lchovga kirmaydi.
+</Callout>
+
+## Cheksiz yuklash
+
+`onEndReached` — oxiriga `endReachedThreshold` (standart 5) qator qolganda chaqiriladi, har bir
+ro'yxat uzunligi uchun **bir marta**. Yuklash paytida `loadingMore` bering: pastda Spinner qatori
+chiqadi va `onEndReached` qayta chaqirilmaydi. Agar yuklash xato bilan tugasa (`loadingMore` false
+bo'ldi, lekin uzunlik o'zgarmadi), keyingi scroll'da yana chaqiriladi — qayta urinish o'zi
+bo'ladi.
+
+<ComponentPreview name="virtual-list/infinite" align="start" />
+
+## Bo'sh holat
+
+`items` bo'sh bo'lsa, `emptyState` (standart — "Ro'yxat bo'sh") ko'rsatiladi.
+
+<ComponentPreview name="virtual-list/empty" />
+
+## Props
+
+Qolgan `<div>` atributlarini qabul qiladi (scroll konteyneriga). `aria-label` /
+`aria-labelledby` ichki ro'yxat elementiga (`role="list"`) beriladi.
+
+<PropsTable
+  rows={[
+    { name: 'items', type: 'readonly T[]', required: true, description: 'Elementlar' },
+    {
+      name: 'renderItem',
+      type: '(item: T, index: number) => ReactNode',
+      required: true,
+      description: 'Qatorni chizish',
+    },
+    {
+      name: 'estimateSize',
+      type: 'number | ((index: number) => number)',
+      required: true,
+      description: 'Taxminiy qator balandligi, px',
+    },
+    {
+      name: 'height',
+      type: 'number | string',
+      required: true,
+      description: 'Konteyner balandligi: px yoki CSS qiymat ("60vh")',
+    },
+    {
+      name: 'overscan',
+      type: 'number',
+      default: '5',
+      description: "Ekrandan tashqarida qo'shimcha chiziladigan qatorlar",
+    },
+    {
+      name: 'dynamic',
+      type: 'boolean',
+      default: 'false',
+      description: "Qatorlar har xil balandlikda — o'lchab olinadi",
+    },
+    {
+      name: 'getItemKey',
+      type: '(item: T, index: number) => string | number',
+      description: 'Qator kaliti (standart — indeks)',
+    },
+    { name: 'gap', type: 'number', default: '0', description: 'Qatorlar orasidagi masofa, px' },
+    {
+      name: 'onEndReached',
+      type: '() => void',
+      description: 'Oxiriga yaqinlashganda (har uzunlik uchun bir marta)',
+    },
+    {
+      name: 'endReachedThreshold',
+      type: 'number',
+      default: '5',
+      description: 'Necha qator qolganda',
+    },
+    {
+      name: 'loadingMore',
+      type: 'boolean',
+      default: 'false',
+      description: 'Pastda Spinner; bu paytda onEndReached chaqirilmaydi',
+    },
+    { name: 'emptyState', type: 'ReactNode', description: "Bo'sh ro'yxat ko'rinishi" },
+    { name: 'onScroll', type: "ComponentProps<'div'>['onScroll']" },
+    {
+      name: 'labels',
+      type: '{ loadingMore?: string; empty?: ReactNode }',
+      default: "{ loadingMore: 'Yuklanmoqda...', empty: \"Ro'yxat bo'sh\" }",
+    },
+    { name: 'listClassName', type: 'string', description: 'role="list" elementi klassi' },
+    {
+      name: 'ref',
+      type: 'Ref<VirtualListHandle>',
+      description: 'Boshqaruv obyekti; DOM — handle.element',
+    },
+  ]}
+/>
+
+### VirtualListHandle
+
+<PropsTable
+  rows={[
+    { name: 'element', type: 'HTMLDivElement | null', description: 'Scroll konteyneri' },
+    {
+      name: 'scrollToIndex',
+      type: '(index: number, options?: ScrollToOptions) => void',
+      description: "options: { align?: 'start' | 'center' | 'end' | 'auto', behavior? }",
+    },
+    { name: 'scrollToOffset', type: '(offset: number, options?: ScrollToOptions) => void' },
+    {
+      name: 'measure',
+      type: '() => void',
+      description: "O'lchamlar keshini tozalab, qatorlarni qayta o'lchaydi",
+    },
+  ]}
+/>
+
+## Klaviatura
+
+Scroll konteyneri `Tab` bilan fokuslanadi (fokus halqasi ko'rinadi). Fokusda brauzerning odatiy
+scroll tugmalari ishlaydi: `↑ ↓`, `PageUp` / `PageDown`, `Home` / `End`, `Space`.
+
+## Accessibility
+
+- **Ro'yxat semantikasi:** ichki element — `role="list"`, har bir qator — `role="listitem"`.
+  `aria-setsize` (jami) va `aria-posinset` (o'rni) bilan — ekran o'quvchi "10 000 dan 5 000-element"
+  deb o'qiydi, garchi DOM'da 20 ta qator bo'lsa ham.
+- **Nom bering:** `aria-label` yoki `aria-labelledby` — ro'yxatga beriladi.
+- **Yuklanish:** `loadingMore` paytida ro'yxatda `aria-busy`, Spinner'ning yashirin matni
+  (`labels.loadingMore`) o'qiladi.
+- **Qator ichidagi interaktiv elementlar** (tugma, havola) odatdagidek ishlaydi, lekin ekrandan
+  tashqaridagi qatorlar DOM'da yo'q — sahifa ichidagi qidiruv (`Ctrl+F`) ularni topmaydi. Bunday
+  holatda o'z qidiruv maydoningizni qo'shing.

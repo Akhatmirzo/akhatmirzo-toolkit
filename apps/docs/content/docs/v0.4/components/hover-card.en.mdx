@@ -1,0 +1,145 @@
+---
+title: HoverCard
+description: A preview card shown when the pointer rests on a link — a profile, a product, link details.
+---
+
+<ComponentPreview name="hover-card/profile" />
+
+## Import
+
+```tsx
+import { HoverCard } from '@akhatmirzo/ui';
+```
+
+## When to use
+
+- **Preview what's behind a link** — a user profile, a product, a document. Users get a quick
+  "what is this?" answer without leaving the page.
+- **Supplementary content only.** The card doesn't open on touch screens and screen readers may
+  not read it — the trigger should be a real link, and the same information should live on the
+  page it points to.
+- **A short text hint?** Use a [`Tooltip`](./tooltip.mdx).
+- **Buttons or a form inside?** Use a click-to-open [`Popover`](./popover.mdx).
+
+## Anatomy
+
+| Part                | What it does                                                   |
+| ------------------- | -------------------------------------------------------------- |
+| `HoverCard`         | State and delays: `openDelay`, `closeDelay`, `open`            |
+| `HoverCard.Trigger` | The link (an `<a>` by default; `asChild` for your own element) |
+| `HoverCard.Content` | The panel: same look as Popover, portal, positioning, `size`   |
+
+```tsx
+<HoverCard openDelay={400}>
+  <HoverCard.Trigger asChild>
+    <a href="/u/akhatmirzo">@akhatmirzo</a>
+  </HoverCard.Trigger>
+  <HoverCard.Content side="bottom" align="start">
+    …profile…
+  </HoverCard.Content>
+</HoverCard>
+```
+
+The card opens **500ms** after the pointer arrives and closes **200ms** after it leaves — it
+doesn't pop up when the pointer just passes by, and there's time to move onto the card. It also
+opens when the trigger receives keyboard focus.
+
+## Sizes
+
+`size` is `sm` (240px) or `md` (320px, the default). Pass a `className` for any other width.
+
+<ComponentPreview name="hover-card/sizes" />
+
+## Placement
+
+`side` is `top`, `right`, `bottom` (default) or `left`; `align` is `start`, `center` (default) or
+`end`. The panel sits 6px from the trigger and flips to the opposite side near the screen edge.
+
+<ComponentPreview name="hover-card/placement" />
+
+<Callout title="Don't hide important information">
+  Phones and tablets have no hover — HoverCard never opens there. Keep key information such as
+  prices, statuses or errors visible on the page itself.
+</Callout>
+
+## Props
+
+### HoverCard
+
+<PropsTable
+  rows={[
+    {
+      name: 'openDelay',
+      type: 'number',
+      default: '500',
+      description: 'Delay before opening after the pointer arrives, ms',
+    },
+    {
+      name: 'closeDelay',
+      type: 'number',
+      default: '200',
+      description: 'Delay before closing after the pointer leaves, ms',
+    },
+    { name: 'open', type: 'boolean', description: 'Whether it is open (controlled)' },
+    { name: 'defaultOpen', type: 'boolean', description: 'Open initially' },
+    { name: 'onOpenChange', type: '(open: boolean) => void', description: 'Called on open/close' },
+  ]}
+/>
+
+### HoverCard.Content
+
+Also accepts the rest of the Radix `HoverCard.Content` props (`alignOffset`, `avoidCollisions`
+...), `<div>` attributes and `ref`.
+
+<PropsTable
+  rows={[
+    {
+      name: 'size',
+      type: "'sm' | 'md'",
+      default: "'md'",
+      description: 'Width: 240 / 320px',
+    },
+    {
+      name: 'side',
+      type: "'top' | 'right' | 'bottom' | 'left'",
+      default: "'bottom'",
+      description: 'Preferred side',
+    },
+    {
+      name: 'align',
+      type: "'start' | 'center' | 'end'",
+      default: "'center'",
+      description: 'Alignment along the trigger',
+    },
+    { name: 'sideOffset', type: 'number', default: '6', description: 'Gap to the trigger, px' },
+    {
+      name: 'collisionPadding',
+      type: 'number',
+      default: '8',
+      description: 'Minimum distance from the screen edge, px',
+    },
+    {
+      name: 'container',
+      type: 'HTMLElement | null',
+      description: 'Portal container (defaults to document.body)',
+    },
+  ]}
+/>
+
+### Data attributes
+
+| Attribute    | Where          | Value                               |
+| ------------ | -------------- | ----------------------------------- |
+| `data-state` | trigger, panel | `open` · `closed`                   |
+| `data-side`  | panel          | `top` · `right` · `bottom` · `left` |
+| `data-size`  | panel          | `sm` · `md`                         |
+
+## Accessibility
+
+- **Supplementary only.** The card is not announced and focus doesn't move into it — its content
+  must also be available on the page the link opens.
+- **Keyboard.** The card opens when the trigger gets focus and closes when focus leaves; `Esc`
+  closes it too.
+- **Touch screens.** It doesn't open on touch — a tap follows the link itself.
+- **No interactive content** (buttons, forms) inside — keyboard users can't reach it. Use a
+  [`Popover`](./popover.mdx) instead.

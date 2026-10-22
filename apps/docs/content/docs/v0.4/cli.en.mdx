@@ -1,0 +1,123 @@
+---
+title: CLI
+description: '@akhatmirzo/cli — set up the library in your project and copy ready-made blocks into your code.'
+---
+
+`@akhatmirzo/cli` automates two things: wiring the library into your project (`init`) and copying
+ready-made blocks — a login form, pricing, a dashboard — straight into your code (`add`). Blocks
+don't live inside a package, they live **in your files**: change them however you like.
+
+No install needed — run it with `npx` (or `pnpm dlx`, `yarn dlx`, `bunx`):
+
+```bash
+npx @akhatmirzo/cli init              # packages + CSS setup
+npx @akhatmirzo/cli list              # available blocks
+npx @akhatmirzo/cli add login pricing # copy blocks into your project
+```
+
+Requirements: **Node.js 18.17+**. The CLI itself has zero dependencies — only Node's built-in
+modules.
+
+## init
+
+Run it in your project folder (next to `package.json`):
+
+```bash
+npx @akhatmirzo/cli init
+```
+
+What it does:
+
+1. Checks for **Tailwind CSS v4** (`tailwindcss` in `package.json`). If it's missing or v3, it warns
+   but keeps going.
+2. **Detects your package manager** from the lockfile (`pnpm-lock.yaml`, `package-lock.json`,
+   `yarn.lock`, `bun.lockb`/`bun.lock`; parent folders are checked too, for monorepos). Without a
+   lockfile it uses the manager that launched the CLI, otherwise `npm`.
+3. **Installs** `@akhatmirzo/ui` and `@akhatmirzo/tokens` (skipped if already present).
+4. **Finds your global CSS file**: `app/globals.css`, `src/app/globals.css`, `src/index.css`,
+   `src/styles/globals.css`, `styles/globals.css` and a few more. If none is found it asks (or use
+   `--css`).
+5. Adds two lines to it — the tokens right after the Tailwind import, and `@source` after the imports:
+
+```css title="src/app/globals.css"
+@import 'tailwindcss';
+@import '@akhatmirzo/tokens/theme.css'; /* added */
+@source '../../node_modules/@akhatmirzo/ui/dist'; /* added */
+```
+
+The `@source` path is computed **relative** to the CSS file. Existing lines are never added twice —
+running `init` again is safe.
+
+Then add the providers at your app root — see [Installation](./installation.mdx).
+
+## add
+
+```bash
+npx @akhatmirzo/cli add login
+npx @akhatmirzo/cli add login pricing --dir src/components/blocks
+```
+
+- Each block is downloaded from the registry and written into `--dir` (default: `components/blocks`).
+- **All** blocks are downloaded and validated first — if anything fails, nothing is written.
+- If a file already exists, you're asked. `--overwrite` replaces it without asking. `--yes` **never**
+  replaces existing files (they're skipped), so your code can't be lost by accident.
+- If a block needs extra packages (`react-hook-form`, `zod`, `recharts` ...) that aren't in your
+  `package.json`, the CLI offers to install them.
+
+## list
+
+```bash
+npx @akhatmirzo/cli list
+```
+
+Prints the blocks grouped by category, with name and description. Browse them visually in the
+**Blocks** section.
+
+## Options
+
+| Option                        | Description                                                    |
+| ----------------------------- | -------------------------------------------------------------- |
+| `--cwd <dir>`                 | Project folder (default: current directory)                    |
+| `-y`, `--yes`                 | Answer "yes" (package installs); existing files are still kept |
+| `-o`, `--overwrite`           | `add`: overwrite existing files                                |
+| `--no-install`                | Don't install packages — only print the install command        |
+| `-d`, `--dir <dir>`           | `add`: blocks folder (default: `components/blocks`)            |
+| `--css <file>`                | `init`: global CSS file (default: auto-detected)               |
+| `-r`, `--registry <url\|dir>` | Registry location (default: `https://toolkit.akhatmirzo.uz/r`) |
+| `-h`, `--help`                | Help                                                           |
+| `-v`, `--version`             | Version                                                        |
+
+In non-interactive environments such as CI nothing is prompted: `init` requires `--yes`, while `add`
+writes new files, skips existing ones and doesn't install packages (it prints the install command).
+Colors are used only in a terminal and when `NO_COLOR` is not set. Messages are in Uzbek.
+
+## Registry and offline use
+
+The registry is plain JSON: `<registry>/index.json` (the list) and `<registry>/<name>.json`:
+
+```json title="login.json"
+{
+  "name": "login",
+  "title": { "uz": "Kirish", "en": "Login" },
+  "description": { "uz": "...", "en": "..." },
+  "category": "auth",
+  "dependencies": ["react-hook-form", "zod"],
+  "files": [{ "path": "login.tsx", "content": "..." }]
+}
+```
+
+Point `--registry` (or the `AKHATMIRZO_REGISTRY` environment variable) somewhere else — your own
+server, a `file://` URL or just a local folder:
+
+```bash
+npx @akhatmirzo/cli add login --registry ./registry
+npx @akhatmirzo/cli list --registry https://example.com/r
+```
+
+<Callout type="info" title="Security">
+  The CLI only writes inside your project folder. File paths from the registry are strictly
+  validated: absolute paths, `..` segments, dot-prefixed names and anything resolving outside
+  `--dir` are rejected, and writing outside through a symlink is blocked too. Package names are
+  validated as well and you're asked before anything is installed. If you use a third-party
+  registry, review the written code — it becomes part of your project.
+</Callout>

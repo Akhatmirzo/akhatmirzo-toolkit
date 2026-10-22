@@ -1,0 +1,40 @@
+---
+title: 'Login'
+description: 'Sign-in form with phone or email and password, remember me, a Google button and an error state.'
+full: true
+---
+
+<BlockPreview name="login" />
+
+## What's inside
+
+- Phone or email, switched with a `SegmentedControl`; `PhoneInput` handles the +998 format.
+- Validation with `parsePhone` and `isValidEmail`; errors show under each field.
+- A "server" error (`Alert`) — try a password shorter than 8 characters.
+- Wide containers get a brand panel on the left, narrow ones show the form only.
+
+## Components used
+
+- [SegmentedControl](../components/segmented-control.mdx)
+- [Field](../components/field.mdx)
+- [PhoneInput](../components/masked-input.mdx)
+- [Input](../components/input.mdx)
+- [Checkbox](../components/checkbox.mdx)
+- [Alert](../components/alert.mdx)
+- [Button](../components/button.mdx)
+- [Divider](../components/divider.mdx)
+- [toast](../components/toast.mdx)
+- [`parsePhone, isValidEmail`](../core/validate.mdx)
+
+## Installation
+
+The CLI copies the block file into your project (`components/blocks/login.tsx`) and offers to
+install the packages it needs:
+
+```bash
+npx @akhatmirzo/cli add login
+```
+
+Manually: install the packages and copy the file from the "Code" tab into your project.
+
+<BlockInstall name="login" />

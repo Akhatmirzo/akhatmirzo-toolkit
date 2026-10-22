@@ -1,0 +1,395 @@
+---
+title: Text
+description: Cyrillic ↔ Latin, script detection, apostrophes, Uzbek-aware search, slugify and truncation.
+---
+
+Uzbek text comes in many shapes: Latin and Cyrillic script, four or five apostrophe variants (`'`
+`ʻ` `‘` `’`), upper and lower case. These functions treat all of them as the same thing. They are
+pure functions: no React, no dependencies, safe on the server.
+
+```ts
+import {
+  cyrToLat,
+  latToCyr,
+  normalizeUz,
+  detectScript,
+  toScript,
+  fixApostrophes,
+  searchMatch,
+  fuzzyMatch,
+  splitByRanges,
+  slugify,
+  truncate,
+  truncateMiddle,
+  capitalize,
+} from '@akhatmirzo/core';
+```
+
+## Transliteration
+
+Type some text or pick one of the samples below:
+
+<ComponentPreview name="core/translit" />
+
+### cyrToLat
+
+```ts
+function cyrToLat(s: string, options?: TranslitOptions): string;
+```
+
+Converts Uzbek Cyrillic to Latin script following the spelling rules: `е` at the start of a word
+becomes `ye`, `ц` becomes `ts`, `ъ` becomes `'` and `ь` is dropped. Case is preserved — `Ш`
+becomes `SH` in an all-caps word and `Sh` otherwise. Non-Cyrillic characters pass through
+untouched.
+
+```ts
+cyrToLat('Шаҳар'); // 'Shahar'
+cyrToLat('ЎЗБЕКИСТОН'); // "O'ZBEKISTON"
+cyrToLat('ер, поезд, маъно'); // "yer, poyezd, ma'no"
+cyrToLat('центр'); // 'tsentr'
+cyrToLat('Ғузор', { apostrophe: 'ʻ' }); // 'Gʻuzor'
+```
+
+<PropsTable
+  rows={[
+    { name: 's', type: 'string', required: true, description: 'Cyrillic text' },
+    {
+      name: 'options.apostrophe',
+      type: 'string',
+      default: '"\'"',
+      description: "Character used for o', g' and ъ, e.g. 'ʻ'",
+    },
+  ]}
+/>
+
+### latToCyr
+
+```ts
+function latToCyr(s: string): string;
+```
+
+Converts Uzbek Latin to Cyrillic. Any apostrophe variant works in `o'` and `g'`. An apostrophe
+anywhere else becomes the hard sign `ъ`, and `e` at the start of a word becomes `э`. Split pairs
+such as `s'h` are read correctly.
+
+```ts
+latToCyr("O'zbekiston"); // 'Ўзбекистон'
+latToCyr('Gʻuzor'); // 'Ғузор'
+latToCyr('SHAHAR'); // 'ШАҲАР'
+latToCyr("ma'no"); // 'маъно'
+latToCyr('ekran'); // 'экран'
+latToCyr("Is'hoq"); // 'Исҳоқ'
+```
+
+<Callout type="warn" title="ts doesn't turn back into ц">
+  In Latin script, `ts` can stand for `ц` or for `т` + `с`, so `latToCyr('tsex')` returns `'тсех'`.
+  Double-check the output for words borrowed from Russian.
+</Callout>
+
+### normalizeUz
+
+```ts
+function normalizeUz(s: string | null | undefined): string;
+```
+
+Builds a search key: lower case, Cyrillic turned into Latin, every apostrophe removed. Use it to
+check whether two strings are "the same", or to build your own search. `null` and `undefined`
+return `''`.
+
+```ts
+normalizeUz('Gʻuzor'); // 'guzor'
+normalizeUz("G'uzor"); // 'guzor'
+normalizeUz('Ғузор'); // 'guzor'
+normalizeUz("O'zbekiston"); // 'ozbekiston'
+```
+
+<Callout title="How it differs from cyrToLat">
+  In `normalizeUz`, Cyrillic `е` is always `e`, even at the start of a word: `normalizeUz('Ер юзи')`
+  returns `'er yuzi'`, while `cyrToLat` returns `'Yer yuzi'`. That way a partial query can still
+  match letters in the middle of a word.
+</Callout>
+
+## Script and apostrophes
+
+<ComponentPreview name="core/script" />
+
+### detectScript
+
+```ts
+function detectScript(s: string | null | undefined): DetectedScript;
+// DetectedScript = 'latin' | 'cyrillic' | 'mixed' | 'none'
+```
+
+Tells which script a text is written in. Only letters count: digits, punctuation, apostrophes and
+other scripts (Greek, Arabic ...) are ignored. The rule is simple and predictable: at least one
+letter from each script gives `'mixed'` (a single stray letter is enough), letters from only one
+script give that script, and no letters at all give `'none'`.
+
+```ts
+detectScript('Salom dunyo'); // 'latin'
+detectScript('Салом'); // 'cyrillic'
+detectScript('Salom Салом'); // 'mixed'
+detectScript('iPhone 15 — янги'); // 'mixed'
+detectScript('+998 90 123-45-67'); // 'none'
+```
+
+### toScript
+
+```ts
+function toScript(
+  s: string | null | undefined,
+  target: 'latin' | 'cyrillic',
+  options?: ToScriptOptions, // { apostrophe?: 'typographic' | 'ascii' }
+): string;
+```
+
+Converts text to the target script. The source script is detected automatically and only the
+parts written in the **other** script are converted: in mixed text, Latin parts stay as they are
+when converting to Latin (and vice versa). If the text is already in the target script it comes
+back untouched — apostrophes included (use `fixApostrophes` for those).
+
+Latin output uses typographic characters by default: `oʻ`, `gʻ` (U+02BB) and the `ʼ` sign
+(U+02BC). Pass `apostrophe: 'ascii'` for a plain `'`.
+
+```ts
+toScript('Салом, дунё', 'latin'); // 'Salom, dunyo'
+toScript('Ўзбекистон', 'latin'); // 'Oʻzbekiston'
+toScript('маъно', 'latin', { apostrophe: 'ascii' }); // "ma'no"
+toScript("Salom, O'zbekiston", 'cyrillic'); // 'Салом, Ўзбекистон'
+toScript('Toshkent — Тошкент', 'cyrillic'); // 'Тошкент — Тошкент'
+toScript("O'zbekiston", 'latin'); // "O'zbekiston" — unchanged
+```
+
+### fixApostrophes
+
+```ts
+function fixApostrophes(
+  s: string | null | undefined,
+  options?: FixApostrophesOptions, // { style?: 'typographic' | 'ascii' }
+): string;
+```
+
+Fixes apostrophes in Latin Uzbek text, whatever character the user actually typed:
+
+- any variant after `o` / `g` (`'` `‘` `’` `` ` `` `´` `ʼ`) becomes `ʻ`: `oʻ`, `gʻ`;
+- any other apostrophe inside a word (the glottal stop sign) becomes `ʼ`: `maʼno`, `sanʼat`;
+- apostrophes used as quotation marks are left alone: one at the start of a word opens a quote,
+  and one at the end of a word closes it while a quote is open.
+
+`style: 'ascii'` goes the other way: `ʻ` and `ʼ` become a plain `'`.
+
+```ts
+fixApostrophes("O'zbekiston g'alabasi, ma'no"); // 'Oʻzbekiston gʻalabasi, maʼno'
+fixApostrophes("o'n, tog' va bog'"); // 'oʻn, togʻ va bogʻ'
+fixApostrophes("'Salom' dedi"); // "'Salom' dedi"
+fixApostrophes("'O'zbekiston' kitobi"); // "'Oʻzbekiston' kitobi"
+fixApostrophes("mo''tabar"); // 'moʻʼtabar'
+fixApostrophes('Oʻzbekiston', { style: 'ascii' }); // "O'zbekiston"
+```
+
+<Callout type="warn" title="Word endings inside quotes">
+  While a quote is open, `o'` / `g'` at the end of a word is read as the closing quote: `"'Kino'"`
+  stays correct, but in `"'tog'"` the `g'` apostrophe is also kept as a quote. Check such ambiguous
+  text by hand.
+</Callout>
+
+## Search
+
+### searchMatch
+
+```ts
+function searchMatch(
+  text: string | null | undefined,
+  query: string | null | undefined,
+): SearchMatchResult; // { match: boolean; ranges: TextRange[] }
+```
+
+Substring search that ignores case, apostrophe variants and script (Cyrillic vs Latin). `ranges`
+lists every match in the **original** text (`[start, end)`, compatible with `slice`), so you can
+highlight a Latin query inside Cyrillic text. An empty query matches everything. The `Combobox`
+search and the `DataTable` filter are built on it.
+
+<ComponentPreview name="core/search" />
+
+```ts
+searchMatch('Toshkent', 'тош'); // { match: true, ranges: [[0, 4]] }
+searchMatch('Ғузор тумани', "g'uzor"); // { match: true, ranges: [[0, 5]] }
+searchMatch("Farg'ona", 'fargona'); // { match: true, ranges: [[0, 8]] }
+searchMatch('Ota-ona, ota', 'ota'); // { match: true, ranges: [[0, 3], [9, 12]] }
+searchMatch('Shahrisabz', 'xiva'); // { match: false, ranges: [] }
+searchMatch('Toshkent', ''); // { match: true, ranges: [] }
+```
+
+### fuzzyMatch
+
+```ts
+function fuzzyMatch(
+  text: string | null | undefined,
+  query: string | null | undefined,
+): FuzzyMatchResult | null; // { score: number; ranges: TextRange[] }
+```
+
+Fuzzy search: the query letters must appear in the text **in order**, with anything in between.
+Matches at the start of a word and consecutive matches score higher. Returns `null` when there's
+no match. Normalization is the same as in `searchMatch`, and spaces in the query are ignored.
+`CommandPalette` uses it.
+
+<ComponentPreview name="core/fuzzy" />
+
+```ts
+fuzzyMatch('Yangi buyurtma', 'ybu'); // { score: 23, ranges: [[0, 1], [6, 8]] }
+fuzzyMatch('Yangi buyurtma', 'ybuy'); // { score: 29, ranges: [[0, 1], [6, 9]] }
+fuzzyMatch('Sozlamalar', 'xyz'); // null
+```
+
+The absolute `score` means nothing on its own — use it only to rank results against each other:
+`results.sort((a, b) => b.score - a.score)`.
+
+### splitByRanges
+
+```ts
+function splitByRanges(text: string, ranges: readonly TextRange[]): TextSegment[];
+// TextSegment = { text: string; match: boolean }
+```
+
+Splits text by the `ranges` that `searchMatch` or `fuzzyMatch` returned, so you can wrap the
+matched part in `<mark>`.
+
+```ts
+splitByRanges('Toshkent', [[0, 4]]);
+// [{ text: 'Tosh', match: true }, { text: 'kent', match: false }]
+```
+
+```tsx title="highlight.tsx"
+import { searchMatch, splitByRanges } from '@akhatmirzo/core';
+
+export function Highlight({ text, query }: { text: string; query: string }) {
+  const { ranges } = searchMatch(text, query);
+  return (
+    <>
+      {splitByRanges(text, ranges).map((part, i) =>
+        part.match ? <mark key={i}>{part.text}</mark> : <span key={i}>{part.text}</span>,
+      )}
+    </>
+  );
+}
+```
+
+## Text helpers
+
+<ComponentPreview name="core/truncate" />
+
+### slugify
+
+```ts
+function slugify(s: string | null | undefined): string;
+```
+
+Makes a URL slug: Uzbek text (Cyrillic too) is converted to Latin, apostrophes are removed and
+everything else becomes `-`.
+
+```ts
+slugify("Farg'ona viloyati"); // 'fargona-viloyati'
+slugify('Тошкент шаҳри'); // 'toshkent-shahri'
+slugify('Ер юзи'); // 'yer-yuzi'
+slugify("Farg'ona viloyati — 2026"); // 'fargona-viloyati-2026'
+```
+
+### truncate
+
+```ts
+function truncate(s: string, max: number, ellipsis?: string): string;
+```
+
+Shortens text from the end. The result, ellipsis included, never exceeds `max` characters, and a
+trailing space is dropped. Characters are counted by code point, so emoji are never cut in half.
+
+```ts
+truncate('Salom dunyo', 7); // 'Salom…'
+truncate('Salom dunyo', 8, '...'); // 'Salom...'
+truncate('Salom', 10); // 'Salom'
+```
+
+### truncateMiddle
+
+```ts
+function truncateMiddle(s: string, max: number, ellipsis?: string): string;
+```
+
+Shortens text in the middle. For file names it keeps the extension and the end of the name, so
+files with the same prefix stay distinguishable. The `FileUpload` list uses it.
+
+```ts
+truncateMiddle('hisobot-oktabr-2026.pdf', 22); // 'hisobot-oktab…2026.pdf'
+truncateMiddle('shartnoma-mchj-akhatmirzo-imzolangan.docx', 24); // 'shartnoma-mchj…ngan.docx'
+```
+
+<PropsTable
+  rows={[
+    { name: 's', type: 'string', required: true, description: 'Original text' },
+    {
+      name: 'max',
+      type: 'number',
+      required: true,
+      description: 'Maximum length of the result, ellipsis included',
+    },
+    { name: 'ellipsis', type: 'string', default: "'…'", description: 'Marks the cut' },
+  ]}
+/>
+
+### capitalize
+
+```ts
+function capitalize(s: string): string;
+```
+
+Upper-cases the first letter and leaves the rest alone.
+
+```ts
+capitalize("o'zbekiston"); // "O'zbekiston"
+capitalize('toshkent shahri'); // 'Toshkent shahri'
+```
+
+### isApostrophe and UZ_APOSTROPHES
+
+```ts
+const UZ_APOSTROPHES: string; // "ʻʼ‘’`´'"
+function isApostrophe(ch: string | undefined): boolean;
+```
+
+Every character that shows up as an apostrophe in Uzbek text, plus a check for it.
+
+```ts
+isApostrophe('ʻ'); // true
+isApostrophe('a'); // false
+```
+
+## Types
+
+```ts
+type TextRange = [start: number, end: number]; // UTF-16 indexes in the original text
+interface TextSegment {
+  text: string;
+  match: boolean;
+}
+interface SearchMatchResult {
+  match: boolean;
+  ranges: TextRange[];
+}
+interface FuzzyMatchResult {
+  score: number;
+  ranges: TextRange[];
+}
+interface TranslitOptions {
+  apostrophe?: string;
+}
+type UzScript = 'latin' | 'cyrillic';
+type UzApostropheStyle = 'typographic' | 'ascii';
+type DetectedScript = 'latin' | 'cyrillic' | 'mixed' | 'none';
+interface ToScriptOptions {
+  apostrophe?: UzApostropheStyle; // default: 'typographic'
+}
+interface FixApostrophesOptions {
+  style?: UzApostropheStyle; // default: 'typographic'
+}
+```

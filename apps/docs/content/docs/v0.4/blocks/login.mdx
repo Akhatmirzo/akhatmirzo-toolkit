@@ -1,0 +1,40 @@
+---
+title: 'Kirish'
+description: 'Telefon yoki email va parol bilan kirish formasi: "Esda qolsin", Google tugmasi va xato holati.'
+full: true
+---
+
+<BlockPreview name="login" />
+
+## Tarkibi
+
+- Telefon yoki email — `SegmentedControl` bilan almashadi, `PhoneInput` +998 formatini o'zi qo'yadi.
+- Validatsiya `parsePhone` va `isValidEmail` bilan; xato maydon ostida chiqadi.
+- "Server" xatosi (`Alert`) — 8 belgidan qisqa parol bilan sinab ko'ring.
+- Keng konteynerda chapda brend paneli, torda — faqat forma.
+
+## Ishlatilgan komponentlar
+
+- [SegmentedControl](../components/segmented-control.mdx)
+- [Field](../components/field.mdx)
+- [PhoneInput](../components/masked-input.mdx)
+- [Input](../components/input.mdx)
+- [Checkbox](../components/checkbox.mdx)
+- [Alert](../components/alert.mdx)
+- [Button](../components/button.mdx)
+- [Divider](../components/divider.mdx)
+- [toast](../components/toast.mdx)
+- [`parsePhone, isValidEmail`](../core/validate.mdx)
+
+## O'rnatish
+
+CLI blok faylini loyihangizga (`components/blocks/login.tsx`) ko'chiradi va kerakli paketlarni
+o'rnatishni taklif qiladi:
+
+```bash
+npx @akhatmirzo/cli add login
+```
+
+Qo'lda: paketlarni o'rnating va "Kod" tabidagi faylni loyihangizga nusxalang.
+
+<BlockInstall name="login" />

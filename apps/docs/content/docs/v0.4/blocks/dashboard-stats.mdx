@@ -1,0 +1,37 @@
+---
+title: 'Dashboard statistikasi'
+description: "Sparkline bilan 4 ta KPI kartochka, tushum va xarajat AreaChart'i hamda hududlar bo'yicha ulush."
+full: true
+---
+
+<BlockPreview name="dashboard-stats" />
+
+## Tarkibi
+
+- Davr (7 kun / 30 kun / yil) — barcha ko'rsatkichlar va grafik birga almashadi.
+- O'zgarish foizi `Badge` bilan: o'sish yashil, pasayish qizil; `Sparkline` — bezak (`aria-hidden`).
+- Kartochkalar konteyner kengligiga qarab 1, 2 yoki 4 ustunda.
+- Grafiklar `recharts` ga tayanadi — `@akhatmirzo/ui/charts` alohida kirish nuqtasidan.
+
+## Ishlatilgan komponentlar
+
+- [Card](../components/card.mdx)
+- [Badge](../components/badge.mdx)
+- [Button](../components/button.mdx)
+- [Progress](../components/progress.mdx)
+- [SegmentedControl](../components/segmented-control.mdx)
+- [AreaChart, Sparkline](../components/charts.mdx)
+- [`formatNumber`](../core/format.mdx)
+
+## O'rnatish
+
+CLI blok faylini loyihangizga (`components/blocks/dashboard-stats.tsx`) ko'chiradi va kerakli paketlarni
+o'rnatishni taklif qiladi:
+
+```bash
+npx @akhatmirzo/cli add dashboard-stats
+```
+
+Qo'lda: paketlarni o'rnating va "Kod" tabidagi faylni loyihangizga nusxalang.
+
+<BlockInstall name="dashboard-stats" />

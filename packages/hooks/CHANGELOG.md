@@ -1,5 +1,11 @@
 # @akhatmirzo/hooks
 
+## 0.2.0
+
+### Minor Changes
+
+- Yangi hooklar: useEventListener, useResizeObserver, useScrollLock, useFocusTrap, useLongPress, useDocumentVisibility, useIsClient, useInterval, useTimeout, useCountdown, useIdle, useStep, useInfiniteScroll, usePrevious, useOnline.
+
 ## 0.1.3
 
 ### Patch Changes

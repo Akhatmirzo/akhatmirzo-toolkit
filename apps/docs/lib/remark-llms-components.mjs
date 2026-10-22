@@ -3,18 +3,21 @@
  * oddiy Markdown'ga aylantiradi. Sahifaning o'zi (HTML) o'zgarmaydi:
  *
  * - `<ComponentPreview name="button/loading" />` → demo faylining manba kodi (```tsx bloki);
- * - `<PropsTable rows={[...]} />` → Markdown jadval (sarlavhalar sahifa tilida).
+ * - `<PropsTable rows={[...]} />` → Markdown jadval (sarlavhalar sahifa tilida);
+ * - `<BlockPreview name="login" />` → blok fayli kodi + CLI buyrug'i; `<BlockInstall name="login" />` →
+ *   o'rnatish buyrug'i; `<BlockGallery />` → bloklar ro'yxati (havolalar bilan).
  *
  * `replaceSource()` faqat Markdown chiqishiga ta'sir qiladi: qidiruv indeksi (remark-structure)
  * JSX elementlarni baribir o'zi almashtiradi. Qiymatni aniqlab bo'lmasa, element o'zgarishsiz qoladi.
  */
-import { readFileSync } from 'node:fs';
+import { readdirSync, readFileSync } from 'node:fs';
 import path from 'node:path';
 import { cwd } from 'node:process';
 import { markdownTable, replaceSource } from 'fumadocs-core/mdx-plugins/stringifier';
 
 /** Next build va dev `apps/docs` ichida ishga tushadi */
 const demosDir = path.join(cwd(), 'components', 'demos');
+const blocksDir = path.join(cwd(), 'blocks');
 
 const headers = {
   uz: {
@@ -43,6 +46,28 @@ function readDemo(name) {
     return readFileSync(path.join(demosDir, `${name}.tsx`), 'utf8')
       .replace(/\r\n/g, '\n')
       .trimEnd();
+  } catch {
+    return undefined;
+  }
+}
+
+const isSafeName = (name) => typeof name === 'string' && /^[\w-]+$/.test(name);
+
+function readBlock(name) {
+  if (!isSafeName(name)) return undefined;
+  try {
+    return readFileSync(path.join(blocksDir, name, `${name}.tsx`), 'utf8')
+      .replace(/\r\n/g, '\n')
+      .trimEnd();
+  } catch {
+    return undefined;
+  }
+}
+
+function readBlockMeta(name) {
+  if (!isSafeName(name)) return undefined;
+  try {
+    return JSON.parse(readFileSync(path.join(blocksDir, name, 'block.json'), 'utf8'));
   } catch {
     return undefined;
   }
@@ -135,6 +160,44 @@ export function remarkLlmsComponents() {
             const title = `${name.split('/').pop()}.tsx`;
             replaceSource(file, node, `\`\`\`tsx title="${title}"\n${source}\n\`\`\``);
           }
+          return;
+        }
+        if (node.name === 'BlockPreview') {
+          const name = getAttribute(node, 'name')?.value;
+          const source = readBlock(name);
+          if (source) {
+            replaceSource(
+              file,
+              node,
+              `\`\`\`bash\nnpx @akhatmirzo/cli add ${name}\n\`\`\`\n\n\`\`\`tsx title="${name}.tsx"\n${source}\n\`\`\``,
+            );
+          }
+          return;
+        }
+        if (node.name === 'BlockInstall') {
+          const meta = readBlockMeta(getAttribute(node, 'name')?.value);
+          if (meta) {
+            const pkg = ['@akhatmirzo/ui', '@akhatmirzo/tokens', ...meta.dependencies].join(' ');
+            replaceSource(file, node, `\`\`\`bash\nnpm install ${pkg}\n\`\`\``);
+          }
+          return;
+        }
+        if (node.name === 'BlockGallery') {
+          let names = [];
+          try {
+            names = readdirSync(blocksDir, { withFileTypes: true })
+              .filter((entry) => entry.isDirectory())
+              .map((entry) => entry.name);
+          } catch {
+            // bloklar papkasi yo'q
+          }
+          const lines = names.flatMap((name) => {
+            const meta = readBlockMeta(name);
+            return meta
+              ? [`- [${meta.title[lang]}](./blocks/${name}) — ${meta.description[lang]}`]
+              : [];
+          });
+          if (lines.length > 0) replaceSource(file, node, lines.join('\n'));
           return;
         }
         if (node.name === 'PropsTable') {

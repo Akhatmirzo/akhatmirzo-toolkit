@@ -1,0 +1,174 @@
+---
+title: Hujjat inputlari
+description: "O'zbek hujjat raqamlari uchun tayyor maydonlar: JShShIR, pasport, STIR, avtomobil raqami va hisob raqami."
+---
+
+<ComponentPreview name="document-inputs/overview" align="start" />
+
+## Import
+
+```tsx
+import {
+  BankAccountInput,
+  CarPlateInput,
+  InnInput,
+  PassportInput,
+  PinflInput,
+} from '@akhatmirzo/ui';
+```
+
+Hammasi [MaskedInput](./masked-input.mdx) bilan bir xil qoidada ishlaydi: **ko'rinish —
+formatlangan, qiymat — toza** (bo'sh joysiz). Tekshiruv `@akhatmirzo/core` dagi `isValidX`
+funksiyalari bilan — [Identifikatorlar](../core/identifiers.mdx) sahifasiga qarang.
+
+| Komponent          | Ko'rinish                | Qiymat (`value`)         |
+| ------------------ | ------------------------ | ------------------------ |
+| `PinflInput`       | 31503 90123 4567         | `"31503901234567"`       |
+| `PassportInput`    | AA 1234567               | `"AA1234567"`            |
+| `InnInput`         | 123 456 789              | `"123456789"`            |
+| `CarPlateInput`    | 01 \| A 123 BC           | `"01A123BC"`             |
+| `BankAccountInput` | 2020 8000 9000 1234 5001 | `"20208000900012345001"` |
+
+## Qachon ishlatish
+
+- **Davlat xizmatlari, bank, sug'urta, lizing formalari** — foydalanuvchi bo'sh joylarni o'zi
+  qo'ymaydi, qiymat esa serverga tayyor holda keladi.
+- **Har doim label bering** — [Field](./field.mdx) ichida. "JShShIR" yonida qayerdan topish
+  mumkinligini `description` da yozing ("pasportdagi 14 raqamli shaxsiy raqam").
+- **Xato sababini matn bilan ko'rsating** — komponent faqat `invalid` holatni qo'yadi,
+  tushuntirishni `Field` ning `error` prop'iga yozing.
+- **Hamma narsa `Input` dan meros:** `size`, `clearable`, `disabled`, `readOnly`, `name`.
+
+## Tekshiruv
+
+`validate` (standart `true`) — to'liq kiritilgan qiymat tekshiruvdan o'tmasa, maydon avtomatik
+`invalid` bo'ladi. Yozish paytida qizarmaydi. Istisnolar: `InnInput` `0` bilan boshlansa va
+`CarPlateInput` da hudud kodi ro'yxatda bo'lmasa — xato darhol ko'rinadi.
+
+<ComponentPreview name="document-inputs/validation" align="start" />
+
+## PinflInput
+
+JShShIR — 14 raqam, `5-5-4` guruhlar. 14-raqam kiritilganda `onDetails` chaqiriladi:
+`{ valid, gender, birthDate, complete }` — jins va tug'ilgan sana raqamning o'zidan olinadi.
+Nazorat raqami standartda tekshirilmaydi; `checksum` bilan yoqiladi.
+
+<ComponentPreview name="document-inputs/pinfl" align="start" />
+
+## PassportInput
+
+Pasport yoki ID karta: 2 lotin harf + 7 raqam. Kichik harf avtomatik katta bo'ladi, kirill
+harflar va ortiqcha belgilar qabul qilinmaydi. Mobilda klaviatura katta harf bilan ochiladi
+(`autoCapitalize="characters"`).
+
+## InnInput va BankAccountInput
+
+STIR — 9 raqam (`000 000 000`), hisob raqami — 20 raqam, 4 tadan guruh. Ikkalasida ham mobilda
+raqamli klaviatura ochiladi.
+
+## CarPlateInput
+
+Jismoniy (`01 A 123 BC`) yoki yuridik shaxs (`01 123 ABC`) formati 3-belgidan avtomatik
+aniqlanadi: harf yozilsa — jismoniy, raqam — yuridik. Chapda hudud kodi ajratuvchi chiziq bilan,
+o'ngda bayroq belgisi va "UZ" — haqiqiy raqam ko'rinishiga o'xshash.
+
+<ComponentPreview name="document-inputs/car-plate" align="start" />
+
+`onDetails` har o'zgarishda chaqiriladi — hudud birinchi ikki raqamdan, tur 3-belgidan keyin
+ma'lum bo'ladi:
+
+```tsx
+<CarPlateInput
+  onDetails={({ region, type, valid }) => {
+    // region — UZ_REGIONS dagi obyekt yoki null; type — 'personal' | 'legal' | null
+  }}
+/>
+```
+
+Tafsilotlarni komponentdan tashqarida ham olasiz: `getCarPlateDetails('01A123BC')`,
+`getPinflDetails('31503901234567')`.
+
+## Props
+
+Barcha komponentlar [Input](./input.mdx) props'larini va `ref` ni qabul qiladi. `name` berilsa —
+formaga toza qiymatli yashirin `<input>` qo'shiladi.
+
+### Umumiy
+
+<PropsTable
+  rows={[
+    { name: 'value', type: 'string', description: "Toza qiymat — bo'sh joysiz" },
+    { name: 'defaultValue', type: 'string' },
+    {
+      name: 'onValueChange',
+      type: '(value: string, details) => void',
+      description: 'details: { complete, valid } (+ komponentga xos maydonlar)',
+    },
+    {
+      name: 'validate',
+      type: 'boolean',
+      default: 'true',
+      description: "To'liq qiymat tekshiruvdan o'tmasa avtomatik invalid",
+    },
+  ]}
+/>
+
+### PinflInput
+
+<PropsTable
+  rows={[
+    {
+      name: 'onDetails',
+      type: '(details: PinflInputDetails) => void',
+      description: '14 raqam kiritilganda: { valid, gender, birthDate, complete }',
+    },
+    {
+      name: 'checksum',
+      type: 'boolean',
+      default: 'false',
+      description: 'Nazorat raqamini ham tekshirish',
+    },
+    { name: 'placeholder', type: 'string', default: "'00000 00000 0000'" },
+  ]}
+/>
+
+### CarPlateInput
+
+`prefix` va `leftIcon` qabul qilinmaydi — chap tomon hudud kodi uchun band.
+
+<PropsTable
+  rows={[
+    {
+      name: 'onDetails',
+      type: '(details: CarPlateInputDetails) => void',
+      description: "Har o'zgarishda: { region, type, complete, valid }",
+    },
+    { name: 'rightIcon', type: 'ReactNode', description: 'Standart — bayroq belgisi va "UZ"' },
+    { name: 'placeholder', type: 'string', default: "'01  A 123 BC'" },
+  ]}
+/>
+
+### Boshqa placeholder'lar
+
+| Komponent          | `placeholder`                |
+| ------------------ | ---------------------------- |
+| `PassportInput`    | `'AA 1234567'`               |
+| `InnInput`         | `'000 000 000'`              |
+| `BankAccountInput` | `'0000 0000 0000 0000 0000'` |
+
+### Data atributlari
+
+| Atribut           | Komponent       | Qiymat                          |
+| ----------------- | --------------- | ------------------------------- |
+| `data-plate-type` | `CarPlateInput` | `personal` · `legal`            |
+| `data-region`     | `CarPlateInput` | hudud `id` si (`tashkent-city`) |
+
+## Accessibility
+
+- **Native `<input type="text">`** — ekran o'quvchi formatlangan matnni o'qiydi.
+- **Mobil klaviatura:** `PinflInput`, `InnInput`, `BankAccountInput` — `inputMode="numeric"`;
+  `PassportInput` va `CarPlateInput` — `autoCapitalize="characters"`.
+- **Xato holati** `aria-invalid` sifatida beriladi. Sababini `Field` ning `error` prop'ida matn
+  bilan yozing — rang yagona signal bo'lmasin.
+- **Dekorativ qismlar** — avtomobil raqamidagi ajratuvchi chiziq va bayroq belgisi
+  `aria-hidden`; ekran o'quvchi faqat raqamni o'qiydi.

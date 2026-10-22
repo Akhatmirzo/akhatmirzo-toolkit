@@ -7,9 +7,9 @@
 [![Litsenziya: MIT](https://img.shields.io/badge/litsenziya-MIT-22c55e)](https://github.com/Akhatmirzo/akhatmirzo-toolkit/blob/main/LICENSE)
 
 **O'zbek tili va O'zbekiston formatlari uchun toza TypeScript funksiyalar: so'm, `+998`,
-Uzcard/Humo, lotin ↔ kirill.**
+Uzcard/Humo, lotin ↔ kirill, JShShIR va STIR, sonlar so'z bilan — va zod sxemalari.**
 
-Hujjatlar: **https://toolkit.akhatmirzo.uz/uz/docs/v0.3/core/format**
+Hujjatlar: **https://toolkit.akhatmirzo.uz/uz/docs/v0.4/core/format**
 
 - **Bog'liqliksiz** — `dependencies` bo'sh, React ham kerak emas. Brauzerda, Node 20+ da va
   istalgan freymvorkda ishlaydi.
@@ -17,6 +17,7 @@ Hujjatlar: **https://toolkit.akhatmirzo.uz/uz/docs/v0.3/core/format**
 - **Tree-shaking** — ESM, `sideEffects: false`: faqat import qilingan funksiyalar bundle'ga
   tushadi.
 - **To'liq tiplangan** — TypeScript `strict`, funksiyalar JSDoc izohlari bilan.
+- **Zod sxemalari** — alohida `@akhatmirzo/core/zod` kirish nuqtasida (`zod` — ixtiyoriy peer).
 
 ```bash
 pnpm add @akhatmirzo/core
@@ -115,6 +116,116 @@ truncateMiddle('hisobot-oktabr-2026.pdf', 22); // 'hisobot-oktab…2026.pdf'
 
 Shuningdek: `truncate`, `capitalize`, `isApostrophe`, `UZ_APOSTROPHES`.
 
+## O'zbekcha sonlar, sanalar va yozuv
+
+```ts
+import {
+  detectScript,
+  fixApostrophes,
+  formatDateRange,
+  formatDateUz,
+  formatDuration,
+  moneyToWords,
+  numberToWords,
+  ordinalWords,
+  toScript,
+} from '@akhatmirzo/core';
+
+numberToWords(1_250_000); // 'bir million ikki yuz ellik ming'
+moneyToWords(1_250_000.5); // 'Bir million ikki yuz ellik ming soʻm 50 tiyin'
+ordinalWords(3); // 'uchinchi'
+
+formatDateUz(new Date(2026, 9, 22)); // '22-oktabr, 2026-yil'
+formatDateUz(new Date(2026, 9, 22), { style: 'full' }); // '2026-yil 22-oktabr, payshanba'
+formatDateRange(new Date(2026, 9, 20), new Date(2026, 9, 22)); // '20–22-oktabr, 2026-yil'
+formatDuration(8_100_000); // '2 soat 15 daqiqa'
+
+detectScript('Салом'); // 'cyrillic'
+toScript('Салом, дунё', 'latin'); // 'Salom, dunyo'
+fixApostrophes("O'zbekiston g'alabasi"); // 'Oʻzbekiston gʻalabasi'
+```
+
+Ko'p funksiyalar `{ script: 'cyrillic' }` opsiyasini qabul qiladi. Shuningdek: `ordinal`
+(`'22-'`).
+
+## Hujjat raqamlari va hududlar
+
+```ts
+import {
+  formatCarPlate,
+  formatPinfl,
+  isValidInn,
+  isValidPassport,
+  parseCarPlate,
+  parsePinfl,
+  regionByPlateCode,
+  UZ_REGIONS,
+} from '@akhatmirzo/core';
+
+parsePinfl('31503901234567'); // { gender: 'male', birthDate: Date(1990-03-15) }
+formatPinfl('31503901234567'); // '31503 90123 4567'
+isValidInn('123 456 789'); // true — STIR
+isValidPassport('ad 1234567'); // true
+
+formatCarPlate('01a123bc'); // '01 A 123 BC'
+parseCarPlate('30 123 abc')?.type; // 'legal'
+regionByPlateCode('01')?.id; // 'tashkent-city'
+UZ_REGIONS.find((r) => r.id === 'fergana')?.name; // 'Fargʻona viloyati'
+```
+
+Shuningdek: `isValidPinfl`, `formatInn`, `formatPassport`, `isValidBankAccount`,
+`formatBankAccount`, `isValidMfo`, `isValidCarPlate`.
+
+## Zod sxemalari — `@akhatmirzo/core/zod`
+
+`zUz` — O'zbekiston ma'lumotlari uchun tayyor [zod](https://zod.dev) (v4) sxemalari. Hammasi
+yuqoridagi `isValidX` / `parseX` funksiyalariga tayanadi, xato matnlari o'zbekcha va natija
+tozalangan qiymat bo'ladi. `zod` — ixtiyoriy peer bog'liqlik:
+
+```bash
+pnpm add zod
+```
+
+```ts
+import { zUz } from '@akhatmirzo/core/zod';
+import { z } from 'zod';
+
+const schema = z.object({
+  phone: zUz.phone(),
+  pinfl: zUz.pinfl(),
+  amount: zUz.money({ min: 1000 }),
+  region: zUz.region(),
+});
+
+schema.parse({
+  phone: '+998 90 123-45-67', // → '998901234567'
+  pinfl: '31503 90123 4567', // → '31503901234567'
+  amount: '1 250 000', // → 1250000
+  region: 'samarkand',
+});
+
+zUz.phone().safeParse('123').error?.issues[0].message; // "Telefon raqami noto'g'ri"
+zUz.password({ messages: { weak: 'Kuchliroq parol tanlang' } });
+```
+
+| Sxema                                  | Tekshiradi                                        | Natija                    |
+| -------------------------------------- | ------------------------------------------------- | ------------------------- |
+| `zUz.phone()`                          | O'zbekiston mobil raqami                          | `'998901234567'`          |
+| `zUz.pinfl({ checksum? })`             | JShShIR (PINFL), 14 raqam                         | raqamlar, bo'shliqsiz     |
+| `zUz.inn()`                            | STIR (INN), 9 raqam                               | raqamlar                  |
+| `zUz.passport()`                       | Pasport / ID karta seriya-raqami                  | `'AA1234567'`             |
+| `zUz.carPlate()`                       | Avtomobil davlat raqami                           | `'01A123BC'`              |
+| `zUz.bankAccount()`                    | Bank hisob raqami, 20 raqam                       | raqamlar                  |
+| `zUz.mfo()`                            | MFO — bank filiali kodi, 5 raqam                  | raqamlar (`0` saqlanadi)  |
+| `zUz.card()`                           | Bank kartasi, 16 raqam va Luhn                    | raqamlar                  |
+| `zUz.email()`                          | Email manzil                                      | bo'shliqlarsiz            |
+| `zUz.password({ minScore? = 2 })`      | `passwordStrength` bo'yicha kuchlilik             | o'zgarmaydi               |
+| `zUz.money({ min?, max? })`            | Son yoki `'1 250 000'`, `"1 250 000 so'm"` matni  | `number`                  |
+| `zUz.region()`                         | `UZ_REGIONS` dagi hudud `id` si                   | `UzRegionId`              |
+
+Har bir sxema `messages` opsiyasi bilan xato matnlarini almashtirishga imkon beradi. Formalarda —
+[`@akhatmirzo/ui/form`](https://www.npmjs.com/package/@akhatmirzo/ui) va `zodResolver` bilan.
+
 ## Storage va API
 
 ```ts
@@ -158,11 +269,13 @@ await sleep(300, controller.signal); // bekor qilsa bo'ladi
 
 | Bo'lim         | Havola                                                                     |
 | -------------- | -------------------------------------------------------------------------- |
-| Matn           | https://toolkit.akhatmirzo.uz/uz/docs/v0.3/core/text               |
-| Formatlash     | https://toolkit.akhatmirzo.uz/uz/docs/v0.3/core/format             |
-| Validatsiya    | https://toolkit.akhatmirzo.uz/uz/docs/v0.3/core/validate           |
-| Storage va API | https://toolkit.akhatmirzo.uz/uz/docs/v0.3/core/storage-api        |
-| Umumiy         | https://toolkit.akhatmirzo.uz/uz/docs/v0.3/core/utils              |
+| Matn           | https://toolkit.akhatmirzo.uz/uz/docs/v0.4/core/text               |
+| Formatlash     | https://toolkit.akhatmirzo.uz/uz/docs/v0.4/core/format             |
+| Validatsiya    | https://toolkit.akhatmirzo.uz/uz/docs/v0.4/core/validate           |
+| Hujjat raqamlari | https://toolkit.akhatmirzo.uz/uz/docs/v0.4/core/identifiers |
+| Zod sxemalari  | https://toolkit.akhatmirzo.uz/uz/docs/v0.4/core/zod |
+| Storage va API | https://toolkit.akhatmirzo.uz/uz/docs/v0.4/core/storage-api        |
+| Umumiy         | https://toolkit.akhatmirzo.uz/uz/docs/v0.4/core/utils              |
 
 Bu paket [`@akhatmirzo/ui`](https://www.npmjs.com/package/@akhatmirzo/ui) komponentlarining
 asosida turadi, lekin undan butunlay mustaqil ishlatiladi.
@@ -177,15 +290,23 @@ asosida turadi, lekin undan butunlay mustaqil ishlatiladi.
 
 Zero-dependency TypeScript utilities for Uzbek apps: money in so'm, `+998` phone numbers,
 Uzcard/Humo card detection, Latin ↔ Cyrillic transliteration, apostrophe-insensitive search,
-Uzbek dates and relative time, plus a typed storage wrapper and a small `fetch` API client. No
-React required, SSR-safe, tree-shakeable.
+Uzbek dates and relative time, numbers and amounts in words (`numberToWords`, `moneyToWords`),
+Uzbek date formats (`formatDateUz`, `formatDateRange`, `formatDuration`), script detection and
+conversion, document identifiers (PINFL, INN/STIR, passport, car plates, bank account, MFO) with
+`UZ_REGIONS`, plus a typed storage wrapper and a small `fetch` API client. No React required,
+SSR-safe, tree-shakeable.
+
+The optional `@akhatmirzo/core/zod` entry point (requires `zod` v4) exports `zUz` — ready-made
+schemas with Uzbek error messages: `phone`, `pinfl`, `inn`, `passport`, `carPlate`,
+`bankAccount`, `mfo`, `card`, `email`, `password`, `money` and `region`.
 
 ```ts
-import { formatMoney, formatPhone, cyrToLat } from '@akhatmirzo/core';
+import { cyrToLat, formatMoney, formatPhone, numberToWords } from '@akhatmirzo/core';
 
 formatMoney(1250000); // "1 250 000 so'm"
 formatPhone('901234567'); // '+998 90 123 45 67'
 cyrToLat('Ўзбекистон'); // "O'zbekiston"
+numberToWords(1_250_000); // 'bir million ikki yuz ellik ming'
 ```
 
-Docs: https://toolkit.akhatmirzo.uz/en/docs/v0.3/core/format
+Docs: https://toolkit.akhatmirzo.uz/en/docs/v0.4/core/format

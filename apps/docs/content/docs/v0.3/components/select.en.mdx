@@ -3,7 +3,7 @@ title: Select
 description: Pick one value from a list without search — with groups, icons and form support.
 ---
 
-<ComponentPreview name="select/basic" align="start" />
+<ComponentPreview name="archive/v0.3/select/basic" align="start" />
 
 ## Import
 
@@ -28,7 +28,7 @@ import { Select } from '@akhatmirzo/ui';
 `Select.Group` puts options under a heading, and `Select.Separator` draws a line between groups.
 The selected option gets a ✓ mark.
 
-<ComponentPreview name="select/groups" />
+<ComponentPreview name="archive/v0.3/select/groups" />
 
 ```tsx
 <Select defaultValue="fer">
@@ -49,7 +49,7 @@ The selected option gets a ✓ mark.
 Three sizes — 32, 40 and 48px, the same heights as `Input` and `Button`, so they line up in a
 row. The panel is as wide as the trigger; long lists scroll after 320px.
 
-<ComponentPreview name="select/sizes" />
+<ComponentPreview name="archive/v0.3/select/sizes" />
 
 ## States
 
@@ -57,14 +57,14 @@ Inside a `Field`, `disabled`, `error` and `required` are wired up for you — no
 them on `Select`. Without a `Field`, pass `invalid` and `disabled` directly. To disable a single
 option, set `disabled` on `Select.Item`; keyboard navigation skips it.
 
-<ComponentPreview name="select/states" />
+<ComponentPreview name="archive/v0.3/select/states" />
 
 ## Options with icons
 
 The `icon` prop on `Select.Item` reserves a 16px slot before the label. Handy for short markers
 such as status colors.
 
-<ComponentPreview name="select/icons" />
+<ComponentPreview name="archive/v0.3/select/icons" />
 
 ## In a form
 
@@ -72,7 +72,7 @@ When you pass `name`, `Select` renders a hidden native `<select>`, so the value 
 `FormData`. Validate the empty case yourself and show the message through the `error` prop of
 `Field`.
 
-<ComponentPreview name="select/form" align="start" />
+<ComponentPreview name="archive/v0.3/select/form" align="start" />
 
 ## Inside a dialog
 
@@ -88,7 +88,7 @@ and Tashkent city (`UZ_REGIONS` from `@akhatmirzo/core`). The value is the regio
 (`'samarkand'`); names follow the current script — the `script` prop or
 [ScriptProvider](./script.mdx).
 
-<ComponentPreview name="select/region" align="start" />
+<ComponentPreview name="archive/v0.3/select/region" align="start" />
 
 ```tsx
 import { RegionSelect } from '@akhatmirzo/ui';

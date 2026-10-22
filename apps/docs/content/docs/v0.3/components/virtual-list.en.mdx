@@ -3,7 +3,7 @@ title: VirtualList
 description: Render lists of 10,000+ items smoothly by drawing only the rows on screen.
 ---
 
-<ComponentPreview name="virtual-list/basic" align="start" />
+<ComponentPreview name="archive/v0.3/virtual-list/basic" align="start" />
 
 ## Import
 
@@ -46,7 +46,7 @@ When rows have different heights (messages, comments), pass `dynamic`: each row 
 it renders. `estimateSize` then becomes just the initial guess — the closer it is to the real
 average, the smoother the scrollbar.
 
-<ComponentPreview name="virtual-list/dynamic" align="start" />
+<ComponentPreview name="archive/v0.3/virtual-list/dynamic" align="start" />
 
 <Callout title="Size the row itself">
   Without `dynamic`, each row gets the `estimateSize` height — make the element inside match it
@@ -60,13 +60,13 @@ length. Set `loadingMore` while fetching: a spinner row appears at the bottom an
 won't fire again. If the request fails (`loadingMore` goes back to false but the length didn't
 change), it fires again on the next scroll, so retrying comes for free.
 
-<ComponentPreview name="virtual-list/infinite" align="start" />
+<ComponentPreview name="archive/v0.3/virtual-list/infinite" align="start" />
 
 ## Empty state
 
 When `items` is empty, `emptyState` is shown (default: "Ro'yxat bo'sh", "the list is empty").
 
-<ComponentPreview name="virtual-list/empty" />
+<ComponentPreview name="archive/v0.3/virtual-list/empty" />
 
 ## Props
 

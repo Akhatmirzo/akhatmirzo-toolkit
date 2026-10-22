@@ -1,0 +1,282 @@
+---
+title: AppShell
+description: An admin panel and dashboard layout — a collapsible Sidebar, a sticky header, a Drawer on phones and a skip link.
+---
+
+<ComponentPreview name="app-shell/basic" align="start" />
+
+## Import
+
+```tsx
+import { AppShell, Sidebar, useAppShell } from '@akhatmirzo/ui';
+```
+
+## When to use
+
+- **Admin panels, CRMs, dashboards** — a persistent menu on the left, page content on the right.
+- **Apps with many sections** that users switch between often.
+- **Not for marketing pages or blogs** — a top navigation works better there.
+- The layout fills the screen; put it in your app's `layout` **once**.
+
+## Anatomy
+
+| Part                     | What it does                                                             |
+| ------------------------ | ------------------------------------------------------------------------ |
+| `AppShell`               | State (collapsed/expanded), persistence, the `mod+B` shortcut, skip link |
+| `Sidebar`                | A left panel on desktop (256px ↔ 64px), a left `Drawer` below 1024px     |
+| `Sidebar.Header`         | Logo, app name                                                           |
+| `Sidebar.Content`        | `<nav aria-label="Asosiy menyu">`, scrollable                            |
+| `Sidebar.Group`          | A heading + a list of items; can be `collapsible`                        |
+| `Sidebar.Item`           | A link (`href`), a button (`onClick`) or a Next `Link` via `renderLink`  |
+| `Sidebar.Footer`         | Bottom area: a user menu                                                 |
+| `AppShell.Main`          | `<main>` — the skip link jumps here                                      |
+| `AppShell.Header`        | Sticky (`sticky top-0`), 56px, bottom border                             |
+| `AppShell.SidebarToggle` | The sidebar button: collapses on desktop, opens the Drawer on phones     |
+
+```tsx
+// app/(admin)/layout.tsx
+<AppShell sidebarStorageKey="sidebar">
+  <Sidebar>
+    <Sidebar.Header>
+      <Logo />
+    </Sidebar.Header>
+    <Sidebar.Content>
+      <Sidebar.Group label="Main">
+        <Sidebar.Item icon={<Home />} href="/" active={pathname === '/'}>
+          Home
+        </Sidebar.Item>
+        <Sidebar.Item icon={<Box />} href="/orders" badge={12}>
+          Orders
+        </Sidebar.Item>
+      </Sidebar.Group>
+    </Sidebar.Content>
+    <Sidebar.Footer>
+      <UserMenu />
+    </Sidebar.Footer>
+  </Sidebar>
+  <AppShell.Main>
+    <AppShell.Header>
+      <AppShell.SidebarToggle />
+      <Breadcrumb items={…} />
+    </AppShell.Header>
+    {children}
+  </AppShell.Main>
+</AppShell>
+```
+
+## Collapsed state
+
+On desktop (`≥ 1024px`) the sidebar collapses to a 64px icon rail: item labels are hidden, each
+item gets a `Tooltip` and an `aria-label`, and badges turn into a dot. Collapse it with
+`AppShell.SidebarToggle` or `Ctrl/⌘ + B`. The animation runs on `grid-template-columns` and jumps
+straight to the end with `prefers-reduced-motion`.
+
+A `collapsible` group folds when its heading is clicked (Accordion style); in the collapsed rail
+groups are always open and a divider replaces the heading.
+
+<ComponentPreview name="app-shell/collapsed" align="start" />
+
+## Persisting the state
+
+With `sidebarStorageKey`, the state is written to `localStorage` and restored on the next visit.
+It's SSR-safe: the server and the first client render use `defaultSidebarOpen`, and the stored
+value is read after mount (no hydration mismatch). If storage is blocked, the state still works.
+
+## Phones and tablets
+
+Below 1024px a left [`Drawer`](./drawer.mdx) replaces the sidebar: `AppShell.SidebarToggle`
+opens it and clicking a `Sidebar.Item` (navigating) closes it. The desktop/mobile switch happens
+through CSS breakpoints, so the server and the browser render the same HTML.
+
+## With Next.js Link
+
+`renderLink` lets you use your own link component. It receives `href`, `className`,
+`aria-current`, `onClick` and the inner content — spread all of them.
+
+```tsx
+'use client';
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
+
+function NavItem({ href, icon, children }) {
+  const pathname = usePathname();
+  return (
+    <Sidebar.Item
+      href={href}
+      icon={icon}
+      active={pathname.startsWith(href)}
+      renderLink={(props) => <Link {...props} />}
+    >
+      {children}
+    </Sidebar.Item>
+  );
+}
+```
+
+## useAppShell
+
+Any component inside `AppShell` can read and change the state:
+`{ sidebarOpen, setSidebarOpen, toggleSidebar, mobileOpen, setMobileOpen, collapsed }`.
+
+<ComponentPreview name="app-shell/use-app-shell" align="start" />
+
+<Callout title="Examples on this page">
+  The examples here live in a bounded frame: `className="[--ak-app-shell-height:480px]"` sets the
+  layout height (the default is `100dvh`). Don't pass it in a real app.
+</Callout>
+
+## Props
+
+### AppShell
+
+Also accepts `<div>` attributes and `ref`.
+
+<PropsTable
+  rows={[
+    {
+      name: 'sidebarOpen',
+      type: 'boolean',
+      description: 'Whether the desktop sidebar is expanded (controlled)',
+    },
+    {
+      name: 'defaultSidebarOpen',
+      type: 'boolean',
+      default: 'true',
+      description: 'Initial state',
+    },
+    {
+      name: 'onSidebarOpenChange',
+      type: '(open: boolean) => void',
+      description: 'Called on collapse / expand',
+    },
+    {
+      name: 'sidebarStorageKey',
+      type: 'string',
+      description: 'localStorage key — persists the state (SSR-safe)',
+    },
+    {
+      name: 'shortcut',
+      type: 'string | false',
+      default: "'mod+b'",
+      description: 'Collapse shortcut (useHotkeys format); false disables it',
+    },
+    {
+      name: 'labels',
+      type: '{ skipToContent?: string }',
+      default: '{ skipToContent: "Asosiy kontentga o\'tish" }',
+      description: 'Skip link text',
+    },
+  ]}
+/>
+
+### Sidebar
+
+Also accepts `<aside>` attributes (the desktop panel) and `ref`.
+
+<PropsTable
+  rows={[
+    {
+      name: 'width',
+      type: 'number | string',
+      default: '256',
+      description: 'Expanded width; 64px when collapsed',
+    },
+    {
+      name: 'labels',
+      type: '{ nav?: string; drawerTitle?: string }',
+      default: '{ nav: "Asosiy menyu", drawerTitle: "Menyu" }',
+      description: 'The <nav> name and the mobile Drawer title (for screen readers)',
+    },
+  ]}
+/>
+
+### Sidebar.Item
+
+<PropsTable
+  rows={[
+    {
+      name: 'icon',
+      type: 'ReactNode',
+      description: 'Leading icon (18px); the only thing shown when collapsed',
+    },
+    { name: 'href', type: 'string', description: 'Link target; without it — a <button>' },
+    {
+      name: 'onClick',
+      type: '(event: MouseEvent) => void',
+      description: 'Called on click (the mobile Drawer closes either way)',
+    },
+    {
+      name: 'active',
+      type: 'boolean',
+      default: 'false',
+      description: 'Current page — aria-current="page" and a highlighted background',
+    },
+    { name: 'badge', type: 'ReactNode', description: 'A counter (12) or your own element' },
+    { name: 'disabled', type: 'boolean', default: 'false', description: 'Disabled' },
+    {
+      name: 'label',
+      type: 'string',
+      description: 'Tooltip and aria-label when collapsed (defaults to the children text)',
+    },
+    {
+      name: 'renderLink',
+      type: '(props: SidebarItemLinkProps) => ReactElement',
+      description: 'Your own link component: (p) => <Link {...p} />',
+    },
+  ]}
+/>
+
+### Sidebar.Group
+
+<PropsTable
+  rows={[
+    { name: 'label', type: 'ReactNode', description: 'Group heading' },
+    {
+      name: 'collapsible',
+      type: 'boolean',
+      default: 'false',
+      description: 'The group folds when its heading is clicked',
+    },
+    {
+      name: 'defaultOpen',
+      type: 'boolean',
+      default: 'true',
+      description: 'Whether a collapsible group starts open',
+    },
+  ]}
+/>
+
+### AppShell.SidebarToggle
+
+`IconButton` props; `aria-label` defaults to `"Yon menyu"`, `variant` to `ghost`. Pass `children`
+to replace the built-in icon.
+
+### Data attributes
+
+| Attribute            | Where          | Value                    |
+| -------------------- | -------------- | ------------------------ |
+| `data-sidebar-state` | `AppShell`     | `expanded` · `collapsed` |
+| `data-collapsed`     | `Sidebar`      | present when collapsed   |
+| `data-active`        | `Sidebar.Item` | present when active      |
+| `data-disabled`      | `Sidebar.Item` | present when disabled    |
+
+## Keyboard
+
+| Key           | Action                                                 |
+| ------------- | ------------------------------------------------------ |
+| `Tab` (first) | Reveals the "skip to main content" link                |
+| `Ctrl/⌘ + B`  | Collapses/expands on desktop, opens the menu on phones |
+| `Esc`         | Closes the mobile menu                                 |
+
+## Accessibility
+
+- **Skip link.** `AppShell` puts a "skip to main content" link at the top of the page — it's
+  visible only on keyboard focus and jumps to `AppShell.Main`. Change its text with `labels`.
+- **Navigation.** The menu is inside `<nav aria-label="Asosiy menyu">` and the active item gets
+  `aria-current="page"`; groups are `role="group"` and labelled by their heading.
+- **Collapsed state.** Even with the text hidden, every item keeps its name through `aria-label`
+  and a `Tooltip`. Badge counts stay available to screen readers as text.
+- **Toggle.** `AppShell.SidebarToggle` gets `aria-expanded` and `aria-controls` (the panel on
+  desktop, the Drawer on phones).
+- **Mobile menu** is a `Drawer`: focus is trapped inside, `Esc` closes it and focus returns to the
+  button.

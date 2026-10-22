@@ -1,0 +1,268 @@
+---
+title: Charts
+description: Charts built on Recharts — ready-made AreaChart, BarChart, LineChart, DonutChart and Sparkline, plus primitives for your own charts.
+---
+
+<ComponentPreview name="charts/area" align="start" />
+
+## Installation
+
+Charts live in a separate entry point — `@akhatmirzo/ui/charts`. They are built on
+[Recharts](https://recharts.github.io), which is an **optional** peer dependency: if you don't use
+charts, you don't need to install it, and the main `@akhatmirzo/ui` import never pulls it in.
+
+<Install pkg="recharts" />
+
+## Import
+
+```tsx
+import { AreaChart, BarChart, LineChart, DonutChart, Sparkline } from '@akhatmirzo/ui/charts';
+```
+
+## When to use
+
+- **Change over time** — `AreaChart` or `LineChart` (monthly revenue, daily visits).
+- **Comparing categories** — `BarChart` (regions, products). For long names use
+  `orientation="horizontal"`.
+- **Parts of a whole** — `DonutChart`, with no more than 5–6 slices; group the rest into "Other".
+- **A small trend** — `Sparkline` in KPI cards and table cells.
+- **When exact values matter** — show a table instead of, or next to, the chart (see
+  [Accessibility](#accessibility)).
+
+## Ready-made charts
+
+They all share the same props: `data` is a list of objects, `index` is the category field (x axis)
+and `series` lists the numeric fields to draw. Colors come only from tokens, so charts adapt to dark
+mode on their own.
+
+### AreaChart
+
+The example above. `stacked` stacks the series on top of each other; `curve` is `monotone`
+(default), `linear` or `step`.
+
+### BarChart
+
+`stacked` puts the series into one bar, showing the total and its breakdown together.
+
+<ComponentPreview name="charts/bar" align="start" />
+
+`orientation="horizontal"` draws horizontal bars — handy for long names and rankings. The prop is
+named after what you see (`vertical` — upright columns) and deliberately differs from Recharts'
+`layout`, where `layout="vertical"` means the opposite (horizontal bars).
+
+<ComponentPreview name="charts/bar-horizontal" align="start" />
+
+### LineChart
+
+For comparing several metrics. This one uses `curve="linear"`.
+
+<ComponentPreview name="charts/line" align="start" />
+
+### DonutChart
+
+`index` is the slice name and `value` is the value field. The center shows `centerLabel` and the
+total (formatted with `valueFormat`); override it with `centerValue` or hide it with `null`.
+
+<ComponentPreview name="charts/donut" />
+
+### Sparkline
+
+A tiny line with no axes, grid or tooltip. If the value is already shown as text next to it, mark
+it as decorative with `aria-hidden`; otherwise give it an `aria-label`.
+
+<ComponentPreview name="charts/sparkline" />
+
+## Formatting
+
+`valueFormat` controls the tooltip and the value axis (default `formatNumber`: `1 250 000`);
+`indexFormat` controls the category axis and the tooltip title. Use `formatMoney` for money; if
+long values crowd the axis, pass a short form (`42,5 mln so'm`).
+
+```tsx
+import { formatMoney } from '@akhatmirzo/core';
+
+<BarChart valueFormat={(v) => formatMoney(v)} indexFormat={(d) => d.slice(0, 3)} … />
+```
+
+## States
+
+`loading` shows a Skeleton in place of the chart (`aria-busy`); empty data shows an `EmptyState`
+("Ma'lumot yo'q"). Pass your own empty state with `emptyState` and change the texts with `labels`.
+
+<ComponentPreview name="charts/states" align="start" />
+
+## Primitives: build your own chart
+
+When a ready-made chart isn't enough (dual axes, mixed series, custom shapes), compose Recharts
+directly — the primitives give it the library look:
+
+- `ChartContainer` — a responsive wrapper: `role="figure"` + `aria-label` (required), `description`,
+  and `config` → CSS variables (`revenue` → `var(--chart-revenue)`). Set the height with `height` or
+  `className="h-72"` (default 280px).
+- `ChartTooltip` — `<Tooltip content={<ChartTooltip format={formatMoney} />} />`; takes series
+  names from `label` in `config`.
+- `ChartLegend` — `<Legend content={<ChartLegend />} />`, or outside a chart with `payload`.
+- `chartColors` (5 series colors), `axisProps`, `gridProps`, `cursorProps`, `resolveChartColor`.
+
+<ComponentPreview name="charts/custom" align="start" />
+
+## Props
+
+Ready-made charts pass the remaining `<div>` attributes to the root (`className`, `ref`, `id`...).
+One of `aria-label` or `title` is **required** — TypeScript enforces it.
+
+### Shared (AreaChart, BarChart, LineChart)
+
+<PropsTable
+  rows={[
+    { name: 'data', type: 'readonly T[]', required: true, description: 'The data' },
+    { name: 'index', type: 'keyof T', required: true, description: 'Category (x axis) field' },
+    {
+      name: 'series',
+      type: '{ key: keyof T; label?: string; color?: ChartColor }[]',
+      required: true,
+      description: 'Series to draw. Without a color, the next one from chartColors is used',
+    },
+    {
+      name: 'aria-label / title',
+      type: 'string',
+      required: true,
+      description: 'Accessible name (either one)',
+    },
+    { name: 'description', type: 'ReactNode', description: 'Short summary (aria-describedby)' },
+    {
+      name: 'valueFormat',
+      type: '(value: number) => string',
+      default: 'formatNumber',
+      description: 'Tooltip and value axis',
+    },
+    {
+      name: 'indexFormat',
+      type: '(value: T[K]) => string',
+      description: 'Category axis and tooltip title',
+    },
+    { name: 'height', type: 'number', default: '280', description: 'Height in px' },
+    { name: 'legend', type: 'boolean', default: 'true' },
+    { name: 'grid', type: 'boolean', default: 'true', description: 'Dashed grid lines' },
+    { name: 'tooltip', type: 'boolean', default: 'true' },
+    { name: 'loading', type: 'boolean', default: 'false', description: 'Shows a Skeleton' },
+    {
+      name: 'emptyState',
+      type: 'ReactNode',
+      description: 'Empty state. Defaults to EmptyState ("Ma\'lumot yo\'q")',
+    },
+    {
+      name: 'labels',
+      type: '{ empty?: string; loading?: string }',
+      default: "{ empty: \"Ma'lumot yo'q\", loading: 'Yuklanmoqda' }",
+    },
+  ]}
+/>
+
+### Extra
+
+<PropsTable
+  rows={[
+    {
+      name: 'stacked',
+      type: 'boolean',
+      default: 'false',
+      description: 'AreaChart, BarChart — stack the series',
+    },
+    {
+      name: 'curve',
+      type: "'monotone' | 'linear' | 'step'",
+      default: "'monotone'",
+      description: 'AreaChart, LineChart',
+    },
+    {
+      name: 'orientation',
+      type: "'vertical' | 'horizontal'",
+      default: "'vertical'",
+      description: 'BarChart: vertical — upright columns, horizontal — horizontal bars',
+    },
+  ]}
+/>
+
+### DonutChart
+
+`data`, `aria-label`/`title`, `description`, `valueFormat`, `indexFormat`, `height`, `legend`,
+`tooltip`, `loading`, `emptyState` and `labels` work as above (there is no `series` or `grid`).
+
+<PropsTable
+  rows={[
+    { name: 'index', type: 'keyof T', required: true, description: 'Slice name field' },
+    { name: 'value', type: 'keyof T', required: true, description: 'Slice value field' },
+    {
+      name: 'colors',
+      type: 'ChartColor[]',
+      description: 'Color sequence. Defaults to chartColors',
+    },
+    { name: 'centerLabel', type: 'ReactNode', description: 'Caption in the center ("Total")' },
+    {
+      name: 'centerValue',
+      type: 'ReactNode',
+      default: 'valueFormat(total)',
+      description: 'Value in the center; null hides it',
+    },
+  ]}
+/>
+
+### Sparkline
+
+<PropsTable
+  rows={[
+    { name: 'data', type: 'readonly number[]', required: true },
+    {
+      name: 'aria-label / title / aria-hidden',
+      type: 'string | true',
+      required: true,
+      description: 'A name, or mark it decorative',
+    },
+    { name: 'color', type: 'ChartColor', default: "'primary'" },
+    { name: 'variant', type: "'area' | 'line'", default: "'area'" },
+    { name: 'curve', type: "'monotone' | 'linear' | 'step'", default: "'monotone'" },
+    { name: 'height', type: 'number', default: '36', description: 'Height in px' },
+  ]}
+/>
+
+### ChartContainer
+
+<PropsTable
+  rows={[
+    { name: 'children', type: 'ReactNode', required: true, description: 'A Recharts chart' },
+    { name: 'aria-label / title', type: 'string', required: true, description: 'Accessible name' },
+    {
+      name: 'config',
+      type: 'Record<string, { label?: ReactNode; color?: ChartColor }>',
+      description: 'Key → var(--chart-<key>); label is used by the tooltip and legend',
+    },
+    { name: 'height', type: 'number | string', description: 'Defaults to 280px (h-70)' },
+    { name: 'description', type: 'ReactNode', description: 'Short summary (aria-describedby)' },
+  ]}
+/>
+
+`ChartColor` is a token name (`primary`, `success`, `warning`, `danger`, `info`, `neutral`, `sky`,
+`emerald`, `amber`, `rose`) or any CSS value (`var(--ak-indigo-400)`). Hex values don't adapt to
+dark mode — prefer tokens.
+
+### Data attributes
+
+On the root of ready-made charts: `data-state` (`ready` · `loading` · `empty`), `data-loading`.
+
+## Accessibility
+
+- **A name is required** — every chart gets `role="figure"` and an `aria-label` (or `title`) — not
+  `img`, because the keyboard layer inside is interactive and `img` hides its children; `Sparkline`
+  uses `img`. Say what is shown and for which period: "Monthly revenue, January–June".
+- **Summary** — put the key takeaway in `description` ("Revenue reached 63M so'm in June"); it is
+  read through `aria-describedby`.
+- **Keyboard** — Recharts' `accessibilityLayer` is on: Tab into the chart and move between points
+  with `←` `→`; the tooltip follows. `Sparkline` has no tooltip, so it doesn't take focus.
+- **Offer a table view too** — charts are bad at conveying exact values. In important reports add
+  a "Chart / Table" switch or a table below the chart:
+
+<ComponentPreview name="charts/table-view" align="start" />
+
+- **Color is not the only signal** — the legend and tooltip name each series in text.
+- **Motion** — with `prefers-reduced-motion` enabled, Recharts turns off its entry animation.

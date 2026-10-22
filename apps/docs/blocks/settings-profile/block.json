@@ -1,0 +1,19 @@
+{
+  "name": "settings-profile",
+  "title": {
+    "uz": "Profil sozlamalari",
+    "en": "Profile settings"
+  },
+  "description": {
+    "uz": "Avatar yuklash, ism, email, telefon va RegionSelect — @akhatmirzo/ui/form va zUz bilan validatsiya.",
+    "en": "Avatar upload, name, email, phone and RegionSelect — validated with @akhatmirzo/ui/form and zUz."
+  },
+  "dependencies": [
+    "@akhatmirzo/core",
+    "@hookform/resolvers",
+    "lucide-react",
+    "react-hook-form",
+    "zod"
+  ],
+  "category": "settings"
+}

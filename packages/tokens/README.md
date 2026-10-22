@@ -8,7 +8,7 @@
 **Bitta CSS fayl — ranglar, tipografiya, soyalar, harakat va dark mode. Tailwind CSS v4 `@theme`
 bilan.**
 
-Hujjatlar: **https://toolkit.akhatmirzo.uz/uz/docs/v0.3/theming**
+Hujjatlar: **https://toolkit.akhatmirzo.uz/uz/docs/v0.4/theming**
 
 Yumshoq va do'stona yo'nalish: indigo + slate, Manrope shrifti, light va dark rejim. Bu paket
 [`@akhatmirzo/ui`](https://www.npmjs.com/package/@akhatmirzo/ui) komponentlarining vizual
@@ -101,8 +101,8 @@ zahoti yangi rangga o'tadi:
 }
 ```
 
-Batafsil — [Mavzu va tokenlar](https://toolkit.akhatmirzo.uz/uz/docs/v0.3/theming) va
-[Dark mode](https://toolkit.akhatmirzo.uz/uz/docs/v0.3/dark-mode) sahifalarida. Barcha
+Batafsil — [Mavzu va tokenlar](https://toolkit.akhatmirzo.uz/uz/docs/v0.4/theming) va
+[Dark mode](https://toolkit.akhatmirzo.uz/uz/docs/v0.4/dark-mode) sahifalarida. Barcha
 qiymatlar va dizayn qarorlari:
 [DESIGN.md](https://github.com/Akhatmirzo/akhatmirzo-toolkit/blob/main/DESIGN.md).
 
@@ -126,4 +126,4 @@ motion and focus utilities. Every value is also exposed as a `--ak-*` CSS variab
 Dark mode: `<html data-theme="dark">` — Tailwind's `dark:` variant follows the same attribute. To
 rebrand, override `--ak-primary*` after the import.
 
-Docs: https://toolkit.akhatmirzo.uz/en/docs/v0.3/theming
+Docs: https://toolkit.akhatmirzo.uz/en/docs/v0.4/theming

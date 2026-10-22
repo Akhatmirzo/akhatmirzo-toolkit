@@ -1,0 +1,13 @@
+{
+  "name": "otp-verify",
+  "title": {
+    "uz": "SMS kodni tasdiqlash",
+    "en": "OTP verification"
+  },
+  "description": {
+    "uz": "OtpInput va useCountdown bilan 6 xonali SMS kodni tasdiqlash, qayta yuborish taymeri.",
+    "en": "Verify a 6-digit SMS code with OtpInput and a useCountdown resend timer."
+  },
+  "dependencies": ["@akhatmirzo/hooks", "lucide-react"],
+  "category": "auth"
+}

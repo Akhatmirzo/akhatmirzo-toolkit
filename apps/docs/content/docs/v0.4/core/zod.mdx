@@ -1,0 +1,179 @@
+---
+title: Zod sxemalari
+description: "zUz — telefon, JShShIR, pasport, karta, summa va hudud uchun tayyor zod (v4) sxemalari, o'zbekcha xato matnlari bilan."
+---
+
+`@akhatmirzo/core/zod` — formalar uchun tayyor [zod](https://zod.dev) (v4) sxemalari. Har biri
+`@akhatmirzo/core` dagi `isValidX` / `parseX` funksiyalariga tayanadi (tekshiruv mantiqi bitta
+joyda), xato matnlari o'zbekcha, natija esa serverga yuborishga tayyor **toza qiymat**:
+telefon `"998901234567"`, summa `1250000`.
+
+<Install pkg="zod" />
+
+`zod` — ixtiyoriy peer-bog'liqlik: asosiy `@akhatmirzo/core` importi uni tortmaydi.
+
+```ts
+import { zUz } from '@akhatmirzo/core/zod';
+import { z } from 'zod';
+
+const schema = z.object({
+  phone: zUz.phone(),
+  pinfl: zUz.pinfl(),
+  amount: zUz.money({ min: 1000 }),
+});
+
+schema.parse({ phone: '+998 90 123-45-67', pinfl: '31503 90123 4567', amount: '1 250 000' });
+// { phone: '998901234567', pinfl: '31503901234567', amount: 1250000 }
+```
+
+<ComponentPreview name="core/zod" />
+
+[`Form`](../components/form.mdx) bilan birga: `useForm({ resolver: zodResolver(schema) })` —
+`FormField` xato matnini o'zi ko'rsatadi, `onSubmit` esa tozalangan qiymatlarni oladi.
+
+## Umumiy qoidalar
+
+- **Bo'sh qiymat** (`''`, `null`, `undefined`) — `required` xatosi, noto'g'ri qiymat —
+  `invalid`. Bo'shliq va chiziqchalar e'tiborsiz qoldiriladi.
+- **Xato matnlarini almashtirish** — `messages` opsiyasi bilan (faqat kerakli kalitlarni bering):
+
+```ts
+zUz.phone({ messages: { invalid: 'Faqat mobil raqam' } });
+zUz.money({ min: 1000, messages: { min: (min) => `Kamida ${min} so'm` } });
+```
+
+- **Ixtiyoriy maydon.** Formadagi bo'sh maydon `''` bo'ladi, `undefined` emas — shuning uchun
+  `.optional()` emas, `.or(z.literal(''))` ishlating: `zUz.inn().or(z.literal(''))`.
+- **Kirish va natija turlari farq qiladi:** `z.input<typeof schema>` — formadagi qiymat
+  (`money` uchun `number | string | null`), `z.output<typeof schema>` — `onSubmit` dagi (`number`).
+
+## Sxemalar
+
+| Sxema                        | Tekshiruv                               | Natija                   | Standart xato (`required` / `invalid`)                           |
+| ---------------------------- | --------------------------------------- | ------------------------ | ---------------------------------------------------------------- |
+| `zUz.phone()`                | `parsePhone(v).valid`                   | `'998901234567'`         | Telefon raqamini kiriting / Telefon raqami noto'g'ri             |
+| `zUz.pinfl({ checksum })`    | `isValidPinfl(v, { checksum })`         | `'31503901234567'`       | JShShIRni kiriting / JShShIR noto'g'ri                           |
+| `zUz.inn()`                  | `isValidInn`                            | `'123456789'`            | STIRni kiriting / STIR noto'g'ri                                 |
+| `zUz.passport()`             | `isValidPassport`                       | `'AA1234567'`            | Pasport seriya va raqamini kiriting / … noto'g'ri                |
+| `zUz.carPlate()`             | `isValidCarPlate`                       | `'01A123BC'`             | Avtomobil raqamini kiriting / Avtomobil raqami noto'g'ri         |
+| `zUz.bankAccount()`          | `isValidBankAccount` (20 raqam)         | `'20208000900012345001'` | Hisob raqamini kiriting / … 20 ta raqamdan iborat bo'lishi kerak |
+| `zUz.mfo()`                  | `isValidMfo` (5 raqam)                  | `'00014'`                | MFOni kiriting / MFO 5 ta raqamdan iborat bo'lishi kerak         |
+| `zUz.card()`                 | `isValidCardNumber` (16 raqam + Luhn)   | `'4111111111111111'`     | Karta raqamini kiriting / Karta raqami noto'g'ri                 |
+| `zUz.email()`                | `isValidEmail`                          | chetdagi bo'shliqsiz     | Email manzilini kiriting / Email manzili noto'g'ri               |
+| `zUz.password({ minScore })` | `passwordStrength(v).score >= minScore` | o'zgarmaydi              | Parolni kiriting / Parol juda oddiy — …                          |
+| `zUz.money({ min, max })`    | son yoki `"1 250 000"` matni            | `number`                 | Summani kiriting / Summa noto'g'ri                               |
+| `zUz.region()`               | `UZ_REGIONS` dagi `id`                  | `UzRegionId`             | Hududni tanlang / Hudud noto'g'ri                                |
+
+### zUz.phone
+
+```ts
+function phone(options?: { messages?: Partial<{ required: string; invalid: string }> }): ZodType;
+```
+
+O'zbekiston mobil raqami: 9 raqam va ma'lum operator kodi. `+998`, bo'shliq, qavs va
+chiziqchalar qabul qilinadi. [`PhoneInput`](../components/masked-input.mdx) bilan mos.
+
+```ts
+zUz.phone().parse('+998 90 123-45-67'); // '998901234567'
+zUz.phone().parse('901234567'); // '998901234567'
+zUz.phone().safeParse('+998 12 123 45 67').success; // false — operator kodi yo'q
+```
+
+### zUz.pinfl
+
+```ts
+function pinfl(options?: { checksum?: boolean; messages?: Partial<ZUzMessages> }): ZodType;
+```
+
+JShShIR: 14 raqam, birinchi raqam 3–6, 2–7-raqamlar haqiqiy sana. `checksum: true` — nazorat
+raqamini ham tekshiradi (algoritm tasdiqlanmagan, [identifikatorlar](./identifiers.mdx)
+sahifasiga qarang).
+
+```ts
+zUz.pinfl().parse('31503 90123 4567'); // '31503901234567'
+zUz.pinfl().safeParse('33102901234567').success; // false — 31-fevral yo'q
+```
+
+### zUz.inn · zUz.passport · zUz.carPlate · zUz.bankAccount · zUz.mfo
+
+```ts
+zUz.inn().parse('123 456 789'); // '123456789'
+zUz.passport().parse('aa 123-45-67'); // 'AA1234567'
+zUz.carPlate().parse('01 a 123 bc'); // '01A123BC'
+zUz.carPlate().parse('30 123 abc'); // '30123ABC'
+zUz.bankAccount().parse('2020 8000 9000 1234 5001'); // '20208000900012345001'
+zUz.mfo().parse('00014'); // '00014' — boshidagi nollar saqlanadi
+```
+
+Natija — kichik harflar kattalashtirilgan, bo'shliq va chiziqchalarsiz qiymat (hujjat
+inputlari `onValueChange` da beradigan ko'rinish).
+
+### zUz.card
+
+Karta raqami: aynan 16 raqam va Luhn nazorat yig'indisi. Natija — faqat raqamlar.
+
+```ts
+zUz.card().parse('4111 1111 1111 1111'); // '4111111111111111'
+zUz.card().safeParse('4111 1111 1111 1112').success; // false — Luhn
+```
+
+### zUz.email
+
+```ts
+zUz.email().parse(' sarvar@mail.uz '); // 'sarvar@mail.uz'
+```
+
+### zUz.password
+
+```ts
+function password(options?: {
+  minScore?: 0 | 1 | 2 | 3 | 4; // standart 2 — "O'rtacha"
+  messages?: Partial<{ required: string; weak: string }>;
+}): ZodType;
+```
+
+[`passwordStrength`](./validate.mdx) bahosi `minScore` dan past bo'lsa — `weak` xatosi.
+Qiymat o'zgartirilmaydi.
+
+```ts
+zUz.password().safeParse('parol').success; // false
+zUz.password({ minScore: 3 }).parse('Parol123!'); // 'Parol123!'
+```
+
+### zUz.money
+
+```ts
+function money(options?: {
+  min?: number;
+  max?: number;
+  messages?: Partial<{
+    required: string;
+    invalid: string;
+    min: string | ((min: number) => string);
+    max: string | ((max: number) => string);
+  }>;
+}): ZodType<number, number | string | null | undefined>;
+```
+
+Son yoki matn qabul qiladi: bo'shliqlar (shu jumladan bo'linmas) va oxiridagi `so'm` / `UZS`
+tashlanadi. Kasr — vergul yoki nuqta; ikkalasi bo'lsa oxirgisi kasr, qolganlari minglik
+(`'1,250,000.50'`, `'1.250.000,50'`). Bo'sh qiymat — `required` xatosi. [`MoneyInput`](../components/masked-input.mdx) ning `number | null`
+qiymati bilan to'g'ridan-to'g'ri ishlaydi.
+
+```ts
+zUz.money().parse('1 250 000'); // 1250000
+zUz.money().parse("1 250 000 so'm"); // 1250000
+zUz.money().parse('1250,5'); // 1250.5
+zUz.money().parse('1,250,000.50'); // 1250000.5
+zUz.money({ min: 1000 }).safeParse(500).error?.issues[0]?.message; // "Eng kam summa — 1 000 so'm"
+```
+
+### zUz.region
+
+`UZ_REGIONS` dagi hudud `id` si. Kirish — `string` (bo'sh forma qiymati `''` ham), natija —
+`UzRegionId`. [`RegionSelect`](../components/select.mdx) bilan mos.
+
+```ts
+zUz.region().parse('samarkand'); // 'samarkand'
+zUz.region().safeParse('').error?.issues[0]?.message; // 'Hududni tanlang'
+```

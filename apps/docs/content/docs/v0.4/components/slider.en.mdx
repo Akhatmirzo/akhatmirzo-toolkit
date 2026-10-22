@@ -1,0 +1,204 @@
+---
+title: Slider
+description: Pick a number or a range by dragging — one or two thumbs, marks, a value bubble and Field integration.
+---
+
+<ComponentPreview name="slider/basic" />
+
+## Import
+
+```tsx
+import { Slider } from '@akhatmirzo/ui';
+```
+
+## When to use
+
+- **When the exact number doesn't matter** — volume, brightness, radius. Users pick "roughly" and
+  see the result right away.
+- **Range filters** — price "from — to", age, area. A two-thumb slider is faster than two inputs.
+- **When users need an exact value** (an amount, a quantity), an [`Input`](./input.mdx) or
+  `MaskedInput` works better — or put one next to the slider.
+- **With only a few steps** (3–5 options), a [`SegmentedControl`](./segmented-control.mdx) or a
+  [`RadioGroup`](./radio-group.mdx) is clearer.
+
+## The value is always an array
+
+Like Radix, the value is always `number[]`: one thumb — `[50]`, a range — `[20, 80]`. The number of
+thumbs comes from the array length. Without `defaultValue` the slider starts at `[min]`.
+
+```tsx
+<Slider defaultValue={[50]} />
+<Slider defaultValue={[20, 80]} />
+```
+
+## Range
+
+Two values — two thumbs. `formatValue` formats the value in the bubble and for screen readers;
+`minStepsBetweenThumbs` sets the minimum distance between thumbs (in steps).
+
+<ComponentPreview name="slider/range" align="start" />
+
+## Value bubble
+
+`showValue` controls the value shown above the thumb (styled like a Tooltip):
+
+| Value              | Visible when                |
+| ------------------ | --------------------------- |
+| `active` (default) | Hovered, dragged or focused |
+| `always`           | Always                      |
+| `never`            | Never                       |
+
+<ComponentPreview name="slider/show-value" align="start" />
+
+## Marks
+
+`marks` draws ticks and labels under the track. Marks are visual only — `step` is what limits the
+value.
+
+<ComponentPreview name="slider/marks" align="start" />
+
+## Sizes and states
+
+`size` — `md` (6px track, 20px thumb, default) or `sm` (4px / 16px). The thumb's hit area is at
+least 40px in both sizes. `disabled` blocks dragging and focus.
+
+<ComponentPreview name="slider/sizes" align="start" />
+
+## With Field
+
+Inside a [`Field`](./field.mdx) the label names the thumb, the description and error are linked
+through `aria-describedby`, and an `error` switches the slider to the `invalid` state (red thumb and
+fill).
+
+<ComponentPreview name="slider/with-field" align="start" />
+
+## Vertical
+
+`orientation="vertical"` makes the slider fill its parent's height (at least 160px). `↑ ↓` work on
+the keyboard too.
+
+<ComponentPreview name="slider/vertical" align="start" />
+
+## Forms and APIs
+
+- With `name`, each thumb renders a hidden `<input>` inside a `<form>`: `name` for one thumb,
+  `name[]` for a range.
+- `onValueChange` fires on every move; `onValueCommit` fires once when dragging ends (or on a
+  keyboard change). Hook server requests to `onValueCommit`.
+
+```tsx
+<Slider
+  defaultValue={[20]}
+  onValueChange={setPreview} // on every move
+  onValueCommit={(v) => saveSettings({ volume: v[0] })} // on release
+/>
+```
+
+## Props
+
+Other `<span>` attributes and Radix `Root` props (`dir`, `form`) are passed through; `ref` points to
+the root element.
+
+<PropsTable
+  rows={[
+    { name: 'value', type: 'number[]', description: 'Value (controlled mode)' },
+    { name: 'defaultValue', type: 'number[]', default: '[min]', description: 'Initial value' },
+    { name: 'onValueChange', type: '(value: number[]) => void', description: 'On every change' },
+    {
+      name: 'onValueCommit',
+      type: '(value: number[]) => void',
+      description: 'When dragging ends or on a keyboard change',
+    },
+    { name: 'min', type: 'number', default: '0', description: 'Minimum value' },
+    { name: 'max', type: 'number', default: '100', description: 'Maximum value' },
+    { name: 'step', type: 'number', default: '1', description: 'Step' },
+    {
+      name: 'minStepsBetweenThumbs',
+      type: 'number',
+      default: '0',
+      description: 'Minimum distance between thumbs, in steps',
+    },
+    {
+      name: 'orientation',
+      type: "'horizontal' | 'vertical'",
+      default: "'horizontal'",
+      description: 'Direction',
+    },
+    {
+      name: 'size',
+      type: "'sm' | 'md'",
+      default: "'md'",
+      description: 'Track 4 / 6px, thumb 16 / 20px',
+    },
+    {
+      name: 'showValue',
+      type: "'never' | 'active' | 'always'",
+      default: "'active'",
+      description: 'Value bubble above the thumb',
+    },
+    {
+      name: 'formatValue',
+      type: '(value: number) => string',
+      default: 'String',
+      description: 'Text for the bubble and aria-valuetext',
+    },
+    {
+      name: 'marks',
+      type: '{ value: number; label?: ReactNode }[]',
+      description: 'Marks under the track',
+    },
+    { name: 'disabled', type: 'boolean', description: 'Disables the slider' },
+    { name: 'invalid', type: 'boolean', description: 'Error state (automatic inside Field)' },
+    {
+      name: 'name',
+      type: 'string',
+      description: 'For forms: a hidden input per thumb (name[] for a range)',
+    },
+    {
+      name: 'labels',
+      type: '{ thumb?: (index: number, count: number) => string }',
+      default: "'Qiymat' | 'Minimal qiymat' / 'Maksimal qiymat'",
+      description: 'Screen reader names of the thumbs',
+    },
+    {
+      name: 'aria-label',
+      type: 'string',
+      description: 'Slider name without a Field (combined with the thumb name in a range)',
+    },
+  ]}
+/>
+
+### Data attributes
+
+| Attribute          | Where              | Value                                                                              |
+| ------------------ | ------------------ | ---------------------------------------------------------------------------------- |
+| `data-size`        | root               | `sm` · `md`                                                                        |
+| `data-orientation` | root, track, thumb | `horizontal` · `vertical`                                                          |
+| `data-disabled`    | root, track, thumb | present when disabled                                                              |
+| `data-invalid`     | root               | present in error state                                                             |
+| `data-slot`        | track, fill, ...   | `slider-track` · `slider-range` · `slider-thumb` · `slider-value` · `slider-marks` |
+
+## Keyboard
+
+| Key                   | Action                          |
+| --------------------- | ------------------------------- |
+| `←` `↓` / `→` `↑`     | Decrease / increase by one step |
+| `PageDown` / `PageUp` | Decrease / increase by 10 steps |
+| `Shift` + arrow       | 10 steps                        |
+| `Home` / `End`        | `min` / `max`                   |
+| `Tab`                 | Move to the next thumb          |
+
+## Accessibility
+
+- **Role.** Each thumb is `role="slider"` with `aria-valuemin`, `aria-valuemax`, `aria-valuenow` and
+  `aria-orientation`. Built on Radix Slider.
+- **Value text.** `aria-valuetext` is the `formatValue` result, so screen readers say
+  "1 500 000 so'm" instead of "1500000".
+- **Name.** Inside a `Field` the thumb is linked to the label via `aria-labelledby`. In a range each
+  thumb is named label + "Minimal qiymat" / "Maksimal qiymat" (change it with `labels.thumb`).
+  Without a Field, pass `aria-label`.
+- **Errors.** The Field's description and error go to `aria-describedby`, the error state to
+  `aria-invalid`.
+- **The bubble and marks** are decorative — `aria-hidden` (the value is already in
+  `aria-valuetext`).
+- **Touch.** The thumb has an invisible hit area of at least 40px.

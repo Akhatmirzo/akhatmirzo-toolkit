@@ -3,7 +3,7 @@ title: Document inputs
 description: Ready-made fields for Uzbek document numbers — PINFL, passport, TIN, car plate and bank account.
 ---
 
-<ComponentPreview name="document-inputs/overview" align="start" />
+<ComponentPreview name="archive/v0.3/document-inputs/overview" align="start" />
 
 ## Import
 
@@ -45,7 +45,7 @@ With `validate` (default `true`) a complete value that fails the check marks the
 `invalid`. It doesn't turn red while you type. Two exceptions show the error right away: an
 `InnInput` value starting with `0`, and a `CarPlateInput` region code that isn't on the list.
 
-<ComponentPreview name="document-inputs/validation" align="start" />
+<ComponentPreview name="archive/v0.3/document-inputs/validation" align="start" />
 
 ## PinflInput
 
@@ -53,7 +53,7 @@ The PINFL (JShShIR) is 14 digits in `5-5-4` groups. When the 14th digit is typed
 fires with `{ valid, gender, birthDate, complete }` — gender and birth date are read from the
 number itself. The check digit is not verified by default; turn it on with `checksum`.
 
-<ComponentPreview name="document-inputs/pinfl" align="start" />
+<ComponentPreview name="archive/v0.3/document-inputs/pinfl" align="start" />
 
 ## PassportInput
 
@@ -72,7 +72,7 @@ The personal (`01 A 123 BC`) or legal-entity (`01 123 ABC`) format is detected f
 character: a letter means personal, a digit means legal. The region code sits on the left behind
 a divider, with a flag mark and "UZ" on the right — like a real plate.
 
-<ComponentPreview name="document-inputs/car-plate" align="start" />
+<ComponentPreview name="archive/v0.3/document-inputs/car-plate" align="start" />
 
 `onDetails` fires on every change — the region is known after the first two digits, the type
 after the third character:

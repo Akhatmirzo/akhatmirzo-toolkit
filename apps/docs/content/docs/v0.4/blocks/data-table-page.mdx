@@ -1,0 +1,42 @@
+---
+title: 'Jadval sahifasi'
+description: "Sarlavha va amallar, qidiruv va filtrlar, DataTable, Pagination hamda bo'sh natija holati."
+full: true
+---
+
+<BlockPreview name="data-table-page" />
+
+## Tarkibi
+
+- Qidiruv (mijoz yoki raqam), holat va hudud `Select` lari; filtr o'zgarsa birinchi sahifaga qaytadi.
+- Har qatorda `DropdownMenu` amallari: batafsil, chek, bekor qilish.
+- Natija bo'lmasa — `EmptyState` va "Filtrlarni tozalash".
+- `Pagination` va `PaginationInfo` jadval ostida, torda ustma-ust.
+
+## Ishlatilgan komponentlar
+
+- [DataTable](../components/data-table.mdx)
+- [Input](../components/input.mdx)
+- [Select](../components/select.mdx)
+- [Pagination](../components/pagination.mdx)
+- [EmptyState](../components/empty-state.mdx)
+- [Badge](../components/badge.mdx)
+- [Avatar](../components/avatar.mdx)
+- [DropdownMenu](../components/dropdown-menu.mdx)
+- [IconButton](../components/icon-button.mdx)
+- [Button](../components/button.mdx)
+- [toast](../components/toast.mdx)
+- [`formatMoney, formatDate, formatPhone`](../core/format.mdx)
+
+## O'rnatish
+
+CLI blok faylini loyihangizga (`components/blocks/data-table-page.tsx`) ko'chiradi va kerakli paketlarni
+o'rnatishni taklif qiladi:
+
+```bash
+npx @akhatmirzo/cli add data-table-page
+```
+
+Qo'lda: paketlarni o'rnating va "Kod" tabidagi faylni loyihangizga nusxalang.
+
+<BlockInstall name="data-table-page" />

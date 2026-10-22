@@ -1,0 +1,95 @@
+---
+title: EmptyState
+description: "Bo'sh ro'yxat, natijasiz qidiruv va birinchi kirish holati uchun: ikonka, sarlavha, izoh va harakatlar."
+---
+
+<ComponentPreview name="empty-state/basic" />
+
+## Import
+
+```tsx
+import { EmptyState } from '@akhatmirzo/ui';
+```
+
+## Qachon ishlatish
+
+- **Ro'yxat yoki jadval bo'sh bo'lganda** — "Buyurtmalar hali yo'q". Bo'sh oq joy o'rniga nima
+  bo'lganini va keyingi qadamni ko'rsating.
+- **Qidiruv yoki filtr natija bermaganda** — so'rovni o'zgartirish yoki filtrni tozalashni
+  taklif qiling.
+- **Birinchi kirishda** — foydalanuvchini birinchi harakatga yo'naltiring (`size="lg"`).
+- **Bitta asosiy harakat** — `action` (`primary`), qo'shimchasi `secondaryAction` (`ghost`).
+- **Sarlavha qisqa, izoh foydali bo'lsin** — "Hech narsa yo'q" emas, "Birinchi buyurtma kelganda
+  shu yerda ko'rinadi".
+
+## Qidiruvda natija yo'q
+
+`bordered` — bo'lim ichida ishlatish uchun punktir chegara.
+
+<ComponentPreview name="empty-state/search" align="start" />
+
+## O'lchamlar
+
+`size`: `sm` — vertikal padding 24px, `md` (standart) — 40px, `lg` — 64px, ikonka doirasi 64px va
+kattaroq sarlavha.
+
+<ComponentPreview name="empty-state/sizes" />
+
+## DataTable bilan
+
+`DataTable` bo'sh bo'lganda o'zining `empty` slotida aynan shu ko'rinishni chizadi. `empty` ga
+EmptyState'dagi kabi `icon`, `title`, `description` va `action` beriladi.
+
+<ComponentPreview name="empty-state/data-table" align="start" />
+
+## Props
+
+`EmptyState` qolgan barcha `<div>` atributlarini qabul qiladi (`title` dan tashqari — u prop
+sifatida band).
+
+<PropsTable
+  rows={[
+    { name: 'title', type: 'ReactNode', required: true, description: 'Sarlavha' },
+    { name: 'description', type: 'ReactNode', description: 'Qisqa izoh (max 40 belgi kenglikda)' },
+    {
+      name: 'icon',
+      type: 'ReactNode',
+      description: 'Berilsa — 48px doira ichida (lg da 64px)',
+    },
+    { name: 'action', type: 'ReactNode', description: 'Asosiy harakat' },
+    { name: 'secondaryAction', type: 'ReactNode', description: 'Ikkilamchi harakat' },
+    {
+      name: 'size',
+      type: "'sm' | 'md' | 'lg'",
+      default: "'md'",
+      description: 'Vertikal padding: 24 / 40 / 64px',
+    },
+    {
+      name: 'bordered',
+      type: 'boolean',
+      default: 'false',
+      description: "Punktir chegara va radius (bo'lim ichida ishlatish uchun)",
+    },
+    {
+      name: 'headingLevel',
+      type: '2 | 3 | 4 | 5 | 6',
+      default: '3',
+      description: 'Sarlavha tegi (h2–h6)',
+    },
+  ]}
+/>
+
+### Data atributlari
+
+Ildiz elementda: `data-size`, `data-bordered` (punktir chegara bo'lsa). Stilni boshqa elementga
+qo'llash uchun `emptyStateVariants` ham eksport qilinadi.
+
+## Accessibility
+
+- **Sarlavha haqiqiy `h*` tegi** — standart `h3`. Sahifa tuzilishiga moslab `headingLevel` bilan
+  o'zgartiring, shunda sarlavhalar ketma-ketligi buzilmaydi.
+- **Ikonka bezak** — doirasi bilan birga `aria-hidden`.
+- **Harakatlar** — siz bergan tugmalar, klaviatura bilan odatdagidek ishlaydi. Tor ekranda
+  (< 640px) ular ustma-ust va to'liq kenglikda turadi.
+- **Natija dinamik o'zgarsa** (qidiruv), xabar e'lon qilinishini istasangiz, o'rab turgan
+  konteynerga `role="status"` bering.

@@ -1,0 +1,42 @@
+---
+title: 'Data table page'
+description: 'Page header with actions, search and filters, DataTable, Pagination and an empty result state.'
+full: true
+---
+
+<BlockPreview name="data-table-page" />
+
+## What's inside
+
+- Search (customer or number) plus status and region `Select`s; changing a filter goes back to page 1.
+- Each row has `DropdownMenu` actions: details, receipt, cancel.
+- No results — an `EmptyState` with a "Clear filters" action.
+- `Pagination` and `PaginationInfo` below the table, stacked in narrow containers.
+
+## Components used
+
+- [DataTable](../components/data-table.mdx)
+- [Input](../components/input.mdx)
+- [Select](../components/select.mdx)
+- [Pagination](../components/pagination.mdx)
+- [EmptyState](../components/empty-state.mdx)
+- [Badge](../components/badge.mdx)
+- [Avatar](../components/avatar.mdx)
+- [DropdownMenu](../components/dropdown-menu.mdx)
+- [IconButton](../components/icon-button.mdx)
+- [Button](../components/button.mdx)
+- [toast](../components/toast.mdx)
+- [`formatMoney, formatDate, formatPhone`](../core/format.mdx)
+
+## Installation
+
+The CLI copies the block file into your project (`components/blocks/data-table-page.tsx`) and offers to
+install the packages it needs:
+
+```bash
+npx @akhatmirzo/cli add data-table-page
+```
+
+Manually: install the packages and copy the file from the "Code" tab into your project.
+
+<BlockInstall name="data-table-page" />

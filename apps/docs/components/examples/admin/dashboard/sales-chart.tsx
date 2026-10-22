@@ -13,7 +13,13 @@ import {
   XAxis,
   YAxis,
 } from 'recharts';
-import { ChartTooltip, axisProps, chartColors, cursorProps, gridProps } from '../../shared/chart';
+import {
+  ChartTooltip,
+  axisProps,
+  chartColors,
+  cursorProps,
+  gridProps,
+} from '@akhatmirzo/ui/charts';
 import { formatCompact } from './analytics';
 
 interface Point {

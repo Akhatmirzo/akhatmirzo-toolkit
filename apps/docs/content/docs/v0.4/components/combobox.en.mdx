@@ -1,0 +1,299 @@
+---
+title: Combobox
+description: A searchable select with Uzbek-aware search, multiple selection, creatable options and server search.
+---
+
+<ComponentPreview name="combobox/basic" align="start" />
+
+## Import
+
+```tsx
+import { Combobox, type ComboboxOption } from '@akhatmirzo/ui';
+```
+
+## When to use
+
+- **Long lists** — cities, districts, customers, products. Scanning more than 10–15 options by
+  eye is slow; typing is faster.
+- **Several values** — `multiple`: tags, branches, assignees.
+- **Values that may not exist yet** — `creatable` (a new tag, a new category).
+- **Data that lives on the server** — `onSearch` and `loading` send every query to your API.
+- **A short list with no need for search** — a plain [`Select`](./select.mdx) is enough.
+
+## Uzbek-aware search
+
+Search is powered by `searchMatch` from `@akhatmirzo/core`, and it forgives the usual quirks of
+written Uzbek:
+
+- **Every apostrophe is the same:** `gʻ`, `g'`, `g‘` and `g’` all match. Leaving the apostrophe
+  out works too: `ulugbek` finds "Mirzo Ulug'bek".
+- **Cyrillic ↔ Latin:** typing `Чилонзор` finds "Chilonzor", and `Тошкент` finds "Toshkent".
+- **Case-insensitive:** `TOSHKENT` and `toshkent` are the same query.
+- **Matches inside words:** `chirchiq` finds "Oʻrta Chirchiq".
+- **The matched part is bold** — in the `description` line as well.
+
+<ComponentPreview name="combobox/uzbek-search" align="start" />
+
+<Callout title="Use it in your own search">
+  The same helpers are exported on their own: `searchMatch`, `normalizeUz` and `splitByRanges` — see
+  [core/text](../core/text.mdx). Normalizing queries with `normalizeUz` helps on the server side
+  too.
+</Callout>
+
+## Multiple selection
+
+With `multiple`, `value` becomes an array (`string[]`). Selected options show up as `Badge`
+chips inside the trigger, each with its own ✕. The panel stays open after each pick; `Backspace`
+on an empty query removes the last selection.
+
+<ComponentPreview name="combobox/multiple" align="start" />
+
+## Creating options
+
+With `creatable` on, a "«text» yaratish" item appears at the end of the list whenever the query
+doesn't exactly match an existing option. If `onCreate` returns an option, that option gets
+selected; if it returns nothing, the text itself is used as both value and label. Adding the new
+option to `options` is up to you.
+
+<ComponentPreview name="combobox/creatable" align="start" />
+
+## Server search
+
+Passing `onSearch` turns off local filtering: you receive the query (debounced by 300ms) and
+provide fresh `options`. While you wait, `loading` shows a spinner in place of the list. When the
+panel closes, `onSearch('')` is called — a good moment to restore the initial list.
+
+<ComponentPreview name="combobox/server" align="start" />
+
+<Callout title="The selection survives new results" type="info">
+  Even if the selected option is missing from the latest server results, Combobox remembers its
+  label and keeps showing it in the trigger.
+</Callout>
+
+## Descriptions and icons
+
+`ComboboxOption` supports `description` (a second line), `icon` and `disabled`. Search looks at
+the description too. Remove the search icon in the trigger with `leftIcon={null}`, or pass your
+own.
+
+<ComponentPreview name="combobox/details" align="start" />
+
+```ts
+interface ComboboxOption {
+  value: string;
+  label: string;
+  description?: string;
+  icon?: ReactNode;
+  disabled?: boolean;
+}
+```
+
+## Sizes
+
+The same as `Input` and `Select`: 32, 40 and 48px. With `multiple`, the height grows with the
+number of chips.
+
+<ComponentPreview name="combobox/sizes" align="start" />
+
+## States
+
+Inside a `Field`, `disabled`, `error` and `required` are wired up for you. `loading` shows a
+spinner instead of the list when the panel opens.
+
+<ComponentPreview name="combobox/states" align="start" />
+
+## Inside a dialog
+
+Inside a [`Dialog`](./dialog.mdx) or a [`Drawer`](./drawer.mdx), the Combobox panel moves to the
+modal layer and opens above the dialog — nothing to configure.
+
+## Props
+
+### Combobox
+
+Any other `<button>` attributes (`id`, `aria-label`, `aria-*`, `data-*`, `onBlur` ...) and `ref`
+are passed to the trigger.
+
+<PropsTable
+  rows={[
+    { name: 'options', type: 'ComboboxOption[]', required: true, description: 'The options' },
+    {
+      name: 'multiple',
+      type: 'boolean',
+      default: 'false',
+      description: 'Multiple selection: value becomes string[]',
+    },
+    {
+      name: 'value',
+      type: 'string | null  ·  string[]',
+      description: 'Selected value (an array with multiple)',
+    },
+    {
+      name: 'defaultValue',
+      type: 'string | null  ·  string[]',
+      description: 'Initial value (uncontrolled)',
+    },
+    {
+      name: 'onValueChange',
+      type: '(value: string | null) => void  ·  (value: string[]) => void',
+      description: 'Called on change. Clearing gives null (or [])',
+    },
+    {
+      name: 'placeholder',
+      type: 'string',
+      default: "'Tanlang'",
+      description: 'Shown while nothing is selected',
+    },
+    {
+      name: 'searchPlaceholder',
+      type: 'string',
+      default: "'Qidirish...'",
+      description: 'Placeholder of the search input',
+    },
+    {
+      name: 'emptyText',
+      type: 'ReactNode',
+      default: "'Hech narsa topilmadi'",
+      description: 'Shown when nothing matches',
+    },
+    {
+      name: 'onSearch',
+      type: '(query: string) => void',
+      description: 'Server search: 300ms debounce, local filtering off',
+    },
+    {
+      name: 'loading',
+      type: 'boolean',
+      default: 'false',
+      description: 'Spinner in place of the list',
+    },
+    {
+      name: 'creatable',
+      type: 'boolean',
+      default: 'false',
+      description: 'Adds a "«text» yaratish" item',
+    },
+    {
+      name: 'onCreate',
+      type: '(text: string) => ComboboxOption | void',
+      description: 'Called on create. A returned option gets selected',
+    },
+    {
+      name: 'clearable',
+      type: 'boolean',
+      default: 'false',
+      description: 'Shows a ✕ (clear) button when there is a value',
+    },
+    {
+      name: 'leftIcon',
+      type: 'ReactNode',
+      default: 'search icon',
+      description: 'Icon at the start of the trigger; null hides it',
+    },
+    {
+      name: 'size',
+      type: "'sm' | 'md' | 'lg'",
+      default: "'md'",
+      description: 'Height: 32 / 40 / 48px',
+    },
+    { name: 'invalid', type: 'boolean', description: 'Error state (automatic inside Field)' },
+    { name: 'disabled', type: 'boolean', description: 'Disables the Combobox' },
+    { name: 'required', type: 'boolean', description: 'Required field (aria-required)' },
+    {
+      name: 'name',
+      type: 'string',
+      description: 'For forms: each selected value is sent as a hidden <input>',
+    },
+    { name: 'open', type: 'boolean', description: 'Whether the panel is open (controlled)' },
+    { name: 'defaultOpen', type: 'boolean', default: 'false', description: 'Open on first render' },
+    {
+      name: 'onOpenChange',
+      type: '(open: boolean) => void',
+      description: 'Called when the panel opens or closes',
+    },
+    { name: 'labels', type: 'ComboboxLabels', description: 'Screen reader texts (see below)' },
+    { name: 'contentClassName', type: 'string', description: 'Class for the panel' },
+  ]}
+/>
+
+### ComboboxLabels
+
+The built-in texts are in Uzbek. Override them for an English (or any other) interface.
+
+<PropsTable
+  rows={[
+    { name: 'search', type: 'string', default: "'Qidirish'", description: 'Search input name' },
+    { name: 'list', type: 'string', default: "'Variantlar'", description: 'List name' },
+    { name: 'loading', type: 'string', default: "'Yuklanmoqda'", description: 'Spinner text' },
+    { name: 'clear', type: 'string', default: "'Tozalash'", description: 'Clear (✕) button name' },
+    {
+      name: 'remove',
+      type: '(label: string) => string',
+      default: '`Olib tashlash: ${label}`',
+      description: 'Name of the ✕ on each chip',
+    },
+    {
+      name: 'create',
+      type: '(text: string) => ReactNode',
+      default: '`«${text}» yaratish`',
+      description: 'Text of the create item',
+    },
+  ]}
+/>
+
+```tsx
+<Combobox
+  options={cities}
+  placeholder="Choose a city"
+  searchPlaceholder="Search..."
+  emptyText="Nothing found"
+  labels={{
+    search: 'Search',
+    list: 'Cities',
+    loading: 'Loading',
+    clear: 'Clear',
+    remove: (label) => `Remove ${label}`,
+    create: (text) => `Create "${text}"`,
+  }}
+/>
+```
+
+### Data attributes
+
+| Attribute          | On        | Value                           |
+| ------------------ | --------- | ------------------------------- |
+| `data-size`        | container | `sm` · `md` · `lg`              |
+| `data-state`       | container | `open` · `closed`               |
+| `data-invalid`     | container | present in the error state      |
+| `data-disabled`    | container | present when disabled           |
+| `data-placeholder` | trigger   | present while nothing is chosen |
+| `data-checked`     | option    | present on selected options     |
+
+## Keyboard
+
+| Key                           | Action                                                          |
+| ----------------------------- | --------------------------------------------------------------- |
+| `Enter` / `Space` / `↓` / `↑` | Opens the panel when the trigger is focused                     |
+| A letter or digit             | On a closed trigger — opens the panel and starts the search     |
+| Typing                        | In the open panel — searches                                    |
+| `↓` / `↑`                     | Moves between options (wraps around)                            |
+| `Home` / `End`                | First / last option                                             |
+| `Enter`                       | Selects. Single mode closes the panel; `multiple` keeps it open |
+| `Esc`                         | Clears the query first; a second press closes the panel         |
+| `Backspace`                   | `multiple`: removes the last selection when the query is empty  |
+| `Tab`                         | Closes the panel and moves focus to the next element            |
+
+## Accessibility
+
+- **Roles.** The trigger is `role="combobox"` with `aria-haspopup="listbox"`; while open,
+  `aria-controls` points to the list. The list is a `listbox` (`aria-multiselectable="true"` with
+  `multiple`), and every option has `aria-checked`.
+- **Name.** Inside a `Field`, the label and the selected value are read together ("Shahar,
+  Toshkent"). With `multiple`, the selected labels are added as visually hidden text.
+- **Field wiring.** `description` and `error` go to `aria-describedby`; errors set
+  `aria-invalid="true"` and `required` sets `aria-required="true"`.
+- **The ✕ on each chip** gets its own name ("Olib tashlash: Toshkent"), configurable through
+  `labels.remove`.
+- **Focus.** Opening moves focus to the search input; closing returns it to the trigger (or to
+  the next element when closed with `Tab`).
+- **Icons** (`leftIcon`, option `icon`) are `aria-hidden`.

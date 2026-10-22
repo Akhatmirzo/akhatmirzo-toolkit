@@ -1,0 +1,41 @@
+---
+title: 'Checkout summary'
+description: "Cart list, promo code, total in so'm and checkout steps with a Stepper."
+full: true
+---
+
+<BlockPreview name="checkout-summary" />
+
+## What's inside
+
+- Change quantities or remove items; an empty cart shows an `EmptyState`.
+- Promo codes: `TOSHKENT10` or `YANGI15`; a wrong code shows an error under the field.
+- Delivery is free from 1 000 000 so'm — the total updates instantly.
+- The `Stepper` is compact in narrow containers and full in wide ones.
+
+## Components used
+
+- [Stepper](../components/stepper.mdx)
+- [Card](../components/card.mdx)
+- [Badge](../components/badge.mdx)
+- [IconButton](../components/icon-button.mdx)
+- [Field](../components/field.mdx)
+- [Input](../components/input.mdx)
+- [Divider](../components/divider.mdx)
+- [EmptyState](../components/empty-state.mdx)
+- [Button](../components/button.mdx)
+- [toast](../components/toast.mdx)
+- [`formatMoney`](../core/format.mdx)
+
+## Installation
+
+The CLI copies the block file into your project (`components/blocks/checkout-summary.tsx`) and offers to
+install the packages it needs:
+
+```bash
+npx @akhatmirzo/cli add checkout-summary
+```
+
+Manually: install the packages and copy the file from the "Code" tab into your project.
+
+<BlockInstall name="checkout-summary" />

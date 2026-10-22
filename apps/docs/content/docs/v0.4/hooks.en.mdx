@@ -1,0 +1,916 @@
+---
+title: Hooks
+description: '@akhatmirzo/hooks — 27 dependency-free React hooks that are safe during SSR.'
+---
+
+The logic you keep rewriting inside components: debouncing, `localStorage`, media queries,
+keyboard shortcuts, pagination. The package depends only on `react` (18 or newer), doesn't break
+on the server and works without `@akhatmirzo/ui`.
+
+<Install pkg="@akhatmirzo/hooks" />
+
+```ts
+import { useDebounce, useHotkeys, useLocalStorage } from '@akhatmirzo/hooks';
+```
+
+| Hook                                              | What it's for                           |
+| ------------------------------------------------- | --------------------------------------- |
+| [`useToggle`](#usetoggle)                         | A `true` / `false` state and a toggle   |
+| [`useDebounce`](#usedebounce)                     | Delay a value (search)                  |
+| [`useDebouncedCallback`](#usedebouncedcallback)   | Delay a function (autosave)             |
+| [`useControllableState`](#usecontrollablestate)   | Controlled and uncontrolled state       |
+| [`useLocalStorage`](#uselocalstorage)             | State synced with `localStorage`        |
+| [`useMediaQuery`](#usemediaquery)                 | The result of a CSS media query         |
+| [`useClickOutside`](#useclickoutside)             | Clicks outside an element               |
+| [`useCopyToClipboard`](#usecopytoclipboard)       | Copy to the clipboard                   |
+| [`useIntersection`](#useintersection)             | Entering the viewport (infinite scroll) |
+| [`useEventListener`](#useeventlistener)           | A typed event listener                  |
+| [`useResizeObserver`](#useresizeobserver)         | Watch an element's size                 |
+| [`useScrollLock`](#usescrolllock)                 | Lock page scroll (modals)               |
+| [`useFocusTrap`](#usefocustrap)                   | Keep focus inside a container           |
+| [`useLongPress`](#uselongpress)                   | Long press                              |
+| [`useDocumentVisibility`](#usedocumentvisibility) | Whether the tab is visible              |
+| [`useIsClient`](#useisclient)                     | `true` after hydration                  |
+| [`useAsync`](#useasync)                           | State of an async function              |
+| [`usePagination`](#usepagination)                 | Pagination buttons                      |
+| [`useHotkeys`](#usehotkeys)                       | Keyboard shortcuts                      |
+| [`useInterval`](#useinterval)                     | An interval (`null` pauses it)          |
+| [`useTimeout`](#usetimeout)                       | A one-off timer                         |
+| [`useCountdown`](#usecountdown)                   | A countdown (SMS code)                  |
+| [`useIdle`](#useidle)                             | User inactivity                         |
+| [`useStep`](#usestep)                             | Multi-step flow (wizard)                |
+| [`useInfiniteScroll`](#useinfinitescroll)         | Infinite scroll                         |
+| [`usePrevious`](#useprevious)                     | The previous value                      |
+| [`useOnline`](#useonline)                         | Network status                          |
+
+<Callout title="In Next.js">
+  Hooks only run in Client Components — put `'use client';` on the first line of the file.
+</Callout>
+
+## State
+
+### useToggle
+
+```ts
+function useToggle(
+  initial?: boolean,
+): readonly [value: boolean, toggle: () => void, setValue: Dispatch<SetStateAction<boolean>>];
+```
+
+A boolean state. `toggle` is stable (the same on every render), so you can pass it straight to
+`onClick` or to other hooks. `initial` defaults to `false`.
+
+<ComponentPreview name="hooks/toggle" />
+
+```tsx
+const [open, toggleOpen, setOpen] = useToggle();
+
+<Button onClick={toggleOpen}>Filters</Button>;
+<Button onClick={() => setOpen(false)}>Close</Button>;
+```
+
+### useControllableState
+
+```ts
+function useControllableState<T>(params: {
+  value?: T;
+  defaultValue?: T;
+  onChange?: (value: T) => void;
+}): [T, Dispatch<SetStateAction<T>>];
+```
+
+Lets your own component be both **controlled** (`value` + `onValueChange`) and **uncontrolled**
+(`defaultValue`). When `value !== undefined`, the value comes from the parent; otherwise internal
+state is used. `onChange` fires in both modes, and only when the value **actually changes**.
+The library's `Dialog`, `Tabs` and `Select` follow the same pattern.
+
+<ComponentPreview name="hooks/controllable-state" />
+
+```tsx title="stepper.tsx"
+interface StepperProps {
+  value?: number;
+  defaultValue?: number;
+  onValueChange?: (value: number) => void;
+}
+
+function Stepper({ value, defaultValue = 0, onValueChange }: StepperProps) {
+  const [count, setCount] = useControllableState({ value, defaultValue, onChange: onValueChange });
+  return <Button onClick={() => setCount((n) => n + 1)}>{count}</Button>;
+}
+
+<Stepper defaultValue={3} />; // manages itself
+<Stepper value={qty} onValueChange={setQty} />; // the parent is in charge
+```
+
+<Callout type="info" title="About the type">
+  With `defaultValue`, the value type is `T`. Without it, it's `T | undefined`.
+</Callout>
+
+## Debouncing
+
+### useDebounce
+
+```ts
+function useDebounce<T>(value: T, ms?: number): T;
+```
+
+Delays a value: it updates `ms` milliseconds after the last change (default `300`). The classic
+use is a search field that shouldn't fire a request on every keystroke.
+
+<ComponentPreview name="hooks/debounce" />
+
+```tsx
+const [query, setQuery] = useState('');
+const debounced = useDebounce(query, 400);
+
+useEffect(() => {
+  if (debounced) void api.get('/search', { query: { q: debounced } });
+}, [debounced]);
+```
+
+### useDebouncedCallback
+
+```ts
+function useDebouncedCallback<Args extends unknown[]>(
+  fn: (...args: Args) => void,
+  ms?: number,
+): DebouncedFunction<Args>;
+
+interface DebouncedFunction<Args> {
+  (...args: Args): void;
+  cancel: () => void;
+  flush: () => void;
+  isPending: () => boolean;
+}
+```
+
+Delays a function. Use it when you need to delay an **action** rather than a value — autosave,
+for example. It always calls the latest `fn` (no stale closures), and a pending call is cancelled
+on unmount. `ms` defaults to `300`.
+
+<ComponentPreview name="hooks/debounced-callback" />
+
+```tsx
+const save = useDebouncedCallback((text: string) => api.patch('/notes/1', { text }), 800);
+
+<Textarea onChange={(e) => save(e.target.value)} onBlur={save.flush} />;
+```
+
+| Method        | What it does                     |
+| ------------- | -------------------------------- |
+| `cancel()`    | Drops the pending call           |
+| `flush()`     | Runs the pending call right away |
+| `isPending()` | Whether a call is pending        |
+
+## Browser
+
+### useLocalStorage
+
+```ts
+function useLocalStorage<T>(
+  key: string,
+  initial: T | (() => T),
+): [value: T, setValue: (value: T | ((prev: T) => T)) => void, remove: () => void];
+```
+
+State synced with `localStorage`. The value is stored as JSON and stays **in sync**: other hooks
+with the same key on the page and other browser tabs update too. `remove` deletes the key and the
+value falls back to `initial`.
+
+<ComponentPreview name="hooks/local-storage" />
+
+```tsx
+const [recent, setRecent, clearRecent] = useLocalStorage<string[]>('recent-searches', []);
+
+const remember = (query: string) =>
+  setRecent((list) => [query, ...list.filter((q) => q !== query)].slice(0, 5));
+```
+
+It never throws: on the server you get `initial`; if storage is blocked or full, the value lives
+in page memory (the state keeps working); broken JSON gives `initial`.
+
+<Callout type="warn" title="Don't mix it with createStorage">
+  [`createStorage`](./core/storage-api.mdx#createstorage) (`@akhatmirzo/core`) wraps values in its
+  own envelope. Don't use the same key with both.
+</Callout>
+
+### useMediaQuery
+
+```ts
+function useMediaQuery(query: string, defaultValue?: boolean): boolean;
+```
+
+Whether a CSS media query matches — it updates when the window size or an OS setting changes. On
+the server, and where `matchMedia` doesn't exist, it returns `defaultValue` (default `false`).
+
+<ComponentPreview name="hooks/media-query" />
+
+```tsx
+const isMobile = useMediaQuery('(max-width: 639px)');
+const prefersDark = useMediaQuery('(prefers-color-scheme: dark)');
+const reducedMotion = useMediaQuery('(prefers-reduced-motion: reduce)');
+
+return isMobile ? <Drawer>…</Drawer> : <Dialog>…</Dialog>;
+```
+
+### useClickOutside
+
+```ts
+function useClickOutside(
+  refs: RefObject<Element | null> | ReadonlyArray<RefObject<Element | null>>,
+  handler: (event: PointerEvent) => void,
+  enabled?: boolean,
+): void;
+```
+
+Calls `handler` on a `pointerdown` **outside** the given element(s). You can pass several refs —
+for example the button and the panel, so clicking the button itself doesn't count as "outside".
+`enabled` (default `true`) lets you stop listening while the panel is closed.
+
+<ComponentPreview name="hooks/click-outside" />
+
+```tsx
+const triggerRef = useRef<HTMLButtonElement>(null);
+const panelRef = useRef<HTMLDivElement>(null);
+
+useClickOutside([triggerRef, panelRef], () => setOpen(false), open);
+```
+
+Clicks on elements that were removed from the DOM (say, a menu item that disappears when clicked)
+are ignored.
+
+### useCopyToClipboard
+
+```ts
+function useCopyToClipboard(resetMs?: number): {
+  copied: boolean;
+  copy: (text: string) => Promise<boolean>;
+};
+```
+
+Copies text to the clipboard. `copy` resolves to whether it worked and never throws. `copied`
+stays `true` for `resetMs` (default `2000`) and then resets on its own; `0` means it never resets.
+When the Clipboard API isn't available, it falls back to `execCommand('copy')`.
+
+<ComponentPreview name="hooks/copy" />
+
+```tsx
+const { copied, copy } = useCopyToClipboard();
+
+<Button onClick={() => copy(promoCode)}>{copied ? 'Copied' : 'Copy'}</Button>;
+```
+
+### useIntersection
+
+```ts
+function useIntersection<T extends Element = Element>(
+  options?: IntersectionObserverInit & { enabled?: boolean },
+): [ref: (node: T | null) => void, entry: IntersectionObserverEntry | null];
+```
+
+Tracks when an element enters the viewport — for infinite scroll and lazy loading. It returns a
+**callback ref**, so the element is observed even if it renders later or conditionally.
+`enabled: false` stops observing (for example, when there are no more pages). Where
+`IntersectionObserver` doesn't exist, `entry` is `null`.
+
+<ComponentPreview name="hooks/intersection" />
+
+```tsx
+const [sentinelRef, entry] = useIntersection<HTMLDivElement>({
+  rootMargin: '200px',
+  enabled: hasMore,
+});
+
+useEffect(() => {
+  if (entry?.isIntersecting) loadMore();
+}, [entry, items.length]);
+
+return (
+  <>
+    {items.map(renderItem)}
+    <div ref={sentinelRef} />
+  </>
+);
+```
+
+<Callout type="info" title="Why items.length is a dependency">
+  While the sentinel stays visible, `entry` doesn't change. Adding the list length to the
+  dependencies re-checks it after each new page loads.
+</Callout>
+
+## DOM and events
+
+DOM hooks accept a `RefObject`, the element itself or `null` (`null` or an empty ref does
+nothing). They touch `window` / `document` only inside effects, so they're safe on the server.
+The callbacks you pass are kept in a "latest value" ref — passing a new function on every render
+doesn't resubscribe.
+
+### useEventListener
+
+```ts
+function useEventListener<K extends keyof WindowEventMap>(
+  type: K,
+  handler: (event: WindowEventMap[K]) => void,
+  options?: UseEventListenerOptions,
+): void;
+function useEventListener(
+  target: Window | Document | HTMLElement | RefObject<HTMLElement | null> | null | undefined,
+  type: string, // typed per target: WindowEventMap / DocumentEventMap / HTMLElementEventMap
+  handler: (event: Event) => void,
+  options?: UseEventListenerOptions,
+): void;
+
+interface UseEventListenerOptions extends AddEventListenerOptions {
+  enabled?: boolean;
+}
+```
+
+A typed event listener: the `event` type is inferred from the target and the event name. An
+`undefined` target means `window`; `null` means don't listen. The short form
+`useEventListener('resize', fn)` targets `window` without touching it during render — the
+easiest option for SSR. `enabled: false` pauses the listener; `capture`, `passive` and `once` are
+passed to `addEventListener`.
+
+<ComponentPreview name="hooks/event-listener" />
+
+```tsx
+useEventListener('resize', () => setWidth(window.innerWidth));
+useEventListener(document, 'visibilitychange', onVisibility);
+
+const buttonRef = useRef<HTMLButtonElement>(null);
+useEventListener(buttonRef, 'pointerenter', () => prefetch('/orders'));
+
+useEventListener('scroll', onScroll, { passive: true, enabled: open });
+```
+
+### useResizeObserver
+
+```ts
+function useResizeObserver<T extends Element = Element>(
+  target: RefObject<T | null> | T | null,
+  options?: { box?: ResizeObserverBoxOptions; enabled?: boolean },
+): { width: number; height: number } | null;
+```
+
+Tracks an element's size. Several changes within one frame are batched into a single update with
+`requestAnimationFrame`, and an unchanged size doesn't re-render. `box` is `'content-box'`
+(default), `'border-box'` or `'device-pixel-content-box'`. Returns `null` before the first
+measurement, on the server and where `ResizeObserver` is missing.
+
+<ComponentPreview name="hooks/resize-observer" />
+
+```tsx
+const ref = useRef<HTMLDivElement>(null);
+const size = useResizeObserver(ref);
+const columns = size && size.width < 480 ? 1 : 3;
+
+return (
+  <div ref={ref} className="grid" style={{ gridTemplateColumns: `repeat(${columns}, 1fr)` }}>
+    …
+  </div>
+);
+```
+
+### useScrollLock
+
+```ts
+function useScrollLock(
+  locked: boolean,
+  options?: { target?: RefObject<HTMLElement | null> | HTMLElement | null },
+): void;
+```
+
+While `locked` is `true`, locks scrolling of the page (`document.body` by default) or of
+`target` — for modals, drawers and mobile menus. The width of the hidden scrollbar is
+compensated with `padding-right`, so content doesn't jump. Along with `overflow: hidden` it sets
+`overscroll-behavior: none` for iOS and scroll chaining.
+
+<ComponentPreview name="hooks/scroll-lock" />
+
+```tsx
+const [open, setOpen] = useState(false);
+useScrollLock(open);
+```
+
+<Callout type="info" title="Multiple locks">
+  When several components lock at once (say, a dialog over a drawer), a counter is used: scrolling
+  comes back only when the last lock is released, and the original inline styles are restored.
+</Callout>
+
+### useFocusTrap
+
+```ts
+function useFocusTrap(
+  target: RefObject<HTMLElement | null> | HTMLElement | null,
+  active: boolean,
+  options?: {
+    initialFocus?: RefObject<HTMLElement | null> | HTMLElement | null;
+    returnFocus?: boolean;
+  },
+): void;
+```
+
+While `active`, focus stays inside the container: `Tab` wraps from the last element to the first,
+`Shift+Tab` from the first to the last, and focus that escapes is pulled back. On activation it
+focuses `initialFocus` or the first focusable element (or the container itself if there's none).
+When deactivated or unmounted, focus returns to the previously focused element (`returnFocus`,
+default `true`). With nested traps only the most recently activated one is in charge.
+
+<ComponentPreview name="hooks/focus-trap" />
+
+```tsx
+const panelRef = useRef<HTMLDivElement>(null);
+const inputRef = useRef<HTMLInputElement>(null);
+
+useFocusTrap(panelRef, open, { initialFocus: inputRef });
+useHotkeys('esc', () => setOpen(false), { enabled: open, enableOnInputs: true });
+```
+
+<Callout type="warn" title="Esc and ARIA are up to you">
+  The hook only manages focus. Add a close button, `Esc`, `role="dialog"` and `aria-modal` yourself,
+  or use the ready-made `Dialog` / `Drawer` components.
+</Callout>
+
+### useLongPress
+
+```ts
+function useLongPress<T extends Element = Element>(
+  callback: (event: PointerEvent<T>) => void,
+  options?: {
+    delay?: number; // 500
+    onStart?: (event: PointerEvent<T>) => void;
+    onCancel?: (event: PointerEvent<T>) => void;
+    moveThreshold?: number; // 10
+    preventContextMenu?: boolean; // true
+    enabled?: boolean; // true
+  },
+): LongPressHandlers<T>;
+```
+
+Detects a long press — the same way for mouse, touch and pen (Pointer Events). Returns stable
+handlers to spread onto an element. `callback` fires after `delay` ms; releasing earlier, leaving
+the element or moving more than `moveThreshold` px (a scroll) cancels it and calls `onCancel`.
+Only the primary mouse button counts. The browser context menu is blocked while pressing
+(`preventContextMenu: false` to allow it).
+
+<ComponentPreview name="hooks/long-press" />
+
+```tsx
+const handlers = useLongPress<HTMLLIElement>(() => setSelectMode(true), { delay: 600 });
+
+return <li {...handlers}>Order #1024</li>;
+```
+
+On touch screens, add `user-select: none` (`select-none`) so text selection doesn't interrupt the
+press. Keep the default `touch-action` on list items: when the page starts scrolling the browser
+sends `pointercancel` and the press is cancelled — exactly what you want in a scrollable list. Only
+add `touch-action: none` (`touch-none`) to elements that never need to scroll the page.
+
+### useDocumentVisibility
+
+```ts
+function useDocumentVisibility(): 'visible' | 'hidden';
+```
+
+Whether the page (tab) is visible. Use it to pause polling, video or animations while the user is
+on another tab. Returns `'visible'` on the server.
+
+<ComponentPreview name="hooks/document-visibility" />
+
+```tsx
+const visibility = useDocumentVisibility();
+
+useEffect(() => {
+  if (visibility === 'hidden') return;
+  const id = setInterval(refreshOrders, 10_000);
+  return () => clearInterval(id);
+}, [visibility]);
+```
+
+### useIsClient
+
+```ts
+function useIsClient(): boolean;
+```
+
+`false` on the server and during hydration, `true` after hydration. Use it to render
+browser-only things (charts, window size, "now") without hydration mismatches. Built on
+`useSyncExternalStore`, so later mounts get `true` right away.
+
+```tsx
+const isClient = useIsClient();
+
+return isClient ? <SalesChart /> : <Skeleton className="h-64" />;
+```
+
+## Data
+
+### useAsync
+
+```ts
+function useAsync<T, Args extends unknown[] = []>(
+  fn: (...args: Args) => Promise<T>,
+  deps?: DependencyList,
+  options?: { immediate?: boolean },
+): {
+  status: 'idle' | 'loading' | 'success' | 'error';
+  data: T | undefined;
+  error: unknown;
+  run: (...args: Args) => Promise<T | undefined>;
+};
+```
+
+The state of an async function. With `immediate: true` (the default) it runs on mount and
+whenever `deps` change; with `immediate: false` it only runs through `run()`. Only the **latest**
+call wins: if the user clicks quickly, an old response never overwrites a newer one. Responses
+that arrive after unmount are ignored.
+
+<ComponentPreview name="hooks/async" />
+
+```tsx
+// Loads by itself whenever the page changes
+const { status, data, error } = useAsync(
+  () => api.get<Order[]>('/orders', { query: { page } }),
+  [page],
+);
+
+// Only on click
+const { run, status: saving } = useAsync((form: OrderForm) => api.post('/orders', form), [], {
+  immediate: false,
+});
+```
+
+- `data` is the last **successful** result. It's kept during reloads and errors, so a list doesn't
+  go blank while loading.
+- `run` resolves to `undefined` for stale or failed calls and never throws; the error goes to
+  `error`.
+
+### usePagination
+
+```ts
+function usePagination(params: {
+  total: number;
+  pageSize: number;
+  page: number;
+  siblings?: number;
+}): {
+  pages: (number | 'ellipsis')[];
+  pageCount: number;
+  page: number;
+  hasPrev: boolean;
+  hasNext: boolean;
+  from: number;
+  to: number;
+};
+```
+
+The list of pagination buttons: `1 … 4 5 6 … 20`. The number of buttons is stable
+(`siblings * 2 + 5`), so the bar doesn't jump around as the page changes. An ellipsis only appears
+when it hides 2 or more pages.
+
+<ComponentPreview name="hooks/pagination" />
+
+```ts
+usePagination({ total: 200, pageSize: 10, page: 5 });
+// { pages: [1, 'ellipsis', 4, 5, 6, 'ellipsis', 20], pageCount: 20, page: 5,
+//   hasPrev: true, hasNext: true, from: 41, to: 50 }
+
+usePagination({ total: 200, pageSize: 10, page: 1 }).pages; // [1, 2, 3, 4, 5, 'ellipsis', 20]
+usePagination({ total: 50, pageSize: 10, page: 2 }).pages; // [1, 2, 3, 4, 5]
+usePagination({ total: 95, pageSize: 10, page: 99 }).page; // 10 — clamped
+```
+
+<PropsTable
+  rows={[
+    { name: 'total', type: 'number', required: true, description: 'Total number of records' },
+    { name: 'pageSize', type: 'number', required: true, description: 'Records per page' },
+    {
+      name: 'page',
+      type: 'number',
+      required: true,
+      description: 'Current page, starting at 1. Clamped when out of range',
+    },
+    {
+      name: 'siblings',
+      type: 'number',
+      default: '1',
+      description: 'Pages shown on each side of the current one',
+    },
+  ]}
+/>
+
+`from` / `to` are the positions of the first and last record on the current page ("41–50 / 200").
+For an empty list, `from` is `0`. If you need the same calculation outside React (on the server,
+say), there's a pure function `getPagination` with the same parameters.
+
+## Keyboard
+
+### useHotkeys
+
+```ts
+function useHotkeys(
+  keys: string,
+  handler: (event: KeyboardEvent) => void,
+  options?: { enabled?: boolean; preventDefault?: boolean; enableOnInputs?: boolean },
+): void;
+```
+
+Global keyboard shortcuts. `mod` is ⌘ on macOS and Ctrl everywhere else. Separate several combos
+with commas: `'mod+k, /'`. By default, shortcuts don't fire inside inputs, textareas, selects and
+contenteditable elements, so they never get in the way of typing.
+
+<ComponentPreview name="hooks/hotkeys" />
+
+```tsx
+useHotkeys('mod+k', () => setPaletteOpen(true));
+useHotkeys('mod+s', () => save()); // the browser's "Save page" dialog doesn't open
+useHotkeys('esc', close, { enabled: open, enableOnInputs: true });
+```
+
+<PropsTable
+  rows={[
+    {
+      name: 'enabled',
+      type: 'boolean',
+      default: 'true',
+      description: 'false stops listening (for example while a panel is closed)',
+    },
+    {
+      name: 'preventDefault',
+      type: 'boolean',
+      default: 'true',
+      description: "Stops the browser's default action on a match",
+    },
+    {
+      name: 'enableOnInputs',
+      type: 'boolean',
+      default: 'false',
+      description: 'Also fire inside inputs, textareas, selects and contenteditable',
+    },
+  ]}
+/>
+
+Writing combos:
+
+- **Modifiers:** `mod`, `ctrl`, `meta` (`cmd`), `alt` (`option`), `shift`.
+- **Key names:** letters and digits, `esc`, `enter`, `space`, `up` / `down` / `left` / `right`,
+  `del`, `comma`, `plus`, and other `KeyboardEvent.key` values (`tab`, `f1` ...).
+- **Symbols:** characters like `'?'` or `'/'` work even though they're typed with Shift — no need
+  to write `shift`.
+- On macOS, `alt` changes the letter (`Alt+K` → `˚`), but `alt+k` still works because the
+  physical key is checked.
+
+To show a shortcut next to a button, use [`Kbd`](./components/kbd.mdx):
+`<Kbd keys={['mod', 'K']} />`.
+
+### matchHotkey and isApplePlatform
+
+```ts
+function matchHotkey(event: KeyboardEvent, keys: string): boolean;
+function isApplePlatform(): boolean; // false on the server
+```
+
+The check inside `useHotkeys`, on its own — for testing a shortcut in your own `onKeyDown`.
+
+```tsx
+<Input
+  onKeyDown={(e) => {
+    if (matchHotkey(e.nativeEvent, 'mod+enter')) submit();
+  }}
+/>
+```
+
+## Time and flow
+
+### useInterval
+
+```ts
+function useInterval(callback: () => void, delay: number | null): void;
+```
+
+Calls `callback` every `delay` milliseconds. Pass `null` to pause the interval; pass a number
+again to resume. A new callback on every render does not restart the interval — the latest
+function is always called, so it can safely read current state.
+
+<ComponentPreview name="hooks/interval" />
+
+```tsx
+const [seconds, setSeconds] = useState(0);
+const [running, setRunning] = useState(true);
+
+useInterval(() => setSeconds((s) => s + 1), running ? 1000 : null);
+```
+
+### useTimeout
+
+```ts
+function useTimeout(
+  callback: () => void,
+  delay: number | null,
+): { reset: () => void; clear: () => void };
+```
+
+Calls `callback` **once** after `delay` milliseconds. The timer starts on mount and whenever
+`delay` changes, and is cancelled on unmount. `clear()` cancels the pending call, `reset()`
+starts the timer again from now. `delay: null` sets no timer.
+
+```tsx
+// The message hides after 4 seconds, but not while the pointer is over it
+const { reset, clear } = useTimeout(() => setVisible(false), 4000);
+
+<div onMouseEnter={clear} onMouseLeave={reset}>
+  Saved
+</div>;
+```
+
+### useCountdown
+
+```ts
+function useCountdown(
+  seconds: number,
+  options?: { autoStart?: boolean; onEnd?: () => void },
+): {
+  remaining: number;
+  isRunning: boolean;
+  start: () => void;
+  pause: () => void;
+  reset: () => void;
+  restart: () => void;
+  formatted: string; // "0:59"
+};
+```
+
+A countdown for "resend code" buttons, offer deadlines and quiz timers. Time is measured with
+`Date.now()` deltas, so the remaining time stays correct even when the browser throttles timers
+in a background tab. `formatted` is `"m:ss"` (`"2:05"`, `"0:59"`).
+
+<ComponentPreview name="hooks/countdown" align="start" />
+
+```tsx
+const { formatted, isRunning, restart } = useCountdown(59);
+
+<Button
+  disabled={isRunning}
+  onClick={() => {
+    sendSms();
+    restart();
+  }}
+>
+  {isRunning ? `Resend code (${formatted})` : 'Resend code'}
+</Button>;
+```
+
+- `start()` resumes after a pause. If the countdown has finished (`remaining: 0`), it starts
+  over from `seconds`.
+- `pause()` stops the countdown and keeps the remaining time.
+- `reset()` goes back to `seconds` and **stops**; `restart()` goes back and starts right away.
+- `onEnd` fires once per run, when the countdown reaches 0.
+- Changing `seconds` does not affect the current run — it applies on the next `reset` /
+  `restart`.
+
+<PropsTable
+  rows={[
+    { name: 'autoStart', type: 'boolean', default: 'true', description: 'Start on mount' },
+    { name: 'onEnd', type: '() => void', description: 'Called when the countdown reaches 0' },
+  ]}
+/>
+
+<Callout type="info" title="OtpInput.ResendTimer">
+  If you only need a "resend" button, use the ready-made
+  [`OtpInput.ResendTimer`](./components/otp-input.mdx). Reach for `useCountdown` when you need your
+  own UI.
+</Callout>
+
+### useIdle
+
+```ts
+function useIdle(ms: number, options?: { events?: string[]; initialState?: boolean }): boolean;
+```
+
+Returns `true` once the user has done nothing for `ms` milliseconds. Any activity (mouse move,
+key press, touch, scroll, returning to the tab) restarts the timer and sets the state back to
+`false`. Use it for auto sign-out or an "Are you still there?" dialog.
+
+<ComponentPreview name="hooks/idle" />
+
+```tsx
+const idle = useIdle(15 * 60_000);
+
+useEffect(() => {
+  if (idle) logout();
+}, [idle]);
+```
+
+<PropsTable
+  rows={[
+    {
+      name: 'events',
+      type: 'string[]',
+      default: "['mousemove', 'keydown', 'touchstart', 'scroll', 'visibilitychange']",
+      description: 'Activity events. visibilitychange is read on document, the rest on window',
+    },
+    { name: 'initialState', type: 'boolean', default: 'false', description: 'State on mount' },
+  ]}
+/>
+
+### useStep
+
+```ts
+function useStep(
+  count: number,
+  options?: { initial?: number },
+): {
+  step: number;
+  next: () => void;
+  prev: () => void;
+  goTo: (step: number) => void;
+  reset: () => void;
+  isFirst: boolean;
+  isLast: boolean;
+  progress: number; // 0..1
+};
+```
+
+State for multi-step forms (wizards). Steps start at 0 and always stay within `0..count - 1`:
+`next()` does nothing on the last step, `prev()` does nothing on the first, and `goTo()` clamps.
+`progress` is `0` on the first step and `1` on the last. Pairs with
+[`Stepper`](./components/stepper.mdx).
+
+<ComponentPreview name="hooks/step" align="start" />
+
+```tsx
+const { step, next, prev, goTo, isFirst, isLast } = useStep(steps.length);
+
+<Stepper steps={steps} value={step} onValueChange={goTo} />
+<Button disabled={isFirst} onClick={prev}>Back</Button>
+<Button onClick={isLast ? submit : next}>{isLast ? 'Place order' : 'Continue'}</Button>
+```
+
+### useInfiniteScroll
+
+```ts
+function useInfiniteScroll<T extends Element = HTMLDivElement>(options: {
+  hasMore: boolean;
+  loading: boolean;
+  onLoadMore: () => void;
+  rootMargin?: string; // '200px'
+}): { sentinelRef: (node: T | null) => void };
+```
+
+Infinite scroll built on [`useIntersection`](#useintersection). Put a sentinel element at the
+end of the list: `onLoadMore` runs when it comes within `rootMargin` of the viewport. It is not
+called again while `loading` is `true`, and observing stops when `hasMore` is `false`. If the
+sentinel is still visible after a page loads (a short page), the next page loads on its own
+until the screen is full.
+
+<ComponentPreview name="hooks/infinite-scroll" />
+
+```tsx
+const { data, loading, hasMore, loadNextPage } = useOrders();
+const { sentinelRef } = useInfiniteScroll({ hasMore, loading, onLoadMore: loadNextPage });
+
+return (
+  <>
+    {data.map((order) => (
+      <OrderRow key={order.id} order={order} />
+    ))}
+    <div ref={sentinelRef}>{hasMore && <Spinner size="sm" />}</div>
+  </>
+);
+```
+
+### usePrevious
+
+```ts
+function usePrevious<T>(value: T): T | undefined;
+```
+
+The previous value; `undefined` on the first render. It updates only when the value
+**changes**: re-renders for other reasons keep the previous value (compared with `Object.is`).
+
+```tsx
+const prevPage = usePrevious(page);
+const direction = prevPage !== undefined && page < prevPage ? 'back' : 'forward';
+```
+
+### useOnline
+
+```ts
+function useOnline(): boolean;
+```
+
+Whether the browser is online — `navigator.onLine` plus the `online` / `offline` events. Returns
+`true` on the server and during hydration, so an "offline" warning never flashes on page load.
+See it live in the `useIdle` demo.
+
+```tsx
+function OfflineBanner() {
+  const online = useOnline();
+  if (online) return null;
+  return (
+    <Alert banner color="warning">
+      You are offline. Changes will not be saved.
+    </Alert>
+  );
+}
+```

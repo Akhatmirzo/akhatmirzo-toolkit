@@ -1,0 +1,326 @@
+---
+title: Dialog
+description: 'Modal oyna: forma va tasdiqlash uchun, telefonda pastdan chiqadi; imperativ confirm() bilan.'
+---
+
+<ComponentPreview name="dialog/basic" />
+
+## Import
+
+```tsx
+import { Dialog, ConfirmDialog, ConfirmProvider, confirm } from '@akhatmirzo/ui';
+```
+
+## Qachon ishlatish
+
+- **Diqqatni bitta vazifaga qaratish kerak bo'lsa** — qisqa forma, tafsilotlarni tahrirlash,
+  muhim ogohlantirish. Foydalanuvchi oynani yopmaguncha sahifa bilan ishlay olmaydi.
+- **Xavfli amalni tasdiqlash** — `confirm()` yoki `ConfirmDialog`. Bitta qator kod bilan
+  `true` / `false` javob olasiz.
+- **Uzun forma yoki filtrlar** uchun yon panel — [`Drawer`](./drawer.mdx) qulayroq: sahifa
+  konteksti ko'rinib turadi.
+- **Kichik, bog'lanmagan kontent** (filtr, rang tanlash) uchun modal kerak emas —
+  [`Popover`](./popover.mdx) oling.
+- **Natija haqida xabar** ("Saqlandi") uchun oyna ochmang — [`toast()`](./toast.mdx) yetarli.
+
+## Tuzilishi
+
+`Dialog` — holatni boshqaradi (`open`, `defaultOpen`, `onOpenChange`). Qolgan qismlar:
+
+| Qism             | Vazifasi                                                          |
+| ---------------- | ----------------------------------------------------------------- |
+| `Dialog.Trigger` | Ochuvchi element. `asChild` bilan o'zingizning tugmangizni bering |
+| `Dialog.Content` | Oynaning o'zi: fon, sarlavha, izoh, ✕ tugmasi, fokus tuzog'i      |
+| `Dialog.Footer`  | Pastki tugmalar qatori — o'ngga tekislangan, 8px oraliq           |
+| `Dialog.Close`   | Bosilganda oynani yopadigan element (`asChild` bilan)             |
+
+```tsx
+<Dialog open={open} onOpenChange={setOpen}>
+  <Dialog.Trigger asChild>
+    <Button>Ochish</Button>
+  </Dialog.Trigger>
+  <Dialog.Content title="Profilni tahrirlash" description="O'zgarishlar darhol saqlanadi.">
+    {/* forma */}
+    <Dialog.Footer>
+      <Dialog.Close asChild>
+        <Button>Bekor qilish</Button>
+      </Dialog.Close>
+      <Button variant="primary">Saqlash</Button>
+    </Dialog.Footer>
+  </Dialog.Content>
+</Dialog>
+```
+
+`title` — majburiy: ekran o'quvchi oynani shu nom bilan e'lon qiladi. Ko'rinmasligi kerak bo'lsa,
+`hideTitle` qo'ying, lekin olib tashlamang.
+
+## O'lchamlar
+
+`size` oyna kengligini belgilaydi: `sm` — 400px, `md` — 520px (standart), `lg` — 640px, `xl` —
+800px, `full` — butun ekran. Balandlik ekrandan 32px kam bo'lishi mumkin, kontent uzun bo'lsa
+oyna ichida scroll paydo bo'ladi.
+
+<ComponentPreview name="dialog/sizes" />
+
+## Sozlamalar
+
+- `dismissible={false}` — tashqariga bosish oynani yopmaydi (`Esc` ishlayveradi).
+- `closeButton={false}` — o'ng yuqoridagi ✕ tugmasini olib tashlaydi.
+- `hideTitle` — sarlavhani ko'rinmas qiladi, ekran o'quvchi uni baribir o'qiydi.
+- `mobileSheet={false}` — telefonda (640px dan tor ekranda) ham oyna markazda qoladi. Standart
+  holatda u pastdan chiqadigan sheet'ga aylanadi.
+
+<ComponentPreview name="dialog/options" />
+
+## Yuborish paytida
+
+Forma yuborilayotganda oynani tasodifan yopib qo'ymaslik uchun `dismissible` ni o'chiring va
+`onOpenChange` da yopilishni to'xtating — shunda tashqariga bosish ham, `Esc` ham ishlamaydi.
+
+<ComponentPreview name="dialog/async-submit" />
+
+## Tasdiqlash: confirm()
+
+`confirm()` — imperativ API: oynani ochadi va `Promise<boolean>` qaytaradi. "Tasdiqlash" —
+`true`, "Bekor qilish", `Esc` yoki tashqariga bosish — `false`.
+
+<ComponentPreview name="dialog/confirm" />
+
+```tsx
+const ok = await confirm({
+  title: "Buyurtma o'chirilsinmi?",
+  description: "Bu amalni qaytarib bo'lmaydi.",
+  confirmText: "O'chirish",
+  variant: 'danger',
+});
+if (ok) await deleteOrder(id);
+```
+
+- `variant: 'danger'` — tasdiqlash tugmasi qizil, **dastlabki fokus "Bekor qilish" da**:
+  foydalanuvchi `Enter` ni tasodifan bosib, ma'lumotni o'chirib yubormaydi.
+- `onConfirm` Promise qaytarsa — tugma `loading` holatiga o'tadi, oyna javob kelguncha yopilmaydi
+  (`Esc` va tashqariga bosish ham ishlamaydi). Promise xato bilan tugasa, oyna ochiq qoladi —
+  foydalanuvchi qayta urinadi yoki bekor qiladi.
+
+<Callout title="ConfirmProvider shart" type="warn">
+  `confirm()` ishlashi uchun ilovada bir marta `<ConfirmProvider />` turishi kerak. U bo'lmasa,
+  `confirm()` "ilovada `<ConfirmProvider />` topilmadi" xatosi bilan rad etiladi.
+</Callout>
+
+```tsx title="app/providers.tsx"
+'use client';
+
+import { ConfirmProvider } from '@akhatmirzo/ui';
+import type { ReactNode } from 'react';
+
+export function Providers({ children }: { children: ReactNode }) {
+  return <ConfirmProvider>{children}</ConfirmProvider>;
+}
+```
+
+`ConfirmProvider` ilovani o'rab olishi ham, yonida yolg'iz turishi ham mumkin. Uning `labels`
+prop'i barcha `confirm()` oynalari uchun standart tugma matnlarini o'rnatadi:
+`labels={{ confirm: 'Confirm', cancel: 'Cancel' }}`.
+
+## ConfirmDialog — deklarativ variant
+
+Tasdiqlash oynasi JSX'da turishi kerak bo'lsa (masalan, aniq trigger bilan), `ConfirmDialog`
+dan foydalaning. Opsiyalari `confirm()` bilan bir xil, ustiga `trigger` va `onCancel`.
+
+<ComponentPreview name="dialog/confirm-dialog" />
+
+## Dialog ichida Select va Combobox
+
+`Dialog.Content` ichidagi [`Select`](./select.mdx), [`Combobox`](./combobox.mdx),
+[`DropdownMenu`](./dropdown-menu.mdx) va [`Popover`](./popover.mdx) modal qatlamini o'zi aniqlaydi:
+paneli oyna ustida ochiladi va fokus tuzog'i ularga xalaqit bermaydi. Hech qanday `z-index` yoki
+`container` sozlash shart emas. [`Drawer`](./drawer.mdx) ichida ham xuddi shunday.
+
+<ComponentPreview name="dialog/with-select" />
+
+## Props
+
+### Dialog
+
+Radix Dialog `Root` prop'larini qabul qiladi.
+
+<PropsTable
+  rows={[
+    { name: 'open', type: 'boolean', description: 'Ochiqmi (boshqariladigan rejim)' },
+    { name: 'defaultOpen', type: 'boolean', description: "Boshlang'ich holatda ochiq" },
+    { name: 'onOpenChange', type: '(open: boolean) => void', description: 'Ochilib-yopilganda' },
+    {
+      name: 'modal',
+      type: 'boolean',
+      default: 'true',
+      description: 'Sahifaning qolgan qismini bloklaydi',
+    },
+  ]}
+/>
+
+### Dialog.Content
+
+Qolgan `<div>` atributlari, `ref` va Radix hodisalari (`onEscapeKeyDown`, `onOpenAutoFocus`,
+`onInteractOutside` ...) panelga uzatiladi.
+
+<PropsTable
+  rows={[
+    {
+      name: 'title',
+      type: 'ReactNode',
+      required: true,
+      description: "Sarlavha — ekran o'quvchi uchun ham",
+    },
+    { name: 'description', type: 'ReactNode', description: 'Sarlavha ostidagi izoh' },
+    {
+      name: 'size',
+      type: "'sm' | 'md' | 'lg' | 'xl' | 'full'",
+      default: "'md'",
+      description: '400 / 520 / 640 / 800px / butun ekran',
+    },
+    {
+      name: 'hideTitle',
+      type: 'boolean',
+      default: 'false',
+      description: "Sarlavhani ko'rinmas qiladi (ekran o'quvchi o'qiydi)",
+    },
+    {
+      name: 'closeButton',
+      type: 'boolean',
+      default: 'true',
+      description: "O'ng yuqorida ✕ tugmasi",
+    },
+    {
+      name: 'dismissible',
+      type: 'boolean',
+      default: 'true',
+      description: 'false — tashqariga bosish yopmaydi (Esc ishlaydi)',
+    },
+    {
+      name: 'mobileSheet',
+      type: 'boolean',
+      default: 'true',
+      description: '640px dan tor ekranda pastdan chiqadigan sheet',
+    },
+    { name: 'overlayClassName', type: 'string', description: 'Fon (overlay) uchun klass' },
+    {
+      name: 'container',
+      type: 'HTMLElement | null',
+      description: 'Portal konteyneri (standart — document.body)',
+    },
+    {
+      name: 'labels',
+      type: '{ close?: string }',
+      default: "{ close: 'Yopish' }",
+      description: '✕ tugmasining nomi',
+    },
+  ]}
+/>
+
+### Dialog.Trigger, Dialog.Close
+
+Ikkalasi ham `asChild` qabul qiladi — o'z elementingizni (odatda `Button`) bering.
+`Dialog.Footer` — oddiy `<div>`, barcha div atributlarini oladi.
+
+### confirm() va ConfirmDialog
+
+`confirm(options): Promise<boolean>`. `ConfirmDialog` xuddi shu opsiyalarni prop sifatida oladi.
+
+<PropsTable
+  rows={[
+    { name: 'title', type: 'ReactNode', required: true, description: 'Savol' },
+    { name: 'description', type: 'ReactNode', description: 'Qisqa izoh' },
+    {
+      name: 'confirmText',
+      type: 'ReactNode',
+      default: "'Tasdiqlash'",
+      description: 'Tasdiqlash tugmasi matni',
+    },
+    {
+      name: 'cancelText',
+      type: 'ReactNode',
+      default: "'Bekor qilish'",
+      description: 'Bekor qilish tugmasi matni',
+    },
+    {
+      name: 'variant',
+      type: "'default' | 'danger'",
+      default: "'default'",
+      description: "danger — qizil tugma, fokus 'Bekor qilish' da",
+    },
+    {
+      name: 'onConfirm',
+      type: '() => unknown',
+      description: 'Promise qaytarsa — loading, tugaguncha yopilmaydi; xatoda ochiq qoladi',
+    },
+  ]}
+/>
+
+Faqat `ConfirmDialog` uchun:
+
+<PropsTable
+  rows={[
+    { name: 'trigger', type: 'ReactNode', description: 'Ochuvchi element' },
+    { name: 'open', type: 'boolean', description: 'Boshqariladigan rejim' },
+    { name: 'defaultOpen', type: 'boolean', default: 'false', description: 'Boshida ochiq' },
+    { name: 'onOpenChange', type: '(open: boolean) => void', description: 'Ochilib-yopilganda' },
+    {
+      name: 'onCancel',
+      type: '() => void',
+      description: 'Bekor qilinganda (tugma, Esc yoki tashqariga bosish)',
+    },
+    {
+      name: 'labels',
+      type: '{ confirm?: string; cancel?: string }',
+      description: 'Standart tugma matnlari',
+    },
+  ]}
+/>
+
+### ConfirmProvider
+
+<PropsTable
+  rows={[
+    {
+      name: 'labels',
+      type: '{ confirm?: string; cancel?: string }',
+      description: 'Barcha confirm() oynalari uchun standart matnlar',
+    },
+    { name: 'children', type: 'ReactNode', description: "Ixtiyoriy: ilovani o'rab olishi mumkin" },
+  ]}
+/>
+
+### Data atributlari
+
+| Atribut      | Qayerda | Qiymat                                        |
+| ------------ | ------- | --------------------------------------------- |
+| `data-state` | panel   | `open` · `closed`                             |
+| `data-size`  | panel   | `sm` · `md` · `lg` · `xl` · `full`            |
+| `data-sheet` | panel   | telefonda sheet ko'rinishida bo'lganda mavjud |
+
+Dastlabki fokusni o'zingiz tanlamoqchi bo'lsangiz, kerakli elementga `data-autofocus` atributini
+qo'ying.
+
+## Klaviatura
+
+| Tugma         | Harakat                                                 |
+| ------------- | ------------------------------------------------------- |
+| `Tab`         | Oyna ichidagi keyingi element (fokus oynadan chiqmaydi) |
+| `Shift + Tab` | Oldingi element                                         |
+| `Esc`         | Oynani yopadi, fokus ochgan elementga qaytadi           |
+
+## Accessibility
+
+- **Rol va nom.** Panel — `role="dialog"` (`confirm()` va `ConfirmDialog` da —
+  `role="alertdialog"`), `aria-labelledby` sarlavhaga, `aria-describedby` izohga ulanadi. Izoh
+  bo'lmasa, `aria-describedby` umuman qo'yilmaydi.
+- **Fokus tuzog'i.** Ochiq paytda fokus oyna ichida aylanadi, sahifaning qolgan qismi
+  ekran o'quvchidan yashiriladi va scroll qilinmaydi.
+- **Dastlabki fokus:** `[data-autofocus]` → birinchi maydon (`input`, `textarea`, `select`) →
+  birinchi tugma (✕ dan tashqari) → panelning o'zi.
+- **Fokusni qaytarish.** Yopilgach fokus `Dialog.Trigger` ga qaytadi. Trigger bo'lmasa
+  (boshqariladigan rejim yoki `confirm()`), oyna ochilishidan oldin fokusda bo'lgan elementga
+  qaytadi.
+- **✕ tugmasi** "Yopish" nomini oladi — `labels.close` bilan o'zgartiriladi.
+- **Kamroq harakat.** `prefers-reduced-motion` yoqilgan bo'lsa, siljish o'rniga faqat shaffoflik
+  animatsiyasi ishlaydi.
