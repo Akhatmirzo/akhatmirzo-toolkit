@@ -1,6 +1,6 @@
 {
   "title": "v0.2",
-  "description": "Eng so'nggi versiya",
+  "description": "Eski versiya",
   "root": true,
   "icon": "Tag",
   "pages": [
@@ -23,7 +23,6 @@
     "components/combobox",
     "components/date-picker",
     "components/masked-input",
-    "components/document-inputs",
     "components/otp-input",
     "components/file-upload",
     "---Tanlov---",
@@ -55,7 +54,6 @@
     "components/pagination",
     "components/breadcrumb",
     "components/stepper",
-    "components/script",
     "---Ma'lumotlar---",
     "components/data-table",
     "components/virtual-list",
@@ -63,7 +61,6 @@
     "core/text",
     "core/format",
     "core/validate",
-    "core/identifiers",
     "core/storage-api",
     "core/utils",
     "---Hooks---",

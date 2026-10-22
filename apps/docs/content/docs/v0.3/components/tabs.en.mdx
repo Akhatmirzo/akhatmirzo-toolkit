@@ -1,0 +1,191 @@
+---
+title: Tabs
+description: Switch between sections of one page — underline, pills and segmented styles.
+---
+
+<ComponentPreview name="tabs/variants" align="start" />
+
+## Import
+
+```tsx
+import { Tabs } from '@akhatmirzo/ui';
+```
+
+## When to use
+
+- **Several views of one subject** — "Details", "Orders" and "Reviews" on a customer card. Users
+  see one at a time.
+- **Switching a period or a filter** — `segmented` ("Day / Week / Month") is compact and clear.
+- **Not for navigating between pages.** If each section needs its own URL, build link-based
+  navigation instead.
+- **When users need to compare sections**, tabs get in the way: show everything at once or use an
+  [`Accordion`](./accordion.mdx).
+- **Aim for 2–7 tabs.** More still works (the row scrolls horizontally), but hidden tabs are
+  harder to discover.
+
+## Anatomy
+
+| Part           | What it does                                                      |
+| -------------- | ----------------------------------------------------------------- |
+| `Tabs`         | State (`value`, `defaultValue`), `variant`, `size`, `orientation` |
+| `Tabs.List`    | The row of tabs and the sliding indicator                         |
+| `Tabs.Trigger` | A single tab: `value`, optional `badge`, `disabled`               |
+| `Tabs.Content` | The panel for a tab (matched by `value`)                          |
+
+```tsx
+<Tabs defaultValue="info">
+  <Tabs.List aria-label="Customer">
+    <Tabs.Trigger value="info">Details</Tabs.Trigger>
+    <Tabs.Trigger value="orders" badge={12}>
+      Orders
+    </Tabs.Trigger>
+  </Tabs.List>
+  <Tabs.Content value="info">...</Tabs.Content>
+  <Tabs.Content value="orders">...</Tabs.Content>
+</Tabs>
+```
+
+## Variants
+
+| Variant     | Looks like                                                         |
+| ----------- | ------------------------------------------------------------------ |
+| `underline` | A 2px line under the active tab that slides between tabs (default) |
+| `pills`     | The active tab sits on a rounded `primary-soft` background         |
+| `segmented` | The active tab is a raised "card" inside a gray container          |
+
+The indicator slides from one tab to the next over 200ms.
+
+## Sizes
+
+`size` is `sm` (32px) or `md` (40px, default). In `segmented`, the inner tab is 28 / 32px tall.
+
+<ComponentPreview name="tabs/sizes" align="start" />
+
+## Vertical
+
+`orientation="vertical"` stacks the tabs in a column on the left with the content on the right —
+a good fit for settings pages. Use `↑ ↓` on the keyboard.
+
+<ComponentPreview name="tabs/vertical" align="start" />
+
+## Many tabs
+
+When tabs don't fit, the row scrolls horizontally and soft fades appear at the edges to hint that
+there's more. Pass `scrollable={false}` to `Tabs.List` to turn this off.
+
+<ComponentPreview name="tabs/scrollable" align="start" />
+
+## Counters and disabled tabs
+
+`badge` adds a counter next to the label: a number or any `ReactNode` (a [`Badge`](./badge.mdx),
+for example). A `disabled` tab can't be clicked and keyboard navigation skips it.
+
+<ComponentPreview name="tabs/badges" align="start" />
+
+## Controlled
+
+With `value` + `onValueChange`, you own the active tab. Tabs also work without any
+`Tabs.Content` — as a plain switcher.
+
+<ComponentPreview name="tabs/controlled" align="start" />
+
+## Props
+
+### Tabs
+
+Also accepts `<div>` attributes and the Radix `Root` props (`activationMode`, `dir`).
+
+<PropsTable
+  rows={[
+    { name: 'value', type: 'string', description: 'Active tab (controlled)' },
+    { name: 'defaultValue', type: 'string', description: 'Initially active tab' },
+    {
+      name: 'onValueChange',
+      type: '(value: string) => void',
+      description: 'Called when the active tab changes',
+    },
+    {
+      name: 'variant',
+      type: "'underline' | 'pills' | 'segmented'",
+      default: "'underline'",
+      description: 'Visual style',
+    },
+    { name: 'size', type: "'sm' | 'md'", default: "'md'", description: 'Height: 32 / 40px' },
+    {
+      name: 'orientation',
+      type: "'horizontal' | 'vertical'",
+      default: "'horizontal'",
+      description: 'Direction of the tab row',
+    },
+  ]}
+/>
+
+### Tabs.List
+
+<PropsTable
+  rows={[
+    {
+      name: 'scrollable',
+      type: 'boolean',
+      default: 'true',
+      description: "Horizontal scroll with edge fades when tabs don't fit",
+    },
+    { name: 'aria-label', type: 'string', description: 'Name of the tab group (recommended)' },
+    {
+      name: 'loop',
+      type: 'boolean',
+      default: 'true',
+      description: 'Arrow keys wrap from the last tab to the first',
+    },
+  ]}
+/>
+
+### Tabs.Trigger
+
+<PropsTable
+  rows={[
+    { name: 'value', type: 'string', required: true, description: 'Tab value' },
+    { name: 'badge', type: 'ReactNode', description: 'A counter next to the label, e.g. 12' },
+    { name: 'disabled', type: 'boolean', description: 'Disables the tab' },
+  ]}
+/>
+
+### Tabs.Content
+
+<PropsTable
+  rows={[
+    { name: 'value', type: 'string', required: true, description: 'The tab it belongs to' },
+    { name: 'forceMount', type: 'true', description: 'Keeps it in the DOM while hidden' },
+  ]}
+/>
+
+### Data attributes
+
+| Attribute             | On         | Value                               |
+| --------------------- | ---------- | ----------------------------------- |
+| `data-variant`        | root, list | `underline` · `pills` · `segmented` |
+| `data-size`           | root, list | `sm` · `md`                         |
+| `data-orientation`    | all parts  | `horizontal` · `vertical`           |
+| `data-state`          | tab, panel | `active` · `inactive`               |
+| `data-disabled`       | tab        | present when disabled               |
+| `data-tabs-indicator` | indicator  | the sliding line or background      |
+
+## Keyboard
+
+| Key                                 | Action                                                |
+| ----------------------------------- | ----------------------------------------------------- |
+| `←` / `→` (`↑` / `↓` when vertical) | Moves between tabs; the focused tab activates at once |
+| `Home` / `End`                      | First / last tab                                      |
+| `Tab`                               | Moves from the tab row into the active panel          |
+
+## Accessibility
+
+- **Roles.** The list is `role="tablist"` (with `aria-orientation`), each tab is `role="tab"`
+  (`aria-selected`, `aria-controls`), and each panel is `role="tabpanel"` (`aria-labelledby`). It
+  is built on Radix Tabs.
+- **Name.** Give `Tabs.List` an `aria-label` ("Customer", "Period") so screen readers announce
+  the group by name.
+- **Roving focus.** The tab row is a single `Tab` stop; arrow keys move inside it.
+- **The focus ring** is drawn inside the tab so the scroll container doesn't clip it.
+- **The indicator** is decorative (`aria-hidden`). With `prefers-reduced-motion`, it jumps
+  instead of sliding.

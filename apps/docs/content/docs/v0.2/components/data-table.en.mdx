@@ -3,7 +3,7 @@ title: DataTable
 description: A data table with sorting, Uzbek-aware search, filters, selection, pagination, server mode and virtual scrolling.
 ---
 
-<ComponentPreview name="data-table/basic" align="start" />
+<ComponentPreview name="archive/v0.2/data-table/basic" align="start" />
 
 ## Import
 
@@ -202,7 +202,7 @@ tozalash" (clear filters) button appears.
 data, each with a row count next to it. A `date` range includes both ends (the end day too). The
 demo below sets an initial filter through `initialState`.
 
-<ComponentPreview name="data-table/filters" align="start" />
+<ComponentPreview name="archive/v0.2/data-table/filters" align="start" />
 
 ## Selection and bulk actions
 
@@ -211,7 +211,7 @@ indeterminate state for a partial selection). Once a row is selected, the toolba
 **bulk actions bar**: "2 ta tanlandi" (2 selected), your `bulkActions` buttons and "Bekor qilish"
 (clear). `Shift`-click a checkbox to select a range.
 
-<ComponentPreview name="data-table/selection" align="start" />
+<ComponentPreview name="archive/v0.2/data-table/selection" align="start" />
 
 ```tsx
 <DataTable
@@ -257,7 +257,7 @@ for large data sets use `virtual` (which also shows a row count at the bottom).
 
 While refetching, the table doesn't jump — the old data stays in place. Click through the states:
 
-<ComponentPreview name="data-table/states" align="start" />
+<ComponentPreview name="archive/v0.2/data-table/states" align="start" />
 
 ## Server mode
 
@@ -265,7 +265,7 @@ When the server sorts, filters and paginates, pass `manual`. The table leaves th
 reports sorting, search, filters and page through `onStateChange`; you send that state to your
 API. Pass the total number of records as `rowCount` for pagination.
 
-<ComponentPreview name="data-table/server" align="start" />
+<ComponentPreview name="archive/v0.2/data-table/server" align="start" />
 
 The state passed to `onStateChange` (`DataTableState`):
 
@@ -352,7 +352,7 @@ If all the data is in the browser and you don't want pages, use `virtual`. Only 
 filters still work on the full data set. The height comes from `maxHeight` (480px by default), and
 the header is sticky. `pagination` is ignored together with `virtual`.
 
-<ComponentPreview name="data-table/virtual" align="start" />
+<ComponentPreview name="archive/v0.2/data-table/virtual" align="start" />
 
 For lists that aren't tables, the same technique is available as
 [VirtualList](./virtual-list.mdx).
@@ -366,14 +366,14 @@ For lists that aren't tables, the same technique is available as
   `hideable: false` columns aren't listed, `hidden: true` starts them hidden.
 - With `maxHeight`, the header sticks inside the table's scroll area.
 
-<ComponentPreview name="data-table/density" align="start" />
+<ComponentPreview name="archive/v0.2/data-table/density" align="start" />
 
 ## Cards on phones
 
 By default, a narrow screen scrolls the table horizontally. `mobileView="cards"` turns each row
 into a card (header: value) below 640px. Make your browser window narrower to see it.
 
-<ComponentPreview name="data-table/cards" align="start" />
+<ComponentPreview name="archive/v0.2/data-table/cards" align="start" />
 
 ## Props
 

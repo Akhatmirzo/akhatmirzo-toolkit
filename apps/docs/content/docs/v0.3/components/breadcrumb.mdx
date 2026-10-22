@@ -1,0 +1,111 @@
+---
+title: Breadcrumb
+description: "Foydalanuvchi sayt tuzilishining qayerida turganini ko'rsatadigan sahifa yo'li: yig'ish, menyu va Next.js Link."
+---
+
+<ComponentPreview name="breadcrumb/basic" />
+
+## Import
+
+```tsx
+import { Breadcrumb } from '@akhatmirzo/ui';
+```
+
+## Qachon ishlatish
+
+- **Chuqur ierarxiya** — katalog → kategoriya → mahsulot, sozlamalar → hisob → xavfsizlik.
+  Foydalanuvchi bir bosishda yuqori darajaga qaytadi.
+- **Sahifa sarlavhasi ustida**, kontentdan oldin qo'ying.
+- **Bir darajali saytda kerak emas** — faqat "Bosh sahifa → Joriy" bo'lsa, foyda kam.
+- **Qadamlar uchun emas.** Ketma-ket jarayonni ko'rsatish uchun [`Stepper`](./stepper.mdx) dan
+  foydalaning.
+
+## Elementlar
+
+`items` — `{ label, href?, icon?, onClick? }` ro'yxati. Oxirgi element — joriy sahifa: havola
+bo'lmaydi va `aria-current="page"` oladi. `href` siz, lekin `onClick` li element — tugma bo'ladi.
+
+## Yig'ish
+
+`maxItems` dan ko'p bo'lsa: birinchi + `…` + oxirgi `maxItems - 2` ta (kamida 1). `…` bosilganda
+yashiringan sahifalar [`DropdownMenu`](./dropdown-menu.mdx) da ochiladi.
+
+<ComponentPreview name="breadcrumb/collapse" />
+
+Telefonda (`< 640px`) yo'l avtomatik `…` + ota + joriy ko'rinishiga tushadi. Bu CSS breakpoint bilan
+qilinadi — SSR'da hydration farqi bo'lmaydi. Uzun nomlar qisqartiriladi (havolalar `20ch`,
+joriy sahifa `32ch`).
+
+## Separator va o'lcham
+
+`separator` — istalgan `ReactNode` (standart — chevron `›`). `size="sm"` — `text-xs`.
+
+<ComponentPreview name="breadcrumb/separator" />
+
+## Next.js Link
+
+`renderLink` — `<a>` o'rniga o'z havola komponentingiz. U yig'ilgan menyu ichida ham ishlatiladi.
+
+```tsx
+import Link from 'next/link';
+import { Breadcrumb } from '@akhatmirzo/ui';
+
+<Breadcrumb
+  items={[
+    { label: 'Bosh sahifa', href: '/' },
+    { label: 'Mahsulotlar', href: '/products' },
+    { label: 'iPhone 17' },
+  ]}
+  renderLink={(props) => <Link {...props} />}
+/>;
+```
+
+## Props
+
+Qolgan `<nav>` atributlari ham qabul qilinadi.
+
+<PropsTable
+  rows={[
+    {
+      name: 'items',
+      type: '{ label: ReactNode; href?: string; icon?: ReactNode; onClick?: (event) => void }[]',
+      required: true,
+      description: "Yo'l elementlari; oxirgisi — joriy sahifa",
+    },
+    { name: 'separator', type: 'ReactNode', description: 'Ajratuvchi (standart — chevron `›`)' },
+    {
+      name: 'maxItems',
+      type: 'number',
+      description: 'Oshsa: birinchi + `…` + oxirgilari; yashiringanlar menyuda',
+    },
+    {
+      name: 'renderLink',
+      type: '(props: { href, className, children, onClick }) => ReactNode',
+      description: 'Next `Link` kabi havola komponenti',
+    },
+    { name: 'size', type: "'sm' | 'md'", default: "'md'", description: '`text-xs` / `text-sm`' },
+    {
+      name: 'labels',
+      type: '{ nav?: string; more?: string }',
+      description: 'Standart: "Sahifa yo\'li", "Yashirilgan sahifalar"',
+    },
+  ]}
+/>
+
+### Data atributlari
+
+| Atribut         | Qayerda      | Qiymat                                                             |
+| --------------- | ------------ | ------------------------------------------------------------------ |
+| `data-size`     | `nav`        | `sm` · `md`                                                        |
+| `data-slot`     | qismlar      | `breadcrumb-item` · `breadcrumb-ellipsis` · `breadcrumb-separator` |
+| `data-viewport` | `…` elementi | `desktop` · `mobile`                                               |
+
+## Accessibility
+
+- **Tuzilish.** `<nav aria-label="Sahifa yo'li">` ichida tartiblangan `<ol>` ro'yxat.
+- **Joriy sahifa** havola emas, `aria-current="page"` bilan belgilanadi.
+- **Separator** bezak — `aria-hidden`, ekran o'quvchi uni o'qimaydi.
+- **`…` tugmasi** — `aria-label="Yashirilgan sahifalar"`, `aria-haspopup="menu"`. `Enter` /
+  `Space` bilan ochiladi, `↑ ↓` bilan yuriladi, `Esc` yopadi va fokusni tugmaga qaytaradi.
+- **Telefon ko'rinishi** CSS bilan yashiriladi (`display: none`), shuning uchun ekran o'quvchi
+  faqat ko'rinib turgan elementlarni o'qiydi.

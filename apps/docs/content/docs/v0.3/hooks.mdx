@@ -1,0 +1,462 @@
+---
+title: Hooklar
+description: "@akhatmirzo/hooks — 12 ta bog'liqliksiz, SSR'da xavfsiz React hook."
+---
+
+Komponentlar ichida qayta-qayta yoziladigan mantiq: kechiktirish, `localStorage`, media
+so'rovlar, klaviatura yorliqlari, sahifalash. Paket faqat `react` ga tayanadi (18 va undan
+yangi), serverda xato bermaydi va `@akhatmirzo/ui` siz ham ishlaydi.
+
+<Install pkg="@akhatmirzo/hooks" />
+
+```ts
+import { useDebounce, useHotkeys, useLocalStorage } from '@akhatmirzo/hooks';
+```
+
+| Hook                                            | Vazifasi                                    |
+| ----------------------------------------------- | ------------------------------------------- |
+| [`useToggle`](#usetoggle)                       | `true` / `false` holat va almashtirgich     |
+| [`useDebounce`](#usedebounce)                   | Qiymatni kechiktirish (qidiruv)             |
+| [`useDebouncedCallback`](#usedebouncedcallback) | Funksiyani kechiktirish (avtomatik saqlash) |
+| [`useControllableState`](#usecontrollablestate) | Boshqariladigan va boshqarilmaydigan holat  |
+| [`useLocalStorage`](#uselocalstorage)           | `localStorage` bilan sinxron holat          |
+| [`useMediaQuery`](#usemediaquery)               | CSS media so'rov natijasi                   |
+| [`useClickOutside`](#useclickoutside)           | Element tashqarisiga bosish                 |
+| [`useCopyToClipboard`](#usecopytoclipboard)     | Buferga nusxalash                           |
+| [`useIntersection`](#useintersection)           | Ko'rinish maydoniga kirish (cheksiz scroll) |
+| [`useAsync`](#useasync)                         | Asinxron funksiya holati                    |
+| [`usePagination`](#usepagination)               | Sahifalash tugmalari                        |
+| [`useHotkeys`](#usehotkeys)                     | Klaviatura yorliqlari                       |
+
+<Callout title="Next.js'da">
+  Hooklar faqat client komponentlarda ishlaydi — faylning birinchi qatoriga `'use client';` qo'ying.
+</Callout>
+
+## Holat
+
+### useToggle
+
+```ts
+function useToggle(
+  initial?: boolean,
+): readonly [value: boolean, toggle: () => void, setValue: Dispatch<SetStateAction<boolean>>];
+```
+
+Mantiqiy holat. `toggle` barqaror (har render'da bir xil), shuning uchun uni to'g'ridan-to'g'ri
+`onClick` ga yoki boshqa hooklarga berish mumkin. `initial` — standart `false`.
+
+<ComponentPreview name="hooks/toggle" />
+
+```tsx
+const [open, toggleOpen, setOpen] = useToggle();
+
+<Button onClick={toggleOpen}>Filtrlar</Button>;
+<Button onClick={() => setOpen(false)}>Yopish</Button>;
+```
+
+### useControllableState
+
+```ts
+function useControllableState<T>(params: {
+  value?: T;
+  defaultValue?: T;
+  onChange?: (value: T) => void;
+}): [T, Dispatch<SetStateAction<T>>];
+```
+
+O'z komponentingizni ham **boshqariladigan** (`value` + `onValueChange`), ham
+**boshqarilmaydigan** (`defaultValue`) qilish uchun. `value !== undefined` bo'lsa — qiymat
+otadan keladi, aks holda ichki holat ishlatiladi. `onChange` ikkala rejimda ham, faqat qiymat
+**haqiqatan o'zgarganda** chaqiriladi. Kutubxonadagi `Dialog`, `Tabs`, `Select` shu tamoyilda
+ishlaydi.
+
+<ComponentPreview name="hooks/controllable-state" />
+
+```tsx title="stepper.tsx"
+interface StepperProps {
+  value?: number;
+  defaultValue?: number;
+  onValueChange?: (value: number) => void;
+}
+
+function Stepper({ value, defaultValue = 0, onValueChange }: StepperProps) {
+  const [count, setCount] = useControllableState({ value, defaultValue, onChange: onValueChange });
+  return <Button onClick={() => setCount((n) => n + 1)}>{count}</Button>;
+}
+
+<Stepper defaultValue={3} />; // o'zi boshqaradi
+<Stepper value={qty} onValueChange={setQty} />; // ota boshqaradi
+```
+
+<Callout type="info" title="Tip haqida">
+  `defaultValue` berilsa, qiymat tipi `T`. Berilmasa — `T | undefined`.
+</Callout>
+
+## Kechiktirish
+
+### useDebounce
+
+```ts
+function useDebounce<T>(value: T, ms?: number): T;
+```
+
+Qiymatni kechiktiradi: oxirgi o'zgarishdan `ms` millisekund o'tgach yangilanadi (standart
+`300`). Har bir harfga so'rov yubormaslik uchun — qidiruv maydonining klassik vazifasi.
+
+<ComponentPreview name="hooks/debounce" />
+
+```tsx
+const [query, setQuery] = useState('');
+const debounced = useDebounce(query, 400);
+
+useEffect(() => {
+  if (debounced) void api.get('/search', { query: { q: debounced } });
+}, [debounced]);
+```
+
+### useDebouncedCallback
+
+```ts
+function useDebouncedCallback<Args extends unknown[]>(
+  fn: (...args: Args) => void,
+  ms?: number,
+): DebouncedFunction<Args>;
+
+interface DebouncedFunction<Args> {
+  (...args: Args): void;
+  cancel: () => void;
+  flush: () => void;
+  isPending: () => boolean;
+}
+```
+
+Funksiyani kechiktiradi. Qiymat emas, **harakat** kechiktirilishi kerak bo'lganda — masalan,
+avtomatik saqlash. Har doim eng so'nggi `fn` chaqiriladi (eski closure muammosi yo'q), unmount'da
+kutilayotgan chaqiruv bekor qilinadi. `ms` — standart `300`.
+
+<ComponentPreview name="hooks/debounced-callback" />
+
+```tsx
+const save = useDebouncedCallback((text: string) => api.patch('/notes/1', { text }), 800);
+
+<Textarea onChange={(e) => save(e.target.value)} onBlur={save.flush} />;
+```
+
+| Metod         | Nima qiladi                             |
+| ------------- | --------------------------------------- |
+| `cancel()`    | Kutilayotgan chaqiruvni bekor qiladi    |
+| `flush()`     | Kutilayotgan chaqiruvni darhol bajaradi |
+| `isPending()` | Kutilayotgan chaqiruv bormi             |
+
+## Brauzer
+
+### useLocalStorage
+
+```ts
+function useLocalStorage<T>(
+  key: string,
+  initial: T | (() => T),
+): [value: T, setValue: (value: T | ((prev: T) => T)) => void, remove: () => void];
+```
+
+`localStorage` bilan sinxron holat. Qiymat JSON qilib saqlanadi va **sinxronlanadi**: shu
+sahifadagi bir xil kalitli boshqa hooklar va boshqa brauzer tablari ham yangilanadi. `remove`
+kalitni o'chiradi — qiymat `initial` ga qaytadi.
+
+<ComponentPreview name="hooks/local-storage" />
+
+```tsx
+const [recent, setRecent, clearRecent] = useLocalStorage<string[]>('recent-searches', []);
+
+const remember = (query: string) =>
+  setRecent((list) => [query, ...list.filter((q) => q !== query)].slice(0, 5));
+```
+
+Xatolar otilmaydi: serverda `initial` qaytadi, storage taqiqlangan yoki to'la bo'lsa qiymat sahifa
+xotirasida saqlanadi (holat ishlayveradi), buzuq JSON — `initial`.
+
+<Callout type="warn" title="createStorage bilan aralashtirmang">
+  [`createStorage`](./core/storage-api.mdx#createstorage) (`@akhatmirzo/core`) qiymatni o'z o'ramida
+  yozadi. Bitta kalitni ikkalasida ishlatmang.
+</Callout>
+
+### useMediaQuery
+
+```ts
+function useMediaQuery(query: string, defaultValue?: boolean): boolean;
+```
+
+CSS media so'rov mos keladimi — oyna o'lchami yoki tizim sozlamasi o'zgarganda yangilanadi.
+Serverda va `matchMedia` yo'q joyda `defaultValue` (standart `false`) qaytadi.
+
+<ComponentPreview name="hooks/media-query" />
+
+```tsx
+const isMobile = useMediaQuery('(max-width: 639px)');
+const prefersDark = useMediaQuery('(prefers-color-scheme: dark)');
+const reducedMotion = useMediaQuery('(prefers-reduced-motion: reduce)');
+
+return isMobile ? <Drawer>…</Drawer> : <Dialog>…</Dialog>;
+```
+
+### useClickOutside
+
+```ts
+function useClickOutside(
+  refs: RefObject<Element | null> | ReadonlyArray<RefObject<Element | null>>,
+  handler: (event: PointerEvent) => void,
+  enabled?: boolean,
+): void;
+```
+
+Berilgan element(lar)dan **tashqarida** `pointerdown` bo'lganda `handler` chaqiriladi. Bir
+nechta ref berish mumkin — masalan, tugma va panel: tugmaning o'ziga bosish "tashqari" hisoblanmaydi.
+`enabled` (standart `true`) — panel yopiq paytda tinglamaslik uchun.
+
+<ComponentPreview name="hooks/click-outside" />
+
+```tsx
+const triggerRef = useRef<HTMLButtonElement>(null);
+const panelRef = useRef<HTMLDivElement>(null);
+
+useClickOutside([triggerRef, panelRef], () => setOpen(false), open);
+```
+
+DOM'dan olib tashlangan elementga bosish (masalan, bosilganda yo'qolgan menyu bandi) hisobga
+olinmaydi.
+
+### useCopyToClipboard
+
+```ts
+function useCopyToClipboard(resetMs?: number): {
+  copied: boolean;
+  copy: (text: string) => Promise<boolean>;
+};
+```
+
+Matnni buferga nusxalaydi. `copy` muvaffaqiyatni qaytaradi va xato otmaydi. `copied` —
+`resetMs` davomida (standart `2000`) `true`, keyin o'zi `false` ga qaytadi; `0` — qaytmaydi.
+Clipboard API ishlamasa, eski usulga (`execCommand('copy')`) o'tadi.
+
+<ComponentPreview name="hooks/copy" />
+
+```tsx
+const { copied, copy } = useCopyToClipboard();
+
+<Button onClick={() => copy(promoCode)}>{copied ? 'Nusxalandi' : 'Nusxa olish'}</Button>;
+```
+
+### useIntersection
+
+```ts
+function useIntersection<T extends Element = Element>(
+  options?: IntersectionObserverInit & { enabled?: boolean },
+): [ref: (node: T | null) => void, entry: IntersectionObserverEntry | null];
+```
+
+Element ko'rinish maydoniga kirganini kuzatadi — cheksiz scroll va kech yuklash uchun. **Callback
+ref** qaytaradi, shuning uchun element keyinroq yoki shartli render bo'lsa ham kuzatiladi.
+`enabled: false` — kuzatish to'xtaydi (masalan, boshqa sahifa qolmaganda). `IntersectionObserver`
+yo'q muhitda `entry` — `null`.
+
+<ComponentPreview name="hooks/intersection" />
+
+```tsx
+const [sentinelRef, entry] = useIntersection<HTMLDivElement>({
+  rootMargin: '200px',
+  enabled: hasMore,
+});
+
+useEffect(() => {
+  if (entry?.isIntersecting) loadMore();
+}, [entry, items.length]);
+
+return (
+  <>
+    {items.map(renderItem)}
+    <div ref={sentinelRef} />
+  </>
+);
+```
+
+<Callout type="info" title="Nega items.length bog'liqlikda">
+  Sentinel ko'rinishda qolsa, `entry` o'zgarmaydi. Ro'yxat uzunligini bog'liqlikka qo'shsangiz,
+  yangi sahifa yuklangach yana tekshiriladi.
+</Callout>
+
+## Ma'lumotlar
+
+### useAsync
+
+```ts
+function useAsync<T, Args extends unknown[] = []>(
+  fn: (...args: Args) => Promise<T>,
+  deps?: DependencyList,
+  options?: { immediate?: boolean },
+): {
+  status: 'idle' | 'loading' | 'success' | 'error';
+  data: T | undefined;
+  error: unknown;
+  run: (...args: Args) => Promise<T | undefined>;
+};
+```
+
+Asinxron funksiya holati. `immediate: true` (standart) — mount'da va `deps` o'zgarganda o'zi
+ishga tushadi. `immediate: false` — faqat `run()` bilan. Faqat **eng so'nggi** chaqiruv natijasi
+qabul qilinadi: tez-tez bosilganda eski javob yangisining ustiga yozilmaydi. Unmount'dan keyin
+kelgan javob e'tiborsiz qoladi.
+
+<ComponentPreview name="hooks/async" />
+
+```tsx
+// Sahifa o'zgarganda o'zi yuklaydi
+const { status, data, error } = useAsync(
+  () => api.get<Order[]>('/orders', { query: { page } }),
+  [page],
+);
+
+// Faqat tugma bosilganda
+const { run, status: saving } = useAsync((form: OrderForm) => api.post('/orders', form), [], {
+  immediate: false,
+});
+```
+
+- `data` — oxirgi **muvaffaqiyatli** natija. Qayta yuklash va xato paytida ham saqlanadi —
+  ro'yxat yuklanish paytida bo'shab qolmaydi.
+- `run` eskirgan yoki xato chaqiruvda `undefined` qaytaradi va xato otmaydi; xato `error` da.
+
+### usePagination
+
+```ts
+function usePagination(params: {
+  total: number;
+  pageSize: number;
+  page: number;
+  siblings?: number;
+}): {
+  pages: (number | 'ellipsis')[];
+  pageCount: number;
+  page: number;
+  hasPrev: boolean;
+  hasNext: boolean;
+  from: number;
+  to: number;
+};
+```
+
+Sahifalash tugmalari ro'yxati: `1 … 4 5 6 … 20`. Tugmalar soni barqaror (`siblings * 2 + 5`),
+shuning uchun sahifa almashganda panel "sakramaydi". Ko'p nuqta faqat 2 va undan ko'p sahifani
+yashirganda qo'yiladi.
+
+<ComponentPreview name="hooks/pagination" />
+
+```ts
+usePagination({ total: 200, pageSize: 10, page: 5 });
+// { pages: [1, 'ellipsis', 4, 5, 6, 'ellipsis', 20], pageCount: 20, page: 5,
+//   hasPrev: true, hasNext: true, from: 41, to: 50 }
+
+usePagination({ total: 200, pageSize: 10, page: 1 }).pages; // [1, 2, 3, 4, 5, 'ellipsis', 20]
+usePagination({ total: 50, pageSize: 10, page: 2 }).pages; // [1, 2, 3, 4, 5]
+usePagination({ total: 95, pageSize: 10, page: 99 }).page; // 10 — chegaraga qisildi
+```
+
+<PropsTable
+  rows={[
+    { name: 'total', type: 'number', required: true, description: 'Jami yozuvlar soni' },
+    { name: 'pageSize', type: 'number', required: true, description: 'Bir sahifadagi yozuvlar' },
+    {
+      name: 'page',
+      type: 'number',
+      required: true,
+      description: 'Joriy sahifa, 1 dan. Chegaradan chiqsa qisiladi',
+    },
+    {
+      name: 'siblings',
+      type: 'number',
+      default: '1',
+      description: 'Joriy sahifaning har ikki tomonidagi sahifalar soni',
+    },
+  ]}
+/>
+
+`from` / `to` — joriy sahifadagi birinchi va oxirgi yozuv tartib raqami ("41–50 / 200"). Bo'sh
+ro'yxatda `from` — `0`. Hook'siz hisoblash kerak bo'lsa (masalan, serverda) — xuddi shu
+parametrli sof funksiya `getPagination` bor.
+
+## Klaviatura
+
+### useHotkeys
+
+```ts
+function useHotkeys(
+  keys: string,
+  handler: (event: KeyboardEvent) => void,
+  options?: { enabled?: boolean; preventDefault?: boolean; enableOnInputs?: boolean },
+): void;
+```
+
+Global klaviatura yorliqlari. `mod` — macOS'da ⌘, boshqa tizimlarda Ctrl. Bir nechta
+kombinatsiya vergul bilan: `'mod+k, /'`. Standart holatda input, textarea, select va
+contenteditable ichida ishlamaydi — foydalanuvchi yozayotgan matnga xalaqit bermaslik uchun.
+
+<ComponentPreview name="hooks/hotkeys" />
+
+```tsx
+useHotkeys('mod+k', () => setPaletteOpen(true));
+useHotkeys('mod+s', () => save()); // brauzerning "Saqlash" oynasi ochilmaydi
+useHotkeys('esc', close, { enabled: open, enableOnInputs: true });
+```
+
+<PropsTable
+  rows={[
+    {
+      name: 'enabled',
+      type: 'boolean',
+      default: 'true',
+      description: "false — tinglamaydi (masalan, panel yopiq bo'lsa)",
+    },
+    {
+      name: 'preventDefault',
+      type: 'boolean',
+      default: 'true',
+      description: "Mos kelganda brauzerning standart amalini to'xtatadi",
+    },
+    {
+      name: 'enableOnInputs',
+      type: 'boolean',
+      default: 'false',
+      description: 'Input, textarea, select va contenteditable ichida ham ishlaydi',
+    },
+  ]}
+/>
+
+Kombinatsiya yozish:
+
+- **Modifikatorlar:** `mod`, `ctrl`, `meta` (`cmd`), `alt` (`option`), `shift`.
+- **Tugma nomlari:** harf va raqamlar, `esc`, `enter`, `space`, `up` / `down` / `left` /
+  `right`, `del`, `comma`, `plus` va `KeyboardEvent.key` ning boshqa qiymatlari (`tab`, `f1`
+  ...).
+- **Belgilar:** `'?'` yoki `'/'` kabi belgilar Shift bilan yozilsa ham ishlaydi — `shift`
+  yozish shart emas.
+- macOS'da `alt` harfni o'zgartiradi (`Alt+K` → `˚`), lekin `alt+k` baribir ishlaydi — fizik tugma
+  tekshiriladi.
+
+Yorliqni tugma yonida ko'rsatish uchun [`Kbd`](./components/kbd.mdx) dan foydalaning:
+`<Kbd keys={['mod', 'K']} />`.
+
+### matchHotkey va isApplePlatform
+
+```ts
+function matchHotkey(event: KeyboardEvent, keys: string): boolean;
+function isApplePlatform(): boolean; // serverda false
+```
+
+`useHotkeys` ichidagi tekshiruv alohida: o'z `onKeyDown` ingizda yorliqni tekshirish uchun.
+
+```tsx
+<Input
+  onKeyDown={(e) => {
+    if (matchHotkey(e.nativeEvent, 'mod+enter')) submit();
+  }}
+/>
+```

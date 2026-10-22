@@ -1,0 +1,186 @@
+---
+title: Button
+description: Triggers an action — 6 variants, 3 sizes and a loading state.
+---
+
+<ComponentPreview name="button/variants" />
+
+## Import
+
+```tsx
+import { Button } from '@akhatmirzo/ui';
+```
+
+## When to use
+
+- **For actions** — saving, submitting, opening a dialog. Navigation needs a real link: pass an
+  `<a>` with `asChild` (see the example below).
+- **One `primary` per view.** Reserve it for the action you expect the user to take. Other
+  buttons should be `soft` (the default), `outline` or `ghost`.
+- **`danger` only for destructive actions:** deleting, anything that can't be undone. Usually
+  paired with `confirm()`.
+- **Icon only?** Use [`IconButton`](./icon-button.mdx) instead of `Button` — it makes
+  `aria-label` required.
+- **Label with a verb:** "Save", "Send", "Delete" — not "OK" or "Yes".
+
+## Variants
+
+`variant` sets the look and the visual weight. The default is `soft`.
+
+| Variant   | Use it for                                     |
+| --------- | ---------------------------------------------- |
+| `primary` | The main action — at most one per view         |
+| `soft`    | Secondary actions (default)                    |
+| `outline` | Neutral, bordered — "Cancel", filters          |
+| `ghost`   | No background — inside toolbars and table rows |
+| `danger`  | Delete and other destructive actions           |
+| `link`    | A button that looks like text, no padding      |
+
+## Sizes
+
+Three sizes — 32, 40 and 48px. They match `Input` and `Select`, so controls line up in a row.
+The `sm` size gets an invisible hit area extended to 40px.
+
+<ComponentPreview name="button/sizes" />
+
+## Icons
+
+`leftIcon` and `rightIcon` take any `ReactNode`. The icon size follows the button size:
+16 / 18 / 20px. Icons are hidden from screen readers (`aria-hidden`).
+
+<ComponentPreview name="button/icons" />
+
+## Loading and disabled
+
+While `loading`, the label keeps its place (the width doesn't jump), a spinner sits on top and
+clicks are ignored. Click the first button to try it.
+
+<ComponentPreview name="button/loading" />
+
+<Callout title="loading vs. disabled">
+  A `disabled` button leaves the tab order and can't be clicked. A `loading` button **stays**
+  focusable, so keyboard users don't lose their place — only clicks are blocked.
+</Callout>
+
+## As a link (`asChild`)
+
+With `asChild`, `Button` renders its child instead of its own `<button>` — the styles come from
+the button, the element is your `<a>`. In Next.js you can pass `<Link>` the same way.
+
+<ComponentPreview name="button/as-child" />
+
+```tsx
+import Link from 'next/link';
+
+<Button asChild variant="primary">
+  <Link href="/orders">Go to orders</Link>
+</Button>;
+```
+
+## Full width
+
+For mobile forms and sign-in screens — `fullWidth`.
+
+<ComponentPreview name="button/full-width" />
+
+## Props
+
+`Button` also accepts every other `<button>` attribute (`onClick`, `type`, `form`, `aria-*`,
+`data-*` …) and a `ref`.
+
+<PropsTable
+  rows={[
+    {
+      name: 'variant',
+      type: "'primary' | 'soft' | 'outline' | 'ghost' | 'danger' | 'link'",
+      default: "'soft'",
+      description: 'Look and visual weight',
+    },
+    {
+      name: 'size',
+      type: "'sm' | 'md' | 'lg'",
+      default: "'md'",
+      description: 'Height: 32 / 40 / 48px',
+    },
+    {
+      name: 'loading',
+      type: 'boolean',
+      default: 'false',
+      description: 'Shows a spinner, blocks clicks and sets aria-busy',
+    },
+    {
+      name: 'disabled',
+      type: 'boolean',
+      default: 'false',
+      description: 'Disables the button (50% opacity)',
+    },
+    {
+      name: 'leftIcon',
+      type: 'ReactNode',
+      description: 'Icon before the label',
+    },
+    {
+      name: 'rightIcon',
+      type: 'ReactNode',
+      description: 'Icon after the label',
+    },
+    {
+      name: 'fullWidth',
+      type: 'boolean',
+      default: 'false',
+      description: 'Stretches to the width of the container',
+    },
+    {
+      name: 'asChild',
+      type: 'boolean',
+      default: 'false',
+      description: 'Renders the child element instead (for example, an <a>)',
+    },
+    {
+      name: 'labels',
+      type: '{ loading?: string }',
+      default: "{ loading: 'Yuklanmoqda' }",
+      description: 'Screen reader text',
+    },
+    {
+      name: 'type',
+      type: "'button' | 'submit' | 'reset'",
+      default: "'button'",
+      description: "Defaults to 'button' so it never submits a form by accident",
+    },
+  ]}
+/>
+
+### Data attributes
+
+State is exposed through `data-*` attributes, so you can hook your own styles onto them:
+
+| Attribute       | Value                                                        |
+| --------------- | ------------------------------------------------------------ |
+| `data-variant`  | `primary` · `soft` · `outline` · `ghost` · `danger` · `link` |
+| `data-size`     | `sm` · `md` · `lg`                                           |
+| `data-disabled` | Present when `disabled`                                      |
+| `data-loading`  | Present when `loading`                                       |
+
+Need the button look on another element? `buttonVariants` is exported too:
+
+```tsx
+import { buttonVariants } from '@akhatmirzo/ui';
+
+<label className={buttonVariants({ variant: 'outline', size: 'sm' })}>Choose a file</label>;
+```
+
+## Accessibility
+
+- **Native element.** By default it renders a real `<button type="button">`, so it never
+  submits a form by accident and responds to `Enter` and `Space`.
+- **The focus ring** only shows up for keyboard focus (`:focus-visible`).
+- **Loading.** `loading` sets `aria-busy="true"` and `aria-disabled="true"` and keeps the button
+  focusable. Since many screen readers ignore `aria-busy`, a hidden `aria-live` region announces
+  "Yuklanmoqda" — change the text with `labels.loading` (for example, `'Loading'` in an English
+  app).
+- **Icons and the spinner** are `aria-hidden`, so screen readers read only the label.
+- **`asChild` + `disabled`.** An `<a>` has no `disabled` attribute, so the button sets
+  `aria-disabled="true"` and `tabIndex={-1}` and cancels the click.
+- **Small buttons.** `size="sm"` looks 32px tall but has a 40px hit area — easy to tap with a
+  finger.

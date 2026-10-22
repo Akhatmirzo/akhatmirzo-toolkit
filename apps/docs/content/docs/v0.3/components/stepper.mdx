@@ -1,0 +1,130 @@
+---
+title: Stepper
+description: "Ko'p qadamli jarayon ko'rsatkichi: checkout, ro'yxatdan o'tish va sozlash ustasi uchun."
+---
+
+<ComponentPreview name="stepper/basic" align="start" />
+
+## Import
+
+```tsx
+import { Stepper } from '@akhatmirzo/ui';
+```
+
+## Qachon ishlatish
+
+- **Ketma-ket jarayon** — checkout (Savat → Yetkazib berish → To'lov), ro'yxatdan o'tish, ariza
+  topshirish. Foydalanuvchi qayerda turganini va qancha qolganini ko'radi.
+- **3–6 qadam** ma'qul. Ko'proq bo'lsa, qadamlarni guruhlang.
+- **Bir-biriga bog'liq bo'lmagan bo'limlar uchun emas** — ular uchun [`Tabs`](./tabs.mdx).
+- **Sayt tuzilishi uchun emas** — buning uchun [`Breadcrumb`](./breadcrumb.mdx).
+
+## Qadamlar va holatlar
+
+`steps` — `{ title, description?, icon?, optional?, status? }` ro'yxati. `value` — joriy qadam
+indeksi (0 dan). Har bir qadam holati (`data-status`) o'zi hisoblanadi:
+
+| Holat      | Qachon                    | Doira                             |
+| ---------- | ------------------------- | --------------------------------- |
+| `complete` | indeks `< value`          | to'ldirilgan `primary` + ✓        |
+| `current`  | indeks `= value`          | `primary` chegara, atrofida halqa |
+| `upcoming` | indeks `> value`          | kulrang chegara + raqam           |
+| `error`    | qadamda `status: 'error'` | `danger` fon + !                  |
+
+`value={steps.length}` — barcha qadamlar bajarilgan. Ulovchi chiziq o'tgan qismda `primary` rangda
+to'ladi (300ms).
+
+<ComponentPreview name="stepper/states" align="start" />
+
+## Qadamlarga o'tish
+
+`onValueChange` berilsa, o'tgan qadamlar tugma bo'ladi — foydalanuvchi orqaga qaytib ma'lumotni
+tuzata oladi. `allowFutureSteps` — kelgusi qadamlarga ham o'tishga ruxsat (masalan, ixtiyoriy
+sozlamalar ustasida). Joriy qadam hech qachon tugma emas.
+
+## Vertikal
+
+`orientation="vertical"` — qadamlar ustun bo'lib turadi; tavsiflar uzun bo'lsa yoki yon panelda
+qulay.
+
+<ComponentPreview name="stepper/vertical" align="start" />
+
+## O'lchamlar
+
+`size` — `sm` (doira 24px) yoki `md` (32px, standart).
+
+<ComponentPreview name="stepper/sizes" align="start" />
+
+## Ixcham ko'rinish
+
+`compact="auto"` (standart) — gorizontal stepper 640px dan tor ekranda `2 / 4 · Yetkazib berish`
+va progress chizig'iga o'tadi. Ikkala ko'rinish render qilinib, CSS bilan bittasi yashiriladi —
+SSR'da hydration farqi bo'lmaydi. `compact` — har doim ixcham, `compact={false}` — hech qachon.
+
+<ComponentPreview name="stepper/compact" align="start" />
+
+## Props
+
+Qolgan `<div>` atributlari ildizga beriladi; `aria-label` / `aria-labelledby` esa `<ol>` ro'yxatga.
+
+<PropsTable
+  rows={[
+    {
+      name: 'steps',
+      type: "{ title: ReactNode; description?: ReactNode; icon?: ReactNode; optional?: boolean; status?: 'error' }[]",
+      required: true,
+      description: 'Qadamlar',
+    },
+    { name: 'value', type: 'number', description: 'Joriy qadam indeksi, 0 dan (boshqariladigan)' },
+    { name: 'defaultValue', type: 'number', default: '0', description: "Boshlang'ich qadam" },
+    {
+      name: 'onValueChange',
+      type: '(index: number) => void',
+      description: "Berilsa — o'tgan qadamlar bosiladigan bo'ladi",
+    },
+    {
+      name: 'allowFutureSteps',
+      type: 'boolean',
+      default: 'false',
+      description: "Kelgusi qadamlarga ham o'tish",
+    },
+    {
+      name: 'orientation',
+      type: "'horizontal' | 'vertical'",
+      default: "'horizontal'",
+      description: "Yo'nalish",
+    },
+    { name: 'size', type: "'sm' | 'md'", default: "'md'", description: 'Doira: 24 / 32px' },
+    {
+      name: 'compact',
+      type: "boolean | 'auto'",
+      default: "'auto'",
+      description: "Ixcham ko'rinish; `auto` — gorizontalda 640px dan tor ekranda",
+    },
+    {
+      name: 'labels',
+      type: '{ step?: (i, n) => string; optional?; completed?; error? }',
+      description:
+        'Standart: `(i, n) => "${i}-qadam, ${n} tadan"`, "ixtiyoriy", "bajarildi", "xato"',
+    },
+  ]}
+/>
+
+### Data atributlari
+
+| Atribut            | Qayerda          | Qiymat                                        |
+| ------------------ | ---------------- | --------------------------------------------- |
+| `data-status`      | qadam, indikator | `complete` · `current` · `upcoming` · `error` |
+| `data-clickable`   | qadam tugmasi    | bosiladigan qadamda mavjud                    |
+| `data-orientation` | ildiz, ro'yxat   | `horizontal` · `vertical`                     |
+| `data-size`        | ildiz            | `sm` · `md`                                   |
+
+## Accessibility
+
+- **Tuzilish.** Qadamlar `<ol>` ro'yxatda; `aria-label` bering ("Buyurtma bosqichlari").
+- **Joriy qadam** — `aria-current="step"`.
+- **Ko'rinmas matnlar.** Har bir qadam "2-qadam, 4 tadan" deb boshlanadi, bajarilganlarga
+  "bajarildi", xatolarga "xato" qo'shiladi — rang yagona signal emas (✓ va ! ikonkalari ham bor).
+- **Klaviatura.** Bosiladigan qadamlar oddiy `<button>`: `Tab` bilan yuriladi, `Enter` / `Space`
+  bilan tanlanadi. Qolganlari fokus olmaydi.
+- **Harakat.** Chiziq va rang o'tishlari `prefers-reduced-motion` da o'chadi.

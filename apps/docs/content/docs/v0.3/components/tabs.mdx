@@ -1,0 +1,195 @@
+---
+title: Tabs
+description: "Bir sahifadagi bo'limlar orasida almashish: underline, pills va segmented ko'rinishlar."
+---
+
+<ComponentPreview name="tabs/variants" align="start" />
+
+## Import
+
+```tsx
+import { Tabs } from '@akhatmirzo/ui';
+```
+
+## Qachon ishlatish
+
+- **Bir mavzuning bir nechta ko'rinishi** — mijoz kartasida "Ma'lumot", "Buyurtmalar",
+  "Sharhlar". Foydalanuvchi bir vaqtda faqat bittasini ko'radi.
+- **Davr yoki filtrni almashtirish** — `segmented` ("Kun / Hafta / Oy") ixcham va tushunarli.
+- **Sahifalar orasida o'tish uchun emas.** Har bir bo'lim alohida URL bo'lishi kerak bo'lsa,
+  havolali navigatsiya yasang.
+- **Bo'limlarni solishtirish kerak bo'lsa** — tablar noqulay: hammasini birdan ko'rsating yoki
+  [`Accordion`](./accordion.mdx) dan foydalaning.
+- **Tablar soni 2–7 ta** bo'lgani ma'qul. Ko'p bo'lsa ham ishlaydi (gorizontal scroll), lekin
+  ko'rinmay qolganlarini topish qiyinroq.
+
+## Tuzilishi
+
+| Qism           | Vazifasi                                                          |
+| -------------- | ----------------------------------------------------------------- |
+| `Tabs`         | Holat (`value`, `defaultValue`), `variant`, `size`, `orientation` |
+| `Tabs.List`    | Tablar qatori va siljuvchi indikator                              |
+| `Tabs.Trigger` | Bitta tab: `value`, ixtiyoriy `badge`, `disabled`                 |
+| `Tabs.Content` | Tabga mos panel (`value` bo'yicha bog'lanadi)                     |
+
+```tsx
+<Tabs defaultValue="info">
+  <Tabs.List aria-label="Mijoz">
+    <Tabs.Trigger value="info">Ma'lumot</Tabs.Trigger>
+    <Tabs.Trigger value="orders" badge={12}>
+      Buyurtmalar
+    </Tabs.Trigger>
+  </Tabs.List>
+  <Tabs.Content value="info">...</Tabs.Content>
+  <Tabs.Content value="orders">...</Tabs.Content>
+</Tabs>
+```
+
+## Variantlar
+
+| Variant     | Ko'rinish                                                                |
+| ----------- | ------------------------------------------------------------------------ |
+| `underline` | Faol tab ostida 2px chiziq; chiziq tabdan tabga siljib o'tadi (standart) |
+| `pills`     | Faol tab yumaloq `primary-soft` fonda                                    |
+| `segmented` | Kulrang konteyner ichida faol tab "kartochka" bo'lib ajraladi            |
+
+Indikator bir tabdan ikkinchisiga 200ms davomida siljiydi.
+
+## O'lchamlar
+
+`size` — `sm` (32px) yoki `md` (40px, standart). `segmented` da ichki tab balandligi 28 / 32px.
+
+<ComponentPreview name="tabs/sizes" align="start" />
+
+## Vertikal
+
+`orientation="vertical"` — tablar chapda ustun bo'lib turadi, kontent o'ngda. Sozlamalar sahifalari
+uchun qulay. Klaviaturada `↑ ↓` ishlaydi.
+
+<ComponentPreview name="tabs/vertical" align="start" />
+
+## Ko'p tablar
+
+Tablar sig'masa, qator gorizontal suriladi, chetlarida yumshoq "fade" paydo bo'ladi — qolgan
+tablar borligini ko'rsatadi. Buni o'chirish uchun `Tabs.List` ga `scrollable={false}` bering.
+
+<ComponentPreview name="tabs/scrollable" align="start" />
+
+## Hisoblagich va o'chirilgan tab
+
+`badge` — tab yonidagi hisoblagich: raqam yoki istalgan `ReactNode` (masalan,
+[`Badge`](./badge.mdx)). `disabled` tab bosilmaydi va klaviatura uni o'tkazib yuboradi.
+
+<ComponentPreview name="tabs/badges" align="start" />
+
+## Boshqariladigan rejim
+
+`value` + `onValueChange` — faol tabni o'zingiz saqlaysiz. `Tabs.Content` siz, faqat tanlagich
+sifatida ham ishlatish mumkin.
+
+<ComponentPreview name="tabs/controlled" align="start" />
+
+## Props
+
+### Tabs
+
+Qolgan `<div>` atributlari va Radix `Root` prop'lari (`activationMode`, `dir`) ham qabul qilinadi.
+
+<PropsTable
+  rows={[
+    { name: 'value', type: 'string', description: 'Faol tab (boshqariladigan rejim)' },
+    { name: 'defaultValue', type: 'string', description: "Boshlang'ich faol tab" },
+    {
+      name: 'onValueChange',
+      type: '(value: string) => void',
+      description: 'Faol tab almashganda',
+    },
+    {
+      name: 'variant',
+      type: "'underline' | 'pills' | 'segmented'",
+      default: "'underline'",
+      description: "Ko'rinish",
+    },
+    { name: 'size', type: "'sm' | 'md'", default: "'md'", description: 'Balandlik: 32 / 40px' },
+    {
+      name: 'orientation',
+      type: "'horizontal' | 'vertical'",
+      default: "'horizontal'",
+      description: "Tablar yo'nalishi",
+    },
+  ]}
+/>
+
+### Tabs.List
+
+<PropsTable
+  rows={[
+    {
+      name: 'scrollable',
+      type: 'boolean',
+      default: 'true',
+      description: "Sig'masa — gorizontal scroll va chetlarda fade",
+    },
+    { name: 'aria-label', type: 'string', description: 'Tablar guruhining nomi (tavsiya etiladi)' },
+    {
+      name: 'loop',
+      type: 'boolean',
+      default: 'true',
+      description: 'Strelkalar oxiridan boshiga aylanadi',
+    },
+  ]}
+/>
+
+### Tabs.Trigger
+
+<PropsTable
+  rows={[
+    { name: 'value', type: 'string', required: true, description: 'Tab qiymati' },
+    { name: 'badge', type: 'ReactNode', description: 'Yonidagi hisoblagich, masalan 12' },
+    { name: 'disabled', type: 'boolean', description: "Tabni o'chiradi" },
+  ]}
+/>
+
+### Tabs.Content
+
+<PropsTable
+  rows={[
+    { name: 'value', type: 'string', required: true, description: 'Qaysi tabga tegishli' },
+    {
+      name: 'forceMount',
+      type: 'true',
+      description: "Yashirin paytda ham DOM'da qoldiradi",
+    },
+  ]}
+/>
+
+### Data atributlari
+
+| Atribut               | Qayerda        | Qiymat                              |
+| --------------------- | -------------- | ----------------------------------- |
+| `data-variant`        | ildiz, ro'yxat | `underline` · `pills` · `segmented` |
+| `data-size`           | ildiz, ro'yxat | `sm` · `md`                         |
+| `data-orientation`    | barcha qismlar | `horizontal` · `vertical`           |
+| `data-state`          | tab, panel     | `active` · `inactive`               |
+| `data-disabled`       | tab            | o'chirilganda mavjud                |
+| `data-tabs-indicator` | indikator      | siljuvchi chiziq yoki fon           |
+
+## Klaviatura
+
+| Tugma                            | Harakat                                                   |
+| -------------------------------- | --------------------------------------------------------- |
+| `←` / `→` (vertikalda `↑` / `↓`) | Tablar bo'ylab yurish; fokus olgan tab darhol faollashadi |
+| `Home` / `End`                   | Birinchi / oxirgi tab                                     |
+| `Tab`                            | Tablar qatoridan faol panelga o'tish                      |
+
+## Accessibility
+
+- **Rollar.** Ro'yxat — `role="tablist"` (`aria-orientation` bilan), tab — `role="tab"`
+  (`aria-selected`, `aria-controls`), panel — `role="tabpanel"` (`aria-labelledby`). Asosida
+  Radix Tabs.
+- **Nom.** `Tabs.List` ga `aria-label` bering ("Mijoz", "Davr") — ekran o'quvchi guruhni shu nom
+  bilan e'lon qiladi.
+- **Roving focus.** Tablar qatori `Tab` uchun bitta to'xtash joyi; ichida strelkalar bilan
+  yuriladi.
+- **Fokus halqasi** scroll konteyneri ichida kesilib qolmasligi uchun tab ichiga chiziladi.
+- **Indikator** bezak — `aria-hidden`. `prefers-reduced-motion` da u siljimasdan o'tadi.

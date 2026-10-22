@@ -9,7 +9,7 @@
 **O'zbek tili va O'zbekiston formatlari uchun toza TypeScript funksiyalar: so'm, `+998`,
 Uzcard/Humo, lotin ↔ kirill.**
 
-Hujjatlar: **https://toolkit.akhatmirzo.uz/uz/docs/v0.2/core/format**
+Hujjatlar: **https://toolkit.akhatmirzo.uz/uz/docs/v0.3/core/format**
 
 - **Bog'liqliksiz** — `dependencies` bo'sh, React ham kerak emas. Brauzerda, Node 20+ da va
   istalgan freymvorkda ishlaydi.
@@ -158,11 +158,11 @@ await sleep(300, controller.signal); // bekor qilsa bo'ladi
 
 | Bo'lim         | Havola                                                                     |
 | -------------- | -------------------------------------------------------------------------- |
-| Matn           | https://toolkit.akhatmirzo.uz/uz/docs/v0.2/core/text               |
-| Formatlash     | https://toolkit.akhatmirzo.uz/uz/docs/v0.2/core/format             |
-| Validatsiya    | https://toolkit.akhatmirzo.uz/uz/docs/v0.2/core/validate           |
-| Storage va API | https://toolkit.akhatmirzo.uz/uz/docs/v0.2/core/storage-api        |
-| Umumiy         | https://toolkit.akhatmirzo.uz/uz/docs/v0.2/core/utils              |
+| Matn           | https://toolkit.akhatmirzo.uz/uz/docs/v0.3/core/text               |
+| Formatlash     | https://toolkit.akhatmirzo.uz/uz/docs/v0.3/core/format             |
+| Validatsiya    | https://toolkit.akhatmirzo.uz/uz/docs/v0.3/core/validate           |
+| Storage va API | https://toolkit.akhatmirzo.uz/uz/docs/v0.3/core/storage-api        |
+| Umumiy         | https://toolkit.akhatmirzo.uz/uz/docs/v0.3/core/utils              |
 
 Bu paket [`@akhatmirzo/ui`](https://www.npmjs.com/package/@akhatmirzo/ui) komponentlarining
 asosida turadi, lekin undan butunlay mustaqil ishlatiladi.
@@ -188,4 +188,4 @@ formatPhone('901234567'); // '+998 90 123 45 67'
 cyrToLat('Ўзбекистон'); // "O'zbekiston"
 ```
 
-Docs: https://toolkit.akhatmirzo.uz/en/docs/v0.2/core/format
+Docs: https://toolkit.akhatmirzo.uz/en/docs/v0.3/core/format

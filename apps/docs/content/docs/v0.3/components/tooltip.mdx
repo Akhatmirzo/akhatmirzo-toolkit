@@ -1,0 +1,176 @@
+---
+title: Tooltip
+description: "Hover yoki fokusda chiqadigan qisqa izoh; klaviatura yorlig'i bilan."
+---
+
+<ComponentPreview name="tooltip/basic" />
+
+## Import
+
+```tsx
+import { Tooltip, TooltipProvider } from '@akhatmirzo/ui';
+```
+
+## Qachon ishlatish
+
+- **Ikonka tugmani tushuntirish** — `IconButton` ning vazifasini so'z bilan aytish va qisqa yo'lni
+  (`⌘C`) ko'rsatish uchun eng ko'p ishlatiladi.
+- **Faqat qisqa matn.** Ichida tugma yoki havola bo'lmaydi — interaktiv kontent kerak bo'lsa,
+  [`Popover`](./popover.mdx) oling.
+- **Muhim ma'lumotni yashirmang.** Telefonda tooltip umuman chiqmaydi, shuning uchun usiz ham
+  tushunarli bo'lmagan matnni sahifaning o'ziga yozing.
+- **`aria-label` ning o'rnini bosmaydi.** Ikonka tugmaga baribir `aria-label` yozing; tooltip —
+  ko'zi ko'radigan foydalanuvchi uchun qo'shimcha.
+
+## TooltipProvider
+
+Ilova ildiziga bitta `TooltipProvider` qo'ying: barcha tooltiplar umumiy kechikishni bo'lishadi
+va biridan ikkinchisiga o'tganda **kechikishsiz** ochiladi (yuqoridagi misolda tugmalar orasida
+yurib ko'ring). Provider bo'lmasa ham tooltip ishlaydi — har biri o'z provider'ini yaratadi, faqat
+bu "kechikishsiz o'tish" yo'qoladi.
+
+```tsx title="app/providers.tsx"
+'use client';
+
+import { TooltipProvider } from '@akhatmirzo/ui';
+import type { ReactNode } from 'react';
+
+export function Providers({ children }: { children: ReactNode }) {
+  return <TooltipProvider delay={300}>{children}</TooltipProvider>;
+}
+```
+
+## Tomonlar
+
+`side` — `top` (standart), `right`, `bottom`, `left`. Ekran chetiga yetsa, tooltip o'zi teskari
+tomonga o'tadi.
+
+<ComponentPreview name="tooltip/sides" />
+
+## Kechikish va uzun matn
+
+`delay` — ochilishdan oldingi kutish, ms. Standart qiymat provider'dan olinadi (300). Matn 240px
+dan uzun bo'lsa, keyingi qatorga o'raladi — lekin tooltip matni bir-ikki qatordan oshmagani
+ma'qul.
+
+<ComponentPreview name="tooltip/delay" />
+
+## O'chirilgan tugmada
+
+O'chirilgan (`disabled`) tugma hodisalarni qabul qilmaydi, shuning uchun tooltip unga to'g'ridan-
+to'g'ri ishlamaydi. Tugmani `tabIndex={0}` li `span` ga o'rang — klaviatura foydalanuvchisi ham
+sababni ko'radi.
+
+<ComponentPreview name="tooltip/disabled-button" />
+
+## Boshqariladigan rejim va disabled
+
+`open` + `onOpenChange` bilan tooltipni koddan ochasiz. `disabled` tooltipni vaqtincha o'chiradi —
+trigger o'zgarishsiz qoladi. `content` bo'sh bo'lsa ham tooltip chizilmaydi.
+
+<ComponentPreview name="tooltip/controlled" />
+
+## Props
+
+### Tooltip
+
+Radix `Tooltip.Content` ning qolgan prop'lari (`alignOffset`, `avoidCollisions`,
+`onEscapeKeyDown` ...) va `className` tooltip paneliga uzatiladi.
+
+<PropsTable
+  rows={[
+    {
+      name: 'content',
+      type: 'ReactNode',
+      required: true,
+      description: "Qisqa matn. Bo'sh bo'lsa — tooltip chiqmaydi",
+    },
+    {
+      name: 'children',
+      type: 'ReactElement',
+      required: true,
+      description: 'Trigger — ref va hodisalarni qabul qiladigan bitta element',
+    },
+    {
+      name: 'side',
+      type: "'top' | 'right' | 'bottom' | 'left'",
+      default: "'top'",
+      description: 'Qaysi tomonda chiqadi',
+    },
+    {
+      name: 'align',
+      type: "'start' | 'center' | 'end'",
+      default: "'center'",
+      description: "Trigger bo'ylab tekislash",
+    },
+    { name: 'sideOffset', type: 'number', default: '6', description: 'Triggerdan masofa, px' },
+    {
+      name: 'collisionPadding',
+      type: 'number',
+      default: '8',
+      description: 'Ekran chetidan minimal masofa, px',
+    },
+    {
+      name: 'delay',
+      type: 'number',
+      description: "Ochilish kechikishi, ms (standart — provider'dan yoki 300)",
+    },
+    {
+      name: 'shortcut',
+      type: 'string[]',
+      description: "Matn yonida Kbd: ['mod', 'C']",
+    },
+    { name: 'open', type: 'boolean', description: 'Boshqariladigan rejim' },
+    { name: 'defaultOpen', type: 'boolean', default: 'false', description: 'Boshida ochiq' },
+    { name: 'onOpenChange', type: '(open: boolean) => void', description: 'Ochilib-yopilganda' },
+    {
+      name: 'disabled',
+      type: 'boolean',
+      default: 'false',
+      description: "Tooltipni vaqtincha o'chiradi",
+    },
+  ]}
+/>
+
+### TooltipProvider
+
+`Tooltip.Provider` nomi bilan ham mavjud.
+
+<PropsTable
+  rows={[
+    { name: 'delay', type: 'number', default: '300', description: 'Ochilish kechikishi, ms' },
+    {
+      name: 'skipDelay',
+      type: 'number',
+      default: '300',
+      description: "Shu vaqt ichida qo'shni tooltip kechikishsiz ochiladi, ms",
+    },
+    { name: 'children', type: 'ReactNode', required: true, description: 'Ilova' },
+  ]}
+/>
+
+### Data atributlari
+
+| Atribut      | Qayerda | Qiymat                                     |
+| ------------ | ------- | ------------------------------------------ |
+| `data-state` | panel   | `delayed-open` · `instant-open` · `closed` |
+| `data-side`  | panel   | `top` · `right` · `bottom` · `left`        |
+| `data-slot`  | panel   | `tooltip`                                  |
+
+## Klaviatura
+
+| Tugma         | Harakat                               |
+| ------------- | ------------------------------------- |
+| `Tab` (fokus) | Trigger fokus olganda tooltip chiqadi |
+| `Esc`         | Tooltipni yopadi                      |
+
+## Accessibility
+
+- **Bog'lanish.** Ochiq paytda trigger `aria-describedby` orqali tooltip matniga ulanadi — ekran
+  o'quvchi tugma nomidan keyin izohni o'qiydi.
+- **Klaviatura fokusida ham chiqadi**, faqat sichqoncha uchun emas.
+- **Sensorli qurilmalarda** (hover yo'q, qo'pol ko'rsatkich) tooltip ochilmaydi — barmoq bosishi
+  tugmaning o'zini ishga tushiradi.
+- **Rang.** Teskari rangda chiziladi (`bg-text`, `text-background`) — yorug' va qorong'i rejimda
+  kontrast saqlanadi.
+- **Kamroq harakat.** `prefers-reduced-motion` da faqat shaffoflik animatsiyasi.

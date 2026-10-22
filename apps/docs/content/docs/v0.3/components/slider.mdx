@@ -1,0 +1,213 @@
+---
+title: Slider
+description: 'Raqamli qiymat yoki oraliqni sudrab tanlash: bitta va ikki tutqich, belgilar, qiymat pufakchasi va Field bilan integratsiya.'
+---
+
+<ComponentPreview name="slider/basic" />
+
+## Import
+
+```tsx
+import { Slider } from '@akhatmirzo/ui';
+```
+
+## Qachon ishlatish
+
+- **Aniq raqam muhim bo'lmaganda** — ovoz balandligi, yorqinlik, radius. Foydalanuvchi "taxminan"
+  tanlaydi va natijani darhol ko'radi.
+- **Oraliq filtri** — narx "dan — gacha", yosh, maydon. Ikki tutqichli slider ikkita input'dan
+  tezroq.
+- **Aniq qiymat kerak bo'lsa** (summa, miqdor) — [`Input`](./input.mdx) yoki `MaskedInput`
+  qulayroq; slider bilan yonma-yon ham qo'yish mumkin.
+- **Qadamlar kam bo'lsa** (3–5 ta variant) — [`SegmentedControl`](./segmented-control.mdx) yoki
+  [`RadioGroup`](./radio-group.mdx) tushunarliroq.
+
+## Qiymat — doim massiv
+
+Radix kabi qiymat har doim `number[]`: bitta tutqich — `[50]`, oraliq — `[20, 80]`. Tutqichlar soni
+massiv uzunligidan olinadi. `defaultValue` berilmasa — `[min]`.
+
+```tsx
+<Slider defaultValue={[50]} />
+<Slider defaultValue={[20, 80]} />
+```
+
+## Oraliq
+
+Ikki qiymat — ikki tutqich. `formatValue` qiymatni pufakchada va ekran o'quvchida chiroyli
+ko'rsatadi; `minStepsBetweenThumbs` tutqichlar orasidagi eng kichik masofani (qadamlarda)
+belgilaydi.
+
+<ComponentPreview name="slider/range" align="start" />
+
+## Qiymat pufakchasi
+
+`showValue` — tutqich ustidagi qiymat (Tooltip uslubida):
+
+| Qiymat              | Qachon ko'rinadi                                       |
+| ------------------- | ------------------------------------------------------ |
+| `active` (standart) | Sichqoncha ustida turganda, sudrashda va fokus olganda |
+| `always`            | Doim                                                   |
+| `never`             | Hech qachon                                            |
+
+<ComponentPreview name="slider/show-value" align="start" />
+
+## Belgilar
+
+`marks` — trek ostidagi chiziqcha va yozuvlar. Belgilar faqat ko'rsatish uchun: qiymatni `step`
+cheklaydi.
+
+<ComponentPreview name="slider/marks" align="start" />
+
+## O'lchamlar va holatlar
+
+`size` — `md` (trek 6px, tutqich 20px, standart) yoki `sm` (4px / 16px). Tutqichning bosish
+maydoni ikkala o'lchamda ham kamida 40px. `disabled` — sudrab bo'lmaydi va fokus olmaydi.
+
+<ComponentPreview name="slider/sizes" align="start" />
+
+## Field bilan
+
+[`Field`](./field.mdx) ichida label tutqich nomiga aylanadi, izoh va xato `aria-describedby` ga
+ulanadi, `error` bo'lsa slider `invalid` holatga o'tadi (tutqich va to'lgan qism qizil).
+
+<ComponentPreview name="slider/with-field" align="start" />
+
+## Vertikal
+
+`orientation="vertical"` — slider ota elementning balandligini egallaydi (kamida 160px).
+Klaviaturada `↑ ↓` ham ishlaydi.
+
+<ComponentPreview name="slider/vertical" align="start" />
+
+## Forma va API
+
+- `name` berilsa, `<form>` ichida har bir tutqich uchun yashirin `<input>` yaratiladi: bitta
+  tutqichda `name`, oraliqda `name[]`.
+- `onValueChange` — har bir siljishda; `onValueCommit` — sudrash tugaganda (yoki klaviatura bilan
+  o'zgarganda) bir marta. Server so'rovlarini `onValueCommit` ga ulang.
+
+```tsx
+<Slider
+  defaultValue={[20]}
+  onValueChange={setPreview} // har siljishda
+  onValueCommit={(v) => saveSettings({ volume: v[0] })} // qo'yib yuborilganda
+/>
+```
+
+## Props
+
+Qolgan `<span>` atributlari va Radix `Root` prop'lari (`dir`, `form`) ham qabul qilinadi; `ref`
+ildiz elementga tushadi.
+
+<PropsTable
+  rows={[
+    { name: 'value', type: 'number[]', description: 'Qiymat (boshqariladigan rejim)' },
+    {
+      name: 'defaultValue',
+      type: 'number[]',
+      default: '[min]',
+      description: "Boshlang'ich qiymat",
+    },
+    {
+      name: 'onValueChange',
+      type: '(value: number[]) => void',
+      description: "Har bir o'zgarishda",
+    },
+    {
+      name: 'onValueCommit',
+      type: '(value: number[]) => void',
+      description: "Sudrash tugaganda yoki klaviatura bilan o'zgarganda",
+    },
+    { name: 'min', type: 'number', default: '0', description: 'Eng kichik qiymat' },
+    { name: 'max', type: 'number', default: '100', description: 'Eng katta qiymat' },
+    { name: 'step', type: 'number', default: '1', description: 'Qadam' },
+    {
+      name: 'minStepsBetweenThumbs',
+      type: 'number',
+      default: '0',
+      description: 'Tutqichlar orasidagi eng kichik masofa (qadamlarda)',
+    },
+    {
+      name: 'orientation',
+      type: "'horizontal' | 'vertical'",
+      default: "'horizontal'",
+      description: "Yo'nalish",
+    },
+    {
+      name: 'size',
+      type: "'sm' | 'md'",
+      default: "'md'",
+      description: 'Trek 4 / 6px, tutqich 16 / 20px',
+    },
+    {
+      name: 'showValue',
+      type: "'never' | 'active' | 'always'",
+      default: "'active'",
+      description: 'Tutqich ustidagi qiymat pufakchasi',
+    },
+    {
+      name: 'formatValue',
+      type: '(value: number) => string',
+      default: 'String',
+      description: 'Pufakcha va aria-valuetext matni',
+    },
+    {
+      name: 'marks',
+      type: '{ value: number; label?: ReactNode }[]',
+      description: 'Trek ostidagi belgilar',
+    },
+    { name: 'disabled', type: 'boolean', description: "Sliderni o'chiradi" },
+    { name: 'invalid', type: 'boolean', description: 'Xato holati (Field ichida avtomatik)' },
+    {
+      name: 'name',
+      type: 'string',
+      description: 'Forma uchun: har bir tutqichga yashirin input (oraliqda name[])',
+    },
+    {
+      name: 'labels',
+      type: '{ thumb?: (index: number, count: number) => string }',
+      default: "'Qiymat' | 'Minimal qiymat' / 'Maksimal qiymat'",
+      description: "Tutqichlarning ekran o'quvchi uchun nomi",
+    },
+    {
+      name: 'aria-label',
+      type: 'string',
+      description: "Field bo'lmasa — slider nomi (oraliqda tutqich nomi bilan qo'shiladi)",
+    },
+  ]}
+/>
+
+### Data atributlari
+
+| Atribut            | Qayerda                 | Qiymat                                                                             |
+| ------------------ | ----------------------- | ---------------------------------------------------------------------------------- |
+| `data-size`        | ildiz                   | `sm` · `md`                                                                        |
+| `data-orientation` | ildiz, trek, tutqich    | `horizontal` · `vertical`                                                          |
+| `data-disabled`    | ildiz, trek, tutqich    | o'chirilganda mavjud                                                               |
+| `data-invalid`     | ildiz                   | xato holatida mavjud                                                               |
+| `data-slot`        | trek, to'lgan qism, ... | `slider-track` · `slider-range` · `slider-thumb` · `slider-value` · `slider-marks` |
+
+## Klaviatura
+
+| Tugma                 | Harakat                          |
+| --------------------- | -------------------------------- |
+| `←` `↓` / `→` `↑`     | Bir qadam kamaytirish / oshirish |
+| `PageDown` / `PageUp` | 10 qadam kamaytirish / oshirish  |
+| `Shift` + strelka     | 10 qadam                         |
+| `Home` / `End`        | `min` / `max`                    |
+| `Tab`                 | Keyingi tutqichga o'tish         |
+
+## Accessibility
+
+- **Rol.** Har bir tutqich — `role="slider"`, `aria-valuemin`, `aria-valuemax`, `aria-valuenow`,
+  `aria-orientation` bilan. Asosida Radix Slider.
+- **Matnli qiymat.** `aria-valuetext` = `formatValue` natijasi — ekran o'quvchi "1 500 000 so'm"
+  deb o'qiydi, "1500000" emas.
+- **Nom.** `Field` ichida tutqich label bilan `aria-labelledby` orqali bog'lanadi. Oraliqda har
+  tutqich nomi: label + "Minimal qiymat" / "Maksimal qiymat" (`labels.thumb` bilan o'zgartiriladi).
+  Field bo'lmasa — `aria-label` bering.
+- **Xato.** `Field` ning izohi va xatosi `aria-describedby` ga, xato holati `aria-invalid` ga
+  tushadi.
+- **Pufakcha va belgilar** bezak — `aria-hidden` (qiymat `aria-valuetext` da allaqachon bor).
+- **Touch.** Tutqichning ko'rinmas bosish maydoni kamida 40px.

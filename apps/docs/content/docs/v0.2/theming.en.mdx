@@ -26,14 +26,14 @@ Tokens come in two layers:
 The accent is indigo and the neutral is slate. Status colors are emerald (success), amber
 (warning), rose (danger) and sky (info). The values below are read straight from `theme.css`.
 
-<ComponentPreview name="theming/palette" align="start" />
+<ComponentPreview name="archive/v0.2/theming/palette" align="start" />
 
 ## Semantic tokens
 
 Pick from this list when you write code. Switch the site theme — the swatches and values follow
 dark mode.
 
-<ComponentPreview name="theming/semantic" align="start" />
+<ComponentPreview name="archive/v0.2/theming/semantic" align="start" />
 
 | Token                     | Tailwind                       | Light            | Dark             | Used for                 |
 | ------------------------- | ------------------------------ | ---------------- | ---------------- | ------------------------ |
@@ -70,7 +70,7 @@ dark mode.
 Each status has two sets: **soft** for badge and message backgrounds, **solid** for dots and
 fully filled badges.
 
-<ComponentPreview name="theming/status" />
+<ComponentPreview name="archive/v0.2/theming/status" />
 
 | Status    | Soft                                           | Solid                                |
 | --------- | ---------------------------------------------- | ------------------------------------ |
@@ -94,7 +94,7 @@ only names the fonts (`font-sans`, `font-mono`) — it doesn't load them. Add th
 Without the fonts, the system font (`ui-sans-serif, system-ui`) takes over. The size scale ships
 with line heights and letter spacing:
 
-<ComponentPreview name="theming/typography" align="start" />
+<ComponentPreview name="archive/v0.2/theming/typography" align="start" />
 
 Font weight isn't tied to size — each component sets its own `font-medium` or `font-semibold`.
 As a rule of thumb: buttons and labels 500, headings 600, large headings 700. Add `tabular-nums`
@@ -107,14 +107,14 @@ drawers `rounded-2xl` (20px). Shadows are tinted slate-900 instead of black, whi
 In dark mode, `shadow-md` and up add a 1px ring, because a shadow alone barely shows on a dark
 background.
 
-<ComponentPreview name="theming/radius-shadow" />
+<ComponentPreview name="archive/v0.2/theming/radius-shadow" />
 
 ## Motion
 
 Motion carries information, not decoration: it shows where an element came from and where it
 went. Entrances are slower and use `ease-out`; exits are faster and use `ease-in`.
 
-<ComponentPreview name="theming/motion" />
+<ComponentPreview name="archive/v0.2/theming/motion" />
 
 | Duration            | Value | Used for                          |
 | ------------------- | ----- | --------------------------------- |
@@ -151,7 +151,7 @@ These aren't mapped to Tailwind utilities — use the CSS variable: `z-(--ak-z-m
 The brand color is the `--ak-primary*` group. Redefine it **after** `theme.css` — the components
 don't need to change. In the example below the brand color changes inside a single block.
 
-<ComponentPreview name="theming/brand" />
+<ComponentPreview name="archive/v0.2/theming/brand" />
 
 To change it across the app, write the light and dark values separately. Any color from the
 base scales works, and so do your own hex values:

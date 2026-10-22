@@ -1,0 +1,223 @@
+---
+title: Mavzu va tokenlar
+description: "Ranglar, tipografiya, radius, soya, animatsiya va brend rangini o'zgartirish."
+---
+
+Butun dizayn bitta faylda — `@akhatmirzo/tokens/theme.css`. Unda CSS o'zgaruvchilari
+(`--ak-*`) va ularni Tailwind utilitalariga ulaydigan `@theme` bloki bor. Komponentlar hech
+qachon `indigo-600` kabi xom rangni ishlatmaydi — faqat `bg-primary`, `text-text-muted` kabi
+**semantik** tokenlarni. Shuning uchun dark mode va brend rangi bitta joyda almashadi.
+
+```css title="app.css"
+@import 'tailwindcss';
+@import '@akhatmirzo/tokens/theme.css';
+```
+
+Tokenlar ikki qavatli:
+
+1. **Bazaviy shkalalar** — `--ak-indigo-600`, `--ak-slate-200` ... Faqat semantik tokenlarni
+   yasash uchun. Komponentlarda va ilova kodida to'g'ridan-to'g'ri ishlatmang.
+2. **Semantik tokenlar** — `--ak-surface`, `--ak-text-muted`, `--ak-primary` ... Ular light va
+   dark rejimda turli bazaviy qiymatga ishora qiladi va Tailwind'da `bg-surface`,
+   `text-text-muted`, `bg-primary` bo'lib chiqadi.
+
+## Ranglar palitrasi
+
+Asosiy rang — indigo, neytral — slate. Status ranglari: emerald (success), amber (warning), rose
+(danger) va sky (info). Qiymatlar to'g'ridan-to'g'ri `theme.css` dan o'qiladi.
+
+<ComponentPreview name="theming/palette" align="start" />
+
+## Semantik tokenlar
+
+Kod yozganda shu ro'yxatdan tanlang. Sayt mavzusini almashtirib ko'ring — rang namunalari va
+qiymatlar dark rejimga o'tadi.
+
+<ComponentPreview name="theming/semantic" align="start" />
+
+| Token                     | Tailwind                       | Light            | Dark             | Qayerda                |
+| ------------------------- | ------------------------------ | ---------------- | ---------------- | ---------------------- |
+| `background`              | `bg-background`                | slate-50         | slate-900        | Sahifa foni            |
+| `surface`                 | `bg-surface`                   | oq               | slate-800        | Karta, input, modal    |
+| `surface-muted`           | `bg-surface-muted`             | slate-100        | slate-700        | Hover, ikkilamchi fon  |
+| `surface-raised`          | `bg-surface-raised`            | oq               | slate-750        | Popover, toast, menyu  |
+| `border`                  | `border-border`                | slate-200        | slate-700        | Oddiy chegara          |
+| `border-strong`           | `border-border-strong`         | slate-300        | slate-600        | Hover chegara          |
+| `text`                    | `text-text`                    | slate-900        | slate-100        | Asosiy matn            |
+| `text-subtle`             | `text-text-subtle`             | slate-700        | slate-300        | Ghost tugma, ikonkalar |
+| `text-muted`              | `text-text-muted`              | slate-500        | slate-400        | Yordamchi matn         |
+| `text-faint`              | `text-text-faint`              | slate-400        | slate-500        | Placeholder            |
+| `primary`                 | `bg-primary`                   | indigo-600       | indigo-600       | Asosiy tugma           |
+| `primary-hover`           | `bg-primary-hover`             | indigo-700       | indigo-500       | Asosiy tugma hover     |
+| `primary-foreground`      | `text-primary-foreground`      | oq               | oq               | Primary ustidagi matn  |
+| `primary-soft`            | `bg-primary-soft`              | indigo-50        | indigo-950       | Soft tugma, badge      |
+| `primary-soft-hover`      | `bg-primary-soft-hover`        | indigo-100       | indigo-900       | Soft tugma hover       |
+| `primary-soft-foreground` | `text-primary-soft-foreground` | indigo-700       | indigo-300       | Soft ustidagi matn     |
+| `link`                    | `text-link`                    | indigo-600       | indigo-300       | Havolalar              |
+| `ring`                    | `outline-ring`                 | indigo-500 / 40% | indigo-400 / 50% | Fokus halqasi          |
+| `overlay`                 | `bg-overlay`                   | slate-900 / 40%  | slate-950 / 60%  | Modal ortidagi fon     |
+| `danger`                  | `bg-danger`                    | rose-600         | rose-500         | Xavfli tugma           |
+| `danger-hover`            | `bg-danger-hover`              | rose-700         | rose-600         | Xavfli tugma hover     |
+| `danger-ring`             | `outline-danger-ring`          | rose-500 / 25%   | rose-500 / 35%   | Xato holatidagi fokus  |
+
+<Callout title="Dark rejimda primary o'zgarmaydi">
+  Asosiy tugma ikkala rejimda ham indigo-600. Indigo-500 oq matn bilan WCAG AA kontrast chegarasiga
+  yetmaydi, shuning uchun dark rejimda faqat hover ochroq bo'ladi.
+</Callout>
+
+### Status ranglari
+
+Har bir status uchun ikki to'plam: **soft** — badge va xabarlar foni, **solid** — nuqta va
+to'liq bo'yalgan badge'lar.
+
+<ComponentPreview name="theming/status" />
+
+| Status    | Soft                                           | Solid                                |
+| --------- | ---------------------------------------------- | ------------------------------------ |
+| `success` | `bg-success-soft text-success-soft-foreground` | `bg-success text-success-foreground` |
+| `warning` | `bg-warning-soft text-warning-soft-foreground` | `bg-warning text-warning-foreground` |
+| `danger`  | `bg-danger-soft text-danger-soft-foreground`   | `bg-danger text-danger-foreground`   |
+| `info`    | `bg-info-soft text-info-soft-foreground`       | `bg-info text-info-foreground`       |
+
+## Tipografiya
+
+Asosiy shrift — **Manrope** (lotin va kirill), kod uchun — **JetBrains Mono**. `theme.css`
+shriftlarni yuklamaydi, faqat nomini beradi (`font-sans`, `font-mono`). Ularni alohida ulang:
+
+<Install pkg="@fontsource-variable/manrope @fontsource-variable/jetbrains-mono" />
+
+```css title="app.css"
+@import '@fontsource-variable/manrope';
+@import '@fontsource-variable/jetbrains-mono';
+```
+
+Shrift yuklanmasa, tizim shrifti (`ui-sans-serif, system-ui`) ishlatiladi. O'lchamlar shkalasi
+qator balandligi va harf oralig'i bilan birga keladi:
+
+<ComponentPreview name="theming/typography" align="start" />
+
+Qalinlik o'lchamga bog'lanmagan — har bir komponent `font-medium`, `font-semibold` ni o'zi
+belgilaydi. Tavsiya: tugma va label — 500, sarlavha — 600, katta sarlavha — 700. Jadval va narxlarda
+raqamlar tekis turishi uchun `tabular-nums` qo'shing.
+
+## Radius va soyalar
+
+Tugma va input — `rounded-lg` (12px), karta va popover — `rounded-xl` (16px), modal va drawer —
+`rounded-2xl` (20px). Soyalar qora emas, slate-900 rangida — yumshoqroq ko'rinadi. Dark rejimda
+`shadow-md` dan boshlab soyaga 1px halqa qo'shiladi, chunki qorong'i fonda soyaning o'zi deyarli
+ko'rinmaydi.
+
+<ComponentPreview name="theming/radius-shadow" />
+
+## Animatsiya
+
+Animatsiya — bezak emas, ma'lumot: element qayerdan kelib, qayerga ketganini ko'rsatadi. Kirish
+sekinroq va `ease-out`, chiqish tezroq va `ease-in`.
+
+<ComponentPreview name="theming/motion" />
+
+| Davomiylik          | Qiymat | Qayerda                           |
+| ------------------- | ------ | --------------------------------- |
+| `duration-fast`     | 100ms  | Hover, bosish, dropdown yopilishi |
+| `duration-base`     | 150ms  | Dropdown ochilishi, tooltip       |
+| `duration-moderate` | 200ms  | Modal ochilishi, accordion, tabs  |
+| `duration-slow`     | 300ms  | Drawer, toast kirishi             |
+
+Easing: `ease-out` (asosiy), `ease-in`, `ease-in-out`, `ease-spring` (kamdan-kam — toast,
+switch). Overlay'lar uchun tayyor keyframe'lar ham bor: `animate-dialog-in/out`,
+`animate-popover-in/out`, `animate-tooltip-in/out`, `animate-slide-in-right` (va `left`,
+`top`, `bottom`), `animate-toast-in/out`, `animate-accordion-down/up`, shuningdek
+`animate-spinner` va `animate-shimmer`.
+
+<Callout type="info" title="prefers-reduced-motion">
+  Foydalanuvchi tizimda "kam animatsiya"ni yoqqan bo'lsa, popover siljishi o'chadi. O'z
+  animatsiyalaringizda `motion-reduce:` variantidan foydalaning.
+</Callout>
+
+## Qatlamlar (z-index)
+
+Tailwind'ga ulanmagan — CSS o'zgaruvchisi orqali ishlating: `z-(--ak-z-modal)`.
+
+| O'zgaruvchi       | Qiymat | Kim                                      |
+| ----------------- | ------ | ---------------------------------------- |
+| `--ak-z-dropdown` | 1000   | Dropdown, Select, Combobox, Popover      |
+| `--ak-z-overlay`  | 1100   | Dialog, Drawer va Command Palette foni   |
+| `--ak-z-modal`    | 1110   | Dialog, Drawer va Command Palette paneli |
+| `--ak-z-toast`    | 1200   | Toast                                    |
+| `--ak-z-tooltip`  | 1300   | Tooltip                                  |
+
+## Brend rangini almashtirish
+
+Brend rangi `--ak-primary*` guruhida. Ularni `theme.css` dan **keyin** qayta belgilang —
+komponentlarga tegish shart emas. Quyida misol: brend rangi blok ichida almashadi.
+
+<ComponentPreview name="theming/brand" />
+
+Ilova bo'ylab almashtirish uchun light va dark qiymatlarni alohida yozing. Bazaviy shkaladagi
+istalgan rangni yoki o'z HEX qiymatlaringizni berishingiz mumkin:
+
+```css title="app.css"
+@import 'tailwindcss';
+@import '@akhatmirzo/tokens/theme.css';
+
+:root,
+[data-theme='light'] {
+  --ak-primary: var(--ak-emerald-600);
+  --ak-primary-hover: var(--ak-emerald-700);
+  --ak-primary-soft: var(--ak-emerald-50);
+  --ak-primary-soft-hover: var(--ak-emerald-100);
+  --ak-primary-soft-foreground: var(--ak-emerald-700);
+  --ak-ring: rgb(16 185 129 / 0.4);
+  --ak-link: var(--ak-emerald-700);
+}
+
+[data-theme='dark'] {
+  --ak-primary: var(--ak-emerald-600);
+  --ak-primary-hover: var(--ak-emerald-500);
+  --ak-primary-soft: var(--ak-emerald-950);
+  --ak-primary-soft-hover: var(--ak-emerald-950);
+  --ak-primary-soft-foreground: var(--ak-emerald-300);
+  --ak-ring: rgb(52 211 153 / 0.5);
+  --ak-link: var(--ak-emerald-300);
+}
+```
+
+<Callout type="warn" title="Dark blokni ham yozing">
+  `<html>` dagi `:root` qiymati dark rejimga ham o'tadi: selektorlar kuchi bir xil, sizning
+  faylingiz esa keyin keladi. Lekin rejimga qarab farq qiladigan tokenlar (`soft`, `ring`, `link`)
+  va ichki `data-theme="dark"` bloklari uchun `[data-theme='dark']` blokini to'liq yozing.
+</Callout>
+
+Primary ustidagi matn oq (`--ak-primary-foreground`). Och rang tanlasangiz (masalan amber),
+kontrastni tekshiring va kerak bo'lsa `--ak-primary-foreground` ni ham o'zgartiring.
+
+## Tailwind utilitalari
+
+Ranglar, radius va soyalardan tashqari `theme.css` bir nechta tayyor utilita qo'shadi:
+
+| Utilita                       | Nima qiladi                                                                   |
+| ----------------------------- | ----------------------------------------------------------------------------- |
+| `focus-ring`                  | Faqat klaviatura fokusida (`:focus-visible`) 2px halqa                        |
+| `focus-ring-within`           | Input konteyneri uchun: ichida fokus bo'lsa chegara va halqa; xatoda — danger |
+| `duration-fast` … `slow`      | Davomiylik tokenlari (`transition-*` bilan)                                   |
+| `ease-out`, `ease-spring` ... | Easing tokenlari                                                              |
+| `dark:`                       | `data-theme="dark"` ichida ishlaydi (`class="dark"` emas)                     |
+
+```tsx title="O'z komponentingizda"
+<button className="focus-ring rounded-lg bg-primary-soft px-4 py-2 text-sm font-medium text-primary-soft-foreground transition-colors duration-base hover:bg-primary-soft-hover">
+  Filtr
+</button>
+```
+
+Tailwind ishlatilmaydigan joyda (o'z CSS'ingiz, inline style, grafik kutubxonasi) ranglar,
+soyalar, davomiylik, easing va qatlamlar CSS o'zgaruvchilari orqali mavjud:
+
+```css
+.chart-tooltip {
+  background: var(--ak-surface-raised);
+  color: var(--ak-text);
+  box-shadow: var(--ak-shadow-lg);
+  transition: opacity var(--ak-duration-base) var(--ak-ease-out);
+  z-index: var(--ak-z-tooltip);
+}
+```

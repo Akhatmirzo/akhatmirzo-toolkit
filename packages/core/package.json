@@ -1,6 +1,6 @@
 {
   "name": "@akhatmirzo/core",
-  "version": "0.1.3",
+  "version": "0.2.0",
   "description": "Dependency-free TypeScript utilities: formatting (phone, money, dates), validation (phone, card, email), Latin-Cyrillic transliteration, storage and API helpers for Uzbek apps.",
   "keywords": [
     "typescript",

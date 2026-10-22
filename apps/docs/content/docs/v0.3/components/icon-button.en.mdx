@@ -1,0 +1,126 @@
+---
+title: IconButton
+description: An icon-only square button with a required aria-label and 3 sizes.
+---
+
+<ComponentPreview name="icon-button/variants" />
+
+## Import
+
+```tsx
+import { IconButton } from '@akhatmirzo/ui';
+```
+
+## When to use
+
+- **When space is tight and the icon is universally understood** — close (✕), edit, delete,
+  toolbar actions. If the meaning isn't obvious, use a [`Button`](./button.mdx) with text.
+- **`aria-label` is required.** TypeScript won't compile without it. Screen readers can't see the
+  icon and read only this label, so phrase it as an action: "Close", "Edit".
+- **Need a visible hint?** Wrap the button in a [`Tooltip`](./tooltip.mdx).
+- **In toolbars and table rows**, the `ghost` variant keeps things light.
+
+## Variants
+
+The same variants as `Button`, minus `link`: `primary`, `soft` (default), `outline`, `ghost` and
+`danger`. See the [Button](./button.mdx) page for when to use each.
+
+## Sizes
+
+Square: 32, 40 and 48px — the same heights as `Button` and `Input`. The icon scales
+automatically to 16 / 18 / 20px. The `sm` size has an invisible 40px hit area.
+
+<ComponentPreview name="icon-button/sizes" />
+
+## States
+
+While `loading`, a spinner replaces the icon, the button keeps focus and clicks are ignored. Try
+clicking the first button.
+
+<ComponentPreview name="icon-button/states" />
+
+## Customization
+
+Change shape and layout with `className` — for example, `rounded-full` for a floating action
+button. The example below builds a toolbar from `ghost` buttons.
+
+<ComponentPreview name="icon-button/toolbar" />
+
+## As a link (`asChild`)
+
+`IconButton` accepts `asChild` too: you get the button styles on your own `<a>` (or Next.js
+`<Link>`).
+
+<ComponentPreview name="icon-button/as-child" />
+
+## Props
+
+`IconButton` is a thin wrapper around `Button`. It accepts `loading`, `disabled`, `asChild`,
+`labels` and every other `<button>` attribute; `leftIcon`, `rightIcon` and `fullWidth` are not
+available here.
+
+<PropsTable
+  rows={[
+    {
+      name: 'aria-label',
+      type: 'string',
+      required: true,
+      description: 'The name screen readers announce',
+    },
+    {
+      name: 'variant',
+      type: "'primary' | 'soft' | 'outline' | 'ghost' | 'danger'",
+      default: "'soft'",
+      description: 'Look and visual weight',
+    },
+    {
+      name: 'size',
+      type: "'sm' | 'md' | 'lg'",
+      default: "'md'",
+      description: 'Square size: 32 / 40 / 48px',
+    },
+    {
+      name: 'loading',
+      type: 'boolean',
+      default: 'false',
+      description: 'Shows a spinner instead of the icon, blocks clicks, sets aria-busy',
+    },
+    {
+      name: 'disabled',
+      type: 'boolean',
+      default: 'false',
+      description: 'Disables the button',
+    },
+    {
+      name: 'asChild',
+      type: 'boolean',
+      default: 'false',
+      description: 'Renders its child instead of its own element (e.g. <a>)',
+    },
+    {
+      name: 'labels',
+      type: '{ loading?: string }',
+      default: "{ loading: 'Yuklanmoqda' }",
+      description: 'Loading text for screen readers',
+    },
+    {
+      name: 'children',
+      type: 'ReactNode',
+      description: "The icon (SVG). Don't put text here — that's what Button is for",
+    },
+  ]}
+/>
+
+Data attributes are the same as `Button`'s: `data-variant`, `data-size`, `data-disabled` and
+`data-loading`.
+
+## Accessibility
+
+- **A name is required.** `aria-label` is enforced by the type — an unnamed button won't compile.
+- **Native `<button type="button">`** — activates with `Enter` and `Space` and never submits a
+  form by accident.
+- **The icon is hidden from screen readers** (`aria-hidden`); the only thing announced is the
+  `aria-label`.
+- **Loading.** Sets `aria-busy="true"`, and a hidden `aria-live` region announces the
+  `labels.loading` text.
+- **Small size.** `size="sm"` looks 32px but has a 40px hit area.

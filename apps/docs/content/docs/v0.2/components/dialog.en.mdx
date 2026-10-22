@@ -3,7 +3,7 @@ title: Dialog
 description: A modal window for forms and confirmations — a bottom sheet on phones, plus an imperative confirm().
 ---
 
-<ComponentPreview name="dialog/basic" />
+<ComponentPreview name="archive/v0.2/dialog/basic" />
 
 ## Import
 
@@ -60,7 +60,7 @@ import { Dialog, ConfirmDialog, ConfirmProvider, confirm } from '@akhatmirzo/ui'
 — the whole screen. The dialog is never taller than the viewport minus 32px; long content
 scrolls inside it.
 
-<ComponentPreview name="dialog/sizes" />
+<ComponentPreview name="archive/v0.2/dialog/sizes" />
 
 ## Options
 
@@ -70,21 +70,21 @@ scrolls inside it.
 - `mobileSheet={false}` — keeps the dialog centered on phones too. By default, screens narrower
   than 640px get a bottom sheet instead.
 
-<ComponentPreview name="dialog/options" />
+<ComponentPreview name="archive/v0.2/dialog/options" />
 
 ## While submitting
 
 To keep a submitting form from being closed by accident, turn off `dismissible` and ignore close
 requests in `onOpenChange` — then neither an outside click nor `Esc` closes it.
 
-<ComponentPreview name="dialog/async-submit" />
+<ComponentPreview name="archive/v0.2/dialog/async-submit" />
 
 ## Confirmation: confirm()
 
 `confirm()` is an imperative API: it opens a dialog and returns a `Promise<boolean>`. "Confirm"
 resolves to `true`; "Cancel", `Esc` or an outside click resolve to `false`.
 
-<ComponentPreview name="dialog/confirm" />
+<ComponentPreview name="archive/v0.2/dialog/confirm" />
 
 ```tsx
 const ok = await confirm({
@@ -127,7 +127,7 @@ default button texts for every `confirm()` call: `labels={{ confirm: 'Confirm', 
 When the confirmation should live in JSX (for example, with a specific trigger), use
 `ConfirmDialog`. It takes the same options as `confirm()`, plus `trigger` and `onCancel`.
 
-<ComponentPreview name="dialog/confirm-dialog" />
+<ComponentPreview name="archive/v0.2/dialog/confirm-dialog" />
 
 ## Select and Combobox inside a dialog
 
@@ -136,7 +136,7 @@ and [`Popover`](./popover.mdx) inside `Dialog.Content` detect the modal layer on
 panels open above the dialog and the focus trap doesn't get in the way. No `z-index` or
 `container` tweaks needed. The same goes for a [`Drawer`](./drawer.mdx).
 
-<ComponentPreview name="dialog/with-select" />
+<ComponentPreview name="archive/v0.2/dialog/with-select" />
 
 ## Props
 

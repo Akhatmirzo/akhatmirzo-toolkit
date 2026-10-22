@@ -1,0 +1,237 @@
+---
+title: DropdownMenu
+description: An actions menu with icons, keyboard shortcut labels, checkable items and submenus.
+---
+
+<ComponentPreview name="dropdown-menu/basic" />
+
+## Import
+
+```tsx
+import { DropdownMenu } from '@akhatmirzo/ui';
+```
+
+## When to use
+
+- **Actions on a single object** — the "⋯" button in a table row, a card menu, a profile menu.
+- **View options** — `CheckboxItem` (which columns to show) and `RadioGroup` (sort order).
+- **Not for picking a form value.** For form fields use [`Select`](./select.mdx) or
+  [`Combobox`](./combobox.mdx) — they hold the value and submit it with the form.
+- **Destructive actions** (`variant="danger"`) go last, after a separator; confirm them with
+  [`confirm()`](./dialog.mdx) when needed.
+- **Keep submenus one level deep** — deeper nesting is awkward with a keyboard and on phones.
+
+## Anatomy
+
+| Part                                             | What it does                                                         |
+| ------------------------------------------------ | -------------------------------------------------------------------- |
+| `DropdownMenu`                                   | State: `open`, `defaultOpen`, `onOpenChange`                         |
+| `DropdownMenu.Trigger`                           | Opens the menu. Without `asChild`, it looks like an `outline` button |
+| `DropdownMenu.Content`                           | The panel: portal, positioning, looping navigation                   |
+| `DropdownMenu.Item`                              | An action: `icon`, `shortcut`, `variant`, `onSelect`                 |
+| `DropdownMenu.CheckboxItem`                      | A toggleable item (✓)                                                |
+| `DropdownMenu.RadioGroup` / `RadioItem`          | One choice out of several (●)                                        |
+| `DropdownMenu.Label`                             | A group heading                                                      |
+| `DropdownMenu.Group`                             | Groups items logically                                               |
+| `DropdownMenu.Separator`                         | A divider line                                                       |
+| `DropdownMenu.Sub` / `SubTrigger` / `SubContent` | A submenu                                                            |
+
+## Checkable items
+
+`CheckboxItem` uses `checked` / `onCheckedChange`; `RadioGroup` uses `value` / `onValueChange`
+(or an uncontrolled `defaultValue`). The menu closes after a pick; to let users toggle several
+items in a row, call `e.preventDefault()` inside `onSelect`.
+
+<ComponentPreview name="dropdown-menu/checkbox-radio" />
+
+## Submenus
+
+Put a `SubTrigger` and a `SubContent` inside `Sub`. The submenu opens on hover, or with `→` on the
+keyboard.
+
+<ComponentPreview name="dropdown-menu/submenu" />
+
+## Profile menu: Label, Group and links
+
+`Label` and `Group` split the menu into sections. Give an `Item` the `asChild` prop to render an
+`<a>` (or a Next.js `Link`) as the item — the icon and the shortcut label are placed inside the
+link. `align="end"` lines the panel up with the trigger's right edge.
+
+<ComponentPreview name="dropdown-menu/profile" />
+
+```tsx
+<DropdownMenu.Item asChild icon={<Settings />}>
+  <Link href="/settings">Settings</Link>
+</DropdownMenu.Item>
+```
+
+<Callout title="shortcut is only a label">
+  `shortcut={['mod', 'E']}` shows `⌘E` in the menu (`Ctrl E` on Windows) and sets
+  `aria-keyshortcuts`, but it does **not** listen for the key press. Wire up the shortcut itself
+  with [`useHotkeys`](../hooks.mdx).
+</Callout>
+
+## States
+
+A `disabled` item can't be clicked and is skipped by keyboard navigation. The trigger can be
+`disabled` too. Use `open` + `onOpenChange` to open the menu from code.
+
+<ComponentPreview name="dropdown-menu/states" />
+
+## Props
+
+### DropdownMenu
+
+Accepts the props of the Radix DropdownMenu `Root`: `open`, `defaultOpen`, `onOpenChange`,
+`modal` (defaults to `true`) and `dir`.
+
+### DropdownMenu.Content
+
+Also accepts the rest of the Radix `Content` props (`alignOffset`, `onCloseAutoFocus`,
+`onEscapeKeyDown` ...) and `<div>` attributes.
+
+<PropsTable
+  rows={[
+    {
+      name: 'side',
+      type: "'top' | 'right' | 'bottom' | 'left'",
+      default: "'bottom'",
+      description: 'Preferred side',
+    },
+    {
+      name: 'align',
+      type: "'start' | 'center' | 'end'",
+      default: "'start'",
+      description: 'Alignment along the trigger',
+    },
+    { name: 'sideOffset', type: 'number', default: '6', description: 'Gap to the trigger, px' },
+    {
+      name: 'collisionPadding',
+      type: 'number',
+      default: '8',
+      description: 'Minimum distance from the screen edge, px',
+    },
+    {
+      name: 'loop',
+      type: 'boolean',
+      default: 'true',
+      description: '↑ ↓ wrap around from the last item to the first',
+    },
+    {
+      name: 'container',
+      type: 'HTMLElement | null',
+      description: 'Portal container (defaults to document.body)',
+    },
+  ]}
+/>
+
+### DropdownMenu.Item
+
+<PropsTable
+  rows={[
+    { name: 'icon', type: 'ReactNode', description: 'Leading icon (16px)' },
+    {
+      name: 'shortcut',
+      type: 'string[]',
+      description: "A Kbd label on the right, e.g. ['mod', 'E']",
+    },
+    {
+      name: 'variant',
+      type: "'default' | 'danger'",
+      default: "'default'",
+      description: 'danger — red text and highlight',
+    },
+    {
+      name: 'onSelect',
+      type: '(event: Event) => void',
+      description: 'Called on select. preventDefault() keeps the menu open',
+    },
+    { name: 'disabled', type: 'boolean', description: 'Disables the item' },
+    {
+      name: 'textValue',
+      type: 'string',
+      description: "Text for typeahead when children aren't plain text",
+    },
+    {
+      name: 'asChild',
+      type: 'boolean',
+      default: 'false',
+      description: 'Renders the child (e.g. an <a>) as the item',
+    },
+  ]}
+/>
+
+### CheckboxItem, RadioGroup, RadioItem
+
+<PropsTable
+  rows={[
+    {
+      name: 'checked',
+      type: "boolean | 'indeterminate'",
+      description: 'CheckboxItem: whether it is checked',
+    },
+    {
+      name: 'onCheckedChange',
+      type: '(checked: boolean) => void',
+      description: 'CheckboxItem: called on change',
+    },
+    {
+      name: 'value',
+      type: 'string',
+      description: "RadioGroup: the selected value; RadioItem: the item's value",
+    },
+    { name: 'defaultValue', type: 'string', description: 'RadioGroup: initial value' },
+    {
+      name: 'onValueChange',
+      type: '(value: string) => void',
+      description: 'RadioGroup: called on change',
+    },
+    {
+      name: 'shortcut',
+      type: 'string[]',
+      description: 'CheckboxItem and RadioItem: a Kbd on the right',
+    },
+    { name: 'disabled', type: 'boolean', description: 'CheckboxItem and RadioItem: disables it' },
+  ]}
+/>
+
+### Sub, SubTrigger, SubContent
+
+`Sub` takes `open`, `defaultOpen` and `onOpenChange`. `SubTrigger` takes `icon` and `disabled`.
+`SubContent` takes `sideOffset` (default `8`), `alignOffset` (`-6`), `collisionPadding` (`8`),
+`loop` (`true`) and `container`.
+
+### Data attributes
+
+| Attribute          | On                 | Value                               |
+| ------------------ | ------------------ | ----------------------------------- |
+| `data-state`       | trigger, panel     | `open` · `closed`                   |
+| `data-variant`     | item               | `default` · `danger`                |
+| `data-highlighted` | item               | present under the keyboard or mouse |
+| `data-disabled`    | item               | present when disabled               |
+| `data-state`       | Checkbox/RadioItem | `checked` · `unchecked`             |
+| `data-side`        | panel              | `top` · `right` · `bottom` · `left` |
+
+## Keyboard
+
+| Key                     | Action                                                   |
+| ----------------------- | -------------------------------------------------------- |
+| `Enter` / `Space` / `↓` | Opens the menu from the trigger, focusing the first item |
+| `↓` / `↑`               | Moves between items (wraps around)                       |
+| `Home` / `End`          | First / last item                                        |
+| A letter                | Jumps to the next item starting with that letter         |
+| `→` / `←`               | Opens / closes a submenu                                 |
+| `Enter` / `Space`       | Selects and closes                                       |
+| `Esc`                   | Closes; focus returns to the trigger                     |
+
+## Accessibility
+
+- **Roles.** The panel is `role="menu"`; items are `menuitem`, `menuitemcheckbox` or
+  `menuitemradio`; the trigger gets `aria-haspopup="menu"` and `aria-expanded`. It is built on
+  Radix DropdownMenu.
+- **Shortcuts.** With `shortcut`, the item gets `aria-keyshortcuts` (`mod` becomes `Meta` on
+  macOS and `Control` elsewhere). The visible `Kbd` is hidden from screen readers.
+- **Icons** are `aria-hidden`.
+- **Icon triggers.** When the trigger is an `IconButton`, give it an `aria-label` ("More
+  actions").
+- **Focus.** Opening moves focus into the menu; closing returns it to the trigger.

@@ -1,0 +1,188 @@
+---
+title: Drawer
+description: A panel that slides in from the edge of the screen — for filters, mobile menus and details.
+---
+
+<ComponentPreview name="drawer/filters" />
+
+## Import
+
+```tsx
+import { Drawer } from '@akhatmirzo/ui';
+```
+
+## When to use
+
+- **Filter panels** — many filter fields fit at the side without covering the whole page.
+- **Detail views** — open an order or a customer when a table row is clicked.
+- **Mobile menus** — navigation that slides in from the left with `side="left"`.
+- **Short forms and confirmations** belong in a [`Dialog`](./dialog.mdx), which keeps attention
+  in the center.
+- A Drawer is modal too: the page is blocked while it's open. If users need to keep working with
+  the page, build a regular side panel into your layout instead.
+
+## Anatomy
+
+The API mirrors [`Dialog`](./dialog.mdx) — same part names, same behavior.
+
+| Part             | What it does                                              |
+| ---------------- | --------------------------------------------------------- |
+| `Drawer`         | State: `open`, `defaultOpen`, `onOpenChange`              |
+| `Drawer.Trigger` | Opens the drawer (use with `asChild`)                     |
+| `Drawer.Content` | The panel: backdrop, title, description, ✕ and focus trap |
+| `Drawer.Footer`  | The button row — sticks to the bottom of the panel        |
+| `Drawer.Close`   | Closes the drawer when clicked (use with `asChild`)       |
+
+```tsx
+<Drawer>
+  <Drawer.Trigger asChild>
+    <Button>Filters</Button>
+  </Drawer.Trigger>
+  <Drawer.Content title="Filters" description="Narrow down the results.">
+    {/* fields */}
+    <Drawer.Footer>
+      <Drawer.Close asChild>
+        <Button>Cancel</Button>
+      </Drawer.Close>
+      <Button variant="primary">Apply</Button>
+    </Drawer.Footer>
+  </Drawer.Content>
+</Drawer>
+```
+
+## Sides
+
+`side` picks the edge: `right` (default), `left`, `bottom` or `top`. A bottom drawer gets a
+decorative handle bar at the top and rounded corners.
+
+<ComponentPreview name="drawer/sides" />
+
+## Sizes
+
+`size` is `sm` (320px), `md` (420px, default) or `lg` (560px). On the left and right it sets the
+width; at the top and bottom, the height. On narrow screens the panel never grows past the
+viewport.
+
+<ComponentPreview name="drawer/sizes" />
+
+## Mobile menu
+
+For navigation, use `side="left"` with `size="sm"`. If the title shouldn't be visible, add
+`hideTitle` — screen readers still read it. Wrap each link in `Drawer.Close asChild` so the menu
+closes when an item is clicked.
+
+<ComponentPreview name="drawer/mobile-menu" />
+
+## Details
+
+`size="lg"` gives a roomy panel for order or customer details. `Drawer.Footer` stays at the
+bottom even when the content is short.
+
+<ComponentPreview name="drawer/details" />
+
+<Callout title="Select and Combobox inside">
+  [`Select`](./select.mdx), [`Combobox`](./combobox.mdx), [`DropdownMenu`](./dropdown-menu.mdx) and
+  [`Popover`](./popover.mdx) inside `Drawer.Content` open above the drawer — no extra setup.
+</Callout>
+
+## Props
+
+### Drawer
+
+Accepts the props of the Radix Dialog `Root`: `open`, `defaultOpen`, `onOpenChange`, `modal`.
+
+### Drawer.Content
+
+Other `<div>` attributes, `ref` and Radix events (`onEscapeKeyDown`, `onOpenAutoFocus` ...) are
+passed to the panel.
+
+<PropsTable
+  rows={[
+    {
+      name: 'title',
+      type: 'ReactNode',
+      required: true,
+      description: 'The title — also used by screen readers',
+    },
+    { name: 'description', type: 'ReactNode', description: 'Text under the title' },
+    {
+      name: 'side',
+      type: "'right' | 'left' | 'bottom' | 'top'",
+      default: "'right'",
+      description: 'Which edge it slides in from',
+    },
+    {
+      name: 'size',
+      type: "'sm' | 'md' | 'lg'",
+      default: "'md'",
+      description: '320 / 420 / 560px — width or height',
+    },
+    {
+      name: 'hideTitle',
+      type: 'boolean',
+      default: 'false',
+      description: 'Hides the title visually (still read aloud)',
+    },
+    {
+      name: 'closeButton',
+      type: 'boolean',
+      default: 'true',
+      description: '✕ button in the top-right corner',
+    },
+    {
+      name: 'dismissible',
+      type: 'boolean',
+      default: 'true',
+      description: "false — outside clicks don't close it (Esc still does)",
+    },
+    { name: 'overlayClassName', type: 'string', description: 'Class for the backdrop' },
+    {
+      name: 'container',
+      type: 'HTMLElement | null',
+      description: 'Portal container (defaults to document.body)',
+    },
+    {
+      name: 'labels',
+      type: '{ close?: string }',
+      default: "{ close: 'Yopish' }",
+      description: 'Accessible name of the ✕ button',
+    },
+  ]}
+/>
+
+### Drawer.Trigger, Drawer.Close, Drawer.Footer
+
+`Drawer.Trigger` and `Drawer.Close` take your own element via `asChild`. `Drawer.Footer` is a
+plain `<div>`: buttons align to the right and the row sticks to the bottom of the panel
+(`mt-auto`).
+
+### Data attributes
+
+| Attribute    | On    | Value                               |
+| ------------ | ----- | ----------------------------------- |
+| `data-state` | panel | `open` · `closed`                   |
+| `data-side`  | panel | `right` · `left` · `bottom` · `top` |
+| `data-size`  | panel | `sm` · `md` · `lg`                  |
+
+To choose the initial focus yourself, put `data-autofocus` on the element.
+
+## Keyboard
+
+| Key           | Action                                                 |
+| ------------- | ------------------------------------------------------ |
+| `Tab`         | Next element inside the panel (focus never leaves it)  |
+| `Shift + Tab` | Previous element                                       |
+| `Esc`         | Closes the drawer; focus returns to where it came from |
+
+## Accessibility
+
+- **Role and name.** The panel is `role="dialog"`, with `aria-labelledby` pointing to the title
+  and `aria-describedby` to the description (left out when there is none).
+- **Focus trap and scrolling.** While open, focus cycles inside the panel; the page can't scroll
+  and is hidden from screen readers.
+- **Initial focus:** `[data-autofocus]` → the first field → the first button (other than ✕) →
+  the panel itself.
+- **Returning focus.** On close, focus goes back to the trigger — or, without one, to the element
+  that was focused before opening.
+- **The handle bar** (`side="bottom"`) is decorative and `aria-hidden`.
+- **Reduced motion.** With `prefers-reduced-motion`, the slide becomes a fade.

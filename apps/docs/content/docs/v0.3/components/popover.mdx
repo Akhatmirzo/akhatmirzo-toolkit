@@ -1,0 +1,167 @@
+---
+title: Popover
+description: "Ichida interaktiv kontent bo'ladigan suzuvchi panel: filtr, kichik forma, sozlamalar."
+---
+
+<ComponentPreview name="popover/filter" />
+
+## Import
+
+```tsx
+import { Popover } from '@akhatmirzo/ui';
+```
+
+## Qachon ishlatish
+
+- **Kichik, o'zaro ta'sirli kontent** — narx filtri, rang tanlash, bir nechta sozlama. Sahifa
+  bloklanmaydi, panel trigger yonida ochiladi.
+- **Faqat matnli izoh** uchun [`Tooltip`](./tooltip.mdx) yetarli. Popover'dan farqi: bosish
+  bilan ochiladi va ichida tugma, maydon bo'lishi mumkin.
+- **Buyruqlar ro'yxati** ("Tahrirlash", "O'chirish") — [`DropdownMenu`](./dropdown-menu.mdx):
+  unda menyu rollari va klaviatura navigatsiyasi tayyor.
+- **Katta forma yoki diqqat talab qiladigan vazifa** — [`Dialog`](./dialog.mdx).
+
+## Tuzilishi
+
+| Qism              | Vazifasi                                                        |
+| ----------------- | --------------------------------------------------------------- |
+| `Popover`         | Holat: `open`, `defaultOpen`, `onOpenChange`                    |
+| `Popover.Trigger` | Ochuvchi element (`asChild` bilan)                              |
+| `Popover.Content` | Panel: portal, joylashuv, animatsiya, ixtiyoriy strelka         |
+| `Popover.Close`   | Bosilganda panelni yopadi (`asChild` bilan)                     |
+| `Popover.Anchor`  | Panelni triggerga emas, boshqa elementga nisbatan joylashtirish |
+
+```tsx
+<Popover>
+  <Popover.Trigger asChild>
+    <Button>Narx</Button>
+  </Popover.Trigger>
+  <Popover.Content align="start" aria-label="Narx filtri">
+    {/* forma */}
+  </Popover.Content>
+</Popover>
+```
+
+Panelning standart kengligi — 288px (`w-72`). O'zgartirish uchun `className` bering: `w-56`,
+`w-auto` va hokazo.
+
+## Joylashuv va strelka
+
+`side` — `top`, `right`, `bottom` (standart) yoki `left`; `align` — `start`, `center` (standart)
+yoki `end`. Panel triggerdan 6px uzoqlikda turadi va ekran chetiga yetsa, o'zi teskari tomonga
+o'tadi. `arrow` triggerga qaragan strelka chizadi.
+
+<ComponentPreview name="popover/placement" />
+
+## Sozlamalar paneli
+
+Ikonka tugma va bir nechta `Switch` — kichik sozlamalar uchun tipik misol. Panel ochilganda fokus
+ichidagi birinchi elementga o'tadi.
+
+<ComponentPreview name="popover/settings" />
+
+## Tanlab yopish
+
+`Popover.Close asChild` ga o'ralgan element bosilganda panel o'zi yopiladi — rang yoki variant
+tanlash uchun qulay. Boshqariladigan rejimda (`open` + `onOpenChange`) panelni kod orqali ham
+yopasiz — birinchi misoldagi forma shunday ishlaydi.
+
+<ComponentPreview name="popover/color-picker" />
+
+<Callout title="Dialog ichida">
+  `Dialog` yoki `Drawer` ichidagi Popover paneli modal qatlamiga o'tadi va oyna ustida ochiladi —
+  qo'shimcha sozlash kerak emas.
+</Callout>
+
+## Props
+
+### Popover
+
+Radix Popover `Root` prop'larini qabul qiladi.
+
+<PropsTable
+  rows={[
+    { name: 'open', type: 'boolean', description: 'Ochiqmi (boshqariladigan rejim)' },
+    { name: 'defaultOpen', type: 'boolean', description: "Boshlang'ich holatda ochiq" },
+    { name: 'onOpenChange', type: '(open: boolean) => void', description: 'Ochilib-yopilganda' },
+    {
+      name: 'modal',
+      type: 'boolean',
+      default: 'false',
+      description: 'true — tashqi kontent bilan ishlash bloklanadi',
+    },
+  ]}
+/>
+
+### Popover.Content
+
+Radix `Popover.Content` ning qolgan prop'lari (`onOpenAutoFocus`, `onEscapeKeyDown`,
+`alignOffset`, `avoidCollisions` ...), `<div>` atributlari va `ref` ham qabul qilinadi.
+
+<PropsTable
+  rows={[
+    {
+      name: 'side',
+      type: "'top' | 'right' | 'bottom' | 'left'",
+      default: "'bottom'",
+      description: 'Qaysi tomonda ochiladi',
+    },
+    {
+      name: 'align',
+      type: "'start' | 'center' | 'end'",
+      default: "'center'",
+      description: "Trigger bo'ylab tekislash",
+    },
+    { name: 'sideOffset', type: 'number', default: '6', description: 'Triggerdan masofa, px' },
+    {
+      name: 'collisionPadding',
+      type: 'number',
+      default: '8',
+      description: 'Ekran chetidan minimal masofa, px',
+    },
+    {
+      name: 'arrow',
+      type: 'boolean',
+      default: 'false',
+      description: 'Triggerga qaragan strelka',
+    },
+    {
+      name: 'container',
+      type: 'HTMLElement | null',
+      description: 'Portal konteyneri (standart — document.body)',
+    },
+  ]}
+/>
+
+### Popover.Trigger, Popover.Close, Popover.Anchor
+
+Uchalasi ham `asChild` qabul qiladi. `Popover.Anchor` bo'lsa, panel trigger o'rniga shu elementga
+nisbatan joylashadi (masalan, butun qatorga).
+
+### Data atributlari
+
+| Atribut      | Qayerda        | Qiymat                              |
+| ------------ | -------------- | ----------------------------------- |
+| `data-state` | trigger, panel | `open` · `closed`                   |
+| `data-side`  | panel          | `top` · `right` · `bottom` · `left` |
+| `data-align` | panel          | `start` · `center` · `end`          |
+
+## Klaviatura
+
+| Tugma             | Harakat                                      |
+| ----------------- | -------------------------------------------- |
+| `Enter` / `Space` | Trigger fokusda — panelni ochadi yoki yopadi |
+| `Tab`             | Panel ichidagi elementlar bo'ylab yurish     |
+| `Esc`             | Panelni yopadi, fokus triggerga qaytadi      |
+
+Fokus paneldan tashqariga chiqsa yoki tashqariga bosilsa, panel yopiladi.
+
+## Accessibility
+
+- **Bog'lanish.** Trigger `aria-haspopup="dialog"`, `aria-expanded` va `aria-controls` oladi;
+  panel — `role="dialog"`. Panelga `aria-label` bering (masalan, "Narx filtri") — ekran o'quvchi
+  uni shu nom bilan e'lon qiladi.
+- **Fokus.** Ochilganda fokus panel ichidagi birinchi elementga o'tadi, yopilgach triggerga
+  qaytadi.
+- **Ikonka tugma** trigger bo'lsa, `IconButton` ga `aria-label` yozishni unutmang.
+- **Strelka** faqat bezak.

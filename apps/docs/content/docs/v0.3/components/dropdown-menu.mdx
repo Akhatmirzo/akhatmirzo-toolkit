@@ -1,0 +1,240 @@
+---
+title: DropdownMenu
+description: 'Amallar menyusi: ikonkalar, klaviatura yorliqlari, belgilash elementlari va ichki menyular.'
+---
+
+<ComponentPreview name="dropdown-menu/basic" />
+
+## Import
+
+```tsx
+import { DropdownMenu } from '@akhatmirzo/ui';
+```
+
+## Qachon ishlatish
+
+- **Bir obyekt ustidagi amallar** — jadval qatoridagi "⋯" tugmasi, kartochka menyusi, profil
+  menyusi.
+- **Ko'rinish sozlamalari** — `CheckboxItem` (qaysi ustunlar ko'rinsin) va `RadioGroup`
+  (saralash tartibi).
+- **Qiymat tanlash uchun emas.** Forma maydoni kerak bo'lsa — [`Select`](./select.mdx) yoki
+  [`Combobox`](./combobox.mdx): ular qiymatni saqlaydi va formaga yuboradi.
+- **Xavfli amal** (`variant="danger"`) menyuning oxirida, ajratgichdan keyin tursin; kerak
+  bo'lsa, [`confirm()`](./dialog.mdx) bilan tasdiqlating.
+- **Ichki menyuni bir darajadan chuqur qilmang** — klaviatura bilan ham, telefonda ham
+  noqulay.
+
+## Tuzilishi
+
+| Qism                                             | Vazifasi                                               |
+| ------------------------------------------------ | ------------------------------------------------------ |
+| `DropdownMenu`                                   | Holat: `open`, `defaultOpen`, `onOpenChange`           |
+| `DropdownMenu.Trigger`                           | Ochuvchi. `asChild` siz — `outline` tugma ko'rinishida |
+| `DropdownMenu.Content`                           | Panel: portal, joylashuv, aylanma navigatsiya          |
+| `DropdownMenu.Item`                              | Amal: `icon`, `shortcut`, `variant`, `onSelect`        |
+| `DropdownMenu.CheckboxItem`                      | Yoqib-o'chiriladigan element (✓)                       |
+| `DropdownMenu.RadioGroup` / `RadioItem`          | Bir nechtadan bittasini tanlash (●)                    |
+| `DropdownMenu.Label`                             | Guruh sarlavhasi                                       |
+| `DropdownMenu.Group`                             | Elementlarni mantiqiy guruhlash                        |
+| `DropdownMenu.Separator`                         | Ajratgich chiziq                                       |
+| `DropdownMenu.Sub` / `SubTrigger` / `SubContent` | Ichki menyu                                            |
+
+## Belgilash elementlari
+
+`CheckboxItem` — `checked` / `onCheckedChange`, `RadioGroup` — `value` / `onValueChange`
+(yoki boshqarilmaydigan `defaultValue`). Tanlovdan keyin menyu yopiladi; bir nechtasini ketma-ket
+belgilash uchun `onSelect` ichida `e.preventDefault()` chaqiring.
+
+<ComponentPreview name="dropdown-menu/checkbox-radio" />
+
+## Ichki menyu
+
+`Sub` ichida `SubTrigger` va `SubContent`. Sichqoncha bilan ustiga borganda, klaviatura bilan
+`→` bosganda ochiladi.
+
+<ComponentPreview name="dropdown-menu/submenu" />
+
+## Profil menyusi: Label, Group va havola
+
+`Label` va `Group` menyuni bo'limlarga ajratadi. `Item` ga `asChild` berib, `<a>` (yoki Next.js
+`Link`) ni element sifatida ishlatasiz — ikonka va yorliq havolaning ichiga qo'shiladi.
+`align="end"` panelni triggerning o'ng chetiga tekislaydi.
+
+<ComponentPreview name="dropdown-menu/profile" />
+
+```tsx
+<DropdownMenu.Item asChild icon={<Settings />}>
+  <Link href="/sozlamalar">Sozlamalar</Link>
+</DropdownMenu.Item>
+```
+
+<Callout title="shortcut — faqat yorliq">
+  `shortcut={['mod', 'E']}` menyuda `⌘E` (Windows'da `Ctrl E`) ko'rsatadi va `aria-keyshortcuts`
+  qo'yadi, lekin tugma bosilishini **ushlamaydi**. Qisqa yo'lning o'zini
+  [`useHotkeys`](../hooks.mdx) bilan ulang.
+</Callout>
+
+## Holatlar
+
+`disabled` element bosilmaydi va klaviatura navigatsiyasida o'tkazib yuboriladi. Trigger ham
+`disabled` bo'lishi mumkin. `open` + `onOpenChange` bilan menyuni koddan ochasiz.
+
+<ComponentPreview name="dropdown-menu/states" />
+
+## Props
+
+### DropdownMenu
+
+Radix DropdownMenu `Root` prop'larini qabul qiladi: `open`, `defaultOpen`, `onOpenChange`,
+`modal` (standart — `true`), `dir`.
+
+### DropdownMenu.Content
+
+Radix `Content` ning qolgan prop'lari (`alignOffset`, `onCloseAutoFocus`, `onEscapeKeyDown` ...)
+va `<div>` atributlari ham qabul qilinadi.
+
+<PropsTable
+  rows={[
+    {
+      name: 'side',
+      type: "'top' | 'right' | 'bottom' | 'left'",
+      default: "'bottom'",
+      description: 'Qaysi tomonda ochiladi',
+    },
+    {
+      name: 'align',
+      type: "'start' | 'center' | 'end'",
+      default: "'start'",
+      description: "Trigger bo'ylab tekislash",
+    },
+    { name: 'sideOffset', type: 'number', default: '6', description: 'Triggerdan masofa, px' },
+    {
+      name: 'collisionPadding',
+      type: 'number',
+      default: '8',
+      description: 'Ekran chetidan minimal masofa, px',
+    },
+    {
+      name: 'loop',
+      type: 'boolean',
+      default: 'true',
+      description: '↑ ↓ oxiridan boshiga aylanadi',
+    },
+    {
+      name: 'container',
+      type: 'HTMLElement | null',
+      description: 'Portal konteyneri (standart — document.body)',
+    },
+  ]}
+/>
+
+### DropdownMenu.Item
+
+<PropsTable
+  rows={[
+    { name: 'icon', type: 'ReactNode', description: 'Chapdagi ikonka (16px)' },
+    {
+      name: 'shortcut',
+      type: 'string[]',
+      description: "O'ngdagi Kbd yorlig'i, masalan ['mod', 'E']",
+    },
+    {
+      name: 'variant',
+      type: "'default' | 'danger'",
+      default: "'default'",
+      description: 'danger — qizil matn va fon',
+    },
+    {
+      name: 'onSelect',
+      type: '(event: Event) => void',
+      description: 'Tanlanganda. preventDefault() — menyu ochiq qoladi',
+    },
+    { name: 'disabled', type: 'boolean', description: "Elementni o'chiradi" },
+    {
+      name: 'textValue',
+      type: 'string',
+      description: "Typeahead uchun matn (children matn bo'lmasa)",
+    },
+    {
+      name: 'asChild',
+      type: 'boolean',
+      default: 'false',
+      description: 'Bolani (masalan, <a>) element sifatida chizadi',
+    },
+  ]}
+/>
+
+### CheckboxItem, RadioGroup, RadioItem
+
+<PropsTable
+  rows={[
+    {
+      name: 'checked',
+      type: "boolean | 'indeterminate'",
+      description: 'CheckboxItem: belgilanganmi',
+    },
+    {
+      name: 'onCheckedChange',
+      type: '(checked: boolean) => void',
+      description: "CheckboxItem: o'zgarganda",
+    },
+    {
+      name: 'value',
+      type: 'string',
+      description: 'RadioGroup: tanlangan qiymat; RadioItem: qiymati',
+    },
+    { name: 'defaultValue', type: 'string', description: "RadioGroup: boshlang'ich qiymat" },
+    {
+      name: 'onValueChange',
+      type: '(value: string) => void',
+      description: "RadioGroup: o'zgarganda",
+    },
+    {
+      name: 'shortcut',
+      type: 'string[]',
+      description: "CheckboxItem va RadioItem: o'ngdagi Kbd",
+    },
+    { name: 'disabled', type: 'boolean', description: "CheckboxItem va RadioItem: o'chiradi" },
+  ]}
+/>
+
+### Sub, SubTrigger, SubContent
+
+`Sub` — `open`, `defaultOpen`, `onOpenChange`. `SubTrigger` — `icon` va `disabled`.
+`SubContent` — `sideOffset` (standart `8`), `alignOffset` (`-6`), `collisionPadding` (`8`),
+`loop` (`true`) va `container`.
+
+### Data atributlari
+
+| Atribut            | Qayerda            | Qiymat                              |
+| ------------------ | ------------------ | ----------------------------------- |
+| `data-state`       | trigger, panel     | `open` · `closed`                   |
+| `data-variant`     | element            | `default` · `danger`                |
+| `data-highlighted` | element            | klaviatura yoki sichqoncha ustida   |
+| `data-disabled`    | element            | o'chirilganda mavjud                |
+| `data-state`       | Checkbox/RadioItem | `checked` · `unchecked`             |
+| `data-side`        | panel              | `top` · `right` · `bottom` · `left` |
+
+## Klaviatura
+
+| Tugma                   | Harakat                                            |
+| ----------------------- | -------------------------------------------------- |
+| `Enter` / `Space` / `↓` | Trigger fokusda — ochadi, fokus birinchi elementga |
+| `↓` / `↑`               | Elementlar bo'ylab yurish (aylanma)                |
+| `Home` / `End`          | Birinchi / oxirgi element                          |
+| Harf                    | Shu harf bilan boshlanadigan elementga sakrash     |
+| `→` / `←`               | Ichki menyuni ochish / yopish                      |
+| `Enter` / `Space`       | Tanlash va yopish                                  |
+| `Esc`                   | Yopish, fokus triggerga qaytadi                    |
+
+## Accessibility
+
+- **Rollar.** Panel — `role="menu"`, elementlar — `menuitem`, `menuitemcheckbox`,
+  `menuitemradio`; trigger `aria-haspopup="menu"` va `aria-expanded` oladi. Asosida Radix
+  DropdownMenu.
+- **Qisqa yo'llar.** `shortcut` berilsa, elementga `aria-keyshortcuts` qo'yiladi (`mod` —
+  macOS'da `Meta`, boshqa tizimlarda `Control`). Ko'rinadigan `Kbd` esa ekran o'quvchidan
+  yashirin.
+- **Ikonkalar** `aria-hidden`.
+- **Ikonka trigger.** `IconButton` trigger bo'lsa, `aria-label` yozing ("Ko'proq amallar").
+- **Fokus.** Ochilganda fokus menyuga o'tadi, yopilgach triggerga qaytadi.

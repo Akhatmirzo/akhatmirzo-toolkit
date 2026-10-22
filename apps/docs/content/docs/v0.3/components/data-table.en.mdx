@@ -1,0 +1,579 @@
+---
+title: DataTable
+description: A data table with sorting, Uzbek-aware search, filters, selection, pagination, server mode and virtual scrolling.
+---
+
+<ComponentPreview name="data-table/basic" align="start" />
+
+## Import
+
+```tsx
+import { DataTable, type DataTableColumn } from '@akhatmirzo/ui';
+```
+
+`DataTable` is built on [TanStack Table](https://tanstack.com/table), but you don't need to know
+its API: give it `data` and a list of `columns`, and sorting, search, filters, pagination and the
+loading, empty and error states are ready to go.
+
+## When to use
+
+- **Many records with the same shape** — orders, customers, payments, employees. Users compare,
+  sort and search.
+- **For a short list** (5–10 rows, no sorting) a plain `<table>` or a few [Cards](./card.mdx) are
+  enough.
+- **Lots of data** (thousands of rows) — two options: paginate on the server (`manual`), or, if
+  everything is already in the browser, use `virtual`.
+- **Rows that open something** — use `onRowClick`; for several actions per row use `rowActions`
+  (usually a [DropdownMenu](./dropdown-menu.mdx)).
+- **Mark number columns as `numeric`** — they align right and use equal-width digits
+  (`tabular-nums`), so amounts are easy to compare at a glance.
+
+## Columns
+
+Each column is a `DataTableColumn<T>` object. The minimum is `key` and `header`: the value comes
+from `row[key]` and is rendered as text. Everything else is optional:
+
+```tsx title="columns.tsx"
+import { formatDate, formatMoney } from '@akhatmirzo/core';
+import { Badge, type DataTableColumn } from '@akhatmirzo/ui';
+
+export interface Order {
+  id: number;
+  customer: { name: string; phone: string };
+  date: Date;
+  status: 'paid' | 'pending';
+  total: number;
+}
+
+export const columns: DataTableColumn<Order>[] = [
+  { key: 'id', header: '№', width: 88, sortable: true, hideable: false },
+  {
+    key: 'customer',
+    header: 'Mijoz',
+    accessor: (o) => o.customer.name, // sorting, filters and search use this value
+    sortable: true,
+  },
+  {
+    key: 'phone',
+    header: 'Telefon',
+    accessor: (o) => o.customer.phone,
+    hidden: true, // can be turned on from the "Columns" menu
+  },
+  {
+    key: 'date',
+    header: 'Sana',
+    sortable: true,
+    filter: 'date',
+    searchable: false,
+    cell: (o) => formatDate(o.date, 'dd.MM.yyyy, HH:mm'),
+  },
+  {
+    key: 'status',
+    header: 'Holat',
+    filter: 'multiselect',
+    filterOptions: [
+      { value: 'paid', label: "To'langan" },
+      { value: 'pending', label: 'Kutilmoqda' },
+    ],
+    searchValue: (o) => (o.status === 'paid' ? "To'langan" : 'Kutilmoqda'),
+    cell: (o) =>
+      o.status === 'paid' ? <Badge color="success">To'langan</Badge> : <Badge>Kutilmoqda</Badge>,
+  },
+  {
+    key: 'total',
+    header: 'Summa',
+    numeric: true,
+    sortable: true,
+    filter: 'range',
+    cell: (o) => formatMoney(o.total),
+  },
+];
+```
+
+<PropsTable
+  rows={[
+    {
+      name: 'key',
+      type: 'string',
+      required: true,
+      description: 'Column id; without accessor, the value is row[key]',
+    },
+    { name: 'header', type: 'ReactNode', required: true, description: 'Column heading' },
+    {
+      name: 'accessor',
+      type: '(row: T) => unknown',
+      description: 'Value used for sorting, filters and search (defaults to row[key])',
+    },
+    {
+      name: 'cell',
+      type: '(row: T) => ReactNode',
+      description: 'How the cell renders (defaults to the value as text; dates as dd.MM.yyyy)',
+    },
+    { name: 'width', type: 'number | string', description: 'Width: px or any CSS value' },
+    {
+      name: 'align',
+      type: "'left' | 'center' | 'right'",
+      description: 'Alignment (left by default, right for numeric)',
+    },
+    { name: 'numeric', type: 'boolean', description: 'Right-aligned, tabular-nums' },
+    { name: 'sortable', type: 'boolean', description: 'Sort by clicking the header' },
+    {
+      name: 'filter',
+      type: "'select' | 'multiselect' | 'range' | 'date'",
+      description: 'Filter type (in the "Filters" popover)',
+    },
+    {
+      name: 'filterOptions',
+      type: 'DataTableFilterOption[]',
+      description:
+        'select / multiselect options { value, label } (defaults to unique values in the data)',
+    },
+    {
+      name: 'filterLabel',
+      type: 'string',
+      description: 'Name in the filter and its badge (defaults to the header text or key)',
+    },
+    {
+      name: 'searchable',
+      type: 'boolean',
+      default: 'true',
+      description: 'Include the column in the global search',
+    },
+    {
+      name: 'searchValue',
+      type: '(row: T) => string',
+      description: 'Text to search (e.g. a status name instead of its code)',
+    },
+    {
+      name: 'hideable',
+      type: 'boolean',
+      default: 'true',
+      description: 'Can be hidden from the "Columns" menu',
+    },
+    { name: 'hidden', type: 'boolean', description: 'Hidden initially' },
+    { name: 'className', type: 'string', description: 'Class for the cell (td)' },
+  ]}
+/>
+
+<Callout title="Keep value and display apart">
+  `cell` is for display only. Sorting, filters and search work on the **value** (`accessor` or
+  `row[key]`). So store amounts as `number` and dates as `Date`, and format them in `cell` — sorting
+  stays correct, and a search finds both "1042" and "1 042".
+</Callout>
+
+## Sorting
+
+Click a `sortable` header: ascending → descending → off. Hold `Shift` to **add** the column to the
+current sort (multi-column sorting); the header shows its position. Sorting understands the value
+type: numbers, dates, booleans and text (Uzbek alphabet order, `"10" > "9"`); empty values go
+last.
+
+Set an initial sort with `initialState`:
+
+```tsx
+<DataTable
+  data={orders}
+  columns={columns}
+  initialState={{ sorting: [{ id: 'date', desc: true }] }}
+/>
+```
+
+## Search
+
+`searchable` adds a search field above the table. It's debounced by 300ms and understands how
+Uzbek is written: Cyrillic and Latin match each other (`жасур` → "Jasur"), and `oʻ`, `o'` and
+`o‘` are treated the same. It searches every column except those with `searchable: false`; give
+columns whose display differs from the value a `searchValue`.
+
+## Filters
+
+Add `filter` to a column and a "Filtrlar" (filters) button appears in the toolbar. Active filters
+show up as badges above the table and can be removed with ✕. When nothing matches, a "Filtrlarni
+tozalash" (clear filters) button appears.
+
+| Type          | Control                    | Value (`DataTableFilterValue`)               |
+| ------------- | -------------------------- | -------------------------------------------- |
+| `select`      | Radio: one value           | `string`                                     |
+| `multiselect` | Checkboxes: several values | `string[]`                                   |
+| `range`       | Two numbers: from — to     | `{ min?: number; max?: number }`             |
+| `date`        | Two dates: start — end     | `{ from?: Date \| null; to?: Date \| null }` |
+
+`select` and `multiselect` options come from `filterOptions`, or from the unique values in the
+data, each with a row count next to it. A `date` range includes both ends (the end day too). The
+demo below sets an initial filter through `initialState`.
+
+<ComponentPreview name="data-table/filters" align="start" />
+
+## Selection and bulk actions
+
+`selectable` adds a checkbox column. The header checkbox selects the current page (and shows an
+indeterminate state for a partial selection). Once a row is selected, the toolbar turns into a
+**bulk actions bar**: "2 ta tanlandi" (2 selected), your `bulkActions` buttons and "Bekor qilish"
+(clear). `Shift`-click a checkbox to select a range.
+
+<ComponentPreview name="data-table/selection" align="start" />
+
+```tsx
+<DataTable
+  data={products}
+  columns={columns}
+  selectable
+  getRowId={(p) => p.sku} // defaults to row.id, or the row index
+  onSelectionChange={(ids) => setSelectedIds(ids)}
+  bulkActions={(rows, clearSelection) => (
+    <Button
+      size="sm"
+      onClick={() => {
+        toast(`${rows.length} products archived`);
+        clearSelection();
+      }}
+    >
+      Archive
+    </Button>
+  )}
+/>
+```
+
+Selection can be controlled too: `selectedIds` + `onSelectionChange`. `rowActions` renders actions
+at the end of each row (clicking them doesn't trigger `onRowClick`).
+
+## Pagination
+
+`pagination={{ pageSize: 10 }}` adds "1–10 / 248", page numbers and a page size picker at the
+bottom (options 10, 25, 50, 100 by default; change them with `pageSizeOptions`). Changing the
+sort, search or filters jumps back to the first page; if a deletion empties the current page, the
+table moves to the last page that still exists. Without `pagination`, every row renders at once —
+for large data sets use `virtual` (which also shows a row count at the bottom).
+
+## States
+
+| State         | What you see                                                            |
+| ------------- | ----------------------------------------------------------------------- |
+| First load    | `loading` + empty `data` — skeleton rows                                |
+| Refetching    | `loading` + previous `data` — 60% opacity and a thin progress bar       |
+| No data       | `empty` — icon, title, description, action button                       |
+| Nothing found | Empty search/filter result — "Filtrlarni tozalash"                      |
+| Error         | `error` (text or `true`) + `onRetry` — a "Qayta urinish" (retry) button |
+
+While refetching, the table doesn't jump — the old data stays in place. Click through the states:
+
+<ComponentPreview name="data-table/states" align="start" />
+
+## Server mode
+
+When the server sorts, filters and paginates, pass `manual`. The table leaves the data alone and
+reports sorting, search, filters and page through `onStateChange`; you send that state to your
+API. Pass the total number of records as `rowCount` for pagination.
+
+<ComponentPreview name="data-table/server" align="start" />
+
+The state passed to `onStateChange` (`DataTableState`):
+
+```ts
+interface DataTableState {
+  sorting: { id: string; desc: boolean }[]; // id — the column key
+  search: string; // value after the 300ms debounce
+  filters: Record<string, DataTableFilterValue>; // column key → filter value
+  pagination: { pageIndex: number; pageSize: number }; // pageIndex starts at 0
+}
+```
+
+In a real app you turn the state into URL parameters and `fetch`:
+
+```tsx title="OrdersTable.tsx"
+import { DataTable, type DataTableState } from '@akhatmirzo/ui';
+import { useEffect, useState } from 'react';
+import { columns, type Order } from './columns';
+
+export function OrdersTable() {
+  const [state, setState] = useState<DataTableState>({
+    sorting: [],
+    search: '',
+    filters: {},
+    pagination: { pageIndex: 0, pageSize: 25 },
+  });
+  const [page, setPage] = useState<{ rows: Order[]; total: number }>({ rows: [], total: 0 });
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string>();
+
+  useEffect(() => {
+    const controller = new AbortController();
+    const params = new URLSearchParams({
+      page: String(state.pagination.pageIndex + 1),
+      size: String(state.pagination.pageSize),
+      q: state.search,
+      sort: state.sorting.map((s) => (s.desc ? '-' : '') + s.id).join(','),
+      filters: JSON.stringify(state.filters),
+    });
+    setLoading(true);
+    fetch(`/api/orders?${params}`, { signal: controller.signal })
+      .then((res) => res.json())
+      .then((data: { rows: Order[]; total: number }) => {
+        setPage(data);
+        setError(undefined);
+        setLoading(false);
+      })
+      .catch((err: Error) => {
+        if (err.name === 'AbortError') return;
+        setError('The server did not respond');
+        setLoading(false);
+      });
+    return () => controller.abort();
+  }, [state]);
+
+  return (
+    <DataTable
+      label="Orders"
+      data={page.rows}
+      rowCount={page.total}
+      columns={columns}
+      manual
+      searchable
+      pagination={{ pageSize: 25 }}
+      loading={loading}
+      error={error}
+      onRetry={() => setState({ ...state })}
+      onStateChange={setState}
+    />
+  );
+}
+```
+
+<Callout title="Filter options in server mode" type="warn">
+  With `manual`, the table only sees the current page, so always pass `filterOptions` for `select`
+  and `multiselect` filters — otherwise the options are collected from the visible rows only. Row
+  counts next to the options aren't shown in this mode.
+</Callout>
+
+## Virtual scrolling — 10,000 rows
+
+If all the data is in the browser and you don't want pages, use `virtual`. Only the visible rows
+(plus a small buffer, `virtual={{ overscan: 10 }}`) are in the DOM, while sorting, search and
+filters still work on the full data set. The height comes from `maxHeight` (480px by default), and
+the header is sticky. `pagination` is ignored together with `virtual`.
+
+<ComponentPreview name="data-table/virtual" align="start" />
+
+For lists that aren't tables, the same technique is available as
+[VirtualList](./virtual-list.mdx).
+
+## Density, sticky column and column visibility
+
+- `density="compact"` — 40px rows (the default `comfortable` is 52px).
+- `stickyFirstColumn` — the first column (and the selection checkbox) stays put during horizontal
+  scrolling. On a narrow screen, scroll the demo sideways.
+- The "Ustunlar" (columns) menu (`columnToggle`, on by default) shows and hides columns;
+  `hideable: false` columns aren't listed, `hidden: true` starts them hidden.
+- With `maxHeight`, the header sticks inside the table's scroll area.
+
+<ComponentPreview name="data-table/density" align="start" />
+
+## Cards on phones
+
+By default, a narrow screen scrolls the table horizontally. `mobileView="cards"` turns each row
+into a card (header: value) below 640px. Make your browser window narrower to see it.
+
+<ComponentPreview name="data-table/cards" align="start" />
+
+## Props
+
+Accepts the remaining `<div>` attributes (on the root). `className` goes on the root,
+`tableClassName` on the `<table>`.
+
+### Data
+
+<PropsTable
+  rows={[
+    { name: 'data', type: 'readonly T[]', required: true, description: 'Rows' },
+    {
+      name: 'columns',
+      type: 'readonly DataTableColumn<T>[]',
+      required: true,
+      description: 'Columns (see the table above)',
+    },
+    {
+      name: 'getRowId',
+      type: '(row: T, index: number) => string',
+      description: 'Row id (for selection). Defaults to row.id, or the row index',
+    },
+    { name: 'label', type: 'string', description: 'Table name for screen readers' },
+  ]}
+/>
+
+### Features
+
+<PropsTable
+  rows={[
+    {
+      name: 'searchable',
+      type: 'boolean',
+      default: 'false',
+      description: 'Global search (300ms, Uzbek-aware)',
+    },
+    { name: 'selectable', type: 'boolean', default: 'false', description: 'Checkbox column' },
+    { name: 'selectedIds', type: 'string[]', description: 'Selected rows (controlled)' },
+    { name: 'defaultSelectedIds', type: 'string[]' },
+    { name: 'onSelectionChange', type: '(ids: string[], rows: T[]) => void' },
+    {
+      name: 'bulkActions',
+      type: '(rows: T[], clearSelection: () => void) => ReactNode',
+      description: 'Bulk actions bar',
+    },
+    {
+      name: 'pagination',
+      type: 'false | { pageSize?: number; pageSizeOptions?: number[] }',
+      description: 'Pagination; off when omitted',
+    },
+    {
+      name: 'virtual',
+      type: 'boolean | { overscan?: number }',
+      default: 'false',
+      description: 'Virtual scrolling (instead of pages)',
+    },
+    {
+      name: 'maxHeight',
+      type: 'number | string',
+      description: 'Height of the table area; 480 by default with virtual. Makes the header sticky',
+    },
+    {
+      name: 'columnToggle',
+      type: 'boolean',
+      default: 'true',
+      description: 'The "Columns" menu',
+    },
+    {
+      name: 'initialState',
+      type: 'Partial<DataTableState>',
+      description: 'Initial sorting, search, filters and page',
+    },
+    {
+      name: 'onRowClick',
+      type: '(row: T) => void',
+      description: 'Called on row click (or Enter)',
+    },
+    {
+      name: 'rowActions',
+      type: '(row: T) => ReactNode',
+      description: 'Actions at the end of a row',
+    },
+    {
+      name: 'toolbar',
+      type: 'ReactNode',
+      description: 'Extra toolbar content (e.g. an "Add" button)',
+    },
+  ]}
+/>
+
+### Server mode
+
+<PropsTable
+  rows={[
+    {
+      name: 'manual',
+      type: 'boolean',
+      default: 'false',
+      description: 'Sorting, filters and paging are not applied to data',
+    },
+    { name: 'rowCount', type: 'number', description: 'Total records in manual mode' },
+    {
+      name: 'onStateChange',
+      type: '(state: DataTableState) => void',
+      description: 'Called when the state changes (in any mode)',
+    },
+  ]}
+/>
+
+### States and appearance
+
+<PropsTable
+  rows={[
+    {
+      name: 'loading',
+      type: 'boolean',
+      default: 'false',
+      description: 'No data — skeleton; with data — faded + progress bar',
+    },
+    { name: 'error', type: 'ReactNode', description: 'Error text, or true' },
+    { name: 'onRetry', type: '() => void', description: 'Shows a retry button' },
+    {
+      name: 'empty',
+      type: 'DataTableEmptyState',
+      description: 'Empty state: { icon, title, description, action } (all ReactNode)',
+    },
+    {
+      name: 'density',
+      type: "'comfortable' | 'compact'",
+      default: "'comfortable'",
+      description: 'Row height: 52 / 40px',
+    },
+    { name: 'stickyFirstColumn', type: 'boolean', default: 'false' },
+    {
+      name: 'mobileView',
+      type: "'table' | 'cards'",
+      default: "'table'",
+      description: 'Layout on phones (< 640px)',
+    },
+    { name: 'labels', type: 'DataTableLabels', description: 'All UI strings' },
+    { name: 'tableClassName', type: 'string', description: 'Class for the <table>' },
+  ]}
+/>
+
+### Strings (`labels`)
+
+Every string has an Uzbek default; override only the keys you need. Strings that include a number
+are functions:
+
+```tsx
+<DataTable
+  labels={{
+    search: 'Search by customer, № or region',
+    selected: (n) => `${n} orders selected`,
+    range: (from, to, total) => `${from}–${to} of ${total}`,
+  }}
+/>
+```
+
+Keys: `search`, `searchAria`, `filters`, `columns`, `selectAll`, `selectRow`, `selected`,
+`clearSelection`, `emptyTitle`, `emptyDescription`, `noResultsTitle`, `noResultsDescription`,
+`clearFilters`, `errorTitle`, `retry`, `range`, `total`, `noRows`, `pageSize`, `prevPage`,
+`nextPage`, `page`, `pagination`, `rowActions`, `loading`, `all`, `min`, `max`, `from`, `to`,
+`removeFilter`.
+
+### Data attributes
+
+| Attribute       | Element     | Value                    |
+| --------------- | ----------- | ------------------------ |
+| `data-row-id`   | `tr`        | the row id               |
+| `data-selected` | `tr`        | present on selected rows |
+| `data-sorted`   | sort button | `asc` · `desc`           |
+
+`data-slot`: `data-table`, `data-table-toolbar`, `data-table-bulk`, `data-table-scroll`,
+`data-table-footer`, `data-table-state`.
+
+## Keyboard
+
+| Key                   | Action                                             |
+| --------------------- | -------------------------------------------------- |
+| `Tab`                 | Search, filters, header buttons, rows, row actions |
+| `Enter` (on a header) | Sort: ascending → descending → off                 |
+| `Enter` (on a row)    | `onRowClick`                                       |
+| `Space` (on a row)    | Toggle selection (`selectable`)                    |
+
+Rows are focusable only when `onRowClick` or `selectable` is set.
+
+## Accessibility
+
+- **A real `<table>`** with `<th scope="col">`; the table is named through `label`
+  (`aria-label`).
+- **Sorting** is exposed on the header with `aria-sort` (`ascending` / `descending` / `none`);
+  sortable headers are `<button>`s.
+- **Loading** sets `aria-busy` on the table; the refetch bar is a `role="progressbar"`.
+- **State messages** (empty, nothing found) use `role="status"`; errors use `role="alert"`.
+- **Selection:** each checkbox is labelled `"Qatorni tanlash: <id>"` (select row), the header one
+  "Hammasini tanlash" (select all); "N ta tanlandi" is announced via `aria-live`.
+- **Pagination** is a `<nav aria-label="Sahifalash">`, the current page has `aria-current="page"`,
+  and "1–10 / 248" lives in an `aria-live` region.
+- **Filters:** every group is labelled, and each badge's ✕ button has a name like "Holat filtrini
+  olib tashlash" (remove the status filter).
+- **Virtual mode** sets `aria-rowcount` and `aria-rowindex` on each row, so screen readers know the
+  total number of rows.

@@ -1,0 +1,273 @@
+---
+title: Toast
+description: 'Qisqa bildirishnomalar: imperativ toast() API, promise kuzatish, amal tugmasi va dasta.'
+---
+
+<ComponentPreview name="toast/types" />
+
+## Import
+
+```tsx
+import { toast, Toaster } from '@akhatmirzo/ui';
+```
+
+## Qachon ishlatish
+
+- **Harakat natijasi haqida xabar** — "Saqlandi", "Havola nusxalandi", "To'lov qabul qilindi".
+  Foydalanuvchi ishini to'xtatmaydi va o'zi yo'qoladi.
+- **Bekor qilish (undo)** — o'chirishdan keyin `action` bilan "Qaytarish" tugmasi. Ko'pincha
+  `confirm()` dan qulayroq: foydalanuvchini savol bilan to'xtatmaysiz.
+- **Uzoq jarayon holati** — `toast.promise()` yoki `toast.loading()` + `{ id }` bilan bitta
+  toast "yuklanmoqda" dan natijaga o'tadi.
+- **Javob talab qiladigan savol** uchun toast emas, [`confirm()`](./dialog.mdx) kerak. Forma
+  maydonidagi xato esa maydon yonida — `Field` ning `error` prop'ida — ko'rsatiladi.
+
+## Toaster — o'rnatish
+
+`toast()` modul darajasidagi store'ga yozadi, ekranga esa `<Toaster />` chizadi. Ilovada **bitta**
+`<Toaster />` bo'lishi shart — u bo'lmasa, `toast()` xato bermaydi, lekin hech narsa ko'rinmaydi.
+
+```tsx title="app/providers.tsx"
+'use client';
+
+import { Toaster } from '@akhatmirzo/ui';
+import type { ReactNode } from 'react';
+
+export function Providers({ children }: { children: ReactNode }) {
+  return (
+    <>
+      {children}
+      <Toaster position="bottom-right" />
+    </>
+  );
+}
+```
+
+Shundan keyin `toast()` ni istalgan joydan chaqirasiz — komponent ichidan, hodisa
+ishlovchisidan, hatto React tashqarisidagi oddiy funksiyadan ham (masalan, API klientidagi xato
+ishlovchisidan).
+
+## Turlar
+
+| Funksiya          | Ikonka           | Standart davomiylik |
+| ----------------- | ---------------- | ------------------- |
+| `toast()`         | yo'q             | 4 s                 |
+| `toast.success()` | yashil ✓         | 4 s                 |
+| `toast.error()`   | qizil !          | 6 s                 |
+| `toast.warning()` | sariq uchburchak | 4 s                 |
+| `toast.info()`    | ko'k i           | 4 s                 |
+| `toast.loading()` | spinner          | cheksiz             |
+
+Har bir funksiya toast `id` sini qaytaradi. `toast.dismiss(id)` bitta toastni, `toast.dismiss()`
+— hammasini yopadi.
+
+## Izoh va amal
+
+`description` — ikkinchi qator. `action` — o'ngda kichik tugma: `{ label, onClick }`. Tugma
+bosilgach toast yopiladi; ochiq qolishi kerak bo'lsa, `onClick` ichida `event.preventDefault()`
+chaqiring.
+
+<ComponentPreview name="toast/action" />
+
+```tsx
+toast("Mahsulot o'chirildi", {
+  description: 'iPhone 15 Pro, 256 GB',
+  action: { label: 'Qaytarish', onClick: () => restoreProduct(id) },
+});
+```
+
+## toast.promise()
+
+Promise holatini kuzatadi: avval `loading`, keyin `success` yoki `error` — hammasi bitta toastda.
+`success` va `error` o'rniga funksiya bersangiz, natija yoki xato obyektini oladi. Promise o'rniga
+promise qaytaradigan funksiya ham berish mumkin. `toast.promise()` asl promise'ni qaytaradi —
+`await` qilish yoki `.catch()` ulash mumkin.
+
+<ComponentPreview name="toast/promise" />
+
+```tsx
+const order = await toast.promise(api.saveOrder(data), {
+  loading: 'Saqlanmoqda...',
+  success: (o) => `Buyurtma #${o.id} saqlandi`,
+  error: (e) => `Xatolik: ${(e as Error).message}`,
+});
+```
+
+## id bilan yangilash
+
+`{ id }` berilsa, shu id'li toast yangilanadi (yo'q bo'lsa — shu id bilan yaratiladi). Turini,
+matnini va izohini o'zgartirish mumkin; taymer qaytadan boshlanadi.
+
+<ComponentPreview name="toast/update" />
+
+## Dasta (stack)
+
+Bir vaqtda ko'pi bilan 3 ta toast ko'rinadi (`visibleToasts`), qolganlari navbat kutadi va
+ularning taymeri to'xtab turadi. Toastlar ustma-ust "dasta" bo'lib turadi; sichqoncha ustiga
+borsa yoki fokus tushsa — yoyiladi va barcha taymerlar to'xtaydi. Toastni chetga surib (swipe)
+yopish mumkin.
+
+<ComponentPreview name="toast/stack" />
+
+## Props
+
+### toast(title, options?)
+
+`title` — `ReactNode`. Barcha funksiyalar (`toast.success` ...) bir xil opsiyalarni oladi,
+faqat `type` dan tashqari.
+
+<PropsTable
+  rows={[
+    {
+      name: 'id',
+      type: 'string | number',
+      description: "Shu id'li toast bo'lsa — yangilanadi, bo'lmasa shu id bilan yaratiladi",
+    },
+    {
+      name: 'type',
+      type: "'default' | 'success' | 'error' | 'warning' | 'info' | 'loading'",
+      default: "'default'",
+      description: 'Faqat toast() da; qolganlarida funksiya nomidan olinadi',
+    },
+    { name: 'description', type: 'ReactNode', description: 'Ikkinchi qator' },
+    {
+      name: 'action',
+      type: '{ label: ReactNode; onClick?: (event) => void; altText?: string }',
+      description: "O'ngdagi tugma. altText — label matn bo'lmasa, ekran o'quvchi uchun",
+    },
+    {
+      name: 'duration',
+      type: 'number',
+      default: '4000',
+      description: 'ms. error — 6000, loading — Infinity',
+    },
+    {
+      name: 'icon',
+      type: 'ReactNode',
+      description: 'Status ikonkasini almashtiradi; null — ikonkasiz',
+    },
+    {
+      name: 'onDismiss',
+      type: '(id: ToastId) => void',
+      description: 'Toast har qanday sabab bilan yopilganda',
+    },
+  ]}
+/>
+
+### toast.promise(promise, messages, options?)
+
+<PropsTable
+  rows={[
+    {
+      name: 'promise',
+      type: 'Promise<T> | (() => Promise<T>)',
+      required: true,
+      description: 'Kuzatiladigan promise yoki uni qaytaradigan funksiya',
+    },
+    { name: 'messages.loading', type: 'ReactNode', required: true, description: 'Kutish matni' },
+    {
+      name: 'messages.success',
+      type: 'ReactNode | ((data: T) => ReactNode)',
+      required: true,
+      description: 'Muvaffaqiyat matni',
+    },
+    {
+      name: 'messages.error',
+      type: 'ReactNode | ((error: unknown) => ReactNode)',
+      required: true,
+      description: 'Xato matni',
+    },
+    {
+      name: 'options',
+      type: "Omit<ToastOptions, 'type' | 'duration'>",
+      description: 'description, action, icon ... (uchala bosqichda ham)',
+    },
+  ]}
+/>
+
+Qaytaradi: asl `Promise<T>`.
+
+### Toaster
+
+<PropsTable
+  rows={[
+    {
+      name: 'position',
+      type: "'top-left' | 'top-center' | 'top-right' | 'bottom-left' | 'bottom-center' | 'bottom-right'",
+      default: "'bottom-right'",
+      description: "Telefonda (< 640px) doim pastda, to'liq kenglikda",
+    },
+    {
+      name: 'duration',
+      type: 'number',
+      default: '4000',
+      description: 'Standart davomiylik, ms (error — 6000, loading — cheksiz)',
+    },
+    {
+      name: 'visibleToasts',
+      type: 'number',
+      default: '3',
+      description: "Bir vaqtda ko'rinadigan toastlar soni",
+    },
+    {
+      name: 'gap',
+      type: 'number',
+      default: '8',
+      description: 'Yoyilgan holatda toastlar orasidagi masofa, px',
+    },
+    {
+      name: 'closeButton',
+      type: 'boolean',
+      default: 'false',
+      description: 'Har bir toastda ✕ tugmasi',
+    },
+    {
+      name: 'hotkey',
+      type: 'string[]',
+      default: "['F8']",
+      description: "Toast hududiga fokus o'tkazadigan tugma",
+    },
+    {
+      name: 'labels',
+      type: '{ region?: string; toast?: string; close?: string }',
+      description: "Ekran o'quvchi matnlari (pastda)",
+    },
+    { name: 'className', type: 'string', description: 'Toastlar hududi (viewport) klassi' },
+  ]}
+/>
+
+`labels` standart qiymatlari: `region` — `'Bildirishnomalar ({hotkey})'` (`{hotkey}` tugma nomi
+bilan almashtiriladi), `toast` — `'Bildirishnoma'` (e'lon oldidan qo'shiladigan so'z), `close` —
+`'Yopish'`.
+
+### Data atributlari
+
+| Atribut         | Qayerda      | Qiymat                                                           |
+| --------------- | ------------ | ---------------------------------------------------------------- |
+| `data-type`     | toast        | `default` · `success` · `error` · `warning` · `info` · `loading` |
+| `data-index`    | toast        | dastadagi o'rni (0 — eng oldingi)                                |
+| `data-front`    | toast        | eng oldingi toastda mavjud                                       |
+| `data-expanded` | toast, hudud | dasta yoyilganda mavjud                                          |
+| `data-position` | hudud        | `position` qiymati                                               |
+
+## Klaviatura
+
+| Tugma             | Harakat                                        |
+| ----------------- | ---------------------------------------------- |
+| `F8`              | Fokusni toastlar hududiga o'tkazadi (`hotkey`) |
+| `Tab`             | Toastlar va ulardagi tugmalar bo'ylab yurish   |
+| `Esc`             | Fokusdagi toastni yopadi                       |
+| `Enter` / `Space` | Amal yoki ✕ tugmasini bosish                   |
+
+## Accessibility
+
+- **E'lon qilish.** Toast `role="status"` bilan chiziladi — ekran o'quvchi ishni bo'lmasdan
+  o'qiydi. `error` turi — `role="alert"`, darhol e'lon qilinadi.
+- **Taymer to'xtaydi** sichqoncha ustida turganda yoki fokus toastlar hududida bo'lganda —
+  foydalanuvchi matnni o'qib ulguradi.
+- **Klaviatura bilan yetish.** `F8` (yoki `hotkey`) fokusni toastlar hududiga o'tkazadi, hudud
+  "Bildirishnomalar (F8)" nomini oladi.
+- **Amal tugmasi.** `label` matn bo'lmasa (masalan, ikonka), `altText` yozing — ekran o'quvchi
+  shu matnni aytadi.
+- **Yashirin toastlar** (navbatdagilar) `inert` — fokus ularga tushmaydi.
+- **Kamroq harakat.** `prefers-reduced-motion` da siljish o'rniga shaffoflik animatsiyasi.

@@ -3,7 +3,7 @@ title: MaskedInput
 description: "Yozish paytida formatlanadigan maydonlar: telefon, summa, karta raqami va o'z niqobingiz."
 ---
 
-<ComponentPreview name="masked-input/overview" align="start" />
+<ComponentPreview name="archive/v0.2/masked-input/overview" align="start" />
 
 ## Import
 
@@ -48,7 +48,7 @@ O'zbekiston raqami: `+998` — o'chirib bo'lmaydigan prefiks, foydalanuvchi faqa
 50, 55, 77, 88, 90, 91, 93, 94, 95, 97, 98, 99) — noto'g'ri kodda maydon avtomatik `invalid`
 bo'ladi.
 
-<ComponentPreview name="masked-input/phone" align="start" />
+<ComponentPreview name="archive/v0.2/masked-input/phone" align="start" />
 
 `onValueChange` ikkinchi argumentda tafsilotlarni beradi: `{ valid, operator, complete }`. Xuddi
 shu ma'lumotni komponentdan tashqarida `getPhoneDetails(value)` bilan olasiz — masalan forma
@@ -66,27 +66,12 @@ getPhoneDetails('121234567'); // { valid: false, operator: null, complete: true 
 Minglik ajratuvchi — bo'sh joy, o'ngda valyuta (standart — "so'm"). Qiymat — `number | null`.
 Mobilda raqamli klaviatura ochiladi (`decimals` bo'lsa — kasr nuqtasi bilan).
 
-<ComponentPreview name="masked-input/money" align="start" />
+<ComponentPreview name="archive/v0.2/masked-input/money" align="start" />
 
 - `decimals` — kasr raqamlari soni (standart `0`). Vergul bilan yozilsa ham nuqtaga aylanadi.
 - `max` — undan katta qiymatni yozib bo'lmaydi (belgi qabul qilinmaydi).
 - `min` — kichik qiymat maydondan chiqqanda (`blur`) `min` ga tenglashtiriladi.
 - `currency={null}` — valyuta ko'rsatilmaydi; `currency="$"` yoki istalgan `ReactNode`.
-
-## Summa so'zlar bilan
-
-`showWords` — summa maydon ostida so'z bilan yoziladi: "Bir million ikki yuz ellik ming soʻm".
-Shartnoma, hisob-faktura va to'lov formalarida raqamni tekshirishga yordam beradi. Matn
-`@akhatmirzo/core` dagi `moneyToWords` bilan yasaladi va yozish bilan birga yangilanadi.
-
-<ComponentPreview name="masked-input/money-words" align="start" />
-
-- `showWords={{ script: 'cyrillic' }}` — kirillda. `script` berilmasa,
-  [ScriptProvider](./script.mdx) dagi alifbo olinadi (provider bo'lmasa — lotin).
-- `showWords={{ formal: true }}` — rasmiy uslub: "bir yuz", "bir ming".
-- [Field](./field.mdx) ichida so'zlar `description` dan keyin, maydon ostida chiqadi va
-  `aria-describedby` ga qo'shiladi. Matn `aria-live="polite"` hududida — ekran o'quvchi yangi
-  summani o'qiydi.
 
 ## CardInput
 
@@ -94,7 +79,7 @@ Bank kartasi: 4 tadan guruh, o'ngda brend belgisi — **UZCARD** (8600), **HUMO*
 (4) va Mastercard (51–55, 2221–2720). 16 raqam kiritilganda Luhn tekshiruvi o'tkaziladi; o'tmasa —
 maydon `invalid`.
 
-<ComponentPreview name="masked-input/card" align="start" />
+<ComponentPreview name="archive/v0.2/masked-input/card" align="start" />
 
 Brend belgisi rasmiy logo emas — semantik tokenlardagi neytral matnli belgi (dark mode'da ham
 o'qiladi). Rasmiy logo kerak bo'lsa, `renderBrand` bilan o'zingiz chizing:
@@ -114,7 +99,7 @@ qilinadi (`<CardBrandMark brand="humo" />`).
 joydan tashqari). Qolgan har qanday belgi — doimiy, foydalanuvchi uni yozmaydi. `uppercase` —
 harflarni avtomatik katta qiladi.
 
-<ComponentPreview name="masked-input/custom-mask" align="start" />
+<ComponentPreview name="archive/v0.2/masked-input/custom-mask" align="start" />
 
 `onValueChange(value, { formatted, complete })` — `complete` barcha o'rinlar to'lganini bildiradi.
 Ildiz elementda `data-mask` atributi bor.
@@ -206,12 +191,6 @@ Barcha komponentlar [Input](./input.mdx) props'larini (`size`, `invalid`, `clear
       description: 'Kichik qiymat blur paytida min ga tenglashtiriladi',
     },
     { name: 'max', type: 'number', description: "Undan katta qiymatni yozib bo'lmaydi" },
-    {
-      name: 'showWords',
-      type: "boolean | { formal?: boolean; script?: 'latin' | 'cyrillic' }",
-      default: 'false',
-      description: "Summani maydon ostida so'z bilan ko'rsatish",
-    },
     { name: 'placeholder', type: 'string', default: "'0'" },
   ]}
 />

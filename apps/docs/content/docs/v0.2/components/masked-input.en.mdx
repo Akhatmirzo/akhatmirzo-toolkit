@@ -3,7 +3,7 @@ title: MaskedInput
 description: Fields that format as you type — phone, money, card number and your own masks.
 ---
 
-<ComponentPreview name="masked-input/overview" align="start" />
+<ComponentPreview name="archive/v0.2/masked-input/overview" align="start" />
 
 ## Import
 
@@ -47,7 +47,7 @@ An Uzbek phone number: `+998` is a fixed prefix that can't be deleted, so users 
 Pasting "+998 90 123 45 67" also lands correctly. The operator code is checked (33, 50, 55, 77, 88,
 90, 91, 93, 94, 95, 97, 98, 99); an unknown code marks the field `invalid` automatically.
 
-<ComponentPreview name="masked-input/phone" align="start" />
+<ComponentPreview name="archive/v0.2/masked-input/phone" align="start" />
 
 The second argument of `onValueChange` holds the details: `{ valid, operator, complete }`. Get the
 same data outside the component with `getPhoneDetails(value)` — handy for form validation.
@@ -64,27 +64,12 @@ getPhoneDetails('121234567'); // { valid: false, operator: null, complete: true 
 Spaces as the thousands separator, currency on the right ("so'm" by default). The value is
 `number | null`. Phones show a numeric keypad (with a decimal point when `decimals` is set).
 
-<ComponentPreview name="masked-input/money" align="start" />
+<ComponentPreview name="archive/v0.2/masked-input/money" align="start" />
 
 - `decimals` — number of decimal places (default `0`). A typed comma becomes a dot.
 - `max` — values above it can't be typed (the keystroke is rejected).
 - `min` — smaller values snap up to `min` when the field loses focus.
 - `currency={null}` hides the currency; pass `currency="$"` or any `ReactNode` to change it.
-
-## Amount in words
-
-`showWords` spells the amount under the field: "Bir million ikki yuz ellik ming soʻm". It helps
-users double-check numbers in contracts, invoices and payment forms. The text comes from
-`moneyToWords` in `@akhatmirzo/core` and updates as you type.
-
-<ComponentPreview name="masked-input/money-words" align="start" />
-
-- `showWords={{ script: 'cyrillic' }}` — in Cyrillic. Without `script`, the
-  [ScriptProvider](./script.mdx) script is used (Latin when there is no provider).
-- `showWords={{ formal: true }}` — formal style: "bir yuz", "bir ming".
-- Inside a [Field](./field.mdx), the words appear under the field, after the `description`, and
-  are added to `aria-describedby`. The text sits in an `aria-live="polite"` region, so screen
-  readers announce the new amount.
 
 ## CardInput
 
@@ -92,7 +77,7 @@ A bank card: groups of four, with a brand mark on the right — **UZCARD** (8600
 **VISA** (4) and Mastercard (51–55, 2221–2720). Once all 16 digits are in, the Luhn check runs; if
 it fails, the field becomes `invalid`.
 
-<ComponentPreview name="masked-input/card" align="start" />
+<ComponentPreview name="archive/v0.2/masked-input/card" align="start" />
 
 The brand mark isn't an official logo — it's a neutral text badge built from semantic tokens, so it
 reads well in dark mode too. Need the real logo? Draw it with `renderBrand`:
@@ -112,7 +97,7 @@ exported as well (`<CardBrandMark brand="humo" />`).
 whitespace. Every other character is fixed — the user never types it. `uppercase` capitalises
 letters as they're typed.
 
-<ComponentPreview name="masked-input/custom-mask" align="start" />
+<ComponentPreview name="archive/v0.2/masked-input/custom-mask" align="start" />
 
 `onValueChange(value, { formatted, complete })` — `complete` tells you every slot is filled. The
 root element carries a `data-mask` attribute.
@@ -204,12 +189,6 @@ Every component accepts the [Input](./input.mdx) props (`size`, `invalid`, `clea
     { name: 'decimals', type: 'number', default: '0', description: 'Decimal places' },
     { name: 'min', type: 'number', description: 'Smaller values snap to min on blur' },
     { name: 'max', type: 'number', description: "Larger values can't be typed" },
-    {
-      name: 'showWords',
-      type: "boolean | { formal?: boolean; script?: 'latin' | 'cyrillic' }",
-      default: 'false',
-      description: 'Spell the amount in words under the field',
-    },
     { name: 'placeholder', type: 'string', default: "'0'" },
   ]}
 />

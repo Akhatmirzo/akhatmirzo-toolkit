@@ -1,0 +1,111 @@
+---
+title: Badge
+description: 'Holat, kategoriya va filtr teglari uchun kichik yorliq: 6 rang, 3 variant, olib tashlash tugmasi.'
+---
+
+<ComponentPreview name="badge/colors" />
+
+## Import
+
+```tsx
+import { Badge } from '@akhatmirzo/ui';
+```
+
+## Qachon ishlatish
+
+- **Holatni ko'rsatish uchun** — "To'langan", "Kutilmoqda", "Bekor qilindi". Rang ma'noga mos
+  bo'lsin: `success` — yakunlangan, `warning` — kutilmoqda, `danger` — xato yoki bekor.
+- **Faqat rangga tayanmang.** Matn har doim holatni o'zi aytsin — rangni ajrata olmaydigan
+  foydalanuvchilar ham tushunsin.
+- **Filtr teglari uchun** — `onRemove` bilan ✕ tugmasi chiqadi.
+- **Bosiladigan element emas.** Badge — yorliq; harakat uchun [`Button`](./button.mdx) ishlating.
+- **Qisqa yozing** — bir-ikki so'z. Uzun matn kesiladi (`truncate`).
+
+## Ranglar
+
+`color`: `neutral` (standart), `primary`, `success`, `warning`, `danger`, `info`. Ranglar
+tokenlardan olinadi, shuning uchun dark mode'da ham kontrast saqlanadi.
+
+## Variantlar
+
+`variant`: `soft` (standart) — och fon, `solid` — to'q fon, ko'proq e'tibor tortadi, `outline` —
+chegara va rangli matn.
+
+<ComponentPreview name="badge/variants" />
+
+## O'lchamlar
+
+`sm` — ixcham, jadval qatorlari uchun; `md` (standart).
+
+<ComponentPreview name="badge/sizes" />
+
+## Nuqta
+
+`dot` — chap tomonda rangli nuqta. "Onlayn", "Faol" kabi jonli holatlar uchun.
+
+<ComponentPreview name="badge/dot" />
+
+## Olib tashlash
+
+`onRemove` berilsa, ✕ tugmasi chiqadi. Tugmaning `aria-label` ini `labels.remove` bilan aniq
+qiling — "Toshkent filtrini olib tashlash" "Olib tashlash" dan ko'ra tushunarli.
+
+<ComponentPreview name="badge/removable" />
+
+## Props
+
+`Badge` qolgan barcha `<span>` atributlarini qabul qiladi (`color` dan tashqari — u rang
+variantiga band).
+
+<PropsTable
+  rows={[
+    {
+      name: 'color',
+      type: "'neutral' | 'primary' | 'success' | 'warning' | 'danger' | 'info'",
+      default: "'neutral'",
+      description: "Rang (ma'no)",
+    },
+    {
+      name: 'variant',
+      type: "'soft' | 'solid' | 'outline'",
+      default: "'soft'",
+      description: "Ko'rinish",
+    },
+    {
+      name: 'size',
+      type: "'sm' | 'md'",
+      default: "'md'",
+      description: "O'lcham",
+    },
+    {
+      name: 'dot',
+      type: 'boolean',
+      default: 'false',
+      description: 'Chap tomonda rangli nuqta',
+    },
+    {
+      name: 'onRemove',
+      type: '(event: MouseEvent<HTMLButtonElement>) => void',
+      description: 'Berilsa — ✕ tugmasi chiqadi',
+    },
+    {
+      name: 'labels',
+      type: '{ remove?: string }',
+      default: "{ remove: 'Olib tashlash' }",
+      description: '✕ tugmasining aria-label matni',
+    },
+  ]}
+/>
+
+### Data atributlari
+
+Ildiz elementda: `data-variant`, `data-color`, `data-size`. Stilni boshqa elementga qo'llash
+uchun `badgeVariants` ham eksport qilinadi.
+
+## Accessibility
+
+- **Oddiy matn** — `<span>`, ekran o'quvchi ichidagi matnni o'qiydi. Nuqta `aria-hidden`.
+- **✕ tugmasi** — haqiqiy `<button>`: `Tab` bilan fokuslanadi, `Enter` / `Space` bilan bosiladi.
+  Ko'rinishi 16px, lekin bosish maydoni kattaroq.
+- **Teg o'chirilgach** fokus yo'qolmasligi uchun uni keyingi tegga yoki qidiruv maydoniga
+  o'zingiz o'tkazing.

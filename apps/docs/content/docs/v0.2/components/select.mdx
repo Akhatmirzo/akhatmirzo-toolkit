@@ -3,7 +3,7 @@ title: Select
 description: "Qidiruvsiz ro'yxatdan bitta qiymat tanlash: guruhlar, ikonkalar va forma bilan ishlash."
 ---
 
-<ComponentPreview name="select/basic" align="start" />
+<ComponentPreview name="archive/v0.2/select/basic" align="start" />
 
 ## Import
 
@@ -28,7 +28,7 @@ import { Select } from '@akhatmirzo/ui';
 `Select.Group` variantlarni sarlavha ostida jamlaydi, `Select.Separator` guruhlar orasiga chiziq
 tortadi. Tanlangan variant yonida ✓ belgisi turadi.
 
-<ComponentPreview name="select/groups" />
+<ComponentPreview name="archive/v0.2/select/groups" />
 
 ```tsx
 <Select defaultValue="fer">
@@ -50,7 +50,7 @@ Uch o'lcham — 32, 40 va 48px. Balandliklar `Input` va `Button` bilan bir xil, 
 qatorda tekis turadi. Panel kengligi trigger kengligiga teng; ro'yxat uzun bo'lsa, 320px dan
 keyin ichida scroll paydo bo'ladi.
 
-<ComponentPreview name="select/sizes" />
+<ComponentPreview name="archive/v0.2/select/sizes" />
 
 ## Holatlar
 
@@ -58,14 +58,14 @@ keyin ichida scroll paydo bo'ladi.
 emas. `Field` siz ishlatsangiz, `invalid` va `disabled` ni to'g'ridan-to'g'ri bering. Bitta
 variantni o'chirish uchun `Select.Item` ga `disabled` qo'ying — klaviatura uni o'tkazib yuboradi.
 
-<ComponentPreview name="select/states" />
+<ComponentPreview name="archive/v0.2/select/states" />
 
 ## Ikonkali variantlar
 
 `Select.Item` ning `icon` prop'i matndan oldin 16px joy ajratadi. Holat ranglari kabi qisqa
 belgilar uchun qulay.
 
-<ComponentPreview name="select/icons" />
+<ComponentPreview name="archive/v0.2/select/icons" />
 
 ## Forma bilan
 
@@ -73,7 +73,7 @@ belgilar uchun qulay.
 yuboriladi. Bo'sh qiymatni o'zingiz tekshirib, xabarni `Field` ning `error` prop'i orqali
 ko'rsating.
 
-<ComponentPreview name="select/form" align="start" />
+<ComponentPreview name="archive/v0.2/select/form" align="start" />
 
 ## Dialog ichida
 
@@ -81,50 +81,6 @@ ko'rsating.
 panel modal qatlamida ekanini o'zi aniqlaydi va z-index'ini ko'taradi, shuning uchun ro'yxat
 oyna ustida ochiladi. Hech narsa sozlash shart emas — tayyor misol Dialog sahifasidagi "Dialog
 ichida Select va Combobox" bo'limida.
-
-## RegionSelect
-
-O'zbekiston hududlari uchun tayyor `Select`: Qoraqalpog'iston Respublikasi, 12 viloyat va
-Toshkent shahri (`@akhatmirzo/core` dagi `UZ_REGIONS`). Qiymat — hudud `id` si (`'samarkand'`),
-nomlar joriy alifboda: `script` prop'i yoki [ScriptProvider](./script.mdx) dan.
-
-<ComponentPreview name="select/region" align="start" />
-
-```tsx
-import { RegionSelect } from '@akhatmirzo/ui';
-
-<RegionSelect value={region} onValueChange={(id, region) => setRegion(id)} />;
-```
-
-`Select` ning barcha prop'larini (`size`, `invalid`, `name`, `placeholder` ...) qabul qiladi.
-
-<PropsTable
-  rows={[
-    {
-      name: 'value',
-      type: 'UzRegionId',
-      description: "Hudud id si: 'tashkent-city', 'samarkand' ...",
-    },
-    { name: 'defaultValue', type: 'UzRegionId' },
-    {
-      name: 'onValueChange',
-      type: '(id: UzRegionId, region: UzRegion) => void',
-      description: "Ikkinchi argument — UZ_REGIONS dagi to'liq obyekt",
-    },
-    {
-      name: 'script',
-      type: "'latin' | 'cyrillic'",
-      description: "Nomlar alifbosi; standart — ScriptProvider dagi yoki 'latin'",
-    },
-    {
-      name: 'includeCity',
-      type: 'boolean',
-      default: 'true',
-      description: "Toshkent shahrini ro'yxatga qo'shish",
-    },
-    { name: 'placeholder', type: 'ReactNode', default: "'Hududni tanlang'" },
-  ]}
-/>
 
 ## Props
 

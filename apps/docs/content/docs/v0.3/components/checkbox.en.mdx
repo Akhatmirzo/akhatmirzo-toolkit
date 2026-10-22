@@ -1,0 +1,118 @@
+---
+title: Checkbox
+description: A checkbox built on the native input, with a label, a description and an indeterminate state.
+---
+
+<ComponentPreview name="checkbox/basic" />
+
+## Import
+
+```tsx
+import { Checkbox } from '@akhatmirzo/ui';
+```
+
+## When to use
+
+- **In forms with a "Save" button** — the choice takes effect when the form is submitted. For
+  settings that apply immediately, use a [`Switch`](./switch.mdx).
+- **For several independent choices** — notification channels, filters. When only one option can
+  be picked, use a [`RadioGroup`](./radio-group.mdx).
+- **For consent** — "I agree to the terms". If it's mandatory, use `required` and `error` on a
+  [`Field`](./field.mdx).
+- **Phrase labels positively:** "Send notifications", not "Don't send notifications".
+
+## Sizes
+
+`sm` is 16px and `md` (default) is 20px. Both have an invisible hit area larger than the box.
+
+<ComponentPreview name="checkbox/sizes" />
+
+## With a description
+
+`description` appears under the label in smaller, muted text and is linked to the input with
+`aria-describedby`.
+
+<ComponentPreview name="checkbox/description" />
+
+## Indeterminate
+
+`checked="indeterminate"` shows a "−". It's typically used on a "select all" box when only some
+children are selected. `onCheckedChange` only reports a `boolean` — you compute the mixed state
+yourself.
+
+<ComponentPreview name="checkbox/select-all" />
+
+## States
+
+`disabled` dims the box and label and blocks clicks. `invalid` turns the border red and sets
+`aria-invalid` on the input.
+
+<ComponentPreview name="checkbox/states" />
+
+## With Field
+
+`Field` connects the error and hint to the checkbox; when `error` is set, `invalid` turns on
+automatically. Try checking the box.
+
+<ComponentPreview name="checkbox/with-field" />
+
+## Props
+
+`Checkbox` accepts every other `<input>` attribute (`name`, `value`, `form`, `onChange` ...), and
+`ref` points to the inner `<input>`. `className` goes to the root `<label>`.
+
+<PropsTable
+  rows={[
+    {
+      name: 'checked',
+      type: "boolean | 'indeterminate'",
+      description: 'Controlled value',
+    },
+    {
+      name: 'defaultChecked',
+      type: "boolean | 'indeterminate'",
+      default: 'false',
+      description: 'Initial value (uncontrolled)',
+    },
+    {
+      name: 'onCheckedChange',
+      type: '(checked: boolean) => void',
+      description: 'Called when the user checks or unchecks the box',
+    },
+    { name: 'label', type: 'ReactNode', description: 'Text next to the box' },
+    { name: 'description', type: 'ReactNode', description: 'Hint under the label' },
+    {
+      name: 'size',
+      type: "'sm' | 'md'",
+      default: "'md'",
+      description: 'Size: 16 / 20px',
+    },
+    {
+      name: 'invalid',
+      type: 'boolean',
+      description: 'Error state (automatic inside a Field with an error)',
+    },
+    { name: 'disabled', type: 'boolean', description: 'Disabled state' },
+    { name: 'className', type: 'string', description: 'Class for the root <label>' },
+  ]}
+/>
+
+### Data attributes
+
+On the root `<label>`:
+
+| Attribute       | Value                                     |
+| --------------- | ----------------------------------------- |
+| `data-state`    | `checked` · `unchecked` · `indeterminate` |
+| `data-size`     | `sm` · `md`                               |
+| `data-disabled` | Present when `disabled`                   |
+| `data-invalid`  | Present when invalid                      |
+
+## Accessibility
+
+- **Native `<input type="checkbox">`** — toggles with `Space`, submits with the form like any
+  checkbox, and browser validation (`required`) works.
+- **Clicking the label** toggles it too — the whole component is a `<label>`.
+- **The mixed state** is announced with `aria-checked="mixed"`.
+- **The focus ring** shows only for keyboard focus.
+- **For a checkbox without a label** (say, in a table row), pass `aria-label`.

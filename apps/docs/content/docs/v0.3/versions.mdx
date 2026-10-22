@@ -1,0 +1,150 @@
+---
+title: Versiyalar va CHANGELOG
+description: "Versiyalash qoidalari, o'zgarishlar tarixi va yangi versiyaga o'tish."
+---
+
+Paketlar [Semantic Versioning](https://semver.org/) (SemVer) bo'yicha versiyalanadi va
+[Changesets](https://github.com/changesets/changesets) yordamida nashr qilinadi. Har bir paketning
+o'z versiyasi va o'z `CHANGELOG.md` fayli bor.
+
+| Paket                | Joriy versiya | npm                                                                                      |
+| -------------------- | ------------- | ---------------------------------------------------------------------------------------- |
+| `@akhatmirzo/ui`     | 0.3.0         | [npmjs.com/package/@akhatmirzo/ui](https://www.npmjs.com/package/@akhatmirzo/ui)         |
+| `@akhatmirzo/tokens` | 0.1.3         | [npmjs.com/package/@akhatmirzo/tokens](https://www.npmjs.com/package/@akhatmirzo/tokens) |
+| `@akhatmirzo/core`   | 0.2.0         | [npmjs.com/package/@akhatmirzo/core](https://www.npmjs.com/package/@akhatmirzo/core)     |
+| `@akhatmirzo/hooks`  | 0.1.3         | [npmjs.com/package/@akhatmirzo/hooks](https://www.npmjs.com/package/@akhatmirzo/hooks)   |
+
+## Versiya raqami nimani anglatadi
+
+Versiya uch qismdan iborat: `MAJOR.MINOR.PATCH`.
+
+| Qism    | Misol           | 1.0 dan keyin                      | 0.x bosqichida                         |
+| ------- | --------------- | ---------------------------------- | -------------------------------------- |
+| `MAJOR` | `1.4.2 → 2.0.0` | Buzuvchi o'zgarish                 | —                                      |
+| `MINOR` | `0.1.3 → 0.2.0` | Yangi imkoniyat, eskisi buzilmaydi | Buzuvchi o'zgarish bo'lishi **mumkin** |
+| `PATCH` | `0.1.0 → 0.1.1` | Xato tuzatish                      | Xato tuzatish va kichik yangiliklar    |
+
+### 0.x nimani anglatadi
+
+Kutubxona hozir `0.x` bosqichida — API asosan barqaror, lekin real loyihalarda sinalib,
+sayqallanmoqda. Shu bosqichda:
+
+- **Patch** (`0.1.0` → `0.1.1`) — xavfsiz: xato tuzatishlar va eskisini buzmaydigan qo'shimchalar.
+- **Minor** (`0.1` → `0.2`) — buzuvchi o'zgarishlar bo'lishi mumkin: prop nomi o'zgarishi,
+  standart qiymat almashishi, komponent bo'linishi. Har biri CHANGELOG'da yoziladi.
+- **1.0.0** — API barqarorlashgach. Undan keyin buzuvchi o'zgarishlar faqat major versiyada.
+
+<Callout title="^0.1.0 qanday ishlaydi">
+  `pnpm add` `package.json` ga `"^0.1.0"` yozadi. `0.x` da `^` faqat **patch** yangilanishlarni
+  oladi: `0.1.5` o'rnatiladi, `0.2.0` esa yo'q. Ya'ni buzuvchi bo'lishi mumkin bo'lgan minor
+  versiyaga faqat o'zingiz o'tasiz.
+</Callout>
+
+### Paketlar bir-biriga qanday bog'langan
+
+`@akhatmirzo/ui` `core` va `hooks` ni oddiy bog'liqlik sifatida, `tokens` ni esa
+**peerDependency** sifatida oladi — tokenlarni o'zingiz o'rnatasiz va CSS'da ulaysiz. Yangilashda
+`ui` va `tokens` versiyalarini birga ko'taring: yangi komponent yangi tokenga tayanishi mumkin.
+
+## Hujjat versiyalari
+
+Bu sayt **minor** versiyalar bo'yicha saqlanadi: `v0.1`, `v0.2` ... Har bir minor versiyaning
+o'z hujjat to'plami bor, patch relizlar esa joriy to'plamni yangilaydi. Versiyani yon paneldagi
+tanlagichdan almashtiring. Eski versiya sahifasida ogohlantirish banneri va eng so'nggi
+versiyaga havola chiqadi.
+
+## O'zgarishlar tarixi
+
+### 0.3.0
+
+<small>`@akhatmirzo/ui` 0.3.0 · `@akhatmirzo/core` 0.2.0</small>
+
+Oʻzbekcha lokalizatsiya — mavjud API oʻzgarmagan, yangilash xavfsiz.
+
+- **Core — son va sana:** `numberToWords`, `moneyToWords`, `ordinal`, `ordinalWords`, `formatDateUz`, `formatDateRange`, `formatDuration` ([formatlash](./core/format.mdx))
+- **Core — alifbo:** `detectScript`, `toScript`, `fixApostrophes` ([matn](./core/text.mdx))
+- **Core — hujjatlar:** JShShIR, STIR, pasport, avtomobil raqami, bank hisob raqami, MFO, `UZ_REGIONS` ([identifikatorlar](./core/identifiers.mdx))
+- **UI:** [`ScriptProvider`, `ScriptToggle`, `Translit`](./components/script.mdx), [hujjat inputlari](./components/document-inputs.mdx), [`MoneyInput showWords`](./components/masked-input.mdx), [`RegionSelect`](./components/select.mdx)
+
+### 0.2.0
+
+<small>`@akhatmirzo/ui` 0.2.0 · `tokens`, `core`, `hooks` 0.1.3</small>
+
+8 ta yangi komponent — mavjud API o'zgarmagan, yangilash xavfsiz.
+
+- **Ko'rsatish:** [`Alert`](./components/alert.mdx), [`Progress` va `ProgressCircle`](./components/progress.mdx), [`EmptyState`](./components/empty-state.mdx)
+- **Tanlov:** [`Slider`](./components/slider.mdx) (bitta qiymat va oraliq), [`SegmentedControl`](./components/segmented-control.mdx)
+- **Navigatsiya:** [`Pagination` va `PaginationInfo`](./components/pagination.mdx), [`Breadcrumb`](./components/breadcrumb.mdx), [`Stepper`](./components/stepper.mdx)
+- **Tuzatish:** `Tabs` indikatori `prefers-reduced-motion` da endi animatsiyasiz siljiydi.
+- **npm:** barcha paketlarning tavsifi va kalit so'zlari yangilandi.
+
+### 0.1.0
+
+<small>Barcha paketlar — birinchi nashr</small>
+
+Birinchi ommaviy versiya: npm'da ochiq, MIT litsenziya.
+
+- **`@akhatmirzo/tokens`** — ranglar (light va dark), tipografiya, radius, soyalar, animatsiya,
+  z-index qatlamlari; Tailwind v4 `@theme`, `focus-ring` va `focus-ring-within` utilitalari.
+- **`@akhatmirzo/ui`** — Radix va Tailwind v4 asosidagi 32 ta komponent oilasi:
+  - Asoslar: `Button`, `IconButton`, `Kbd`, `Spinner`
+  - Formalar: `Field`, `Input`, `Textarea`, `Select`, `Combobox`, `DatePicker`,
+    `DateRangePicker`, `Calendar`, `MaskedInput`, `PhoneInput`, `MoneyInput`, `CardInput`,
+    `OtpInput`, `FileUpload`
+  - Tanlov: `Checkbox`, `RadioGroup`, `Switch`
+  - Ko'rsatish: `Badge`, `Avatar`, `Card`, `Skeleton`, `Divider`
+  - Overlay: `Dialog` (+ `confirm()`), `Drawer`, `Popover`, `Tooltip`, `toast()`,
+    `DropdownMenu`, `CommandPalette`
+  - Navigatsiya va ma'lumotlar: `Tabs`, `Accordion`, `DataTable`, `VirtualList`
+- **`@akhatmirzo/core`** — o'zbek tiliga moslangan formatlash (pul, telefon, karta, sana, fayl
+  hajmi), validatsiya (telefon, email, karta, parol), matn (kirill ↔ lotin, qidiruv, slugify),
+  storage va API klient.
+- **`@akhatmirzo/hooks`** — 12 ta hook: `useDebounce`, `useLocalStorage`, `useHotkeys`,
+  `usePagination`, `useAsync` va boshqalar.
+
+To'liq tarix har bir paketning `CHANGELOG.md` faylida:
+[ui](https://github.com/Akhatmirzo/akhatmirzo-toolkit/blob/main/packages/ui/CHANGELOG.md) ·
+[tokens](https://github.com/Akhatmirzo/akhatmirzo-toolkit/blob/main/packages/tokens/CHANGELOG.md) ·
+[core](https://github.com/Akhatmirzo/akhatmirzo-toolkit/blob/main/packages/core/CHANGELOG.md) ·
+[hooks](https://github.com/Akhatmirzo/akhatmirzo-toolkit/blob/main/packages/hooks/CHANGELOG.md).
+
+## Yangi versiyaga o'tish
+
+<Steps>
+<Step>
+
+### CHANGELOG'ni o'qing
+
+Joriy va yangi versiya orasidagi barcha yozuvlarni ko'rib chiqing. `0.x` da minor versiyaga
+o'tayotganda **Minor Changes** bo'limini diqqat bilan o'qing — buzuvchi o'zgarishlar shu yerda
+yoziladi.
+
+</Step>
+<Step>
+
+### Paketlarni birga yangilang
+
+Ishlatayotgan barcha `@akhatmirzo/*` paketlarni bitta buyruq bilan ko'taring:
+
+```bash
+pnpm up "@akhatmirzo/*" --latest
+```
+
+npm'da: `npm install @akhatmirzo/ui@latest @akhatmirzo/tokens@latest` (qolganlari ham
+shunday).
+
+</Step>
+<Step>
+
+### Tekshiring
+
+`tsc --noEmit` olib tashlangan yoki nomi o'zgargan prop'larni ko'rsatadi. Keyin ilovani
+ochib, light va dark rejimda asosiy sahifalarni ko'zdan kechiring.
+
+</Step>
+</Steps>
+
+<Callout type="idea" title="Bitta versiyada qoling">
+  Bir loyihada `@akhatmirzo/ui` ning ikki xil versiyasi bo'lmasin (masalan, monorepo'dagi turli
+  ilovalarda). `pnpm why @akhatmirzo/ui` bilan tekshiring.
+</Callout>

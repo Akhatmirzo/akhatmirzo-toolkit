@@ -1,0 +1,134 @@
+---
+title: Card
+description: "Kontent bloki: Card.Header, Card.Body va Card.Footer bilan yig'iladi, havola sifatida ham ishlaydi."
+---
+
+<ComponentPreview name="card/basic" />
+
+## Import
+
+```tsx
+import { Card } from '@akhatmirzo/ui';
+```
+
+## Qachon ishlatish
+
+- **Bir mavzudagi ma'lumotni guruhlash uchun** — buyurtma, mahsulot, statistika, sozlamalar
+  bo'limi.
+- **Kompozitsiyadan foydalaning:** `Card.Header` (sarlavha, izoh, o'ngdagi harakat),
+  `Card.Body`, `Card.Footer`. Hammasi ixtiyoriy.
+- **Butun karta bosiladigan bo'lsa** — `interactive` va `asChild` bilan `<a>` yoki `<button>`
+  bering, `<div onClick>` emas.
+- **Kartani kartaning ichiga qo'ymang.** Ichki guruhlash uchun [`Divider`](./divider.mdx) yoki
+  bo'shliq yetarli.
+
+## Variantlar
+
+`elevated` (standart) — soya va chegara, oq fonda ajralib turadi. `outline` — faqat chegara,
+zich ro'yxatlar uchun. `soft` — chegarasiz, `surface-muted` fon.
+
+<ComponentPreview name="card/variants" />
+
+## Ichki bo'shliq
+
+`padding`: `none` — 0, `sm` — 16px, `md` (standart) — 24px, `lg` — 32px. Bo'limlar orasidagi
+masofa ham shunga moslashadi.
+
+<ComponentPreview name="card/padding" />
+
+## Rasm bilan
+
+`padding="none"` va `overflow-hidden` — rasm karta chetiga tegib turadi, matnga bo'shliqni
+o'zingiz berasiz.
+
+<ComponentPreview name="card/media" />
+
+## Bosiladigan karta
+
+`interactive` hover'da soyani oshiradi va kursorni "qo'l" qiladi. Bu faqat stil — klaviatura
+uchun `asChild` bilan `<a>` yoki `<button>` bering: shunda karta `Tab` bilan fokuslanadi va
+`Enter` bilan ochiladi.
+
+<ComponentPreview name="card/interactive" />
+
+```tsx
+import Link from 'next/link';
+
+<Card interactive asChild>
+  <Link href="/hisobotlar/sotuv">
+    <Card.Header title="Sotuvlar" description="Oktyabr" />
+  </Link>
+</Card>;
+```
+
+## Props
+
+### Card
+
+`Card` qolgan barcha `<div>` atributlarini qabul qiladi.
+
+<PropsTable
+  rows={[
+    {
+      name: 'variant',
+      type: "'elevated' | 'outline' | 'soft'",
+      default: "'elevated'",
+      description: "Ko'rinish",
+    },
+    {
+      name: 'padding',
+      type: "'none' | 'sm' | 'md' | 'lg'",
+      default: "'md'",
+      description: "Ichki bo'shliq: 0 / 16 / 24 / 32px",
+    },
+    {
+      name: 'interactive',
+      type: 'boolean | null',
+      default: 'false',
+      description: "Hover va fokus ko'rinishi (faqat stil)",
+    },
+    {
+      name: 'asChild',
+      type: 'boolean',
+      default: 'false',
+      description: "O'z elementi o'rniga bolasini render qiladi (masalan, <a>)",
+    },
+  ]}
+/>
+
+### Card.Header
+
+`CardHeader` nomi bilan ham eksport qilinadi. Qolgan `<div>` atributlarini qabul qiladi;
+`children` sarlavha va izoh ostiga qo'shiladi.
+
+<PropsTable
+  rows={[
+    { name: 'title', type: 'ReactNode', description: 'Sarlavha (<h3>)' },
+    { name: 'description', type: 'ReactNode', description: 'Sarlavha ostidagi xira matn' },
+    {
+      name: 'action',
+      type: 'ReactNode',
+      description: "O'ng tomondagi element: badge, tugma, menyu",
+    },
+  ]}
+/>
+
+### Card.Body va Card.Footer
+
+`CardBody` va `CardFooter` — oddiy `<div>` lar, barcha atributlarini qabul qiladi. `Body` matnni
+`text-sm` qiladi, `Footer` bolalarni bir qatorga terib, `gap-2` bilan joylaydi (o'ngga surish
+uchun `className="justify-end"`).
+
+### Data atributlari
+
+`Card` ildizida: `data-variant`, `data-padding`, `data-interactive`. Stilni boshqa elementga
+qo'llash uchun `cardVariants` ham eksport qilinadi.
+
+## Accessibility
+
+- **Oddiy `<div>`** — rol qo'shilmaydi. Mazmunli bo'lim bo'lsa, `asChild` bilan `<section>` yoki
+  `<article>` bering.
+- **`Card.Header` sarlavhasi `<h3>`.** Sahifadagi sarlavhalar tartibiga mos kelmasa, `title`
+  o'rniga `children` ga o'z sarlavhangizni yozing.
+- **Bosiladigan karta** faqat `asChild` bilan haqiqiy `<a>` / `<button>` bo'lganda klaviaturada
+  ishlaydi; fokus halqasi butun kartaga chiziladi.

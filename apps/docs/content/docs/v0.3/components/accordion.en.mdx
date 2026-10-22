@@ -1,0 +1,177 @@
+---
+title: Accordion
+description: Collapsible sections for FAQs, settings and long forms.
+---
+
+<ComponentPreview name="accordion/basic" align="start" />
+
+## Import
+
+```tsx
+import { Accordion } from '@akhatmirzo/ui';
+```
+
+## When to use
+
+- **FAQs** — users open only the question they care about, and the page stays short.
+- **Settings and long forms** — split them into sections instead of showing everything at once.
+- **Don't hide essential content.** Anything users must see should stay visible — most people
+  never open collapsed text.
+- **If only one section should be visible at a time** and the sections are equally important,
+  [`Tabs`](./tabs.mdx) may fit better.
+
+## Anatomy
+
+The simplest form is an `Accordion.Item` with a `title`: the header and the content are rendered
+for you, and `children` become the content.
+
+```tsx
+<Accordion defaultValue="delivery">
+  <Accordion.Item value="delivery" title="How long does delivery take?">
+    One day within Tashkent, 2–3 business days to other regions.
+  </Accordion.Item>
+</Accordion>
+```
+
+To put your own content in the header (a badge, an icon), skip `title` and write
+`Accordion.Trigger` + `Accordion.Content` yourself (see "Composition" below).
+
+## Variants
+
+| Variant     | Looks like                                        |
+| ----------- | ------------------------------------------------- |
+| `separated` | Each section is its own card, 8px apart (default) |
+| `bordered`  | All sections in one card, divided by lines        |
+| `ghost`     | No background, just divider lines                 |
+
+<ComponentPreview name="accordion/variants" align="start" />
+
+## Several open at once
+
+By default (`type="single"`), one section is open at a time — opening another closes the
+previous one. With `type="multiple"`, several can be open together; `value` and `defaultValue`
+become arrays.
+
+<ComponentPreview name="accordion/multiple" align="start" />
+
+## Always one open
+
+With `type="single"`, clicking the open section closes it (`collapsible` defaults to `true`).
+With `collapsible={false}`, exactly one section always stays open — it behaves like picking one
+of several options.
+
+<ComponentPreview name="accordion/non-collapsible" align="start" />
+
+## Composition
+
+Inside an `Accordion.Item`, use `Accordion.Trigger` and `Accordion.Content` to add a badge, an
+icon or a second line to the header. A single section can be turned off with `disabled`.
+
+<ComponentPreview name="accordion/composition" align="start" />
+
+## Controlled
+
+With `value` + `onValueChange`, you decide which sections are open — for an "Expand all" button,
+syncing with the URL and so on.
+
+<ComponentPreview name="accordion/controlled" align="start" />
+
+## Props
+
+### Accordion
+
+Also accepts `<div>` attributes.
+
+<PropsTable
+  rows={[
+    {
+      name: 'type',
+      type: "'single' | 'multiple'",
+      default: "'single'",
+      description: 'Whether one or several sections can be open',
+    },
+    {
+      name: 'value',
+      type: 'string  ·  string[]',
+      description: 'Open section(s) — an array with multiple',
+    },
+    {
+      name: 'defaultValue',
+      type: 'string  ·  string[]',
+      description: 'Initially open section(s)',
+    },
+    {
+      name: 'onValueChange',
+      type: '(value: string) => void  ·  (value: string[]) => void',
+      description: 'Called when sections open or close',
+    },
+    {
+      name: 'collapsible',
+      type: 'boolean',
+      default: 'true',
+      description: 'single only: whether the open section can be closed again',
+    },
+    {
+      name: 'variant',
+      type: "'separated' | 'bordered' | 'ghost'",
+      default: "'separated'",
+      description: 'Visual style',
+    },
+    { name: 'disabled', type: 'boolean', description: 'Disables every section' },
+    {
+      name: 'orientation',
+      type: "'horizontal' | 'vertical'",
+      description: 'Direction of keyboard navigation (vertical by default)',
+    },
+    { name: 'dir', type: "'ltr' | 'rtl'", description: 'Text direction' },
+  ]}
+/>
+
+### Accordion.Item
+
+<PropsTable
+  rows={[
+    { name: 'value', type: 'string', required: true, description: 'Section value' },
+    {
+      name: 'title',
+      type: 'ReactNode',
+      description: 'If set, Trigger and Content are rendered for you; children become the content',
+    },
+    { name: 'disabled', type: 'boolean', description: 'Disables the section' },
+  ]}
+/>
+
+### Accordion.Trigger, Accordion.Content
+
+`Accordion.Trigger` takes `<button>` attributes and draws a chevron on the right.
+`Accordion.Content` takes `<div>` attributes and `forceMount` (to keep it in the DOM while
+closed).
+
+### Data attributes
+
+| Attribute                | On                     | Value                              |
+| ------------------------ | ---------------------- | ---------------------------------- |
+| `data-variant`           | root, item             | `separated` · `bordered` · `ghost` |
+| `data-state`             | item, trigger, content | `open` · `closed`                  |
+| `data-disabled`          | item, trigger          | present when disabled              |
+| `data-orientation`       | all parts              | `vertical` · `horizontal`          |
+| `data-accordion-chevron` | the chevron icon       | —                                  |
+
+## Keyboard
+
+| Key               | Action                              |
+| ----------------- | ----------------------------------- |
+| `Enter` / `Space` | Opens or closes the focused section |
+| `↓` / `↑`         | Moves to the next / previous header |
+| `Home` / `End`    | First / last header                 |
+| `Tab`             | Moves to the next focusable element |
+
+## Accessibility
+
+- **Structure.** Each header is a `<button>` inside an `<h3>`; the button gets `aria-expanded`
+  and `aria-controls`, and the content is a `role="region"` labeled by its header through
+  `aria-labelledby`. It is built on Radix Accordion.
+- **The chevron** is decorative (`aria-hidden`) and rotates 180° when open.
+- **Animation.** The height animates over 200ms; with `prefers-reduced-motion`, only a fade is
+  used.
+- **The focus ring** only shows for keyboard focus.

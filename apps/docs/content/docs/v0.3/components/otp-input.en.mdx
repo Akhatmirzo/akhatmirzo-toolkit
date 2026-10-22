@@ -1,0 +1,185 @@
+---
+title: OtpInput
+description: Enter a one-time code from an SMS — separate cells, paste, autofill and a resend timer.
+---
+
+<ComponentPreview name="otp-input/verify" />
+
+## Import
+
+```tsx
+import { OtpInput, ResendTimer } from '@akhatmirzo/ui';
+```
+
+`ResendTimer` is also available as `OtpInput.ResendTimer`, so a separate import is optional.
+
+## When to use
+
+- **Phone or email verification, two-factor sign-in** — any 4–8 character code sent by SMS or an
+  authenticator app.
+- **Verify as soon as the code is complete:** `onComplete` fires when the last character goes in,
+  so you don't need a "Verify" button.
+- **Explain errors in words:** `invalid` turns the cells red and shakes them, but put the reason
+  in the [Field](./field.mdx) `error` prop ("Wrong code").
+- **Offer a resend with a timer** — `ResendTimer` asks users to wait for the SMS and keeps your
+  server from being hammered.
+- **Not for passwords or PINs you need to hide** — the characters are shown in clear text.
+
+## Verification flow
+
+In the example above the correct code is `123456`. A wrong code switches on `invalid`: the cells
+turn red and the group shakes gently. Clear the error as soon as the user starts typing again,
+and disable the input once the code is accepted.
+
+```tsx title="VerifyForm.tsx"
+import { Field, OtpInput } from '@akhatmirzo/ui';
+import { useState } from 'react';
+
+async function verifyCode(code: string) {
+  const res = await fetch('/api/verify', { method: 'POST', body: JSON.stringify({ code }) });
+  return res.ok;
+}
+
+export function VerifyForm() {
+  const [code, setCode] = useState('');
+  const [error, setError] = useState(false);
+
+  return (
+    <Field label="Verification code" error={error ? 'Wrong code' : undefined}>
+      <OtpInput
+        value={code}
+        onValueChange={(v) => {
+          setCode(v);
+          setError(false);
+        }}
+        onComplete={async (v) => setError(!(await verifyCode(v)))}
+      />
+    </Field>
+  );
+}
+```
+
+<Callout title="Paste and SMS autofill">
+  Users can paste the whole code (`Ctrl+V`) into any cell and every cell fills up. The first cell
+  has `autocomplete="one-time-code"`, so iOS and Android suggest the code from the SMS right above
+  the keyboard.
+</Callout>
+
+## Length, type and grouping
+
+`length` sets the number of cells (default `6`). `type="alphanumeric"` accepts letters as well
+(the default is digits only). `groupSize` splits the cells into groups: `3` → `123 – 456`.
+
+<ComponentPreview name="otp-input/length" />
+
+## States
+
+`invalid` adds a red border and a shake (no shake when `prefers-reduced-motion` is on). `disabled`
+turns the cells off.
+
+<ComponentPreview name="otp-input/states" />
+
+## ResendTimer
+
+"Kodni qayta yuborish (0:59)" — the button can't be clicked until the timer runs out. If
+`onResend` returns a Promise, the button also stays blocked until it settles, then the timer
+starts over. The countdown starts as soon as the component mounts, assuming the code has just been
+sent.
+
+<ComponentPreview name="otp-input/resend" />
+
+## Props
+
+### OtpInput
+
+Accepts the remaining `<div>` attributes (`className`, `aria-label`, `data-*` ...) and `ref` (the
+root is the group of cells).
+
+<PropsTable
+  rows={[
+    { name: 'length', type: 'number', default: '6', description: 'Number of cells' },
+    {
+      name: 'type',
+      type: "'numeric' | 'alphanumeric'",
+      default: "'numeric'",
+      description: 'Digits only, or letters and digits',
+    },
+    { name: 'value', type: 'string', description: 'The code (controlled)' },
+    { name: 'defaultValue', type: 'string' },
+    { name: 'onValueChange', type: '(value: string) => void' },
+    {
+      name: 'onComplete',
+      type: '(code: string) => void',
+      description: 'Called when the last character is entered',
+    },
+    {
+      name: 'invalid',
+      type: 'boolean',
+      description: 'Error: red + shake (automatic inside a Field with an error)',
+    },
+    { name: 'disabled', type: 'boolean' },
+    { name: 'groupSize', type: 'number', description: 'Grouping: 3 → 123 – 456' },
+    { name: 'name', type: 'string', description: 'Name of the hidden form field' },
+    { name: 'autoFocus', type: 'boolean', description: 'Focus the first cell on mount' },
+    {
+      name: 'labels',
+      type: 'OtpInputLabels',
+      description: '{ cell?: (index, length) => string; group?: string }',
+    },
+  ]}
+/>
+
+### ResendTimer
+
+Accepts the remaining `<button>` attributes.
+
+<PropsTable
+  rows={[
+    { name: 'seconds', type: 'number', default: '60', description: 'Wait time in seconds' },
+    {
+      name: 'onResend',
+      type: '() => unknown',
+      description: 'Click handler; if it returns a Promise, the button waits for it',
+    },
+    {
+      name: 'labels',
+      type: '{ resend?: string }',
+      default: "{ resend: 'Kodni qayta yuborish' }",
+    },
+    { name: 'disabled', type: 'boolean', description: 'Blocks the button regardless of the timer' },
+  ]}
+/>
+
+### Data attributes
+
+| Attribute       | Element       | Value                             |
+| --------------- | ------------- | --------------------------------- |
+| `data-invalid`  | `OtpInput`    | present when invalid              |
+| `data-disabled` | `OtpInput`    | present when disabled             |
+| `data-complete` | `OtpInput`    | present when all cells are filled |
+| `data-state`    | `ResendTimer` | `waiting` · `ready`               |
+
+## Keyboard
+
+| Key            | Action                                                 |
+| -------------- | ------------------------------------------------------ |
+| A character    | Fills the cell and moves to the next one               |
+| `Backspace`    | Deletes the character; in an empty cell, goes back one |
+| `Delete`       | Deletes the character in the current cell              |
+| `← →`          | Move between cells                                     |
+| `Home` / `End` | First cell / first empty cell                          |
+
+You can't skip ahead past an empty cell — focus moves to the first empty one.
+
+## Accessibility
+
+- **The group** has `role="group"`. Inside a `Field` it's named by the label (`aria-labelledby`);
+  outside, it's called "Tasdiqlash kodi" ("verification code", change it with `labels.group`).
+- **Each cell** is its own `<input>` with a name: "1-raqam", "2-raqam" ... For another language,
+  use `labels.cell`: `cell: (i, n) => 'Digit ' + (i + 1) + ' of ' + n`.
+- **`aria-invalid`, `aria-describedby` and `aria-required`** from the `Field` reach every cell, so
+  the error text is read whichever cell has focus.
+- **Mobile keyboard:** the `numeric` type sets `inputMode="numeric"`.
+- **Motion:** the shake is skipped with `prefers-reduced-motion: reduce`.
+- **ResendTimer** uses `aria-disabled` while waiting — it stays focusable but can't be activated;
+  the countdown is part of the button's name.

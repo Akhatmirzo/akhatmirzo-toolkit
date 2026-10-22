@@ -3,7 +3,7 @@ title: Toast
 description: Short notifications with an imperative toast() API, promise tracking, an action button and stacking.
 ---
 
-<ComponentPreview name="toast/types" />
+<ComponentPreview name="archive/v0.2/toast/types" />
 
 ## Import
 
@@ -65,7 +65,7 @@ closes them all.
 `description` adds a second line. `action` adds a small button on the right: `{ label, onClick }`.
 Clicking it closes the toast; to keep it open, call `event.preventDefault()` inside `onClick`.
 
-<ComponentPreview name="toast/action" />
+<ComponentPreview name="archive/v0.2/toast/action" />
 
 ```tsx
 toast('Product deleted', {
@@ -81,7 +81,7 @@ functions for `success` and `error` to receive the result or the error. You can 
 function that returns the promise. `toast.promise()` returns the original promise, so you can
 `await` it or attach `.catch()`.
 
-<ComponentPreview name="toast/promise" />
+<ComponentPreview name="archive/v0.2/toast/promise" />
 
 ```tsx
 const order = await toast.promise(api.saveOrder(data), {
@@ -96,7 +96,7 @@ const order = await toast.promise(api.saveOrder(data), {
 With `{ id }`, the toast with that id is updated (or created with that id if it doesn't exist).
 You can change its type, title and description; the timer starts over.
 
-<ComponentPreview name="toast/update" />
+<ComponentPreview name="archive/v0.2/toast/update" />
 
 ## Stacking
 
@@ -104,7 +104,7 @@ At most 3 toasts are visible at a time (`visibleToasts`); the rest wait in line 
 paused. Visible toasts sit in a compact stack that fans out on hover or focus, and all timers
 pause meanwhile. Swipe a toast sideways to dismiss it.
 
-<ComponentPreview name="toast/stack" />
+<ComponentPreview name="archive/v0.2/toast/stack" />
 
 ## Props
 

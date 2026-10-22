@@ -1,6 +1,6 @@
 ---
 title: Text
-description: Cyrillic ↔ Latin, script detection, apostrophes, Uzbek-aware search, slugify and truncation.
+description: Cyrillic ↔ Latin, Uzbek-aware search, slugify and truncation.
 ---
 
 Uzbek text comes in many shapes: Latin and Cyrillic script, four or five apostrophe variants (`'`
@@ -12,9 +12,6 @@ import {
   cyrToLat,
   latToCyr,
   normalizeUz,
-  detectScript,
-  toScript,
-  fixApostrophes,
   searchMatch,
   fuzzyMatch,
   splitByRanges,
@@ -29,7 +26,7 @@ import {
 
 Type some text or pick one of the samples below:
 
-<ComponentPreview name="core/translit" />
+<ComponentPreview name="archive/v0.2/core/translit" />
 
 ### cyrToLat
 
@@ -109,90 +106,6 @@ normalizeUz("O'zbekiston"); // 'ozbekiston'
   match letters in the middle of a word.
 </Callout>
 
-## Script and apostrophes
-
-<ComponentPreview name="core/script" />
-
-### detectScript
-
-```ts
-function detectScript(s: string | null | undefined): DetectedScript;
-// DetectedScript = 'latin' | 'cyrillic' | 'mixed' | 'none'
-```
-
-Tells which script a text is written in. Only letters count: digits, punctuation, apostrophes and
-other scripts (Greek, Arabic ...) are ignored. The rule is simple and predictable: at least one
-letter from each script gives `'mixed'` (a single stray letter is enough), letters from only one
-script give that script, and no letters at all give `'none'`.
-
-```ts
-detectScript('Salom dunyo'); // 'latin'
-detectScript('Салом'); // 'cyrillic'
-detectScript('Salom Салом'); // 'mixed'
-detectScript('iPhone 15 — янги'); // 'mixed'
-detectScript('+998 90 123-45-67'); // 'none'
-```
-
-### toScript
-
-```ts
-function toScript(
-  s: string | null | undefined,
-  target: 'latin' | 'cyrillic',
-  options?: ToScriptOptions, // { apostrophe?: 'typographic' | 'ascii' }
-): string;
-```
-
-Converts text to the target script. The source script is detected automatically and only the
-parts written in the **other** script are converted: in mixed text, Latin parts stay as they are
-when converting to Latin (and vice versa). If the text is already in the target script it comes
-back untouched — apostrophes included (use `fixApostrophes` for those).
-
-Latin output uses typographic characters by default: `oʻ`, `gʻ` (U+02BB) and the `ʼ` sign
-(U+02BC). Pass `apostrophe: 'ascii'` for a plain `'`.
-
-```ts
-toScript('Салом, дунё', 'latin'); // 'Salom, dunyo'
-toScript('Ўзбекистон', 'latin'); // 'Oʻzbekiston'
-toScript('маъно', 'latin', { apostrophe: 'ascii' }); // "ma'no"
-toScript("Salom, O'zbekiston", 'cyrillic'); // 'Салом, Ўзбекистон'
-toScript('Toshkent — Тошкент', 'cyrillic'); // 'Тошкент — Тошкент'
-toScript("O'zbekiston", 'latin'); // "O'zbekiston" — unchanged
-```
-
-### fixApostrophes
-
-```ts
-function fixApostrophes(
-  s: string | null | undefined,
-  options?: FixApostrophesOptions, // { style?: 'typographic' | 'ascii' }
-): string;
-```
-
-Fixes apostrophes in Latin Uzbek text, whatever character the user actually typed:
-
-- any variant after `o` / `g` (`'` `‘` `’` `` ` `` `´` `ʼ`) becomes `ʻ`: `oʻ`, `gʻ`;
-- any other apostrophe inside a word (the glottal stop sign) becomes `ʼ`: `maʼno`, `sanʼat`;
-- apostrophes used as quotation marks are left alone: one at the start of a word opens a quote,
-  and one at the end of a word closes it while a quote is open.
-
-`style: 'ascii'` goes the other way: `ʻ` and `ʼ` become a plain `'`.
-
-```ts
-fixApostrophes("O'zbekiston g'alabasi, ma'no"); // 'Oʻzbekiston gʻalabasi, maʼno'
-fixApostrophes("o'n, tog' va bog'"); // 'oʻn, togʻ va bogʻ'
-fixApostrophes("'Salom' dedi"); // "'Salom' dedi"
-fixApostrophes("'O'zbekiston' kitobi"); // "'Oʻzbekiston' kitobi"
-fixApostrophes("mo''tabar"); // 'moʻʼtabar'
-fixApostrophes('Oʻzbekiston', { style: 'ascii' }); // "O'zbekiston"
-```
-
-<Callout type="warn" title="Word endings inside quotes">
-  While a quote is open, `o'` / `g'` at the end of a word is read as the closing quote: `"'Kino'"`
-  stays correct, but in `"'tog'"` the `g'` apostrophe is also kept as a quote. Check such ambiguous
-  text by hand.
-</Callout>
-
 ## Search
 
 ### searchMatch
@@ -209,7 +122,7 @@ lists every match in the **original** text (`[start, end)`, compatible with `sli
 highlight a Latin query inside Cyrillic text. An empty query matches everything. The `Combobox`
 search and the `DataTable` filter are built on it.
 
-<ComponentPreview name="core/search" />
+<ComponentPreview name="archive/v0.2/core/search" />
 
 ```ts
 searchMatch('Toshkent', 'тош'); // { match: true, ranges: [[0, 4]] }
@@ -234,7 +147,7 @@ Matches at the start of a word and consecutive matches score higher. Returns `nu
 no match. Normalization is the same as in `searchMatch`, and spaces in the query are ignored.
 `CommandPalette` uses it.
 
-<ComponentPreview name="core/fuzzy" />
+<ComponentPreview name="archive/v0.2/core/fuzzy" />
 
 ```ts
 fuzzyMatch('Yangi buyurtma', 'ybu'); // { score: 23, ranges: [[0, 1], [6, 8]] }
@@ -277,7 +190,7 @@ export function Highlight({ text, query }: { text: string; query: string }) {
 
 ## Text helpers
 
-<ComponentPreview name="core/truncate" />
+<ComponentPreview name="archive/v0.2/core/truncate" />
 
 ### slugify
 
@@ -382,14 +295,5 @@ interface FuzzyMatchResult {
 }
 interface TranslitOptions {
   apostrophe?: string;
-}
-type UzScript = 'latin' | 'cyrillic';
-type UzApostropheStyle = 'typographic' | 'ascii';
-type DetectedScript = 'latin' | 'cyrillic' | 'mixed' | 'none';
-interface ToScriptOptions {
-  apostrophe?: UzApostropheStyle; // default: 'typographic'
-}
-interface FixApostrophesOptions {
-  style?: UzApostropheStyle; // default: 'typographic'
 }
 ```

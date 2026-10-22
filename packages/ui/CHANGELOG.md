@@ -1,5 +1,16 @@
 # @akhatmirzo/ui
 
+## 0.3.0
+
+### Minor Changes
+
+- 07f4e9d: `ScriptProvider`, `useScript`, `Translit`, `ScriptToggle`; hujjat inputlari `PinflInput`, `PassportInput`, `InnInput`, `CarPlateInput`, `BankAccountInput` (va `getPinflDetails`, `getCarPlateDetails`); `MoneyInput` uchun `showWords`; `RegionSelect`.
+
+### Patch Changes
+
+- Updated dependencies [07f4e9d]
+  - @akhatmirzo/core@0.2.0
+
 ## 0.2.0
 
 ### Minor Changes

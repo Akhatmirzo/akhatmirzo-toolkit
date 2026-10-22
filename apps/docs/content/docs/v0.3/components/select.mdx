@@ -1,0 +1,249 @@
+---
+title: Select
+description: "Qidiruvsiz ro'yxatdan bitta qiymat tanlash: guruhlar, ikonkalar va forma bilan ishlash."
+---
+
+<ComponentPreview name="select/basic" align="start" />
+
+## Import
+
+```tsx
+import { Select } from '@akhatmirzo/ui';
+```
+
+## Qachon ishlatish
+
+- **5–15 ta variantdan bittasini tanlash uchun** — viloyat, to'lov usuli, holat. Variantlar 3 ta
+  yoki undan kam bo'lsa, [`RadioGroup`](./radio-group.mdx) qulayroq: hammasi birdan ko'rinadi.
+- **Qidiruv kerak bo'lsa — [`Combobox`](./combobox.mdx).** `Select` ataylab qidiruvsiz qilingan;
+  shaharlar yoki mahsulotlar kabi uzun ro'yxatlar uchun Combobox oling.
+- **Bir nechta qiymat** tanlash uchun ham `Combobox` (`multiple`) kerak — `Select` faqat bitta
+  qiymat qaytaradi.
+- **Har doim nom bering:** [`Field`](./field.mdx) ichiga joylang yoki `aria-label` yozing.
+- **Buyruqlar ro'yxati emas.** "Tahrirlash", "O'chirish" kabi amallar uchun
+  [`DropdownMenu`](./dropdown-menu.mdx) bor.
+
+## Guruhlar va ajratgich
+
+`Select.Group` variantlarni sarlavha ostida jamlaydi, `Select.Separator` guruhlar orasiga chiziq
+tortadi. Tanlangan variant yonida ✓ belgisi turadi.
+
+<ComponentPreview name="select/groups" />
+
+```tsx
+<Select defaultValue="fer">
+  <Select.Item value="tsh">Toshkent</Select.Item>
+  <Select.Group label="Vodiy">
+    <Select.Item value="and">Andijon</Select.Item>
+    <Select.Item value="fer">Farg'ona</Select.Item>
+  </Select.Group>
+  <Select.Separator />
+  <Select.Group label="Janub">
+    <Select.Item value="qash">Qashqadaryo</Select.Item>
+  </Select.Group>
+</Select>
+```
+
+## O'lchamlar
+
+Uch o'lcham — 32, 40 va 48px. Balandliklar `Input` va `Button` bilan bir xil, shuning uchun bir
+qatorda tekis turadi. Panel kengligi trigger kengligiga teng; ro'yxat uzun bo'lsa, 320px dan
+keyin ichida scroll paydo bo'ladi.
+
+<ComponentPreview name="select/sizes" />
+
+## Holatlar
+
+`Field` ichida `disabled`, `error` va `required` o'zi ulanadi — `Select` ga qayta yozish shart
+emas. `Field` siz ishlatsangiz, `invalid` va `disabled` ni to'g'ridan-to'g'ri bering. Bitta
+variantni o'chirish uchun `Select.Item` ga `disabled` qo'ying — klaviatura uni o'tkazib yuboradi.
+
+<ComponentPreview name="select/states" />
+
+## Ikonkali variantlar
+
+`Select.Item` ning `icon` prop'i matndan oldin 16px joy ajratadi. Holat ranglari kabi qisqa
+belgilar uchun qulay.
+
+<ComponentPreview name="select/icons" />
+
+## Forma bilan
+
+`name` berilsa, `Select` yashirin native `<select>` chizadi va qiymat `FormData` bilan birga
+yuboriladi. Bo'sh qiymatni o'zingiz tekshirib, xabarni `Field` ning `error` prop'i orqali
+ko'rsating.
+
+<ComponentPreview name="select/form" align="start" />
+
+## Dialog ichida
+
+`Select` ni [`Dialog`](./dialog.mdx) yoki [`Drawer`](./drawer.mdx) ichida bemalol ishlatasiz:
+panel modal qatlamida ekanini o'zi aniqlaydi va z-index'ini ko'taradi, shuning uchun ro'yxat
+oyna ustida ochiladi. Hech narsa sozlash shart emas — tayyor misol Dialog sahifasidagi "Dialog
+ichida Select va Combobox" bo'limida.
+
+## RegionSelect
+
+O'zbekiston hududlari uchun tayyor `Select`: Qoraqalpog'iston Respublikasi, 12 viloyat va
+Toshkent shahri (`@akhatmirzo/core` dagi `UZ_REGIONS`). Qiymat — hudud `id` si (`'samarkand'`),
+nomlar joriy alifboda: `script` prop'i yoki [ScriptProvider](./script.mdx) dan.
+
+<ComponentPreview name="select/region" align="start" />
+
+```tsx
+import { RegionSelect } from '@akhatmirzo/ui';
+
+<RegionSelect value={region} onValueChange={(id, region) => setRegion(id)} />;
+```
+
+`Select` ning barcha prop'larini (`size`, `invalid`, `name`, `placeholder` ...) qabul qiladi.
+
+<PropsTable
+  rows={[
+    {
+      name: 'value',
+      type: 'UzRegionId',
+      description: "Hudud id si: 'tashkent-city', 'samarkand' ...",
+    },
+    { name: 'defaultValue', type: 'UzRegionId' },
+    {
+      name: 'onValueChange',
+      type: '(id: UzRegionId, region: UzRegion) => void',
+      description: "Ikkinchi argument — UZ_REGIONS dagi to'liq obyekt",
+    },
+    {
+      name: 'script',
+      type: "'latin' | 'cyrillic'",
+      description: "Nomlar alifbosi; standart — ScriptProvider dagi yoki 'latin'",
+    },
+    {
+      name: 'includeCity',
+      type: 'boolean',
+      default: 'true',
+      description: "Toshkent shahrini ro'yxatga qo'shish",
+    },
+    { name: 'placeholder', type: 'ReactNode', default: "'Hududni tanlang'" },
+  ]}
+/>
+
+## Props
+
+### Select
+
+`className` triggerga, `contentClassName` ochiladigan panelga tushadi. Qolgan `<button>`
+atributlari (`id`, `aria-*`, `data-*`, `onBlur` ...) va `ref` ham triggerga uzatiladi.
+
+<PropsTable
+  rows={[
+    { name: 'value', type: 'string', description: 'Tanlangan qiymat (boshqariladigan rejim)' },
+    { name: 'defaultValue', type: 'string', description: "Boshlang'ich qiymat" },
+    {
+      name: 'onValueChange',
+      type: '(value: string) => void',
+      description: 'Foydalanuvchi variant tanlaganda',
+    },
+    { name: 'open', type: 'boolean', description: 'Panel ochiqmi (boshqariladigan rejim)' },
+    { name: 'defaultOpen', type: 'boolean', description: "Boshlang'ich holatda ochiq" },
+    {
+      name: 'onOpenChange',
+      type: '(open: boolean) => void',
+      description: 'Panel ochilganda yoki yopilganda',
+    },
+    {
+      name: 'placeholder',
+      type: 'ReactNode',
+      default: "'Tanlang'",
+      description: "Qiymat tanlanmaganda ko'rinadigan matn",
+    },
+    {
+      name: 'size',
+      type: "'sm' | 'md' | 'lg'",
+      default: "'md'",
+      description: 'Balandlik: 32 / 40 / 48px',
+    },
+    {
+      name: 'invalid',
+      type: 'boolean',
+      description: "Xato holati. Field ichida error bo'lsa — avtomatik",
+    },
+    { name: 'disabled', type: 'boolean', description: "Select'ni butunlay o'chiradi" },
+    { name: 'required', type: 'boolean', description: 'Majburiy maydon (aria-required)' },
+    { name: 'name', type: 'string', description: 'Forma uchun yashirin native select nomi' },
+    { name: 'autoComplete', type: 'string', description: 'Yashirin native select uchun' },
+    { name: 'dir', type: "'ltr' | 'rtl'", description: "Yozuv yo'nalishi" },
+    { name: 'contentClassName', type: 'string', description: 'Ochiladigan panel klassi' },
+    {
+      name: 'container',
+      type: 'HTMLElement | null',
+      description: 'Portal konteyneri (standart — document.body)',
+    },
+    {
+      name: 'children',
+      type: 'ReactNode',
+      required: true,
+      description: 'Select.Item, Select.Group va Select.Separator',
+    },
+  ]}
+/>
+
+### Select.Item
+
+<PropsTable
+  rows={[
+    { name: 'value', type: 'string', required: true, description: 'Variant qiymati' },
+    { name: 'icon', type: 'ReactNode', description: 'Chapdagi ikonka (16px)' },
+    { name: 'disabled', type: 'boolean', description: "Variantni o'chiradi" },
+    {
+      name: 'textValue',
+      type: 'string',
+      description: "Typeahead uchun matn (children oddiy matn bo'lmasa)",
+    },
+  ]}
+/>
+
+### Select.Group
+
+<PropsTable
+  rows={[
+    { name: 'label', type: 'ReactNode', description: 'Guruh sarlavhasi' },
+    { name: 'children', type: 'ReactNode', description: "Guruhdagi Select.Item'lar" },
+  ]}
+/>
+
+`Select.Separator` — guruhlar orasidagi chiziq, faqat `className` qabul qiladi.
+
+### Data atributlari
+
+| Atribut            | Qayerda | Qiymat                                     |
+| ------------------ | ------- | ------------------------------------------ |
+| `data-size`        | trigger | `sm` · `md` · `lg`                         |
+| `data-state`       | trigger | `open` · `closed`                          |
+| `data-placeholder` | trigger | qiymat tanlanmaganda mavjud                |
+| `data-invalid`     | trigger | xato holatida mavjud                       |
+| `data-disabled`    | trigger | o'chirilganda mavjud                       |
+| `data-state`       | variant | `checked` · `unchecked`                    |
+| `data-highlighted` | variant | klaviatura yoki sichqoncha ustida turganda |
+
+## Klaviatura
+
+| Tugma                         | Harakat                                                 |
+| ----------------------------- | ------------------------------------------------------- |
+| `Enter` / `Space` / `↓` / `↑` | Trigger fokusda bo'lsa — panelni ochadi                 |
+| `↓` / `↑`                     | Variantlar bo'ylab yurish (o'chirilganlari o'tkaziladi) |
+| `Home` / `End`                | Birinchi / oxirgi variant                               |
+| Harf                          | Shu harf bilan boshlanadigan variantga sakrash          |
+| `Enter` / `Space`             | Tanlash va yopish                                       |
+| `Esc`                         | Qiymatni o'zgartirmay yopish, fokus triggerga qaytadi   |
+
+## Accessibility
+
+- **Rollar.** Trigger — `role="combobox"` (`aria-expanded` bilan), panel — `listbox`, har bir
+  variant — `option` (`aria-selected`). Asosida Radix Select turadi.
+- **Field bilan bog'lanish.** `Field` ichida label, `description` va `error` matnlari triggerga
+  `aria-labelledby` / `aria-describedby` orqali ulanadi; xatoda `aria-invalid="true"`,
+  `required` da `aria-required="true"` qo'yiladi.
+- **Fokus.** Panel ochilganda fokus tanlangan variantga o'tadi, yopilgach triggerga qaytadi.
+- **Nomsiz qoldirmang.** `Field` ishlatmasangiz, `aria-label` yozing (masalan,
+  `aria-label="Valyuta"`).
+- **Belgilar.** Chevron, ✓ va `icon` ikonkalari `aria-hidden` — ekran o'quvchi faqat variant
+  matnini o'qiydi.

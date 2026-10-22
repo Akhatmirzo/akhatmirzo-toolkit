@@ -1,0 +1,251 @@
+---
+title: FileUpload
+description: 'Fayl yuklash: sudrab tashlash, tanlash yoki Ctrl+V; har bir fayl uchun progress, bekor qilish va qayta urinish.'
+---
+
+<ComponentPreview name="file-upload/basic" />
+
+## Import
+
+```tsx
+import { FileUpload } from '@akhatmirzo/ui';
+```
+
+## Qachon ishlatish
+
+- **Hujjat, rasm, skrinshot yuklash** — ariza, profil, murojaat formalarida. Faylni sudrab
+  tashlash, tanlash oynasi va `Ctrl+V` — uchala yo'l bitta komponentda.
+- **Cheklovlarni oldindan ayting:** `accept`, `maxSize`, `maxFiles` berilsa, ostida "Rasmlar, PDF
+  · 5 MB gacha · ko'pi bilan 5 ta" kabi matn avtomatik chiqadi va qoidaga mos kelmagan fayl
+  darhol xato bilan belgilanadi.
+- **Darhol yuklash kerak bo'lsa** — `upload` funksiyasini bering: progress, bekor qilish va
+  "Qayta urinish" tayyor.
+- **Forma bilan birga yuborish kerak bo'lsa** — `upload` bermang, `name` bering: fayllar oddiy
+  `<input type="file">` dagidek `FormData` ga tushadi.
+- **Joy tor bo'lsa** — `variant="button"`: dropzone o'rniga bitta tugma.
+
+## Yuklash funksiyasi
+
+`upload(file, { onProgress, signal })` har bir mos fayl uchun alohida chaqiriladi va Promise
+qaytaradi. Progressni `onProgress(0–100)` bilan bering; `signal` — foydalanuvchi ✕ ni bosganda
+yoki komponent yopilganda bekor qilinadi. Promise natijasi `item.result` ga yoziladi.
+
+```ts title="upload.ts"
+import type { FileUploadContext } from '@akhatmirzo/ui';
+
+/** XMLHttpRequest — fetch'dan farqli o'laroq yuborish progressini beradi */
+export function uploadFile(file: File, { onProgress, signal }: FileUploadContext) {
+  return new Promise<{ url: string }>((resolve, reject) => {
+    const xhr = new XMLHttpRequest();
+    const body = new FormData();
+    body.append('file', file);
+
+    xhr.upload.onprogress = (e) => e.lengthComputable && onProgress((e.loaded / e.total) * 100);
+    xhr.onload = () =>
+      xhr.status < 300 ? resolve(JSON.parse(xhr.responseText)) : reject(new Error(xhr.statusText));
+    xhr.onerror = () => reject(new Error('network'));
+    signal.addEventListener('abort', () => xhr.abort());
+
+    xhr.open('POST', '/api/upload');
+    xhr.send(body);
+  });
+}
+```
+
+```tsx title="Documents.tsx"
+import { FileUpload } from '@akhatmirzo/ui';
+import { useState } from 'react';
+import { uploadFile } from './upload';
+
+export function Documents() {
+  const [urls, setUrls] = useState<string[]>([]);
+
+  return (
+    <>
+      <FileUpload
+        accept={['image/*', '.pdf']}
+        maxSize={5 * 1024 * 1024}
+        maxFiles={5}
+        multiple
+        upload={uploadFile}
+        onFilesChange={(items) =>
+          setUrls(items.flatMap((it) => (it.result ? [it.result.url] : [])))
+        }
+      />
+      <input type="hidden" name="documents" value={urls.join(',')} />
+    </>
+  );
+}
+```
+
+Promise rad etilsa, fayl qatorida xato chiqadi va **"Qayta urinish"** tugmasi paydo bo'ladi.
+Xato matnini `getErrorMessage(error)` bilan o'zingiz tanlaysiz (standart — "Tarmoq xatosi"). Yuqoridagi
+demoda nomida `xato` bo'lgan fayl ataylab xato beradi.
+
+<Callout title="Holat komponent ichida">
+  `FileUpload` fayllar ro'yxatini o'zi boshqaradi — `value` prop'i yo'q. Natijani olish uchun
+  `onFilesChange` dan foydalaning: u har bir o'zgarishda (qo'shildi, progress, tayyor, xato,
+  o'chirildi) to'liq ro'yxatni beradi.
+</Callout>
+
+## Holatlar
+
+Bitta fayl rejimida (`multiple` yo'q) yangi fayl eskisini almashtiradi. Fayl sudralganda mos tur —
+`primary` chegara, mos kelmagan tur — `danger` va "Bu turdagi fayl qabul qilinmaydi". `Field`
+dagi `error`, `disabled` va `required` avtomatik ulanadi. `hint` — o'z cheklov matningiz.
+
+<ComponentPreview name="file-upload/states" align="start" />
+
+Qoidaga mos kelmagan fayllar ham ro'yxatga tushadi — sababi bilan ("Hajmi 5 MB dan katta"), lekin
+yuklanmaydi va `maxFiles` hisobiga kirmaydi. `maxFiles` dan oshgan fayllar umuman qo'shilmaydi,
+ostida "Ko'pi bilan 5 ta fayl yuklash mumkin" xabari chiqadi.
+
+## Tugma varianti
+
+`variant="button"` — dropzone o'rniga "Fayl tanlash" tugmasi. Fayllar ro'yxati xuddi shunday
+ishlaydi.
+
+<ComponentPreview name="file-upload/button" align="start" />
+
+## Forma bilan
+
+`upload` bo'lmasa, fayllar faqat tanlanadi (`status: 'idle'`). `name` bersangiz, komponent ichida
+yashirin `<input type="file" name="...">` bo'ladi — xatosiz fayllar unga yoziladi va forma
+yuborilganda `FormData` ga tushadi.
+
+<ComponentPreview name="file-upload/form" align="start" />
+
+## Clipboard'dan joylash
+
+Standart holatda (`paste={true}`) komponent ichida fokus bo'lsa, `Ctrl+V` bilan nusxalangan fayl
+yoki skrinshot qo'shiladi. `paste="global"` — sahifaning istalgan joyida (input va textarea'dan
+tashqari) ishlaydi; `paste={false}` — o'chiq.
+
+<ComponentPreview name="file-upload/paste" />
+
+## Props
+
+Qolgan `<div>` atributlarini (`className`, `id`, `aria-*` ...) qabul qiladi.
+
+<PropsTable
+  rows={[
+    {
+      name: 'accept',
+      type: 'string[]',
+      description: "Ruxsat etilgan turlar: ['image/*', '.pdf', 'application/zip']",
+    },
+    { name: 'maxSize', type: 'number', description: 'Eng katta hajm, bayt' },
+    {
+      name: 'maxFiles',
+      type: 'number',
+      description: "Eng ko'p fayl soni (multiple bo'lmasa — 1)",
+    },
+    { name: 'multiple', type: 'boolean', default: 'false', description: 'Bir nechta fayl' },
+    {
+      name: 'upload',
+      type: '(file: File, ctx: FileUploadContext) => Promise<R>',
+      description: 'Yuklash funksiyasi. Berilmasa — fayllar faqat tanlanadi',
+    },
+    {
+      name: 'onFilesChange',
+      type: '(files: FileUploadItem<R>[]) => void',
+      description: "Ro'yxat o'zgarganda — to'liq ro'yxat",
+    },
+    {
+      name: 'variant',
+      type: "'dropzone' | 'button'",
+      default: "'dropzone'",
+      description: 'Katta maydon yoki bitta tugma',
+    },
+    { name: 'disabled', type: 'boolean' },
+    { name: 'invalid', type: 'boolean', description: "Field ichida error bo'lsa avtomatik" },
+    { name: 'required', type: 'boolean' },
+    { name: 'name', type: 'string', description: 'Forma uchun <input type="file"> nomi' },
+    {
+      name: 'hint',
+      type: 'ReactNode',
+      description: 'Cheklovlar matni; berilmasa accept, maxSize, maxFiles dan yasaladi',
+    },
+    {
+      name: 'paste',
+      type: "boolean | 'global'",
+      default: 'true',
+      description: "Ctrl+V: true — fokusda, 'global' — sahifaning istalgan joyida",
+    },
+    {
+      name: 'getErrorMessage',
+      type: '(error: unknown) => string | undefined',
+      description: 'Yuklash xatosidan matn',
+    },
+    { name: 'labels', type: 'FileUploadLabels', description: 'Barcha matnlar' },
+  ]}
+/>
+
+### FileUploadItem
+
+`onFilesChange` dagi har bir element:
+
+<PropsTable
+  rows={[
+    { name: 'id', type: 'string' },
+    { name: 'file', type: 'File' },
+    {
+      name: 'status',
+      type: "'idle' | 'uploading' | 'done' | 'error'",
+      description: "idle — upload yo'q, fayl faqat tanlangan",
+    },
+    { name: 'progress', type: 'number', description: '0–100' },
+    { name: 'error', type: 'string', description: 'Xato matni' },
+    {
+      name: 'errorKind',
+      type: "'type' | 'size' | 'upload'",
+      description: 'Faqat upload xatosida "Qayta urinish" chiqadi',
+    },
+    { name: 'result', type: 'R', description: 'upload qaytargan natija' },
+    { name: 'previewUrl', type: 'string', description: "Rasm bo'lsa — blob: manzil" },
+  ]}
+/>
+
+### Matnlar (`labels`)
+
+`prompt`, `browse`, `dragActive`, `dragReject`, `button`, `images`, `videos`, `audio`, `maxSize`,
+`maxFiles`, `tooManyFiles`, `invalidType`, `tooLarge`, `uploadError`, `uploaded`, `retry`,
+`cancel`, `remove`, `dismiss`, `list`. Hajm va son bilan bog'liqlari — funksiya:
+
+```tsx
+<FileUpload
+  labels={{
+    prompt: 'Drop a file here or',
+    browse: 'browse',
+    maxSize: (size) => `up to ${size}`,
+    tooLarge: (size) => `Larger than ${size}`,
+  }}
+/>
+```
+
+`matchesAccept(file, accept)` ham eksport qilinadi — server tekshiruvidan oldin xuddi shu qoidani
+ishlatish uchun.
+
+### Data atributlari
+
+| Atribut         | Element            | Qiymat                                  |
+| --------------- | ------------------ | --------------------------------------- |
+| `data-variant`  | ildiz              | `dropzone` · `button`                   |
+| `data-disabled` | ildiz              | `disabled` bo'lganda mavjud             |
+| `data-invalid`  | ildiz              | xato bo'lganda mavjud                   |
+| `data-drag`     | dropzone           | `idle` · `over` · `reject`              |
+| `data-status`   | fayl qatori (`li`) | `idle` · `uploading` · `done` · `error` |
+
+## Accessibility
+
+- **Dropzone** — `role="button"`, `Tab` bilan fokuslanadi, `Enter` yoki `Space` fayl tanlash
+  oynasini ochadi. Nomi `Field` label'i va ichidagi matndan yig'iladi; cheklovlar matni
+  `aria-describedby` orqali o'qiladi.
+- **Sudrash holati** ("Faylni qo'yib yuboring", "Bu turdagi fayl qabul qilinmaydi")
+  `aria-live="polite"` bilan e'lon qilinadi; `maxFiles` dan oshish xabari ham.
+- **Progress** — `role="progressbar"`, `aria-valuenow` va fayl nomi bilan.
+- **Qator tugmalari** fayl nomi bilan nomlangan: "Bekor qilish: hisobot.pdf" (yuklanayotganda),
+  "O'chirish: …", xatoda — "Olib tashlash: …".
+- **Ro'yxat** — `<ul aria-label="Tanlangan fayllar">`; uzun nomlar o'rtadan qisqartiriladi, to'liq
+  nom `title` da.
+- **Xato** `aria-invalid` sifatida dropzone/tugmaga beriladi.

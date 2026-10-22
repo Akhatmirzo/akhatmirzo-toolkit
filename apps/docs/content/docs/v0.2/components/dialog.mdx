@@ -3,7 +3,7 @@ title: Dialog
 description: 'Modal oyna: forma va tasdiqlash uchun, telefonda pastdan chiqadi; imperativ confirm() bilan.'
 ---
 
-<ComponentPreview name="dialog/basic" />
+<ComponentPreview name="archive/v0.2/dialog/basic" />
 
 ## Import
 
@@ -60,7 +60,7 @@ import { Dialog, ConfirmDialog, ConfirmProvider, confirm } from '@akhatmirzo/ui'
 800px, `full` — butun ekran. Balandlik ekrandan 32px kam bo'lishi mumkin, kontent uzun bo'lsa
 oyna ichida scroll paydo bo'ladi.
 
-<ComponentPreview name="dialog/sizes" />
+<ComponentPreview name="archive/v0.2/dialog/sizes" />
 
 ## Sozlamalar
 
@@ -70,21 +70,21 @@ oyna ichida scroll paydo bo'ladi.
 - `mobileSheet={false}` — telefonda (640px dan tor ekranda) ham oyna markazda qoladi. Standart
   holatda u pastdan chiqadigan sheet'ga aylanadi.
 
-<ComponentPreview name="dialog/options" />
+<ComponentPreview name="archive/v0.2/dialog/options" />
 
 ## Yuborish paytida
 
 Forma yuborilayotganda oynani tasodifan yopib qo'ymaslik uchun `dismissible` ni o'chiring va
 `onOpenChange` da yopilishni to'xtating — shunda tashqariga bosish ham, `Esc` ham ishlamaydi.
 
-<ComponentPreview name="dialog/async-submit" />
+<ComponentPreview name="archive/v0.2/dialog/async-submit" />
 
 ## Tasdiqlash: confirm()
 
 `confirm()` — imperativ API: oynani ochadi va `Promise<boolean>` qaytaradi. "Tasdiqlash" —
 `true`, "Bekor qilish", `Esc` yoki tashqariga bosish — `false`.
 
-<ComponentPreview name="dialog/confirm" />
+<ComponentPreview name="archive/v0.2/dialog/confirm" />
 
 ```tsx
 const ok = await confirm({
@@ -127,7 +127,7 @@ prop'i barcha `confirm()` oynalari uchun standart tugma matnlarini o'rnatadi:
 Tasdiqlash oynasi JSX'da turishi kerak bo'lsa (masalan, aniq trigger bilan), `ConfirmDialog`
 dan foydalaning. Opsiyalari `confirm()` bilan bir xil, ustiga `trigger` va `onCancel`.
 
-<ComponentPreview name="dialog/confirm-dialog" />
+<ComponentPreview name="archive/v0.2/dialog/confirm-dialog" />
 
 ## Dialog ichida Select va Combobox
 
@@ -136,7 +136,7 @@ dan foydalaning. Opsiyalari `confirm()` bilan bir xil, ustiga `trigger` va `onCa
 paneli oyna ustida ochiladi va fokus tuzog'i ularga xalaqit bermaydi. Hech qanday `z-index` yoki
 `container` sozlash shart emas. [`Drawer`](./drawer.mdx) ichida ham xuddi shunday.
 
-<ComponentPreview name="dialog/with-select" />
+<ComponentPreview name="archive/v0.2/dialog/with-select" />
 
 ## Props
 

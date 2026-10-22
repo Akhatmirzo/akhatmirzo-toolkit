@@ -1,0 +1,394 @@
+---
+title: Matn
+description: "Kirill ↔ lotin, alifboni aniqlash, apostroflar, o'zbekcha qidiruv, slugify va matnni qisqartirish."
+---
+
+O'zbek matni bir necha shaklda yoziladi: lotin va kirill, apostrofning to'rt-besh xil varianti
+(`'` `ʻ` `‘` `’`), katta-kichik harflar. Bu funksiyalar shu farqlarni bir xil tushunadi. Hammasi
+sof funksiyalar: React'siz, bog'liqliksiz va SSR'da xavfsiz.
+
+```ts
+import {
+  cyrToLat,
+  latToCyr,
+  normalizeUz,
+  detectScript,
+  toScript,
+  fixApostrophes,
+  searchMatch,
+  fuzzyMatch,
+  splitByRanges,
+  slugify,
+  truncate,
+  truncateMiddle,
+  capitalize,
+} from '@akhatmirzo/core';
+```
+
+## Transliteratsiya
+
+Matnni yozing yoki pastdagi namunalardan birini tanlang:
+
+<ComponentPreview name="core/translit" />
+
+### cyrToLat
+
+```ts
+function cyrToLat(s: string, options?: TranslitOptions): string;
+```
+
+O'zbek kirill matnini lotin yozuviga o'giradi. Imlo qoidalari hisobga olinadi: so'z boshidagi
+`е` → `ye`, `ц` → `ts`, `ъ` → `'`, `ь` tushib qoladi. Katta harflar saqlanadi — butunlay katta
+so'zda `Ш` → `SH`, aks holda `Sh`. Kirill bo'lmagan belgilar o'zgarmaydi.
+
+```ts
+cyrToLat('Шаҳар'); // 'Shahar'
+cyrToLat('ЎЗБЕКИСТОН'); // "O'ZBEKISTON"
+cyrToLat('ер, поезд, маъно'); // "yer, poyezd, ma'no"
+cyrToLat('центр'); // 'tsentr'
+cyrToLat('Ғузор', { apostrophe: 'ʻ' }); // 'Gʻuzor'
+```
+
+<PropsTable
+  rows={[
+    { name: 's', type: 'string', required: true, description: 'Kirill matn' },
+    {
+      name: 'options.apostrophe',
+      type: 'string',
+      default: '"\'"',
+      description: "o', g' va ъ uchun ishlatiladigan belgi, masalan 'ʻ'",
+    },
+  ]}
+/>
+
+### latToCyr
+
+```ts
+function latToCyr(s: string): string;
+```
+
+O'zbek lotin matnini kirillga o'giradi. `o'` va `g'` da apostrofning istalgan varianti qabul
+qilinadi. Boshqa joydagi apostrof tutuq belgisi `ъ` ga aylanadi, so'z boshidagi `e` esa `э` ga.
+`s'h` kabi ajratilgan juftliklar to'g'ri o'qiladi.
+
+```ts
+latToCyr("O'zbekiston"); // 'Ўзбекистон'
+latToCyr('Gʻuzor'); // 'Ғузор'
+latToCyr('SHAHAR'); // 'ШАҲАР'
+latToCyr("ma'no"); // 'маъно'
+latToCyr('ekran'); // 'экран'
+latToCyr("Is'hoq"); // 'Исҳоқ'
+```
+
+<Callout type="warn" title="ts → ц tiklanmaydi">
+  Lotin yozuvida `ts` ham `ц`, ham `т` + `с` bo'lishi mumkin, shuning uchun `latToCyr('tsex')` →
+  `'тсех'`. Rus tilidan kirgan so'zlarda natijani tekshiring.
+</Callout>
+
+### normalizeUz
+
+```ts
+function normalizeUz(s: string | null | undefined): string;
+```
+
+Qidiruv kaliti yasaydi: kichik harf, kirill → lotin, barcha apostroflar olib tashlanadi. Ikki
+satrni "bir xilmi" deb solishtirish yoki o'z qidiruvingizni yozish uchun. `null` va `undefined` →
+`''`.
+
+```ts
+normalizeUz('Gʻuzor'); // 'guzor'
+normalizeUz("G'uzor"); // 'guzor'
+normalizeUz('Ғузор'); // 'guzor'
+normalizeUz("O'zbekiston"); // 'ozbekiston'
+```
+
+<Callout title="cyrToLat bilan farqi">
+  `normalizeUz` da kirill `е` doim `e` bo'ladi (so'z boshida ham): `normalizeUz('Ер юзи')` → `'er
+  yuzi'`, `cyrToLat` esa `'Yer yuzi'` qaytaradi. Shunda so'rov bo'lagi so'z o'rtasidagi harflarni
+  ham topadi.
+</Callout>
+
+## Alifbo va apostroflar
+
+<ComponentPreview name="core/script" />
+
+### detectScript
+
+```ts
+function detectScript(s: string | null | undefined): DetectedScript;
+// DetectedScript = 'latin' | 'cyrillic' | 'mixed' | 'none'
+```
+
+Matn qaysi yozuvda ekanini aniqlaydi. Faqat harflar sanaladi: raqamlar, tinish belgilari,
+apostroflar va boshqa yozuvlar (yunon, arab ...) e'tiborga olinmaydi. Qoida oddiy va oldindan
+aytsa bo'ladigan: ikkala yozuvdan kamida bittadan harf bo'lsa — `'mixed'` (bitta begona harf ham
+yetarli), faqat bittasidan bo'lsa — o'sha yozuv, harf umuman bo'lmasa — `'none'`.
+
+```ts
+detectScript('Salom dunyo'); // 'latin'
+detectScript('Салом'); // 'cyrillic'
+detectScript('Salom Салом'); // 'mixed'
+detectScript('iPhone 15 — янги'); // 'mixed'
+detectScript('+998 90 123-45-67'); // 'none'
+```
+
+### toScript
+
+```ts
+function toScript(
+  s: string | null | undefined,
+  target: 'latin' | 'cyrillic',
+  options?: ToScriptOptions, // { apostrophe?: 'typographic' | 'ascii' }
+): string;
+```
+
+Matnni kerakli yozuvga o'giradi. Manba avtomatik aniqlanadi va faqat **boshqa** yozuvdagi qismlar
+o'giriladi: aralash matnda lotin qismi lotinga o'girishda o'zgarmaydi (va aksincha). Matn
+allaqachon kerakli yozuvda bo'lsa, aynan o'zi qaytadi — hatto apostroflarga ham tegilmaydi (ular
+uchun `fixApostrophes`).
+
+Lotin natijada standart holatda tipografik belgilar: `oʻ`, `gʻ` (U+02BB) va tutuq belgisi `ʼ`
+(U+02BC). Oddiy `'` kerak bo'lsa — `apostrophe: 'ascii'`.
+
+```ts
+toScript('Салом, дунё', 'latin'); // 'Salom, dunyo'
+toScript('Ўзбекистон', 'latin'); // 'Oʻzbekiston'
+toScript('маъно', 'latin', { apostrophe: 'ascii' }); // "ma'no"
+toScript("Salom, O'zbekiston", 'cyrillic'); // 'Салом, Ўзбекистон'
+toScript('Toshkent — Тошкент', 'cyrillic'); // 'Тошкент — Тошкент'
+toScript("O'zbekiston", 'latin'); // "O'zbekiston" — o'zgarmadi
+```
+
+### fixApostrophes
+
+```ts
+function fixApostrophes(
+  s: string | null | undefined,
+  options?: FixApostrophesOptions, // { style?: 'typographic' | 'ascii' }
+): string;
+```
+
+Lotin matndagi apostroflarni to'g'rilaydi — foydalanuvchi qaysi belgini yozganidan qat'i nazar:
+
+- `o` / `g` dan keyingi har qanday variant (`'` `‘` `’` `` ` `` `´` `ʼ`) → `ʻ`: `oʻ`, `gʻ`;
+- so'z ichidagi boshqa apostrof (tutuq belgisi) → `ʼ`: `maʼno`, `sanʼat`;
+- qo'shtirnoq vazifasidagilarga tegilmaydi: so'z boshidagi apostrof — ochuvchi, ochiq
+  qo'shtirnoqdan keyin so'z oxiridagisi — yopuvchi.
+
+`style: 'ascii'` — teskarisi: `ʻ` va `ʼ` oddiy `'` ga aylanadi.
+
+```ts
+fixApostrophes("O'zbekiston g'alabasi, ma'no"); // 'Oʻzbekiston gʻalabasi, maʼno'
+fixApostrophes("o'n, tog' va bog'"); // 'oʻn, togʻ va bogʻ'
+fixApostrophes("'Salom' dedi"); // "'Salom' dedi"
+fixApostrophes("'O'zbekiston' kitobi"); // "'Oʻzbekiston' kitobi"
+fixApostrophes("mo''tabar"); // 'moʻʼtabar'
+fixApostrophes('Oʻzbekiston', { style: 'ascii' }); // "O'zbekiston"
+```
+
+<Callout type="warn" title="Qo'shtirnoq ichidagi so'z oxiri">
+  Ochiq qo'shtirnoqdan keyin so'z oxiridagi `o'` / `g'` yopuvchi qo'shtirnoq deb o'qiladi:
+  `"'Kino'"` to'g'ri qoladi, lekin `"'tog'"` da `g'` ham qo'shtirnoq bo'lib qoladi. Bunday noaniq
+  holatlarda matnni qo'lda tekshiring.
+</Callout>
+
+## Qidiruv
+
+### searchMatch
+
+```ts
+function searchMatch(
+  text: string | null | undefined,
+  query: string | null | undefined,
+): SearchMatchResult; // { match: boolean; ranges: TextRange[] }
+```
+
+Qism satr qidiruvi: registr, apostrof varianti va yozuv (kirill/lotin) farqi hisobga olinmaydi.
+`ranges` — **asl** matndagi barcha mosliklar (`[start, end)`, `slice` bilan mos), shuning uchun
+kirillcha matnda lotincha so'rovni ham to'g'ri ajratib ko'rsatish mumkin. Bo'sh so'rov hamma
+narsaga mos keladi. `Combobox` qidiruvi va `DataTable` filtri shu funksiyada ishlaydi.
+
+<ComponentPreview name="core/search" />
+
+```ts
+searchMatch('Toshkent', 'тош'); // { match: true, ranges: [[0, 4]] }
+searchMatch('Ғузор тумани', "g'uzor"); // { match: true, ranges: [[0, 5]] }
+searchMatch("Farg'ona", 'fargona'); // { match: true, ranges: [[0, 8]] }
+searchMatch('Ota-ona, ota', 'ota'); // { match: true, ranges: [[0, 3], [9, 12]] }
+searchMatch('Shahrisabz', 'xiva'); // { match: false, ranges: [] }
+searchMatch('Toshkent', ''); // { match: true, ranges: [] }
+```
+
+### fuzzyMatch
+
+```ts
+function fuzzyMatch(
+  text: string | null | undefined,
+  query: string | null | undefined,
+): FuzzyMatchResult | null; // { score: number; ranges: TextRange[] }
+```
+
+Noaniq qidiruv: so'rov harflari matnda **shu tartibda** uchrashi kerak, orasida boshqa harflar
+bo'lishi mumkin. So'z boshidagi va ketma-ket mosliklar yuqoriroq ball oladi. Mos kelmasa —
+`null`. Normallashtirish `searchMatch` bilan bir xil, so'rovdagi bo'shliqlar e'tiborga olinmaydi.
+`CommandPalette` shu bilan ishlaydi.
+
+<ComponentPreview name="core/fuzzy" />
+
+```ts
+fuzzyMatch('Yangi buyurtma', 'ybu'); // { score: 23, ranges: [[0, 1], [6, 8]] }
+fuzzyMatch('Yangi buyurtma', 'ybuy'); // { score: 29, ranges: [[0, 1], [6, 9]] }
+fuzzyMatch('Sozlamalar', 'xyz'); // null
+```
+
+`score` ning mutlaq qiymati ma'no bermaydi — undan faqat natijalarni o'zaro saralash uchun
+foydalaning: `results.sort((a, b) => b.score - a.score)`.
+
+### splitByRanges
+
+```ts
+function splitByRanges(text: string, ranges: readonly TextRange[]): TextSegment[];
+// TextSegment = { text: string; match: boolean }
+```
+
+Matnni `searchMatch` yoki `fuzzyMatch` qaytargan `ranges` bo'yicha bo'laklarga ajratadi —
+topilgan qismni `<mark>` bilan chizish uchun.
+
+```ts
+splitByRanges('Toshkent', [[0, 4]]);
+// [{ text: 'Tosh', match: true }, { text: 'kent', match: false }]
+```
+
+```tsx title="highlight.tsx"
+import { searchMatch, splitByRanges } from '@akhatmirzo/core';
+
+export function Highlight({ text, query }: { text: string; query: string }) {
+  const { ranges } = searchMatch(text, query);
+  return (
+    <>
+      {splitByRanges(text, ranges).map((part, i) =>
+        part.match ? <mark key={i}>{part.text}</mark> : <span key={i}>{part.text}</span>,
+      )}
+    </>
+  );
+}
+```
+
+## Matn yordamchilari
+
+<ComponentPreview name="core/truncate" />
+
+### slugify
+
+```ts
+function slugify(s: string | null | undefined): string;
+```
+
+URL uchun slug: o'zbekcha matn (kirill ham) lotinga o'giriladi, apostroflar olib tashlanadi,
+qolgan belgilar `-` bilan almashtiriladi.
+
+```ts
+slugify("Farg'ona viloyati"); // 'fargona-viloyati'
+slugify('Тошкент шаҳри'); // 'toshkent-shahri'
+slugify('Ер юзи'); // 'yer-yuzi'
+slugify("Farg'ona viloyati — 2026"); // 'fargona-viloyati-2026'
+```
+
+### truncate
+
+```ts
+function truncate(s: string, max: number, ellipsis?: string): string;
+```
+
+Matnni oxiridan qisqartiradi. Natija `ellipsis` bilan birga `max` belgidan oshmaydi, oxirgi
+bo'shliq tashlanadi. Belgilar kod nuqtasi bo'yicha sanaladi — emoji o'rtasidan bo'linmaydi.
+
+```ts
+truncate('Salom dunyo', 7); // 'Salom…'
+truncate('Salom dunyo', 8, '...'); // 'Salom...'
+truncate('Salom', 10); // 'Salom'
+```
+
+### truncateMiddle
+
+```ts
+function truncateMiddle(s: string, max: number, ellipsis?: string): string;
+```
+
+Matnni o'rtasidan qisqartiradi. Fayl nomida kengaytma va nomning oxiri saqlanadi — bir xil
+boshlanadigan fayllarni ajratish oson. `FileUpload` ro'yxati shundan foydalanadi.
+
+```ts
+truncateMiddle('hisobot-oktabr-2026.pdf', 22); // 'hisobot-oktab…2026.pdf'
+truncateMiddle('shartnoma-mchj-akhatmirzo-imzolangan.docx', 24); // 'shartnoma-mchj…ngan.docx'
+```
+
+<PropsTable
+  rows={[
+    { name: 's', type: 'string', required: true, description: 'Asl matn' },
+    {
+      name: 'max',
+      type: 'number',
+      required: true,
+      description: 'Natijaning maksimal uzunligi (ellipsis bilan birga)',
+    },
+    { name: 'ellipsis', type: 'string', default: "'…'", description: 'Qisqartirilgan joy belgisi' },
+  ]}
+/>
+
+### capitalize
+
+```ts
+function capitalize(s: string): string;
+```
+
+Birinchi harfni katta qiladi, qolganiga tegmaydi.
+
+```ts
+capitalize("o'zbekiston"); // "O'zbekiston"
+capitalize('toshkent shahri'); // 'Toshkent shahri'
+```
+
+### isApostrophe va UZ_APOSTROPHES
+
+```ts
+const UZ_APOSTROPHES: string; // "ʻʼ‘’`´'"
+function isApostrophe(ch: string | undefined): boolean;
+```
+
+O'zbek yozuvida apostrof o'rnida uchraydigan barcha belgilar va ularni tekshirish funksiyasi.
+
+```ts
+isApostrophe('ʻ'); // true
+isApostrophe('a'); // false
+```
+
+## Tiplar
+
+```ts
+type TextRange = [start: number, end: number]; // asl matndagi UTF-16 indekslar
+interface TextSegment {
+  text: string;
+  match: boolean;
+}
+interface SearchMatchResult {
+  match: boolean;
+  ranges: TextRange[];
+}
+interface FuzzyMatchResult {
+  score: number;
+  ranges: TextRange[];
+}
+interface TranslitOptions {
+  apostrophe?: string;
+}
+type UzScript = 'latin' | 'cyrillic';
+type UzApostropheStyle = 'typographic' | 'ascii';
+type DetectedScript = 'latin' | 'cyrillic' | 'mixed' | 'none';
+interface ToScriptOptions {
+  apostrophe?: UzApostropheStyle; // standart: 'typographic'
+}
+interface FixApostrophesOptions {
+  style?: UzApostropheStyle; // standart: 'typographic'
+}
+```

@@ -1,0 +1,80 @@
+---
+title: Skeleton
+description: "Yuklanayotgan kontentning o'rnini egallab turadigan shimmer bloklar va matn qatorlari."
+---
+
+<ComponentPreview name="skeleton/loading-card" />
+
+## Import
+
+```tsx
+import { Skeleton } from '@akhatmirzo/ui';
+```
+
+## Qachon ishlatish
+
+- **Kontentning shakli oldindan ma'lum bo'lsa** — kartalar, ro'yxatlar, profil, jadval.
+  Yuklangandan keyin sahifa "sakramaydi".
+- **Haqiqiy kontentga o'xshatib quring:** avatar o'rniga doira, sarlavha o'rniga qisqa qator,
+  matn o'rniga `Skeleton.Text`.
+- **Shakli noma'lum yoki qisqa kutishlar** (tugma bosilgandan keyin) uchun
+  [`Spinner`](./spinner.mdx) yoki `Button` dagi `loading` mos.
+- **Ota elementga `aria-busy`** qo'ying — skeletonlarning o'zi ekran o'quvchidan yashiringan.
+
+## Shakllar
+
+O'lcham `className` orqali beriladi (`h-4 w-32`, `size-10`). `variant="circle"` — avatar o'rni
+uchun doira; standart `rect` burchaklari yumaloqlangan to'rtburchak.
+
+<ComponentPreview name="skeleton/shapes" />
+
+## Matn qatorlari
+
+`Skeleton.Text` — `lines` ta qator, oxirgisi 60% kenglikda: haqiqiy paragrafga o'xshaydi.
+
+<ComponentPreview name="skeleton/text" />
+
+## Props
+
+### Skeleton
+
+`Skeleton` qolgan barcha `<div>` atributlarini qabul qiladi.
+
+<PropsTable
+  rows={[
+    {
+      name: 'variant',
+      type: "'rect' | 'circle'",
+      default: "'rect'",
+      description: "circle — avatar o'rni uchun doira",
+    },
+    {
+      name: 'className',
+      type: 'string',
+      description: "O'lcham va shakl: h-4 w-32, size-10, rounded-lg",
+    },
+  ]}
+/>
+
+### Skeleton.Text
+
+`SkeletonText` nomi bilan ham eksport qilinadi. Qolgan `<div>` atributlarini qabul qiladi.
+
+<PropsTable
+  rows={[
+    {
+      name: 'lines',
+      type: 'number',
+      default: '3',
+      description: "Qatorlar soni; bittadan ko'p bo'lsa, oxirgisi 60% kenglikda",
+    },
+  ]}
+/>
+
+## Accessibility
+
+- **`aria-hidden="true"`** — skeletonlar ekran o'quvchiga ko'rinmaydi, bo'sh bloklar o'qilmaydi.
+- **Yuklanish holatini ota elementda bildiring:** `aria-busy={loading}` (yuqoridagi misolda
+  `Card` da). Kerak bo'lsa, yashirin "Yuklanmoqda" matnini qo'shing.
+- **Kamaytirilgan harakat.** Tizimda "reduce motion" yoqilgan bo'lsa, shimmer o'rniga yumshoq
+  pulsatsiya ishlatiladi.

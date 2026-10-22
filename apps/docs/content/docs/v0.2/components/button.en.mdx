@@ -3,7 +3,7 @@ title: Button
 description: Triggers an action — 6 variants, 3 sizes and a loading state.
 ---
 
-<ComponentPreview name="button/variants" />
+<ComponentPreview name="archive/v0.2/button/variants" />
 
 ## Import
 
@@ -41,21 +41,21 @@ import { Button } from '@akhatmirzo/ui';
 Three sizes — 32, 40 and 48px. They match `Input` and `Select`, so controls line up in a row.
 The `sm` size gets an invisible hit area extended to 40px.
 
-<ComponentPreview name="button/sizes" />
+<ComponentPreview name="archive/v0.2/button/sizes" />
 
 ## Icons
 
 `leftIcon` and `rightIcon` take any `ReactNode`. The icon size follows the button size:
 16 / 18 / 20px. Icons are hidden from screen readers (`aria-hidden`).
 
-<ComponentPreview name="button/icons" />
+<ComponentPreview name="archive/v0.2/button/icons" />
 
 ## Loading and disabled
 
 While `loading`, the label keeps its place (the width doesn't jump), a spinner sits on top and
 clicks are ignored. Click the first button to try it.
 
-<ComponentPreview name="button/loading" />
+<ComponentPreview name="archive/v0.2/button/loading" />
 
 <Callout title="loading vs. disabled">
   A `disabled` button leaves the tab order and can't be clicked. A `loading` button **stays**
@@ -67,7 +67,7 @@ clicks are ignored. Click the first button to try it.
 With `asChild`, `Button` renders its child instead of its own `<button>` — the styles come from
 the button, the element is your `<a>`. In Next.js you can pass `<Link>` the same way.
 
-<ComponentPreview name="button/as-child" />
+<ComponentPreview name="archive/v0.2/button/as-child" />
 
 ```tsx
 import Link from 'next/link';
@@ -81,7 +81,7 @@ import Link from 'next/link';
 
 For mobile forms and sign-in screens — `fullWidth`.
 
-<ComponentPreview name="button/full-width" />
+<ComponentPreview name="archive/v0.2/button/full-width" />
 
 ## Props
 

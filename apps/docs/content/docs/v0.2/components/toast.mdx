@@ -3,7 +3,7 @@ title: Toast
 description: 'Qisqa bildirishnomalar: imperativ toast() API, promise kuzatish, amal tugmasi va dasta.'
 ---
 
-<ComponentPreview name="toast/types" />
+<ComponentPreview name="archive/v0.2/toast/types" />
 
 ## Import
 
@@ -67,7 +67,7 @@ Har bir funksiya toast `id` sini qaytaradi. `toast.dismiss(id)` bitta toastni, `
 bosilgach toast yopiladi; ochiq qolishi kerak bo'lsa, `onClick` ichida `event.preventDefault()`
 chaqiring.
 
-<ComponentPreview name="toast/action" />
+<ComponentPreview name="archive/v0.2/toast/action" />
 
 ```tsx
 toast("Mahsulot o'chirildi", {
@@ -83,7 +83,7 @@ Promise holatini kuzatadi: avval `loading`, keyin `success` yoki `error` — ham
 promise qaytaradigan funksiya ham berish mumkin. `toast.promise()` asl promise'ni qaytaradi —
 `await` qilish yoki `.catch()` ulash mumkin.
 
-<ComponentPreview name="toast/promise" />
+<ComponentPreview name="archive/v0.2/toast/promise" />
 
 ```tsx
 const order = await toast.promise(api.saveOrder(data), {
@@ -98,7 +98,7 @@ const order = await toast.promise(api.saveOrder(data), {
 `{ id }` berilsa, shu id'li toast yangilanadi (yo'q bo'lsa — shu id bilan yaratiladi). Turini,
 matnini va izohini o'zgartirish mumkin; taymer qaytadan boshlanadi.
 
-<ComponentPreview name="toast/update" />
+<ComponentPreview name="archive/v0.2/toast/update" />
 
 ## Dasta (stack)
 
@@ -107,7 +107,7 @@ ularning taymeri to'xtab turadi. Toastlar ustma-ust "dasta" bo'lib turadi; sichq
 borsa yoki fokus tushsa — yoyiladi va barcha taymerlar to'xtaydi. Toastni chetga surib (swipe)
 yopish mumkin.
 
-<ComponentPreview name="toast/stack" />
+<ComponentPreview name="archive/v0.2/toast/stack" />
 
 ## Props
 

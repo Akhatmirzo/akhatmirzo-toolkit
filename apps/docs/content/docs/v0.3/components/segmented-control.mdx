@@ -1,0 +1,145 @@
+---
+title: SegmentedControl
+description: "Bir nechta variantdan bittasini tanlash: suriluvchi indikator, ikonkalar, Button bilan bir xil o'lchamlar."
+---
+
+<ComponentPreview name="segmented-control/basic" />
+
+## Import
+
+```tsx
+import { SegmentedControl } from '@akhatmirzo/ui';
+```
+
+## Qachon ishlatish
+
+- **Ko'rinish rejimi** — "Katakli / Ro'yxat / Xarita". Tanlov darhol qo'llanadi.
+- **Filtr yoki davr** — "Kun / Hafta / Oy", "Hammasi / To'langan / Qarz".
+- **Variantlar 2–5 ta va qisqa** bo'lsin. Ko'p yoki uzun bo'lsa — [`Select`](./select.mdx) yoki
+  [`RadioGroup`](./radio-group.mdx).
+- **Yoqish/o'chirish uchun emas** — ikki holatli sozlamaga [`Switch`](./switch.mdx) mos.
+
+## Tabs'dan farqi
+
+Ikkalasi ham bir xil ko'rinishi mumkin, lekin vazifasi boshqa:
+
+|             | `Tabs`                               | `SegmentedControl`                              |
+| ----------- | ------------------------------------ | ----------------------------------------------- |
+| Nima qiladi | Kontent **panellarini** almashtiradi | **Qiymat** tanlaydi (filtr, rejim, davr)        |
+| Semantika   | `tablist` / `tab` / `tabpanel`       | `radiogroup` / `radio`                          |
+| Natija      | Sahifaning boshqa bo'limi ko'rinadi  | Mavjud kontent qayta filtrlanadi yoki chiziladi |
+| Forma       | Yo'q                                 | `name` bilan forma qiymati bo'ladi              |
+
+Qoida: tanlovdan keyin **boshqa kontent** paydo bo'lsa — [`Tabs`](./tabs.mdx); **o'sha kontent**
+boshqacha ko'rinsa yoki filtrlansa — `SegmentedControl`.
+
+## O'lchamlar
+
+`size` — `sm` (32px), `md` (40px, standart), `lg` (48px). Balandliklar [`Button`](./button.mdx) va
+`Input` bilan bir xil, shuning uchun bir qatorda tekis turadi.
+
+<ComponentPreview name="segmented-control/sizes" align="start" />
+
+## Ikonkalar
+
+`icon` — matn oldidagi ikonka. Faqat ikonkali elementda `aria-label` **majburiy** — TypeScript
+uni talab qiladi.
+
+<ComponentPreview name="segmented-control/icons" />
+
+## To'liq kenglik
+
+`fullWidth` — konteyner kengligini egallaydi, elementlar teng bo'linadi. Mobil formalarda qulay.
+
+<ComponentPreview name="segmented-control/full-width" align="start" />
+
+## Boshqariladigan rejim
+
+`value` + `onValueChange` — tanlovni o'zingiz saqlaysiz. Tanlangan elementni qayta bosish
+tanlovni bekor qilmaydi — doim bitta qiymat tanlangan bo'ladi.
+
+<ComponentPreview name="segmented-control/controlled" align="start" />
+
+## O'chirilgan holat
+
+`disabled` butun guruhga yoki bitta `SegmentedControl.Item` ga beriladi. O'chirilgan element
+bosilmaydi va klaviatura uni o'tkazib yuboradi.
+
+<ComponentPreview name="segmented-control/disabled" align="start" />
+
+## Props
+
+### SegmentedControl
+
+Qolgan `<div>` atributlari va Radix `RadioGroup` prop'lari (`name`, `required`, `loop`, `dir`) ham
+qabul qilinadi; `ref` ildiz elementga tushadi.
+
+<PropsTable
+  rows={[
+    { name: 'value', type: 'string', description: 'Tanlangan qiymat (boshqariladigan rejim)' },
+    { name: 'defaultValue', type: 'string', description: "Boshlang'ich qiymat" },
+    { name: 'onValueChange', type: '(value: string) => void', description: 'Tanlov almashganda' },
+    {
+      name: 'size',
+      type: "'sm' | 'md' | 'lg'",
+      default: "'md'",
+      description: 'Balandlik: 32 / 40 / 48px',
+    },
+    {
+      name: 'fullWidth',
+      type: 'boolean',
+      default: 'false',
+      description: "Kenglikni egallaydi, elementlar teng bo'linadi",
+    },
+    { name: 'disabled', type: 'boolean', description: "Butun guruhni o'chiradi" },
+    { name: 'name', type: 'string', description: 'Forma uchun (yashirin radio input)' },
+    {
+      name: 'aria-label',
+      type: 'string',
+      description: "Guruh nomi (masalan, Davr yoki Ko'rinish)",
+    },
+  ]}
+/>
+
+### SegmentedControl.Item
+
+<PropsTable
+  rows={[
+    { name: 'value', type: 'string', required: true, description: 'Element qiymati' },
+    { name: 'icon', type: 'ReactNode', description: 'Matn oldidagi ikonka' },
+    { name: 'disabled', type: 'boolean', description: "Elementni o'chiradi" },
+    {
+      name: 'aria-label',
+      type: 'string',
+      description: 'Faqat ikonkali elementda majburiy',
+    },
+  ]}
+/>
+
+### Data atributlari
+
+| Atribut           | Qayerda        | Qiymat                        |
+| ----------------- | -------------- | ----------------------------- |
+| `data-size`       | ildiz          | `sm` · `md` · `lg`            |
+| `data-full-width` | ildiz          | `fullWidth` da mavjud         |
+| `data-disabled`   | ildiz, element | o'chirilganda mavjud          |
+| `data-state`      | element        | `checked` · `unchecked`       |
+| `data-slot`       | indikator      | `segmented-control-indicator` |
+
+## Klaviatura
+
+| Tugma             | Harakat                                                        |
+| ----------------- | -------------------------------------------------------------- |
+| `Tab`             | Guruhga kirish (tanlangan elementga) va guruhdan chiqish       |
+| `←` `↑` / `→` `↓` | Oldingi / keyingi element — fokus bilan birga darhol tanlanadi |
+
+## Accessibility
+
+- **Rollar.** Ildiz — `role="radiogroup"`, element — `role="radio"` (`aria-checked`). Asosida
+  Radix RadioGroup: bitta tanlov, roving focus — guruh `Tab` uchun bitta to'xtash joyi.
+- **Nom.** Guruhga `aria-label` bering ("Davr"). [`Field`](./field.mdx) ichida label guruh nomiga
+  aylanadi, izoh `aria-describedby` ga ulanadi.
+- **Faqat ikonkali element** — `aria-label` majburiy (TypeScript tekshiradi).
+- **Indikator** bezak — `aria-hidden`. U tanlangan element o'lchamini o'qib, 200ms davomida
+  siljiydi; o'lcham o'zgarsa (oyna kengligi, shrift yuklanishi) qayta hisoblanadi.
+  `prefers-reduced-motion` da sakrab o'tadi.

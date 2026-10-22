@@ -1,6 +1,6 @@
 ---
 title: Matn
-description: "Kirill ↔ lotin, alifboni aniqlash, apostroflar, o'zbekcha qidiruv, slugify va matnni qisqartirish."
+description: "Kirill ↔ lotin, o'zbekcha qidiruv, slugify va matnni qisqartirish."
 ---
 
 O'zbek matni bir necha shaklda yoziladi: lotin va kirill, apostrofning to'rt-besh xil varianti
@@ -12,9 +12,6 @@ import {
   cyrToLat,
   latToCyr,
   normalizeUz,
-  detectScript,
-  toScript,
-  fixApostrophes,
   searchMatch,
   fuzzyMatch,
   splitByRanges,
@@ -29,7 +26,7 @@ import {
 
 Matnni yozing yoki pastdagi namunalardan birini tanlang:
 
-<ComponentPreview name="core/translit" />
+<ComponentPreview name="archive/v0.2/core/translit" />
 
 ### cyrToLat
 
@@ -108,90 +105,6 @@ normalizeUz("O'zbekiston"); // 'ozbekiston'
   ham topadi.
 </Callout>
 
-## Alifbo va apostroflar
-
-<ComponentPreview name="core/script" />
-
-### detectScript
-
-```ts
-function detectScript(s: string | null | undefined): DetectedScript;
-// DetectedScript = 'latin' | 'cyrillic' | 'mixed' | 'none'
-```
-
-Matn qaysi yozuvda ekanini aniqlaydi. Faqat harflar sanaladi: raqamlar, tinish belgilari,
-apostroflar va boshqa yozuvlar (yunon, arab ...) e'tiborga olinmaydi. Qoida oddiy va oldindan
-aytsa bo'ladigan: ikkala yozuvdan kamida bittadan harf bo'lsa — `'mixed'` (bitta begona harf ham
-yetarli), faqat bittasidan bo'lsa — o'sha yozuv, harf umuman bo'lmasa — `'none'`.
-
-```ts
-detectScript('Salom dunyo'); // 'latin'
-detectScript('Салом'); // 'cyrillic'
-detectScript('Salom Салом'); // 'mixed'
-detectScript('iPhone 15 — янги'); // 'mixed'
-detectScript('+998 90 123-45-67'); // 'none'
-```
-
-### toScript
-
-```ts
-function toScript(
-  s: string | null | undefined,
-  target: 'latin' | 'cyrillic',
-  options?: ToScriptOptions, // { apostrophe?: 'typographic' | 'ascii' }
-): string;
-```
-
-Matnni kerakli yozuvga o'giradi. Manba avtomatik aniqlanadi va faqat **boshqa** yozuvdagi qismlar
-o'giriladi: aralash matnda lotin qismi lotinga o'girishda o'zgarmaydi (va aksincha). Matn
-allaqachon kerakli yozuvda bo'lsa, aynan o'zi qaytadi — hatto apostroflarga ham tegilmaydi (ular
-uchun `fixApostrophes`).
-
-Lotin natijada standart holatda tipografik belgilar: `oʻ`, `gʻ` (U+02BB) va tutuq belgisi `ʼ`
-(U+02BC). Oddiy `'` kerak bo'lsa — `apostrophe: 'ascii'`.
-
-```ts
-toScript('Салом, дунё', 'latin'); // 'Salom, dunyo'
-toScript('Ўзбекистон', 'latin'); // 'Oʻzbekiston'
-toScript('маъно', 'latin', { apostrophe: 'ascii' }); // "ma'no"
-toScript("Salom, O'zbekiston", 'cyrillic'); // 'Салом, Ўзбекистон'
-toScript('Toshkent — Тошкент', 'cyrillic'); // 'Тошкент — Тошкент'
-toScript("O'zbekiston", 'latin'); // "O'zbekiston" — o'zgarmadi
-```
-
-### fixApostrophes
-
-```ts
-function fixApostrophes(
-  s: string | null | undefined,
-  options?: FixApostrophesOptions, // { style?: 'typographic' | 'ascii' }
-): string;
-```
-
-Lotin matndagi apostroflarni to'g'rilaydi — foydalanuvchi qaysi belgini yozganidan qat'i nazar:
-
-- `o` / `g` dan keyingi har qanday variant (`'` `‘` `’` `` ` `` `´` `ʼ`) → `ʻ`: `oʻ`, `gʻ`;
-- so'z ichidagi boshqa apostrof (tutuq belgisi) → `ʼ`: `maʼno`, `sanʼat`;
-- qo'shtirnoq vazifasidagilarga tegilmaydi: so'z boshidagi apostrof — ochuvchi, ochiq
-  qo'shtirnoqdan keyin so'z oxiridagisi — yopuvchi.
-
-`style: 'ascii'` — teskarisi: `ʻ` va `ʼ` oddiy `'` ga aylanadi.
-
-```ts
-fixApostrophes("O'zbekiston g'alabasi, ma'no"); // 'Oʻzbekiston gʻalabasi, maʼno'
-fixApostrophes("o'n, tog' va bog'"); // 'oʻn, togʻ va bogʻ'
-fixApostrophes("'Salom' dedi"); // "'Salom' dedi"
-fixApostrophes("'O'zbekiston' kitobi"); // "'Oʻzbekiston' kitobi"
-fixApostrophes("mo''tabar"); // 'moʻʼtabar'
-fixApostrophes('Oʻzbekiston', { style: 'ascii' }); // "O'zbekiston"
-```
-
-<Callout type="warn" title="Qo'shtirnoq ichidagi so'z oxiri">
-  Ochiq qo'shtirnoqdan keyin so'z oxiridagi `o'` / `g'` yopuvchi qo'shtirnoq deb o'qiladi:
-  `"'Kino'"` to'g'ri qoladi, lekin `"'tog'"` da `g'` ham qo'shtirnoq bo'lib qoladi. Bunday noaniq
-  holatlarda matnni qo'lda tekshiring.
-</Callout>
-
 ## Qidiruv
 
 ### searchMatch
@@ -208,7 +121,7 @@ Qism satr qidiruvi: registr, apostrof varianti va yozuv (kirill/lotin) farqi his
 kirillcha matnda lotincha so'rovni ham to'g'ri ajratib ko'rsatish mumkin. Bo'sh so'rov hamma
 narsaga mos keladi. `Combobox` qidiruvi va `DataTable` filtri shu funksiyada ishlaydi.
 
-<ComponentPreview name="core/search" />
+<ComponentPreview name="archive/v0.2/core/search" />
 
 ```ts
 searchMatch('Toshkent', 'тош'); // { match: true, ranges: [[0, 4]] }
@@ -233,7 +146,7 @@ bo'lishi mumkin. So'z boshidagi va ketma-ket mosliklar yuqoriroq ball oladi. Mos
 `null`. Normallashtirish `searchMatch` bilan bir xil, so'rovdagi bo'shliqlar e'tiborga olinmaydi.
 `CommandPalette` shu bilan ishlaydi.
 
-<ComponentPreview name="core/fuzzy" />
+<ComponentPreview name="archive/v0.2/core/fuzzy" />
 
 ```ts
 fuzzyMatch('Yangi buyurtma', 'ybu'); // { score: 23, ranges: [[0, 1], [6, 8]] }
@@ -276,7 +189,7 @@ export function Highlight({ text, query }: { text: string; query: string }) {
 
 ## Matn yordamchilari
 
-<ComponentPreview name="core/truncate" />
+<ComponentPreview name="archive/v0.2/core/truncate" />
 
 ### slugify
 
@@ -381,14 +294,5 @@ interface FuzzyMatchResult {
 }
 interface TranslitOptions {
   apostrophe?: string;
-}
-type UzScript = 'latin' | 'cyrillic';
-type UzApostropheStyle = 'typographic' | 'ascii';
-type DetectedScript = 'latin' | 'cyrillic' | 'mixed' | 'none';
-interface ToScriptOptions {
-  apostrophe?: UzApostropheStyle; // standart: 'typographic'
-}
-interface FixApostrophesOptions {
-  style?: UzApostropheStyle; // standart: 'typographic'
 }
 ```

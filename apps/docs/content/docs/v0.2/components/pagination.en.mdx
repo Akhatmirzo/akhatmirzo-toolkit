@@ -3,7 +3,7 @@ title: Pagination
 description: Split lists and tables into pages — real links for SEO, Next.js Link support and a compact mobile view.
 ---
 
-<ComponentPreview name="pagination/basic" />
+<ComponentPreview name="archive/v0.2/pagination/basic" />
 
 ## Import
 
@@ -33,21 +33,21 @@ Pass `total` + `pageSize` (default `10`) or `pageCount` directly. Pages start at
 
 `size` — `sm` (32px) or `md` (40px, default) square buttons.
 
-<ComponentPreview name="pagination/sizes" />
+<ComponentPreview name="archive/v0.2/pagination/sizes" />
 
 ## First / last page
 
 `showFirstLast` adds ⏮ ⏭ buttons. `siblings` controls how many numbers appear next to the current
 page (default `1`).
 
-<ComponentPreview name="pagination/first-last" />
+<ComponentPreview name="archive/v0.2/pagination/first-last" />
 
 ## Compact view
 
 `compact="auto"` (default) switches to `‹ 3 / 24 ›` on screens narrower than 640px. `compact`
 always shows the compact view, `compact={false}` always shows the full one.
 
-<ComponentPreview name="pagination/compact" />
+<ComponentPreview name="archive/v0.2/pagination/compact" />
 
 <Callout title="Why CSS?" type="info">
   In `auto` mode both views are rendered and a CSS breakpoint hides one of them (`display: none`, so
@@ -60,7 +60,7 @@ always shows the compact view, `compact={false}` always shows the full one.
 With `getHref`, every page is a real `<a href>`. Clicking navigates as usual and also calls
 `onPageChange`. At the edges, "Previous" / "Next" render as disabled buttons, not links.
 
-<ComponentPreview name="pagination/links" />
+<ComponentPreview name="archive/v0.2/pagination/links" />
 
 ### Next.js Link
 
@@ -100,7 +100,7 @@ DataTable has its own pagination (the `pagination` prop). If you need to control
 table — for example through the URL — leave `pagination` out and put `Pagination` +
 `PaginationInfo` below it.
 
-<ComponentPreview name="pagination/data-table" align="start" />
+<ComponentPreview name="archive/v0.2/pagination/data-table" align="start" />
 
 ## Props
 

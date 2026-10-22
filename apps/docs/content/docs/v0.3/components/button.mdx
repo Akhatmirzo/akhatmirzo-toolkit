@@ -1,0 +1,186 @@
+---
+title: Button
+description: "Harakatni ishga tushiruvchi tugma: 6 variant, 3 o'lcham, loading."
+---
+
+<ComponentPreview name="button/variants" />
+
+## Import
+
+```tsx
+import { Button } from '@akhatmirzo/ui';
+```
+
+## Qachon ishlatish
+
+- **Harakat uchun** — saqlash, yuborish, oynani ochish. Boshqa sahifaga o'tish uchun havola
+  kerak: `asChild` bilan `<a>` bering (pastda misol bor).
+- **`primary` — sahifada bitta.** Foydalanuvchidan kutilayotgan asosiy harakat uchun. Qolgan
+  tugmalar `soft` (standart), `outline` yoki `ghost` bo'lsin.
+- **`danger` — faqat xavfli harakatga:** o'chirish, bekor qilib bo'lmaydigan amallar. Odatda
+  `confirm()` bilan birga.
+- **Faqat ikonka bo'lsa** — `Button` emas, [`IconButton`](./icon-button.mdx) ishlating: u
+  `aria-label` ni majburiy qiladi.
+- **Matnni fe'l bilan yozing:** "Saqlash", "Yuborish", "O'chirish" — "OK" yoki "Ha" emas.
+
+## Variantlar
+
+`variant` — tugmaning ko'rinishi va vazni. Standart qiymat — `soft`.
+
+| Variant   | Qachon                                               |
+| --------- | ---------------------------------------------------- |
+| `primary` | Asosiy harakat — ko'rinishda bittadan ko'p bo'lmasin |
+| `soft`    | Ikkilamchi harakatlar (standart)                     |
+| `outline` | Neytral, chegarali — "Bekor qilish", filtrlar        |
+| `ghost`   | Fonsiz — toolbar va jadval qatorlari ichida          |
+| `danger`  | O'chirish va boshqa xavfli harakatlar                |
+| `link`    | Matn ko'rinishidagi tugma, padding'siz               |
+
+## O'lchamlar
+
+Uch o'lcham — 32, 40 va 48px. Shu balandliklar `Input` va `Select` bilan bir xil, shuning uchun
+bir qatorda tekis turadi. `sm` tugmaning ko'rinmas bosish maydoni 40px gacha kengaytirilgan.
+
+<ComponentPreview name="button/sizes" />
+
+## Ikonkalar
+
+`leftIcon` va `rightIcon` — istalgan `ReactNode`. Ikonka o'lchami tugma o'lchamiga qarab
+avtomatik: 16 / 18 / 20px. Ikonkalar ekran o'quvchidan yashiriladi (`aria-hidden`).
+
+<ComponentPreview name="button/icons" />
+
+## Yuklanish va o'chirilgan holat
+
+`loading` paytida matn joyida qoladi (tugma kengligi o'zgarmaydi), ustida spinner chiqadi va
+bosish e'tiborsiz qoldiriladi. Birinchi tugmani bosib ko'ring.
+
+<ComponentPreview name="button/loading" />
+
+<Callout title="loading va disabled farqi">
+  `disabled` tugma fokusdan chiqadi va bosilmaydi. `loading` tugma esa fokusda **qoladi** —
+  klaviatura bilan ishlayotgan foydalanuvchi joyini yo'qotmaydi, faqat bosish ishlamaydi.
+</Callout>
+
+## Havola sifatida (`asChild`)
+
+`asChild` bilan `Button` o'z `<button>` elementini emas, bolasini render qiladi — stil
+tugmaniki, element esa `<a>`. Next.js'da `<Link>` ni ham shunday berish mumkin.
+
+<ComponentPreview name="button/as-child" />
+
+```tsx
+import Link from 'next/link';
+
+<Button asChild variant="primary">
+  <Link href="/buyurtmalar">Buyurtmalarga o'tish</Link>
+</Button>;
+```
+
+## To'liq kenglik
+
+Mobil formalar va kirish oynalari uchun — `fullWidth`.
+
+<ComponentPreview name="button/full-width" />
+
+## Props
+
+`Button` qolgan barcha `<button>` atributlarini (`onClick`, `type`, `form`, `aria-*`, `data-*`
+...) va `ref` ni qabul qiladi.
+
+<PropsTable
+  rows={[
+    {
+      name: 'variant',
+      type: "'primary' | 'soft' | 'outline' | 'ghost' | 'danger' | 'link'",
+      default: "'soft'",
+      description: "Ko'rinish va vazn",
+    },
+    {
+      name: 'size',
+      type: "'sm' | 'md' | 'lg'",
+      default: "'md'",
+      description: 'Balandlik: 32 / 40 / 48px',
+    },
+    {
+      name: 'loading',
+      type: 'boolean',
+      default: 'false',
+      description: "Spinner ko'rsatadi, bosishni o'chiradi, aria-busy qo'yadi",
+    },
+    {
+      name: 'disabled',
+      type: 'boolean',
+      default: 'false',
+      description: "Tugmani o'chiradi (50% shaffof)",
+    },
+    {
+      name: 'leftIcon',
+      type: 'ReactNode',
+      description: 'Matndan oldingi ikonka',
+    },
+    {
+      name: 'rightIcon',
+      type: 'ReactNode',
+      description: 'Matndan keyingi ikonka',
+    },
+    {
+      name: 'fullWidth',
+      type: 'boolean',
+      default: 'false',
+      description: 'Konteyner kengligini egallaydi',
+    },
+    {
+      name: 'asChild',
+      type: 'boolean',
+      default: 'false',
+      description: "O'z elementi o'rniga bolasini render qiladi (masalan, <a>)",
+    },
+    {
+      name: 'labels',
+      type: '{ loading?: string }',
+      default: "{ loading: 'Yuklanmoqda' }",
+      description: "Ekran o'quvchi uchun matnlar",
+    },
+    {
+      name: 'type',
+      type: "'button' | 'submit' | 'reset'",
+      default: "'button'",
+      description: "Forma ichida tasodifan yubormasligi uchun standart — 'button'",
+    },
+  ]}
+/>
+
+### Data atributlari
+
+Holatlar `data-*` atributlarida — o'z stillaringizni ularga bog'lashingiz mumkin:
+
+| Atribut         | Qiymat                                                       |
+| --------------- | ------------------------------------------------------------ |
+| `data-variant`  | `primary` · `soft` · `outline` · `ghost` · `danger` · `link` |
+| `data-size`     | `sm` · `md` · `lg`                                           |
+| `data-disabled` | `disabled` bo'lganda mavjud                                  |
+| `data-loading`  | `loading` bo'lganda mavjud                                   |
+
+Stilni boshqa elementga qo'llash kerak bo'lsa, `buttonVariants` ham eksport qilinadi:
+
+```tsx
+import { buttonVariants } from '@akhatmirzo/ui';
+
+<label className={buttonVariants({ variant: 'outline', size: 'sm' })}>Fayl tanlash</label>;
+```
+
+## Accessibility
+
+- **Native element.** Standart holatda haqiqiy `<button type="button">` chiziladi — forma ichida
+  tasodifan yuborilmaydi; `Enter` va `Space` bilan bosiladi.
+- **Fokus halqasi** faqat klaviatura bilan kelganda ko'rinadi (`:focus-visible`).
+- **Yuklanish.** `loading` da `aria-busy="true"` va `aria-disabled="true"` qo'yiladi, tugma
+  fokusda qoladi. Ko'p ekran o'quvchilar `aria-busy` ni o'qimagani uchun yashirin
+  `aria-live` hudud "Yuklanmoqda" deb e'lon qiladi — matnni `labels.loading` bilan
+  o'zgartirasiz.
+- **Ikonkalar va spinner** `aria-hidden` — ekran o'quvchi faqat tugma matnini o'qiydi.
+- **`asChild` + `disabled`.** `<a>` uchun `disabled` atributi yo'q, shuning uchun
+  `aria-disabled="true"` va `tabIndex={-1}` qo'yiladi, bosish to'xtatiladi.
+- **Kichik tugmalar.** `size="sm"` ko'rinishda 32px, lekin bosish maydoni 40px — barmoq bilan
+  ham oson tegiladi.

@@ -1,0 +1,119 @@
+---
+title: Checkbox
+description: 'Native checkbox ustidagi belgilash katakchasi: label, izoh va qisman (indeterminate) holat.'
+---
+
+<ComponentPreview name="checkbox/basic" />
+
+## Import
+
+```tsx
+import { Checkbox } from '@akhatmirzo/ui';
+```
+
+## Qachon ishlatish
+
+- **"Saqlash" tugmasi bor formalarda** — tanlov forma yuborilganda kuchga kiradi. Darhol ta'sir
+  qiladigan sozlama uchun [`Switch`](./switch.mdx) ishlating.
+- **Bir nechta mustaqil tanlov uchun** — bildirishnoma kanallari, filtrlar. Bir nechtadan faqat
+  bittasi tanlanadigan bo'lsa — [`RadioGroup`](./radio-group.mdx).
+- **Rozilik uchun** — "Shartlarga roziman". Majburiy bo'lsa, [`Field`](./field.mdx) dagi
+  `required` va `error` bilan.
+- **Label'ni ijobiy shaklda yozing:** "Xabarnomalarni yuborish", "Xabarnomalarni yubormaslik"
+  emas.
+
+## O'lchamlar
+
+`sm` — 16px, `md` (standart) — 20px. Ikkalasida ham ko'rinmas bosish maydoni katakdan kattaroq.
+
+<ComponentPreview name="checkbox/sizes" />
+
+## Izoh bilan
+
+`description` label ostida kichikroq, xira matnda chiqadi va ekran o'quvchiga
+`aria-describedby` orqali bog'lanadi.
+
+<ComponentPreview name="checkbox/description" />
+
+## Qisman tanlangan holat
+
+`checked="indeterminate"` — "−" belgisi. Odatda "hammasini tanlash" katakchasida: bolalarning
+bir qismi tanlangan bo'lsa. `onCheckedChange` faqat `boolean` qaytaradi — qisman holatni o'zingiz
+hisoblaysiz.
+
+<ComponentPreview name="checkbox/select-all" />
+
+## Holatlar
+
+`disabled` — katak va label xiralashadi, bosilmaydi. `invalid` — chegara qizil, input'da
+`aria-invalid`.
+
+<ComponentPreview name="checkbox/states" />
+
+## Field bilan
+
+`Field` xato va izohni katakchaga ulaydi; `error` bo'lsa, `invalid` avtomatik yoqiladi. Katakni
+belgilab ko'ring.
+
+<ComponentPreview name="checkbox/with-field" />
+
+## Props
+
+`Checkbox` qolgan barcha `<input>` atributlarini (`name`, `value`, `form`, `onChange` ...)
+qabul qiladi; `ref` ichki `<input>` ga tushadi. `className` esa ildiz `<label>` ga beriladi.
+
+<PropsTable
+  rows={[
+    {
+      name: 'checked',
+      type: "boolean | 'indeterminate'",
+      description: 'Boshqariladigan qiymat',
+    },
+    {
+      name: 'defaultChecked',
+      type: "boolean | 'indeterminate'",
+      default: 'false',
+      description: "Boshlang'ich qiymat (boshqarilmaydigan rejim)",
+    },
+    {
+      name: 'onCheckedChange',
+      type: '(checked: boolean) => void',
+      description: 'Foydalanuvchi belgilaganda yoki olib tashlaganda',
+    },
+    { name: 'label', type: 'ReactNode', description: 'Katak yonidagi matn' },
+    { name: 'description', type: 'ReactNode', description: 'Label ostidagi izoh' },
+    {
+      name: 'size',
+      type: "'sm' | 'md'",
+      default: "'md'",
+      description: "O'lcham: 16 / 20px",
+    },
+    {
+      name: 'invalid',
+      type: 'boolean',
+      description: "Xato holati (Field ichida error bo'lsa avtomatik)",
+    },
+    { name: 'disabled', type: 'boolean', description: "O'chirilgan holat" },
+    { name: 'className', type: 'string', description: 'Ildiz <label> elementi klassi' },
+  ]}
+/>
+
+### Data atributlari
+
+Ildiz `<label>` da:
+
+| Atribut         | Qiymat                                    |
+| --------------- | ----------------------------------------- |
+| `data-state`    | `checked` · `unchecked` · `indeterminate` |
+| `data-size`     | `sm` · `md`                               |
+| `data-disabled` | `disabled` bo'lganda mavjud               |
+| `data-invalid`  | Xato holatida mavjud                      |
+
+## Accessibility
+
+- **Native `<input type="checkbox">`** — `Space` bilan almashtiriladi, formaga oddiy checkbox
+  kabi yuboriladi, brauzer tekshiruvi (`required`) ishlaydi.
+- **Label bosilganda ham** belgilanadi — butun komponent `<label>` ichida.
+- **Qisman holat** ekran o'quvchiga `aria-checked="mixed"` bilan aytiladi.
+- **Fokus halqasi** faqat klaviatura bilan kelganda chiqadi.
+- **Label'siz katakcha** (masalan, jadval qatorida) uchun `aria-label` bering.

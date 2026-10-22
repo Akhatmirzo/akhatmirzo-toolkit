@@ -1,0 +1,201 @@
+---
+title: Pagination
+description: Split lists and tables into pages — real links for SEO, Next.js Link support and a compact mobile view.
+---
+
+<ComponentPreview name="pagination/basic" />
+
+## Import
+
+```tsx
+import { Pagination, PaginationInfo } from '@akhatmirzo/ui';
+```
+
+## When to use
+
+- **Long lists and tables** — orders, blog posts, search results. Users can jump straight to the
+  page they need.
+- **When the page belongs in the URL** (`/blog?page=3`), pass `getHref`: the items become real
+  `<a href>` links and search engines can discover every page.
+- **Not for infinite feeds.** For a social-style feed, a "Load more" button or automatic loading
+  works better.
+- **Skip it for short lists.** If everything fits on one page, don't show pagination.
+
+## How pages are calculated
+
+The page list comes from `getPagination` in `@akhatmirzo/hooks` — the same algorithm DataTable
+uses. The number of items stays stable (`siblings * 2 + 5`), so the buttons don't jump around when
+the page changes. The `…` is not clickable.
+
+Pass `total` + `pageSize` (default `10`) or `pageCount` directly. Pages start at 1.
+
+## Sizes
+
+`size` — `sm` (32px) or `md` (40px, default) square buttons.
+
+<ComponentPreview name="pagination/sizes" />
+
+## First / last page
+
+`showFirstLast` adds ⏮ ⏭ buttons. `siblings` controls how many numbers appear next to the current
+page (default `1`).
+
+<ComponentPreview name="pagination/first-last" />
+
+## Compact view
+
+`compact="auto"` (default) switches to `‹ 3 / 24 ›` on screens narrower than 640px. `compact`
+always shows the compact view, `compact={false}` always shows the full one.
+
+<ComponentPreview name="pagination/compact" />
+
+<Callout title="Why CSS?" type="info">
+  In `auto` mode both views are rendered and a CSS breakpoint hides one of them (`display: none`, so
+  screen readers skip it too). There is no JavaScript `matchMedia`, so there is no SSR hydration
+  mismatch and no layout jump on load.
+</Callout>
+
+## Links (SEO)
+
+With `getHref`, every page is a real `<a href>`. Clicking navigates as usual and also calls
+`onPageChange`. At the edges, "Previous" / "Next" render as disabled buttons, not links.
+
+<ComponentPreview name="pagination/links" />
+
+### Next.js Link
+
+`renderLink` lets you plug in your own link component. Spread all props onto the link; `page` is
+the target page.
+
+```tsx title="app/blog/page.tsx"
+import Link from 'next/link';
+import { Pagination } from '@akhatmirzo/ui';
+
+export default async function BlogPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ page?: string }>;
+}) {
+  const page = Number((await searchParams).page ?? 1);
+  const { posts, total } = await getPosts(page);
+
+  return (
+    <>
+      <PostList posts={posts} />
+      <Pagination
+        page={page}
+        total={total}
+        pageSize={10}
+        getHref={(p) => `/blog?page=${p}`}
+        renderLink={({ page, ...props }) => <Link {...props} />}
+      />
+    </>
+  );
+}
+```
+
+## With DataTable
+
+DataTable has its own pagination (the `pagination` prop). If you need to control paging outside the
+table — for example through the URL — leave `pagination` out and put `Pagination` +
+`PaginationInfo` below it.
+
+<ComponentPreview name="pagination/data-table" align="start" />
+
+## Props
+
+### Pagination
+
+Other `<nav>` attributes are passed through.
+
+<PropsTable
+  rows={[
+    { name: 'page', type: 'number', description: 'Current page, 1-based (controlled)' },
+    { name: 'defaultPage', type: 'number', default: '1', description: 'Initial page' },
+    {
+      name: 'onPageChange',
+      type: '(page: number) => void',
+      description: 'Called when the page changes',
+    },
+    { name: 'total', type: 'number', description: 'Total number of records' },
+    { name: 'pageSize', type: 'number', default: '10', description: 'Records per page' },
+    {
+      name: 'pageCount',
+      type: 'number',
+      description: 'Number of pages directly (instead of `total` / `pageSize`)',
+    },
+    {
+      name: 'siblings',
+      type: 'number',
+      default: '1',
+      description: 'Numbers shown on each side of the current page',
+    },
+    {
+      name: 'getHref',
+      type: '(page: number) => string',
+      description: 'Turns items into real `<a href>` links',
+    },
+    {
+      name: 'renderLink',
+      type: '(props: PaginationLinkProps) => ReactNode',
+      description: 'Custom link component such as Next `Link` (with `getHref`)',
+    },
+    { name: 'size', type: "'sm' | 'md'", default: "'md'", description: 'Button size: 32 / 40px' },
+    {
+      name: 'showFirstLast',
+      type: 'boolean',
+      default: 'false',
+      description: 'First / last page buttons',
+    },
+    {
+      name: 'compact',
+      type: "boolean | 'auto'",
+      default: "'auto'",
+      description: '`‹ 3 / 24 ›` view; `auto` — below 640px',
+    },
+    {
+      name: 'labels',
+      type: '{ nav, previous, next, first, last, page, ellipsis, compact }',
+      description: 'Screen reader texts (Uzbek by default)',
+    },
+  ]}
+/>
+
+### PaginationInfo
+
+Other `<p>` attributes are passed through.
+
+<PropsTable
+  rows={[
+    { name: 'page', type: 'number', required: true, description: 'Current page (1-based)' },
+    { name: 'pageSize', type: 'number', required: true, description: 'Records per page' },
+    { name: 'total', type: 'number', required: true, description: 'Total records' },
+    {
+      name: 'labels',
+      type: '{ template?: (from, to, total) => ReactNode; empty?: ReactNode }',
+      description: 'Defaults: "21–30 / 230 ta" and "Ma\'lumot yo\'q"',
+    },
+  ]}
+/>
+
+### Data attributes
+
+| Attribute       | Where           | Value                          |
+| --------------- | --------------- | ------------------------------ |
+| `data-size`     | `nav`, buttons  | `sm` · `md`                    |
+| `data-compact`  | `nav`           | `auto`, or present (`compact`) |
+| `data-active`   | page button     | present on the current page    |
+| `data-disabled` | previous / next | present at the edges           |
+
+## Accessibility
+
+- **Structure.** `<nav aria-label="Sahifalash">` wraps a `<ul>` list, so screen readers announce a
+  navigation landmark and the number of items.
+- **Current page** has `aria-current="page"`. Color is not the only signal: the current button is
+  filled.
+- **Names.** Every button has an `aria-label` (`"5-sahifa"`, `"Keyingi sahifa"`); icons are
+  `aria-hidden`. The `…` is read as "Boshqa sahifalar".
+- **Keyboard.** Plain buttons or links: `Tab` to move, `Enter` to activate. Disabled edge buttons
+  are skipped by `Tab`.
+- **PaginationInfo** uses `aria-live="polite"`, so the new range is announced when the page
+  changes.
