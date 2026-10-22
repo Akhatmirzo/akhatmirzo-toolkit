@@ -1,5 +1,15 @@
 # @akhatmirzo/ui
 
+## 0.1.2
+
+### Patch Changes
+
+- deeeb49: Hujjatlar sayti yangi manzilda: https://toolkit.akhatmirzo.uz — README va `homepage` havolalari yangilandi.
+- Updated dependencies [deeeb49]
+  - @akhatmirzo/core@0.1.2
+  - @akhatmirzo/hooks@0.1.2
+  - @akhatmirzo/tokens@0.1.2
+
 ## 0.1.1
 
 ### Patch Changes

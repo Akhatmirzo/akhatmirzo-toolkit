@@ -1,6 +1,6 @@
 {
   "name": "@akhatmirzo/core",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Toza TypeScript yordamchi funksiyalar: formatlash, validatsiya, matn",
   "keywords": [
     "utils",

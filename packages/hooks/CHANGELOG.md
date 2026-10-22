@@ -1,5 +1,11 @@
 # @akhatmirzo/hooks
 
+## 0.1.2
+
+### Patch Changes
+
+- deeeb49: Hujjatlar sayti yangi manzilda: https://toolkit.akhatmirzo.uz — README va `homepage` havolalari yangilandi.
+
 ## 0.1.1
 
 ### Patch Changes
